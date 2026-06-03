@@ -1,5 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
+import {
+  Card,
+  LinkButton,
+  PageHeader,
+  PageShell,
+  StatusCard,
+} from "../components/ui";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -61,7 +67,7 @@ function PatternSection({
   items: PatternItem[];
 }) {
   return (
-    <section className="rounded-3xl bg-white/80 p-6 shadow-sm">
+    <Card>
       <h2 className="text-xl font-semibold">{title}</h2>
 
       {items.length === 0 ? (
@@ -73,7 +79,7 @@ function PatternSection({
           {items.map((item) => (
             <li
               key={item.value}
-              className="rounded-2xl bg-[#F7F4EF] p-4 text-sm leading-6 text-[#4F5F51]"
+              className="rounded-3xl bg-[#F7F4EF] p-4 text-sm leading-6 text-[#4F5F51]"
             >
               <span>{item.value}</span>
               <span className="ml-2 text-xs text-[#7A8377]">
@@ -83,7 +89,7 @@ function PatternSection({
           ))}
         </ol>
       )}
-    </section>
+    </Card>
   );
 }
 
@@ -110,63 +116,50 @@ export default async function SummaryPage() {
   );
 
   return (
-    <main className="min-h-screen bg-[#F7F4EF] px-6 py-10 text-[#24352B]">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm text-[#5F7F63]">
-          Back to home
-        </Link>
+    <PageShell maxWidth="max-w-4xl">
+      <PageHeader title="Your recent patterns">
+        These patterns are based on your saved reflection cards. They are not
+        diagnosis or medical advice.
+      </PageHeader>
 
-        <h1 className="mt-6 text-3xl font-semibold">Pattern Summary</h1>
-
-        <p className="mt-3 leading-7 text-[#5F6F61]">
-          These patterns are based on your saved reflection cards. They are not
-          diagnosis or medical advice.
-        </p>
-
-        <Link
-          href="/feedback"
-          className="mt-5 inline-flex rounded-full border border-[#D8D2C4] px-5 py-3 text-sm text-[#5F7F63]"
-        >
+      <div className="mb-8 flex flex-wrap gap-3">
+        <LinkButton href="/history" variant="secondary">
+          View history
+        </LinkButton>
+        <LinkButton href="/feedback" variant="secondary">
           Share feedback
-        </Link>
-
-        {error && (
-          <p className="mt-8 rounded-3xl bg-white/80 p-6 text-red-600 shadow-sm">
-            Failed to load pattern summary.
-          </p>
-        )}
-
-        {!error && !hasEnoughData && (
-          <div className="mt-8 rounded-3xl bg-white/80 p-6 shadow-sm">
-            <p className="text-[#5F6F61]">
-              Save at least 3 reflections to see your repeated patterns.
-            </p>
-            <Link
-              href="/quick"
-              className="mt-5 inline-flex rounded-full bg-[#5F7F63] px-5 py-3 text-sm text-white"
-            >
-              Start Quick Reflection
-            </Link>
-          </div>
-        )}
-
-        {!error && hasEnoughData && (
-          <div className="mt-8 grid gap-5">
-            <PatternSection
-              title="Repeated Triggers"
-              items={repeatedTriggers}
-            />
-            <PatternSection
-              title="Repeated Thought Patterns"
-              items={repeatedThoughtPatterns}
-            />
-            <PatternSection
-              title="Recent Behavioural Themes"
-              items={recentBehaviouralThemes}
-            />
-          </div>
-        )}
+        </LinkButton>
       </div>
-    </main>
+
+      {error && (
+        <StatusCard tone="error">Failed to load pattern summary.</StatusCard>
+      )}
+
+      {!error && !hasEnoughData && (
+        <Card>
+          <h2 className="text-xl font-semibold">A little more data will help.</h2>
+          <p className="mt-3 leading-7 text-[#5F6F61]">
+            Save at least 3 reflections to see your repeated patterns.
+          </p>
+          <div className="mt-6">
+            <LinkButton href="/quick">Start Quick Reflection</LinkButton>
+          </div>
+        </Card>
+      )}
+
+      {!error && hasEnoughData && (
+        <div className="grid gap-5 lg:grid-cols-3">
+          <PatternSection title="Repeated Triggers" items={repeatedTriggers} />
+          <PatternSection
+            title="Repeated Thought Patterns"
+            items={repeatedThoughtPatterns}
+          />
+          <PatternSection
+            title="Recent Behavioural Themes"
+            items={recentBehaviouralThemes}
+          />
+        </div>
+      )}
+    </PageShell>
   );
 }

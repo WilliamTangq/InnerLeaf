@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Card } from "../components/ui";
 import type { Reflection } from "./page";
 
 function previewText(value: string | null) {
@@ -69,7 +70,7 @@ export function ReflectionCards({
   }
 
   return (
-    <div className="mt-8 space-y-5">
+    <div className="space-y-5">
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
@@ -80,16 +81,13 @@ export function ReflectionCards({
         const isOpen = openCards.has(item.id);
 
         return (
-          <article
-            key={item.id}
-            className="rounded-3xl bg-white/80 p-5 shadow-sm"
-          >
+          <Card key={item.id}>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
+              <div className="min-w-0">
                 <p className="text-xs text-[#7A8377]">
                   {new Date(item.created_at).toLocaleString()}
                 </p>
-                <p className="mt-3 leading-7 text-[#4F5F51]">
+                <p className="mt-3 max-w-2xl leading-7 text-[#4F5F51]">
                   {previewText(item.user_input)}
                 </p>
               </div>
@@ -97,14 +95,14 @@ export function ReflectionCards({
               <button
                 type="button"
                 onClick={() => toggleCard(item.id)}
-                className="rounded-full border border-[#D8D2C4] px-4 py-2 text-left text-sm text-[#5F7F63] sm:text-center"
+                className="rounded-full border border-[#D8D2C4] px-4 py-2 text-left text-sm text-[#5F7F63] transition hover:border-[#BFCAB8] hover:bg-white/65 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8FA88B] sm:text-center"
               >
                 {isOpen ? "Hide full reflection" : "View full reflection"}
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3">
-              <div className="rounded-2xl bg-[#F7F4EF] p-4">
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="rounded-3xl bg-[#F7F4EF] p-4">
                 <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
                   Trigger
                 </p>
@@ -113,7 +111,7 @@ export function ReflectionCards({
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-[#F7F4EF] p-4">
+              <div className="rounded-3xl bg-[#F7F4EF] p-4">
                 <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
                   Thought Pattern
                 </p>
@@ -122,7 +120,7 @@ export function ReflectionCards({
                 </p>
               </div>
 
-              <div className="rounded-2xl bg-[#F7F4EF] p-4">
+              <div className="rounded-3xl bg-[#F7F4EF] p-4">
                 <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
                   Next Question
                 </p>
@@ -135,7 +133,7 @@ export function ReflectionCards({
             {isOpen && (
               <div className="mt-5 border-t border-[#E4DED2] pt-5">
                 <h2 className="font-semibold">What happened</h2>
-                <p className="mt-2 whitespace-pre-wrap text-[#4F5F51]">
+                <p className="mt-2 whitespace-pre-wrap leading-7 text-[#4F5F51]">
                   {item.user_input}
                 </p>
 
@@ -145,7 +143,7 @@ export function ReflectionCards({
                 </p>
               </div>
             )}
-          </article>
+          </Card>
         );
       })}
     </div>

@@ -1,5 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import Link from "next/link";
+import {
+  Card,
+  LinkButton,
+  PageHeader,
+  PageShell,
+  StatusCard,
+} from "../components/ui";
 import { ReflectionCards } from "./reflection-cards";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -42,57 +48,40 @@ export default async function HistoryPage() {
   const reflections = (data ?? []) as Reflection[];
 
   return (
-    <main className="min-h-screen bg-[#F7F4EF] px-6 py-10 text-[#24352B]">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm text-[#5F7F63]">
-          ← Back to reflection
-        </Link>
+    <PageShell maxWidth="max-w-4xl">
+      <PageHeader title="Reflection History">
+        Saved reflection cards, ordered from newest to oldest.
+      </PageHeader>
 
-        <h1 className="mt-6 text-3xl font-semibold">Reflection History</h1>
-
-        <p className="mt-3 text-[#5F6F61]">
-          Past emotional reflections saved from InnerLeaf.
-        </p>
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <Link
-            href="/summary"
-            className="inline-flex rounded-full bg-[#5F7F63] px-5 py-3 text-sm text-white"
-          >
-            View Pattern Summary
-          </Link>
-          <Link
-            href="/feedback"
-            className="inline-flex rounded-full border border-[#D8D2C4] px-5 py-3 text-sm text-[#5F7F63]"
-          >
-            Share feedback
-          </Link>
-        </div>
-
-        {error && (
-          <p className="mt-8 rounded-3xl bg-white/80 p-6 text-red-600 shadow-sm">
-            Failed to load reflections.
-          </p>
-        )}
-
-        {!error && reflections.length === 0 && (
-          <div className="mt-8 rounded-3xl bg-white/80 p-6 shadow-sm">
-            <p className="text-[#5F6F61]">
-              No reflections saved yet. Start with a quick reflection.
-            </p>
-            <Link
-              href="/quick"
-              className="mt-5 inline-flex rounded-full bg-[#5F7F63] px-5 py-3 text-sm text-white"
-            >
-              Start Quick Reflection
-            </Link>
-          </div>
-        )}
-
-        {!error && reflections.length > 0 && (
-          <ReflectionCards reflections={reflections} />
-        )}
+      <div className="mb-8 flex flex-wrap gap-3">
+        <LinkButton href="/quick">Start Quick Reflection</LinkButton>
+        <LinkButton href="/summary" variant="secondary">
+          View Pattern Summary
+        </LinkButton>
+        <LinkButton href="/feedback" variant="secondary">
+          Share feedback
+        </LinkButton>
       </div>
-    </main>
+
+      {error && (
+        <StatusCard tone="error">Failed to load reflections.</StatusCard>
+      )}
+
+      {!error && reflections.length === 0 && (
+        <Card>
+          <h2 className="text-xl font-semibold">No reflections saved yet.</h2>
+          <p className="mt-3 leading-7 text-[#5F6F61]">
+            Start with a quick reflection and your saved cards will appear here.
+          </p>
+          <div className="mt-6">
+            <LinkButton href="/quick">Start Quick Reflection</LinkButton>
+          </div>
+        </Card>
+      )}
+
+      {!error && reflections.length > 0 && (
+        <ReflectionCards reflections={reflections} />
+      )}
+    </PageShell>
   );
 }

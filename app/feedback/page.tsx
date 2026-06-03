@@ -1,7 +1,14 @@
 "use client";
 
-import Link from "next/link";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import {
+  Card,
+  PageHeader,
+  PageShell,
+  PrimaryButton,
+  StatusCard,
+  TextareaField,
+} from "../components/ui";
 
 const radioGroups = [
   {
@@ -72,7 +79,7 @@ export default function FeedbackPage() {
     }));
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError("");
@@ -104,80 +111,76 @@ export default function FeedbackPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#F7F4EF] px-6 py-10 text-[#24352B]">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm text-[#5F7F63]">
-          Back to home
-        </Link>
+    <PageShell>
+      <PageHeader title="Share feedback">
+        Help us improve InnerLeaf. Your feedback helps us understand whether
+        this tool is useful for emotional reflection.
+      </PageHeader>
 
-        <h1 className="mt-6 text-3xl font-semibold">Share feedback</h1>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Card>
+          <h2 className="text-xl font-semibold">How did it feel to use?</h2>
+          <div className="mt-6 space-y-6">
+            {radioGroups.map((group) => (
+              <fieldset key={group.name}>
+                <legend className="text-sm font-semibold">{group.label}</legend>
+                <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                  {group.options.map((option) => (
+                    <label
+                      key={option}
+                      className="flex items-center gap-2 rounded-3xl border border-[#D8D2C4] bg-[#FAF8F4] px-4 py-3 text-sm text-[#4F5F51] transition focus-within:border-[#8FA88B] focus-within:ring-4 focus-within:ring-[#DDE8DA]"
+                    >
+                      <input
+                        type="radio"
+                        name={group.name}
+                        value={option}
+                        checked={values[group.name] === option}
+                        onChange={(event) =>
+                          updateField(group.name, event.target.value)
+                        }
+                      />
+                      <span>{option}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+          </div>
+        </Card>
 
-        <p className="mt-3 leading-7 text-[#5F6F61]">
-          Help us improve InnerLeaf. Your feedback helps us understand whether
-          this tool is useful for emotional reflection.
-        </p>
-
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-6 rounded-3xl bg-white/80 p-6 shadow-sm"
-        >
-          {radioGroups.map((group) => (
-            <fieldset key={group.name}>
-              <legend className="font-semibold">{group.label}</legend>
-              <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                {group.options.map((option) => (
-                  <label
-                    key={option}
-                    className="flex items-center gap-2 rounded-2xl border border-[#D8D2C4] bg-white/70 px-4 py-3 text-sm text-[#4F5F51]"
-                  >
-                    <input
-                      type="radio"
-                      name={group.name}
-                      value={option}
-                      checked={values[group.name] === option}
-                      onChange={(event) =>
-                        updateField(group.name, event.target.value)
-                      }
-                    />
-                    <span>{option}</span>
-                  </label>
-                ))}
-              </div>
-            </fieldset>
-          ))}
-
-          {textFields.map((field) => (
-            <label key={field.name} className="block">
-              <span className="font-semibold">{field.label}</span>
-              <textarea
-                className="mt-3 min-h-28 w-full resize-none rounded-2xl border border-[#D8D2C4] bg-white/80 p-4 text-[#4F5F51] outline-none focus:border-[#8FA88B]"
+        <Card>
+          <h2 className="text-xl font-semibold">A few open thoughts</h2>
+          <div className="mt-6 space-y-5">
+            {textFields.map((field) => (
+              <TextareaField
+                key={field.name}
+                label={field.label}
+                className="min-h-28"
                 value={values[field.name]}
-                onChange={(event) => updateField(field.name, event.target.value)}
+                onChange={(event) =>
+                  updateField(field.name, event.target.value)
+                }
               />
-            </label>
-          ))}
+            ))}
+          </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-full bg-[#5F7F63] px-6 py-3 text-white disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {loading ? "Sending..." : "Submit feedback"}
-          </button>
-        </form>
+          <div className="mt-6">
+            <PrimaryButton type="submit" disabled={loading}>
+              {loading ? "Sending feedback..." : "Submit feedback"}
+            </PrimaryButton>
+          </div>
+        </Card>
+      </form>
 
+      <div className="mt-6 space-y-4">
         {submitted && (
-          <p className="mt-6 rounded-3xl bg-white/80 p-5 text-[#5F6F61] shadow-sm">
+          <StatusCard tone="success">
             Thank you. Your feedback helps shape InnerLeaf.
-          </p>
+          </StatusCard>
         )}
 
-        {error && (
-          <p className="mt-6 rounded-3xl bg-white/80 p-5 text-red-600 shadow-sm">
-            {error}
-          </p>
-        )}
+        {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
-    </main>
+    </PageShell>
   );
 }
