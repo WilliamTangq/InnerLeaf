@@ -78,6 +78,11 @@ export default function Home() {
           InnerLeaf is not therapy, diagnosis, or medical advice. It is a
           reflection tool for self-understanding.
         </p>
+
+        <a href="/history" className="text-sm text-[#5F7F63]">
+          View reflection history →
+        </a>
+        
       </div>
     </main>
   );
