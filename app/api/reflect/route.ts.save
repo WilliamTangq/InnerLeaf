@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         "X-Title": "InnerLeaf",
       },
       body: JSON.stringify({
-        model: "openrouter/free",
+        model: "openrouter/auto",
         messages: [
           {
             role: "system",
@@ -71,10 +71,4 @@ Do not say the user has a disorder.
       data.choices?.[0]?.message?.content || "No reflection generated.";
 
     return NextResponse.json({ result });
-  } catch (error) {
-    return NextResponse.json(
-      { error: "Something went wrong inside /api/reflect." },
-      { status: 500 }
-    );
-  }
-}
+  } catch (error)    
