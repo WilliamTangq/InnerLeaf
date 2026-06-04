@@ -394,7 +394,7 @@ export function Disclaimer({ className }: { className?: string }) {
         className
       )}
     >
-      Not therapy, diagnosis, or medical advice.
+      InnerLeaf is not therapy, diagnosis, or medical advice.
     </p>
   );
 }

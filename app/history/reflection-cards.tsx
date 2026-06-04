@@ -20,7 +20,7 @@ function extractSection(aiResult: string | null, section: string) {
   }
 
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion Pattern|Trigger|Facts vs Interpretation|Thought Pattern|Behavioural Insight|Reflection Question|One Next Question)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Emotion Pattern|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|Reflection Question|One Next Question)\\s*\\n|$)`,
     "i"
   );
   const match = aiResult.match(pattern);
@@ -42,10 +42,24 @@ function extractNextQuestion(aiResult: string | null) {
 
 function cardLabels(aiResult: string | null) {
   return {
+    emotion: extractSection(aiResult, "Emotion"),
     trigger: extractSection(aiResult, "Trigger"),
     thoughtPattern: extractSection(aiResult, "Thought Pattern"),
+    behaviour: extractSection(aiResult, "Behaviour"),
     nextQuestion: extractNextQuestion(aiResult),
   };
+}
+
+function modeLabel(mode: string | null) {
+  if (mode === "guided") {
+    return "Guided";
+  }
+
+  if (mode === "quick") {
+    return "Quick";
+  }
+
+  return "Reflection";
 }
 
 export function ReflectionCards({
@@ -74,8 +88,10 @@ export function ReflectionCards({
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
+          emotion: item.emotion || extractedLabels.emotion,
           trigger: item.trigger || extractedLabels.trigger,
           thoughtPattern: item.thought_pattern || extractedLabels.thoughtPattern,
+          behaviour: item.behaviour || extractedLabels.behaviour,
           nextQuestion: item.next_question || extractedLabels.nextQuestion,
         };
         const isOpen = openCards.has(item.id);
@@ -97,6 +113,7 @@ export function ReflectionCards({
                   {item.emotion && (
                     <Badge variant="accent">{item.emotion}</Badge>
                   )}
+                  <Badge variant="outline">{modeLabel(item.mode)}</Badge>
                 </div>
                 <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
                   {previewText(item.user_input)}
@@ -112,11 +129,13 @@ export function ReflectionCards({
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="mt-5 grid gap-3 md:grid-cols-2">
               {(
                 [
+                  ["Emotion", labels.emotion],
                   ["Trigger", labels.trigger],
                   ["Thought pattern", labels.thoughtPattern],
+                  ["Behaviour", labels.behaviour],
                   ["Next question", labels.nextQuestion],
                 ] as const
               ).map(([title, content]) => (

@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { PatternSection } from "../components/pattern-section";
 import {
+  Card,
   EmptyState,
   LinkButton,
   PageActions,
@@ -23,6 +24,8 @@ const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 type SummaryReflection = {
   id: string | number;
+  created_at: string;
+  emotion: string | null;
   trigger: string | null;
   thought_pattern: string | null;
   behaviour: string | null;
@@ -57,10 +60,85 @@ function topPatterns(values: Array<string | null>) {
     .slice(0, 3);
 }
 
+function uniqueCount(values: Array<string | null>) {
+  return new Set(values.map(normalizeValue).filter(Boolean)).size;
+}
+
+function changeSignals(reflections: SummaryReflection[]) {
+  if (reflections.length < 3) {
+    return [];
+  }
+
+  const signals = [
+    `You have ${reflections.length} recent reflection cards to compare instead of relying only on memory.`,
+  ];
+  const triggerCount = uniqueCount(reflections.map((item) => item.trigger));
+  const behaviourCount = uniqueCount(reflections.map((item) => item.behaviour));
+  const latest = reflections[0];
+  const older = reflections.slice(1);
+  const olderThoughtPatterns = topPatterns(
+    older.map((item) => item.thought_pattern)
+  );
+
+  if (triggerCount > 1) {
+    signals.push(
+      "Your recent cards point to more than one trigger, which can make patterns easier to compare."
+    );
+  }
+
+  if (behaviourCount > 1) {
+    signals.push(
+      "Your behavioural reactions are not all the same, which may help you notice where different choices are possible."
+    );
+  }
+
+  if (
+    latest?.thought_pattern &&
+    olderThoughtPatterns[0]?.value &&
+    latest.thought_pattern !== olderThoughtPatterns[0].value
+  ) {
+    signals.push(
+      "Your latest thought pattern differs from the most repeated recent one."
+    );
+  }
+
+  return signals.slice(0, 3);
+}
+
+function ChangeSection({ signals }: { signals: string[] }) {
+  return (
+    <Card>
+      <h2 className="text-base font-semibold text-[var(--foreground)]">
+        Small signs of change
+      </h2>
+      <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+        Gentle observations from your saved cards
+      </p>
+
+      {signals.length === 0 ? (
+        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
+          Save a few more cards to make change easier to notice.
+        </p>
+      ) : (
+        <ul className="mt-5 space-y-2">
+          {signals.map((signal) => (
+            <li
+              key={signal}
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--foreground-muted)]"
+            >
+              {signal}
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
+  );
+}
+
 export default async function SummaryPage() {
   const { data, error } = await supabase
     .from("reflections")
-    .select("id, trigger, thought_pattern, behaviour")
+    .select("id, created_at, emotion, trigger, thought_pattern, behaviour")
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -79,12 +157,13 @@ export default async function SummaryPage() {
   const recentBehaviouralThemes = topPatterns(
     reflections.map((item) => item.behaviour)
   );
+  const signals = changeSignals(reflections);
 
   return (
     <PageShell maxWidth="max-w-5xl">
       <PageHeader eyebrow="Insights" title="Your recent patterns">
-        Patterns drawn from your last saved reflections. For self-understanding
-        only—not diagnosis or medical advice.
+        These patterns are based on your saved reflection cards. They are not
+        diagnosis or medical advice.
       </PageHeader>
 
       {!error && (
@@ -136,22 +215,23 @@ export default async function SummaryPage() {
       )}
 
       {!error && hasEnoughData && (
-        <div className="grid gap-5 lg:grid-cols-3">
+        <div className="grid gap-5 lg:grid-cols-2">
           <PatternSection
-            title="Repeated triggers"
+            title="Repeated Triggers"
             description="What tends to set off strong reactions"
             items={repeatedTriggers}
           />
           <PatternSection
-            title="Thought patterns"
+            title="Repeated Thought Patterns"
             description="How your mind often frames the moment"
             items={repeatedThoughtPatterns}
           />
           <PatternSection
-            title="Behavioural themes"
+            title="Recent Behavioural Themes"
             description="How you tend to respond"
             items={recentBehaviouralThemes}
           />
+          <ChangeSection signals={signals} />
         </div>
       )}
     </PageShell>

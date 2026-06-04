@@ -42,8 +42,8 @@ export default function Home() {
             <span className="brand-gradient-text">emotional reaction</span>.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[var(--foreground-muted)]">
-            Where nature meets clarity—turn difficult moments into structured
-            reflection cards you can revisit with calm and confidence.
+            Turn emotional moments into structured reflection cards you can
+            revisit over time.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -72,9 +72,12 @@ export default function Home() {
                 <h2 className="text-xl font-semibold">Quick Reflection</h2>
                 <Badge variant="accent">Recommended</Badge>
               </div>
+              <p className="mt-2 font-medium text-[var(--foreground)]">
+                I just want to write it down.
+              </p>
               <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-                When you need to unload quickly. Write freely—InnerLeaf structures
-                it into a reflection card.
+                Write freely. InnerLeaf will help organise the moment into a
+                clear reflection card.
               </p>
               <div className="mt-6">
                 <LinkButton href="/quick">Start quick reflection</LinkButton>
@@ -84,9 +87,12 @@ export default function Home() {
 
           <Card>
             <h2 className="text-xl font-semibold">Guided Reflection</h2>
+            <p className="mt-2 font-medium text-[var(--foreground)]">
+              I want to reflect step by step.
+            </p>
             <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-              Step through situation, emotion, facts, and behaviour—ideal when
-              you want a little more structure.
+              Use a CBT-informed structure to separate facts, thoughts,
+              emotions, interpretations, and reactions.
             </p>
             <div className="mt-6">
               <LinkButton href="/guided" variant="secondary">
@@ -106,7 +112,13 @@ export default function Home() {
               className="font-medium transition hover:text-[var(--brand-teal-deep)]"
               href="/summary"
             >
-              See patterns →
+              Pattern Summary →
+            </Link>
+            <Link
+              className="font-medium transition hover:text-[var(--brand-teal-deep)]"
+              href="/feedback"
+            >
+              Feedback →
             </Link>
           </div>
         </div>

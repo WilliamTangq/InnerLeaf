@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { ReflectionResultCard } from "../components/reflection-result";
+import {
+  ReflectionResultCard,
+  type StructuredReflectionResult,
+} from "../components/reflection-result";
 import {
   Card,
   Disclaimer,
+  LinkButton,
   LoadingSpinner,
+  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -16,6 +21,8 @@ import {
 export default function QuickReflectionPage() {
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
+  const [structured, setStructured] =
+    useState<StructuredReflectionResult>(null);
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,6 +30,7 @@ export default function QuickReflectionPage() {
   async function handleReflect() {
     setLoading(true);
     setResult("");
+    setStructured(null);
     setWarning("");
     setError("");
 
@@ -32,7 +40,7 @@ export default function QuickReflectionPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, mode: "quick" }),
       });
 
       const data = await response.json();
@@ -43,6 +51,7 @@ export default function QuickReflectionPage() {
       }
 
       setResult(data.result);
+      setStructured(data.structured || null);
       setWarning(data.warning || "");
     } catch {
       setError("Something went wrong while generating the reflection.");
@@ -61,12 +70,21 @@ export default function QuickReflectionPage() {
         structured reflection card you can revisit later.
       </PageHeader>
 
+      <PageActions>
+        <LinkButton href="/" variant="ghost">
+          Home
+        </LinkButton>
+        <LinkButton href="/history" variant="secondary">
+          History
+        </LinkButton>
+      </PageActions>
+
       <Card>
         <TextareaField
           label="What happened?"
           helper="No need to polish your words. A few honest sentences are enough."
           className="min-h-56"
-          placeholder="Describe the moment, what you felt, and what went through your mind…"
+          placeholder="Write what happened. You can be messy — InnerLeaf will help organise it."
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
@@ -83,7 +101,7 @@ export default function QuickReflectionPage() {
             disabled={loading || !input.trim()}
             className="sm:shrink-0"
           >
-            {loading ? "Processing…" : "Create reflection card"}
+            {loading ? "Organising your reflection..." : "Break down this reaction"}
           </PrimaryButton>
         </div>
       </Card>
@@ -93,7 +111,9 @@ export default function QuickReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {result && <ReflectionResultCard result={result} />}
+      {result && (
+        <ReflectionResultCard result={result} structured={structured} />
+      )}
     </PageShell>
   );
 }

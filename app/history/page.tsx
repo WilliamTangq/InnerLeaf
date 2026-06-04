@@ -26,20 +26,23 @@ export type Reflection = {
   created_at: string;
   user_input: string | null;
   ai_result: string | null;
+  emotional_validation: string | null;
   emotion: string | null;
   trigger: string | null;
   thought_pattern: string | null;
   facts: string | null;
   interpretation: string | null;
   behaviour: string | null;
+  behavioural_insight: string | null;
   next_question: string | null;
+  mode: string | null;
 };
 
 export default async function HistoryPage() {
   const { data, error } = await supabase
     .from("reflections")
     .select(
-      "id, created_at, user_input, ai_result, emotion, trigger, thought_pattern, facts, interpretation, behaviour, next_question"
+      "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode"
     )
     .order("created_at", { ascending: false });
 

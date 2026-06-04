@@ -1,12 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ReflectionResultCard } from "../components/reflection-result";
+import {
+  ReflectionResultCard,
+  type StructuredReflectionResult,
+} from "../components/reflection-result";
 import {
   Badge,
   Card,
   Disclaimer,
+  LinkButton,
   LoadingSpinner,
+  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -28,27 +33,27 @@ const fields = [
     helper: "One or two words is fine.",
   },
   {
-    id: "automaticThought",
+    id: "automatic_thought",
     label: "Automatic thought",
-    prompt: "What thought came up?",
+    prompt: "What thought came up immediately?",
     helper: "The first thought, assumption, or image that appeared.",
   },
   {
     id: "facts",
     label: "Facts",
-    prompt: "What are the facts?",
+    prompt: "What do you know actually happened?",
     helper: "What you know happened, separate from meaning.",
   },
   {
     id: "interpretation",
     label: "Interpretation",
-    prompt: "What did you assume or interpret?",
+    prompt: "What did you assume, imagine, or read into the situation?",
     helper: "The story your mind started to build around the facts.",
   },
   {
     id: "behaviour",
     label: "Behaviour",
-    prompt: "How did you react?",
+    prompt: "How did you react or what did you feel pulled to do?",
     helper: "What you did, said, avoided, or wanted to do.",
   },
 ] as const;
@@ -65,6 +70,8 @@ export default function GuidedReflectionPage() {
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState("");
+  const [structured, setStructured] =
+    useState<StructuredReflectionResult>(null);
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -82,6 +89,7 @@ export default function GuidedReflectionPage() {
   async function handleReflect() {
     setLoading(true);
     setResult("");
+    setStructured(null);
     setWarning("");
     setError("");
 
@@ -95,7 +103,7 @@ export default function GuidedReflectionPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input }),
+        body: JSON.stringify({ input, mode: "guided" }),
       });
 
       const data = await response.json();
@@ -106,6 +114,7 @@ export default function GuidedReflectionPage() {
       }
 
       setResult(data.result);
+      setStructured(data.structured || null);
       setWarning(data.warning || "");
     } catch {
       setError("Something went wrong while generating the reflection.");
@@ -117,9 +126,18 @@ export default function GuidedReflectionPage() {
   return (
     <PageShell maxWidth="max-w-3xl">
       <PageHeader eyebrow="Reflect" title="Guided Reflection">
-        Move through the moment one step at a time. Brief answers work best—the
-        reflection card brings the pieces together.
+        Use a CBT-informed reflection structure to separate facts, thoughts,
+        emotions, interpretations, and reactions.
       </PageHeader>
+
+      <PageActions>
+        <LinkButton href="/" variant="ghost">
+          Home
+        </LinkButton>
+        <LinkButton href="/history" variant="secondary">
+          History
+        </LinkButton>
+      </PageActions>
 
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex flex-wrap gap-2">
@@ -210,7 +228,9 @@ export default function GuidedReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {result && <ReflectionResultCard result={result} />}
+      {result && (
+        <ReflectionResultCard result={result} structured={structured} />
+      )}
     </PageShell>
   );
 }

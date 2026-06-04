@@ -1,17 +1,34 @@
 import { Card, LinkButton, PageActions, SectionLabel } from "./ui";
 
+export type StructuredReflectionResult = {
+  emotional_validation?: string;
+  emotion?: string;
+  trigger?: string;
+  facts?: string[];
+  interpretation?: string[];
+  thought_pattern?: string;
+  behaviour?: string;
+  behavioural_insight?: string;
+  next_question?: string;
+  captured_clearly?: string;
+  still_unclear?: string;
+  completed_reflection?: string;
+} | null;
+
 const SECTIONS = [
   { key: "Emotional Validation", label: "Validation" },
+  { key: "Emotion", label: "Emotion" },
   { key: "Trigger", label: "Trigger" },
   { key: "Facts vs Interpretation", label: "Facts & interpretation" },
   { key: "Thought Pattern", label: "Thought pattern" },
+  { key: "Behaviour", label: "Behaviour" },
   { key: "Behavioural Insight", label: "Behavioural insight" },
   { key: "One Next Question", label: "Next question" },
 ] as const;
 
 function extractSection(text: string, section: string) {
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Trigger|Facts vs Interpretation|Thought Pattern|Behavioural Insight|One Next Question)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|One Next Question|What You Captured Clearly|What May Still Be Unclear|Completed Reflection Card)\\s*\\n|$)`,
     "i"
   );
   const match = text.match(pattern);
@@ -27,14 +44,58 @@ function parseSections(result: string) {
   return parsed.length > 0 ? parsed : null;
 }
 
+function bulletList(items?: string[]) {
+  const values = items?.filter(Boolean) ?? [];
+
+  if (values.length === 0) {
+    return "Not clearly identified.";
+  }
+
+  return values.map((item) => `- ${item}`).join("\n");
+}
+
+function structuredSections(structured: NonNullable<StructuredReflectionResult>) {
+  const sections = [
+    { label: "Validation", content: structured.emotional_validation },
+    { label: "Emotion", content: structured.emotion },
+    { label: "Trigger", content: structured.trigger },
+    {
+      label: "Facts",
+      content: bulletList(structured.facts),
+    },
+    {
+      label: "Interpretation",
+      content: bulletList(structured.interpretation),
+    },
+    { label: "Thought pattern", content: structured.thought_pattern },
+    { label: "Behaviour", content: structured.behaviour },
+    { label: "Behavioural insight", content: structured.behavioural_insight },
+    { label: "Next question", content: structured.next_question },
+  ].filter((section) => section.content);
+
+  const guidedSections = [
+    { label: "Captured clearly", content: structured.captured_clearly },
+    { label: "Still unclear", content: structured.still_unclear },
+    { label: "Completed reflection", content: structured.completed_reflection },
+  ].filter((section) => section.content);
+
+  return guidedSections.length > 0
+    ? [...guidedSections, ...sections]
+    : sections;
+}
+
 export function ReflectionResultCard({
   result,
+  structured,
   showActions = true,
 }: {
   result: string;
+  structured?: StructuredReflectionResult;
   showActions?: boolean;
 }) {
-  const sections = parseSections(result);
+  const sections = structured
+    ? structuredSections(structured)
+    : parseSections(result);
 
   return (
     <Card
