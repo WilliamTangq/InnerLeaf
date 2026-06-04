@@ -33,25 +33,51 @@ export function Footer() {
             therapy, diagnosis, or medical advice.
           </p>
         </div>
-        <div className="flex flex-wrap gap-4">
-          <Link
-            className="transition hover:text-[var(--foreground)]"
-            href="/history"
-          >
-            History
-          </Link>
-          <Link
-            className="transition hover:text-[var(--foreground)]"
-            href="/summary"
-          >
-            Patterns
-          </Link>
-          <Link
-            className="transition hover:text-[var(--foreground)]"
-            href="/feedback"
-          >
-            Feedback
-          </Link>
+        <div className="flex flex-col gap-4 text-sm text-[var(--foreground-muted)] sm:items-end">
+          <div className="flex flex-wrap gap-4">
+            <Link
+              className="transition hover:text-[var(--foreground)]"
+              href="/history"
+            >
+              History
+            </Link>
+            <Link
+              className="transition hover:text-[var(--foreground)]"
+              href="/summary"
+            >
+              Patterns
+            </Link>
+            <Link
+              className="transition hover:text-[var(--foreground)]"
+              href="/feedback"
+            >
+              Feedback
+            </Link>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[var(--foreground-subtle)]">
+              Follow InnerLeaf
+            </span>
+            <a
+              className="transition hover:text-[var(--foreground)]"
+              href="https://www.linkedin.com/company/innerleaf"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              LinkedIn
+            </a>
+            <span aria-hidden="true" className="text-[var(--border-strong)]">
+              ·
+            </span>
+            <a
+              className="transition hover:text-[var(--foreground)]"
+              href="https://www.instagram.com/innerleaf.io"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Instagram
+            </a>
+          </div>
         </div>
       </div>
     </footer>
