@@ -1,6 +1,6 @@
 "use client";
 
-import { Leaf, PencilLine, Sparkles } from "lucide-react";
+import { HelpCircle, Leaf, PencilLine, Sparkles } from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -23,6 +23,13 @@ const flowSteps = [
   { label: "Write", icon: PencilLine },
   { label: "Organise", icon: Sparkles },
   { label: "Reflect", icon: Leaf },
+] as const;
+
+const helperChips = [
+  "What happened?",
+  "What did you feel?",
+  "What did you assume?",
+  "What did you do next?",
 ] as const;
 
 export default function QuickReflectionPage() {
@@ -86,6 +93,43 @@ export default function QuickReflectionPage() {
         </LinkButton>
       </PageActions>
 
+      <Card className="brand-panel mb-6">
+        <div className="flex items-start gap-3">
+          <Sparkles
+            aria-hidden="true"
+            size={20}
+            strokeWidth={1.8}
+            className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+          />
+          <div>
+            <h2 className="font-semibold text-[var(--foreground)]">
+              Write freely. InnerLeaf will organise the moment into a reflection
+              card.
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              You do not need to answer every prompt. Use them only if they help
+              you begin.
+            </p>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          {helperChips.map((chip) => (
+            <span
+              key={chip}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(31,155,143,0.18)] bg-[var(--surface)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]"
+            >
+              <HelpCircle
+                aria-hidden="true"
+                size={13}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              {chip}
+            </span>
+          ))}
+        </div>
+      </Card>
+
       <div className="mb-6 grid gap-2 sm:grid-cols-3">
         {flowSteps.map((step) => {
           const Icon = step.icon;
@@ -128,7 +172,9 @@ export default function QuickReflectionPage() {
             disabled={loading || !input.trim()}
             className="sm:shrink-0"
           >
-            {loading ? "Organising your reflection..." : "Break down this reaction"}
+            {loading
+              ? "Organising your reflection..."
+              : "Break down this reaction"}
           </PrimaryButton>
         </div>
       </Card>

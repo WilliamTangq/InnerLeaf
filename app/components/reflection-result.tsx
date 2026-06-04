@@ -103,14 +103,10 @@ function structuredSections(structured: NonNullable<StructuredReflectionResult>)
   const guidedSections = [
     { label: "Captured clearly", content: structured.captured_clearly },
     { label: "Still unclear", content: structured.still_unclear },
-    { label: "Completed reflection", content: structured.completed_reflection },
   ].filter((section) => section.content);
 
   if (guidedSections.length > 0) {
-    return [
-      ...guidedSections,
-      { label: "Next question", content: structured.next_question },
-    ].filter((section) => section.content);
+    return [...guidedSections, ...sections];
   }
 
   return sections;

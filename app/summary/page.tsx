@@ -112,10 +112,10 @@ function ChangeSection({ signals }: { signals: string[] }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--foreground)]">
-            Small signs of change
+            What this may suggest
           </h2>
           <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            Gentle observations from your saved cards
+            Themes to reflect on, not conclusions about you
           </p>
         </div>
         <Leaf
@@ -179,8 +179,8 @@ export default async function SummaryPage() {
   return (
     <PageShell maxWidth="max-w-5xl">
       <PageHeader eyebrow="Insights" title="Your recent patterns">
-        These patterns are based on your saved reflection cards. They are not
-        diagnosis or medical advice.
+        These patterns are based only on your saved reflection cards. They are
+        not diagnosis or medical advice.
       </PageHeader>
 
       <div className="mb-8 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-sm)]">
@@ -271,7 +271,7 @@ export default async function SummaryPage() {
             items={repeatedThoughtPatterns}
           />
           <PatternSection
-            title="Recent Behavioural Themes"
+            title="Behavioural Themes"
             description="How you tend to respond"
             items={recentBehaviouralThemes}
           />

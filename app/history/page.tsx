@@ -56,8 +56,8 @@ export default async function HistoryPage() {
   return (
     <PageShell maxWidth="max-w-4xl">
       <PageHeader eyebrow="Revisit" title="Reflection history">
-        Your saved reflection cards, newest first. Expand any card to read the
-        full reflection.
+        Your history is a collection of reflection cards. Over time, these
+        cards help InnerLeaf show repeated triggers and patterns.
       </PageHeader>
 
       {!error && reflections.length > 0 && (

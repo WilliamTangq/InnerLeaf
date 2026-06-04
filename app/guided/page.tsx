@@ -1,6 +1,13 @@
 "use client";
 
-import { Brain, FileText, ListChecks, Route, Scale } from "lucide-react";
+import {
+  Brain,
+  FileText,
+  Footprints,
+  Heart,
+  Route,
+  Scale,
+} from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -22,10 +29,11 @@ import {
 
 const flowSteps = [
   { label: "Situation", icon: FileText },
-  { label: "Thoughts", icon: Brain },
+  { label: "Emotion", icon: Heart },
+  { label: "Thought", icon: Brain },
   { label: "Facts", icon: Scale },
-  { label: "Reaction", icon: Route },
-  { label: "Card", icon: ListChecks },
+  { label: "Interpretation", icon: Route },
+  { label: "Behaviour", icon: Footprints },
 ] as const;
 
 const fields = [
@@ -148,7 +156,17 @@ export default function GuidedReflectionPage() {
         </LinkButton>
       </PageActions>
 
-      <div className="mb-6 grid gap-2 sm:grid-cols-5">
+      <Card className="brand-panel mb-6">
+        <h2 className="font-semibold text-[var(--foreground)]">
+          A calm path through one emotional moment.
+        </h2>
+        <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+          This guided flow is inspired by CBT-style thought records, but
+          InnerLeaf is not therapy. Fill only what you can see clearly.
+        </p>
+      </Card>
+
+      <div className="mb-6 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
         {flowSteps.map((step) => {
           const Icon = step.icon;
           return (
