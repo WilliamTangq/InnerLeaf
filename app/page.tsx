@@ -1,4 +1,12 @@
 import Link from "next/link";
+import {
+  Archive,
+  Leaf,
+  ListChecks,
+  PencilLine,
+  Sparkles,
+  TrendingUp,
+} from "lucide-react";
 import { BrandLogo } from "./components/brand-logo";
 import {
   Badge,
@@ -12,22 +20,32 @@ import {
 const steps = [
   {
     step: "01",
+    icon: PencilLine,
     title: "Write the moment",
     description:
       "Capture what happened in your own words—quick freeform or a gentle guided flow.",
   },
   {
     step: "02",
+    icon: Sparkles,
     title: "See the structure",
     description:
       "InnerLeaf organises triggers, facts, interpretations, and thought patterns into a clear card.",
   },
   {
     step: "03",
+    icon: Archive,
     title: "Notice patterns",
     description:
       "Revisit history and spot recurring themes in triggers, thinking, and behaviour over time.",
   },
+] as const;
+
+const flow = [
+  { label: "Write freely", icon: PencilLine },
+  { label: "AI organises", icon: Sparkles },
+  { label: "Save as a card", icon: Archive },
+  { label: "Notice patterns", icon: TrendingUp },
 ] as const;
 
 export default function Home() {
@@ -45,6 +63,31 @@ export default function Home() {
             Turn emotional moments into structured reflection cards you can
             revisit over time.
           </p>
+
+          <div className="mt-7 grid gap-2 sm:grid-cols-4">
+            {flow.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.label}
+                  className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]"
+                >
+                  <Icon
+                    aria-hidden="true"
+                    size={15}
+                    strokeWidth={1.8}
+                    className="text-[var(--brand-teal-deep)]"
+                  />
+                  <span>{item.label}</span>
+                  {index < flow.length - 1 && (
+                    <span className="ml-auto hidden text-[var(--foreground-subtle)] sm:inline">
+                      →
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <LinkButton href="/quick" size="lg">
@@ -69,6 +112,12 @@ export default function Home() {
             />
             <div className="relative">
               <div className="flex items-center gap-2">
+                <Leaf
+                  aria-hidden="true"
+                  size={20}
+                  strokeWidth={1.8}
+                  className="text-[var(--brand-teal-deep)]"
+                />
                 <h2 className="text-xl font-semibold">Quick Reflection</h2>
                 <Badge variant="accent">Recommended</Badge>
               </div>
@@ -86,7 +135,15 @@ export default function Home() {
           </Card>
 
           <Card>
-            <h2 className="text-xl font-semibold">Guided Reflection</h2>
+            <div className="flex items-center gap-2">
+              <ListChecks
+                aria-hidden="true"
+                size={20}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              <h2 className="text-xl font-semibold">Guided Reflection</h2>
+            </div>
             <p className="mt-2 font-medium text-[var(--foreground)]">
               I want to reflect step by step.
             </p>
@@ -130,25 +187,34 @@ export default function Home() {
           Simple, intentional, private
         </h2>
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
-          {steps.map((item) => (
-            <div
-              key={item.step}
-              className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)] transition hover:shadow-[var(--shadow-md)]"
-            >
-              <span
-                className="font-mono text-xs font-medium"
-                style={{ color: "var(--brand-teal)" }}
+          {steps.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.step}
+                className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)]"
               >
-                {item.step}
-              </span>
-              <h3 className="mt-3 font-semibold text-[var(--foreground)]">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {item.description}
-              </p>
-            </div>
-          ))}
+                <Icon
+                  aria-hidden="true"
+                  size={20}
+                  strokeWidth={1.8}
+                  className="mb-4 text-[var(--brand-teal-deep)]"
+                />
+                <span
+                  className="font-mono text-xs font-medium"
+                  style={{ color: "var(--brand-teal)" }}
+                >
+                  {item.step}
+                </span>
+                <h3 className="mt-3 font-semibold text-[var(--foreground)]">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {item.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
     </PageShell>

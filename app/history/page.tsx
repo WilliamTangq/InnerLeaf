@@ -95,7 +95,7 @@ export default async function HistoryPage() {
       {!error && reflections.length === 0 && (
         <EmptyState
           title="No reflections yet"
-          description="Complete a quick or guided reflection and your cards will appear here—ready to revisit whenever you need perspective."
+          description="Start with one moment. InnerLeaf will help you turn it into a reflection card."
           action={
             <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
               <LinkButton href="/quick">Start quick reflection</LinkButton>

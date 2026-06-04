@@ -1,3 +1,15 @@
+import {
+  Brain,
+  Footprints,
+  Heart,
+  HelpCircle,
+  Leaf,
+  ListChecks,
+  MessageCircleQuestion,
+  Route,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { Card, LinkButton, PageActions, SectionLabel } from "./ui";
 
 export type StructuredReflectionResult = {
@@ -25,6 +37,21 @@ const SECTIONS = [
   { key: "Behavioural Insight", label: "Behavioural insight" },
   { key: "One Next Question", label: "Next question" },
 ] as const;
+
+const sectionIcons = {
+  Validation: Sparkles,
+  Emotion: Heart,
+  Trigger: Zap,
+  Facts: ListChecks,
+  Interpretation: Route,
+  "Thought pattern": Brain,
+  Behaviour: Footprints,
+  "Behavioural insight": Leaf,
+  "Next question": MessageCircleQuestion,
+  "Captured clearly": ListChecks,
+  "Still unclear": HelpCircle,
+  "Completed reflection": Leaf,
+} as const;
 
 function extractSection(text: string, section: string) {
   const pattern = new RegExp(
@@ -79,9 +106,14 @@ function structuredSections(structured: NonNullable<StructuredReflectionResult>)
     { label: "Completed reflection", content: structured.completed_reflection },
   ].filter((section) => section.content);
 
-  return guidedSections.length > 0
-    ? [...guidedSections, ...sections]
-    : sections;
+  if (guidedSections.length > 0) {
+    return [
+      ...guidedSections,
+      { label: "Next question", content: structured.next_question },
+    ].filter((section) => section.content);
+  }
+
+  return sections;
 }
 
 export function ReflectionResultCard({
@@ -110,20 +142,39 @@ export function ReflectionResultCard({
       <SectionLabel>Your reflection card</SectionLabel>
 
       {sections ? (
-        <div className="mt-5 space-y-5">
-          {sections.map((section) => (
-            <div
-              key={section.label}
-              className="border-t border-[var(--border)] pt-5 first:border-0 first:pt-0"
-            >
-              <h3 className="text-sm font-medium text-[var(--foreground)]">
-                {section.label}
-              </h3>
-              <div className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-                {section.content}
+        <div className="mt-5 grid gap-3">
+          {sections.map((section) => {
+            const Icon =
+              sectionIcons[section.label as keyof typeof sectionIcons] || Leaf;
+            const isQuestion = section.label === "Next question";
+
+            return (
+              <div
+                key={section.label}
+                className={[
+                  "rounded-[var(--radius-lg)] border p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]",
+                  isQuestion
+                    ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
+                    : "border-[var(--border)] bg-[var(--surface-muted)]",
+                ].join(" ")}
+              >
+                <div className="flex items-center gap-2">
+                  <span
+                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+                    aria-hidden="true"
+                  >
+                    <Icon size={16} strokeWidth={1.8} />
+                  </span>
+                  <h3 className="text-sm font-medium text-[var(--foreground)]">
+                    {section.label}
+                  </h3>
+                </div>
+                <div className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
+                  {section.content}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="mt-4 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">

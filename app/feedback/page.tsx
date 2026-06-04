@@ -1,5 +1,6 @@
 "use client";
 
+import { Leaf, MessageSquare, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import {
   Card,
@@ -117,12 +118,18 @@ export default function FeedbackPage() {
   if (submitted) {
     return (
       <PageShell>
+        <div
+          className="mb-6 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+          aria-hidden="true"
+        >
+          <Leaf size={22} strokeWidth={1.8} />
+        </div>
         <PageHeader eyebrow="Thank you" title="Feedback received">
           Your input helps shape InnerLeaf into a more useful reflection
           experience.
         </PageHeader>
         <StatusCard tone="success">
-          We appreciate you taking the time to share your experience.
+          Thank you. Your feedback helps shape InnerLeaf.
         </StatusCard>
         <PageActions className="mt-8">
           <LinkButton href="/">Back to home</LinkButton>
@@ -143,9 +150,17 @@ export default function FeedbackPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            How did it feel to use?
-          </h2>
+          <div className="flex items-center gap-2">
+            <MessageSquare
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
+              className="text-[var(--brand-teal-deep)]"
+            />
+            <h2 className="text-base font-semibold text-[var(--foreground)]">
+              How did it feel to use?
+            </h2>
+          </div>
           <div className="mt-6 space-y-8">
             {radioGroups.map((group) => (
               <RadioGroupField
@@ -161,9 +176,17 @@ export default function FeedbackPage() {
         </Card>
 
         <Card>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            A few open thoughts
-          </h2>
+          <div className="flex items-center gap-2">
+            <Leaf
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
+              className="text-[var(--brand-teal-deep)]"
+            />
+            <h2 className="text-base font-semibold text-[var(--foreground)]">
+              A few open thoughts
+            </h2>
+          </div>
           <div className="mt-6 space-y-5">
             {textFields.map((field) => (
               <TextareaField
@@ -180,7 +203,12 @@ export default function FeedbackPage() {
 
           <div className="mt-8">
             <PrimaryButton type="submit" size="lg" disabled={loading}>
-              {loading ? "Sending…" : "Submit feedback"}
+              <span className="inline-flex items-center gap-2">
+                {!loading && (
+                  <Send aria-hidden="true" size={15} strokeWidth={1.8} />
+                )}
+                {loading ? "Sending…" : "Submit feedback"}
+              </span>
             </PrimaryButton>
           </div>
         </Card>

@@ -1,5 +1,6 @@
 "use client";
 
+import { Brain, FileText, ListChecks, Route, Scale } from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -18,6 +19,14 @@ import {
   StatusCard,
   TextareaField,
 } from "../components/ui";
+
+const flowSteps = [
+  { label: "Situation", icon: FileText },
+  { label: "Thoughts", icon: Brain },
+  { label: "Facts", icon: Scale },
+  { label: "Reaction", icon: Route },
+  { label: "Card", icon: ListChecks },
+] as const;
 
 const fields = [
   {
@@ -138,6 +147,26 @@ export default function GuidedReflectionPage() {
           History
         </LinkButton>
       </PageActions>
+
+      <div className="mb-6 grid gap-2 sm:grid-cols-5">
+        {flowSteps.map((step) => {
+          const Icon = step.icon;
+          return (
+            <div
+              key={step.label}
+              className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground-muted)]"
+            >
+              <Icon
+                aria-hidden="true"
+                size={15}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              {step.label}
+            </div>
+          );
+        })}
+      </div>
 
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex flex-wrap gap-2">

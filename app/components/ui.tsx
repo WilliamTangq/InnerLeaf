@@ -132,7 +132,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-xl)] border p-5 sm:p-6",
+        "rounded-[var(--radius-xl)] border p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] sm:p-6",
         variant === "default" &&
           "border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]",
         variant === "muted" &&

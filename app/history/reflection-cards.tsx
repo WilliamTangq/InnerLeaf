@@ -1,5 +1,6 @@
 "use client";
 
+import { Brain, Footprints, Heart, HelpCircle, Zap } from "lucide-react";
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
 import type { Reflection } from "./page";
@@ -61,6 +62,14 @@ function modeLabel(mode: string | null) {
 
   return "Reflection";
 }
+
+const labelIcons = {
+  Emotion: Heart,
+  Trigger: Zap,
+  "Thought pattern": Brain,
+  Behaviour: Footprints,
+  "Next question": HelpCircle,
+} as const;
 
 export function ReflectionCards({
   reflections,
@@ -143,9 +152,23 @@ export function ReflectionCards({
                   key={title}
                   className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
                 >
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {title}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const Icon =
+                        labelIcons[title as keyof typeof labelIcons];
+                      return (
+                        <Icon
+                          aria-hidden="true"
+                          size={15}
+                          strokeWidth={1.8}
+                          className="text-[var(--brand-teal-deep)]"
+                        />
+                      );
+                    })()}
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {title}
+                    </p>
+                  </div>
                   <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
                     {content || "Not clearly identified."}
                   </p>

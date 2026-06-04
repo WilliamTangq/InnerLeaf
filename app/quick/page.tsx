@@ -1,5 +1,6 @@
 "use client";
 
+import { Leaf, PencilLine, Sparkles } from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -17,6 +18,12 @@ import {
   StatusCard,
   TextareaField,
 } from "../components/ui";
+
+const flowSteps = [
+  { label: "Write", icon: PencilLine },
+  { label: "Organise", icon: Sparkles },
+  { label: "Reflect", icon: Leaf },
+] as const;
 
 export default function QuickReflectionPage() {
   const [input, setInput] = useState("");
@@ -78,6 +85,26 @@ export default function QuickReflectionPage() {
           History
         </LinkButton>
       </PageActions>
+
+      <div className="mb-6 grid gap-2 sm:grid-cols-3">
+        {flowSteps.map((step) => {
+          const Icon = step.icon;
+          return (
+            <div
+              key={step.label}
+              className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)]"
+            >
+              <Icon
+                aria-hidden="true"
+                size={16}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              {step.label}
+            </div>
+          );
+        })}
+      </div>
 
       <Card>
         <TextareaField

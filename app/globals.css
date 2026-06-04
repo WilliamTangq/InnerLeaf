@@ -67,6 +67,7 @@ body {
 }
 
 .page-glow {
+  position: relative;
   background:
     radial-gradient(
       ellipse 90% 60% at 0% 0%,
@@ -78,7 +79,31 @@ body {
       rgba(228, 184, 74, 0.08),
       transparent 50%
     ),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38), transparent 28%),
     var(--background);
+}
+
+.page-glow::before {
+  pointer-events: none;
+  content: "";
+  position: fixed;
+  inset: auto 4vw 8vh auto;
+  width: min(28vw, 320px);
+  height: min(28vw, 320px);
+  border-radius: 72% 28% 68% 32% / 42% 58% 42% 58%;
+  border: 1px solid rgba(31, 155, 143, 0.08);
+  background: linear-gradient(
+    135deg,
+    rgba(31, 155, 143, 0.055),
+    rgba(228, 184, 74, 0.045)
+  );
+  transform: rotate(-18deg);
+  z-index: 0;
+}
+
+.page-glow > * {
+  position: relative;
+  z-index: 1;
 }
 
 .brand-gradient-text {

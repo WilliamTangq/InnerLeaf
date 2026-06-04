@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { TrendingUp } from "lucide-react";
 import { PatternSection } from "../components/pattern-section";
 import {
   Card,
@@ -166,6 +167,33 @@ export default async function SummaryPage() {
         diagnosis or medical advice.
       </PageHeader>
 
+      <div className="mb-8 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-sm)]">
+        <div className="flex items-center gap-3 text-sm text-[var(--foreground-muted)]">
+          <TrendingUp
+            aria-hidden="true"
+            size={18}
+            strokeWidth={1.8}
+            className="text-[var(--brand-teal-deep)]"
+          />
+          <span>Recently noticed across saved reflection cards</span>
+        </div>
+        <svg
+          aria-hidden="true"
+          className="mt-4 h-12 w-full text-[var(--brand-teal)]"
+          viewBox="0 0 320 48"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M2 36 C 42 12, 78 38, 112 24 S 178 12, 214 26 S 278 34, 318 10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            opacity="0.35"
+          />
+        </svg>
+      </div>
+
       {!error && (
         <div className="mb-8 grid gap-3 sm:grid-cols-3">
           <StatChip
@@ -202,12 +230,12 @@ export default async function SummaryPage() {
         <EmptyState
           title={
             reflections.length === 0
-              ? "Patterns will appear here"
+              ? "Save at least 3 reflections to see repeated themes."
               : "Almost there"
           }
           description={
             reflections.length === 0
-              ? "Save a few reflections first. Once you have at least three, InnerLeaf will surface recurring triggers, thought patterns, and behavioural themes."
+              ? "Patterns become clearer when there is more than one moment to compare."
               : `You have ${reflections.length} reflection${reflections.length === 1 ? "" : "s"}. Save ${remaining} more to unlock your pattern summary.`
           }
           action={<LinkButton href="/quick">Start quick reflection</LinkButton>}
