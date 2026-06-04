@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle, Leaf, PencilLine, Sparkles } from "lucide-react";
+import { Archive, HelpCircle, Leaf, PencilLine } from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -21,8 +21,8 @@ import {
 
 const flowSteps = [
   { label: "Write", icon: PencilLine },
-  { label: "Organise", icon: Sparkles },
-  { label: "Reflect", icon: Leaf },
+  { label: "Organise", icon: Leaf },
+  { label: "Card", icon: Archive },
 ] as const;
 
 const helperChips = [
@@ -80,8 +80,8 @@ export default function QuickReflectionPage() {
         eyebrow="Reflect"
         title="Quick Reflection"
       >
-        Write freely for a moment. InnerLeaf will organise your reaction into a
-        structured reflection card you can revisit later.
+        Describe one emotional moment. InnerLeaf turns it into a reflection card
+        with facts, interpretation, and one next question.
       </PageHeader>
 
       <PageActions>
@@ -94,25 +94,10 @@ export default function QuickReflectionPage() {
       </PageActions>
 
       <Card className="brand-panel mb-6">
-        <div className="flex items-start gap-3">
-          <Sparkles
-            aria-hidden="true"
-            size={20}
-            strokeWidth={1.8}
-            className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-          />
-          <div>
-            <h2 className="font-semibold text-[var(--foreground)]">
-              Write freely. InnerLeaf will organise the moment into a reflection
-              card.
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              You do not need to answer every prompt. Use them only if they help
-              you begin.
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2">
+        <p className="text-sm text-[var(--foreground-muted)]">
+          Stuck? Tap a prompt — or ignore them and write freely.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
           {helperChips.map((chip) => (
             <span
               key={chip}

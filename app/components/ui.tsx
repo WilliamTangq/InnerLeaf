@@ -29,8 +29,8 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-subtle)]">
-            InnerLeaf supports reflection and self-understanding. It is not
-            therapy, diagnosis, or medical advice.
+            Break down emotional moments into reflection cards you can revisit.
+            For self-reflection only — not clinical care.
           </p>
         </div>
         <div className="flex flex-col gap-4 text-sm text-[var(--foreground-muted)] sm:items-end">
@@ -420,7 +420,7 @@ export function Disclaimer({ className }: { className?: string }) {
         className
       )}
     >
-      InnerLeaf is not therapy, diagnosis, or medical advice.
+      For self-reflection only — not clinical care or medical advice.
     </p>
   );
 }

@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "InnerLeaf — Structured emotional reflection",
   description:
-    "Turn emotional moments into calm, structured reflection cards. Understand triggers, thought patterns, and next steps—without diagnosis or therapy.",
+    "Break down one emotional moment at a time into a structured reflection card — facts vs interpretation, one next question, patterns over time.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",

@@ -183,8 +183,8 @@ export default async function SummaryPage() {
   return (
     <PageShell maxWidth="max-w-5xl">
       <PageHeader eyebrow="Insights" title="Your recent patterns">
-        These patterns are based only on your saved reflection cards. They are
-        not diagnosis or medical advice.
+        Themes from your saved reflection cards — patterns to notice, not
+        conclusions about you.
       </PageHeader>
 
       <div className="mb-8 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow-sm)]">

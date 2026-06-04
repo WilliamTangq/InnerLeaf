@@ -1,18 +1,13 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   Archive,
   Brain,
   CheckCircle2,
-  Heart,
   HelpCircle,
   Leaf,
-  LockKeyhole,
-  MessageSquare,
   PencilLine,
+  Route,
   Scale,
-  ShieldCheck,
-  Sparkles,
   TrendingUp,
   Zap,
 } from "lucide-react";
@@ -32,9 +27,9 @@ const steps = [
     description: "Start messy. A few honest sentences are enough.",
   },
   {
-    icon: Sparkles,
+    icon: Leaf,
     title: "InnerLeaf organises it",
-    description: "The moment becomes trigger, facts, interpretation, and pattern.",
+    description: "The moment becomes trigger, facts, interpretation, and one next question.",
   },
   {
     icon: Archive,
@@ -50,51 +45,29 @@ const steps = [
 
 const comparisons = [
   {
-    title: "Compared with mood trackers",
+    title: "Not a mood tracker",
     description:
-      "InnerLeaf goes beyond naming feelings. It helps explain what triggered the reaction.",
+      "Name the moment, not just the mood. See what triggered the reaction and how your mind framed it.",
   },
   {
-    title: "Compared with journaling",
+    title: "Not open-ended journaling",
     description:
-      "You do not need to organise your thoughts first. Write freely, then let AI structure it.",
+      "You are breaking down one episode — not keeping a daily diary. Write freely; InnerLeaf structures the moment.",
   },
   {
-    title: "Compared with ChatGPT",
+    title: "Not a chat thread",
     description:
-      "InnerLeaf gives consistent reflection cards you can save, review, and compare over time.",
-  },
-  {
-    title: "Compared with therapy",
-    description:
-      "InnerLeaf stays within self-reflection. It does not diagnose or provide medical advice.",
+      "Each moment becomes the same reflection card format — saved, comparable, and easy to revisit.",
   },
 ] as const;
 
 const clarityPoints = [
+  "Facts vs interpretation",
+  "One next question",
   "One main trigger",
-  "One main thought pattern",
-  "Facts vs interpretation",
-  "One small next step",
+  "One thought pattern",
   "Saved as a card",
-  "Reviewed over time",
-] as const;
-
-const trustPoints = [
-  { icon: LockKeyhole, title: "Private by design" },
-  { icon: Leaf, title: "Non-clinical reflection" },
-  { icon: ShieldCheck, title: "Clear boundaries" },
-  { icon: Scale, title: "No emotional scoring" },
-  { icon: CheckCircle2, title: "No diagnosis" },
-  { icon: Heart, title: "You stay in control" },
-] as const;
-
-const chatGptPoints = [
-  "Fixed reflection framework",
-  "Shorter output",
-  "Facts vs interpretation",
-  "Saved reflection history",
-  "Pattern summary over time",
+  "Patterns over time",
 ] as const;
 
 function LandingSection({
@@ -127,8 +100,14 @@ function ReflectionPreview() {
     },
     {
       icon: Scale,
-      label: "Facts vs Interpretation",
-      text: "Fact: the message was sent. Interpretation: they may be upset with me.",
+      label: "Facts",
+      text: "The message was sent. No reply yet.",
+      highlight: false,
+    },
+    {
+      icon: Route,
+      label: "Interpretation",
+      text: "They may be upset with me.",
       highlight: false,
     },
     {
@@ -157,9 +136,9 @@ function ReflectionPreview() {
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <SectionLabel>Example card</SectionLabel>
+            <SectionLabel>The reflection card</SectionLabel>
             <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
-              From messy feelings to a clear record
+              One emotional moment, structured
             </h2>
           </div>
           <Badge variant="accent">3 min</Badge>
@@ -212,16 +191,29 @@ export default function Home() {
             showWordmark={false}
             className="mb-8"
           />
-          <Badge variant="accent">A structured mirror for emotional moments</Badge>
+          <Badge variant="accent">Break down one emotional moment</Badge>
           <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[3rem] sm:leading-[1.08]">
             Understand the pattern behind your{" "}
             <span className="brand-gradient-text">emotional reaction</span>.
           </h1>
           <p className="mt-5 text-lg leading-8 text-[var(--foreground-muted)]">
-            InnerLeaf turns emotionally intense moments into structured
-            reflection cards - so you can separate facts from interpretation
-            and notice patterns over time.
+            InnerLeaf is for one intense moment at a time — not daily journaling.
+            You get a reflection card that separates facts from interpretation
+            and ends with one next question.
           </p>
+
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {(["Facts vs interpretation", "One next question"] as const).map(
+              (point) => (
+                <li
+                  key={point}
+                  className="rounded-lg border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-teal-deep)]"
+                >
+                  {point}
+                </li>
+              )
+            )}
+          </ul>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <LinkButton href="/quick" size="lg">
@@ -232,8 +224,8 @@ export default function Home() {
             </LinkButton>
           </div>
 
-          <p className="mt-5 text-xs font-medium text-[var(--foreground-subtle)]">
-            Not therapy. Not diagnosis. Not medical advice.
+          <p className="mt-5 text-xs text-[var(--foreground-subtle)]">
+            For self-reflection only — not clinical care or medical advice.
           </p>
         </div>
 
@@ -270,25 +262,7 @@ export default function Home() {
       </LandingSection>
 
       <LandingSection
-        eyebrow="Why it is different"
-        title="Not another mood tracker. Not a therapy chatbot. Not an AI best friend."
-      >
-        <div className="mt-10 grid gap-4 md:grid-cols-2">
-          {comparisons.map((item) => (
-            <Card key={item.title}>
-              <h3 className="font-semibold text-[var(--foreground)]">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {item.description}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </LandingSection>
-
-      <LandingSection
-        eyebrow="Built for emotional moments"
+        eyebrow="What you get each time"
         title="Designed for clarity, not endless analysis."
       >
         <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -309,51 +283,18 @@ export default function Home() {
         </div>
       </LandingSection>
 
-      <LandingSection eyebrow="Why not just ChatGPT?" title="A conversation is different from a record.">
-        <div className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card className="brand-panel">
-            <MessageSquare
-              aria-hidden="true"
-              size={22}
-              strokeWidth={1.8}
-              className="text-[var(--brand-teal-deep)]"
-            />
-            <p className="mt-4 text-lg font-medium leading-7 text-[var(--foreground)]">
-              ChatGPT gives you a conversation. InnerLeaf gives you a
-              structured emotional record you can revisit.
-            </p>
-          </Card>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {chatGptPoints.map((point) => (
-              <div
-                key={point}
-                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]"
-              >
-                {point}
-              </div>
-            ))}
-          </div>
-        </div>
-      </LandingSection>
-
-      <LandingSection eyebrow="Trust and boundaries" title="Supportive structure without clinical claims.">
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {trustPoints.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title}>
-                <Icon
-                  aria-hidden="true"
-                  size={19}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
-                <h3 className="mt-4 font-semibold text-[var(--foreground)]">
-                  {item.title}
-                </h3>
-              </Card>
-            );
-          })}
+      <LandingSection eyebrow="Why InnerLeaf" title="Episode breakdown — not another wellness app.">
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {comparisons.map((item) => (
+            <Card key={item.title}>
+              <h3 className="font-semibold text-[var(--foreground)]">
+                {item.title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {item.description}
+              </p>
+            </Card>
+          ))}
         </div>
       </LandingSection>
 
@@ -362,9 +303,9 @@ export default function Home() {
           <div className="max-w-2xl">
             <SectionLabel>What InnerLeaf does not do</SectionLabel>
             <p className="mt-3 text-lg font-medium leading-8 text-[var(--foreground)]">
-              InnerLeaf does not diagnose you, score your emotions, or tell you
-              what is wrong with you. It helps you organise one emotional moment
-              and ask one clearer question.
+              InnerLeaf does not score your mood, label you, or tell you what is
+              wrong with you. It helps you break down one moment and leave with
+              one clearer question.
             </p>
           </div>
           <div className="flex flex-wrap gap-3 md:justify-end">
@@ -375,27 +316,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <div className="mt-10 flex flex-wrap gap-4 px-1 text-sm text-[var(--foreground-muted)]">
-        <Link
-          className="font-medium transition hover:text-[var(--brand-teal-deep)]"
-          href="/history"
-        >
-          History →
-        </Link>
-        <Link
-          className="font-medium transition hover:text-[var(--brand-teal-deep)]"
-          href="/summary"
-        >
-          Pattern Summary →
-        </Link>
-        <Link
-          className="font-medium transition hover:text-[var(--brand-teal-deep)]"
-          href="/feedback"
-        >
-          Feedback →
-        </Link>
-      </div>
     </PageShell>
   );
 }

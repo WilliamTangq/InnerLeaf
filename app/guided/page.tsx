@@ -143,8 +143,8 @@ export default function GuidedReflectionPage() {
   return (
     <PageShell maxWidth="max-w-3xl">
       <PageHeader eyebrow="Reflect" title="Guided Reflection">
-        Use a CBT-informed reflection structure to separate facts, thoughts,
-        emotions, interpretations, and reactions.
+        Walk through one emotional moment — situation, feeling, facts, what you
+        read into it, and how you reacted.
       </PageHeader>
 
       <PageActions>
@@ -161,8 +161,8 @@ export default function GuidedReflectionPage() {
           A calm path through one emotional moment.
         </h2>
         <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-          This guided flow is inspired by CBT-style thought records, but
-          InnerLeaf is not therapy. Fill only what you can see clearly.
+          Fill only the steps that feel clear. Skip anything that does not fit
+          the moment.
         </p>
       </Card>
 

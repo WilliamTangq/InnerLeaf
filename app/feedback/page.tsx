@@ -27,7 +27,7 @@ const radioGroups = [
   },
   {
     name: "reflection_length",
-    label: "Was the AI reflection too long, too short, or about right?",
+    label: "Was the reflection card too long, too short, or about right?",
     options: ["Too long", "About right", "Too short"],
   },
   {

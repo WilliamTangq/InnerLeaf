@@ -86,7 +86,7 @@ function formatHistoryDate(value: string) {
 }
 
 const labelIcons = {
-  Validation: Sparkles,
+  "What came up": Sparkles,
   Emotion: Heart,
   Trigger: Zap,
   Facts: ListChecks,
@@ -94,7 +94,7 @@ const labelIcons = {
   "Thought pattern": Brain,
   Behaviour: Footprints,
   "Behavioural insight": Leaf,
-  "Next question": HelpCircle,
+  "One next question": MessageCircleQuestion,
 } as const;
 
 function storedList(value: string | null) {
@@ -143,7 +143,7 @@ export function ReflectionCards({
         };
         const isOpen = openCards.has(item.id);
         const fullSections = [
-          ["Validation", labels.validation],
+          ["What came up", labels.validation],
           ["Emotion", labels.emotion],
           ["Trigger", labels.trigger],
           ["Facts", labels.facts],
@@ -151,7 +151,7 @@ export function ReflectionCards({
           ["Thought pattern", labels.thoughtPattern],
           ["Behaviour", labels.behaviour],
           ["Behavioural insight", labels.behaviouralInsight],
-          ["Next question", labels.nextQuestion],
+          ["One next question", labels.nextQuestion],
         ] as const;
         const hasStructuredDetails = fullSections.some(([, content]) =>
           Boolean(content)
@@ -195,7 +195,7 @@ export function ReflectionCards({
                     ["Trigger", labels.trigger],
                     ["Thought pattern", labels.thoughtPattern],
                     ["Behaviour", labels.behaviour],
-                    ["Next question", labels.nextQuestion],
+                    ["One next question", labels.nextQuestion],
                   ] as const
                 ).map(([title, content]) => (
                   <div
@@ -257,7 +257,7 @@ export function ReflectionCards({
                           const Icon =
                             labelIcons[title as keyof typeof labelIcons] ||
                             Leaf;
-                          const isQuestion = title === "Next question";
+                          const isQuestion = title === "One next question";
 
                           return (
                             <div

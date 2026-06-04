@@ -28,18 +28,18 @@ export type StructuredReflectionResult = {
 } | null;
 
 const SECTIONS = [
-  { key: "Emotional Validation", label: "Validation" },
+  { key: "Emotional Validation", label: "What came up" },
   { key: "Emotion", label: "Emotion" },
   { key: "Trigger", label: "Trigger" },
   { key: "Facts vs Interpretation", label: "Facts & interpretation" },
   { key: "Thought Pattern", label: "Thought pattern" },
   { key: "Behaviour", label: "Behaviour" },
   { key: "Behavioural Insight", label: "Behavioural insight" },
-  { key: "One Next Question", label: "Next question" },
+  { key: "One Next Question", label: "One next question" },
 ] as const;
 
 const sectionIcons = {
-  Validation: Sparkles,
+  "What came up": Sparkles,
   Emotion: Heart,
   Trigger: Zap,
   Facts: ListChecks,
@@ -47,7 +47,7 @@ const sectionIcons = {
   "Thought pattern": Brain,
   Behaviour: Footprints,
   "Behavioural insight": Leaf,
-  "Next question": MessageCircleQuestion,
+  "One next question": MessageCircleQuestion,
   "Captured clearly": ListChecks,
   "Still unclear": HelpCircle,
   "Completed reflection": Leaf,
@@ -83,7 +83,7 @@ function bulletList(items?: string[]) {
 
 function structuredSections(structured: NonNullable<StructuredReflectionResult>) {
   const sections = [
-    { label: "Validation", content: structured.emotional_validation },
+    { label: "What came up", content: structured.emotional_validation },
     { label: "Emotion", content: structured.emotion },
     { label: "Trigger", content: structured.trigger },
     {
@@ -97,7 +97,7 @@ function structuredSections(structured: NonNullable<StructuredReflectionResult>)
     { label: "Thought pattern", content: structured.thought_pattern },
     { label: "Behaviour", content: structured.behaviour },
     { label: "Behavioural insight", content: structured.behavioural_insight },
-    { label: "Next question", content: structured.next_question },
+    { label: "One next question", content: structured.next_question },
   ].filter((section) => section.content);
 
   const guidedSections = [
@@ -142,7 +142,7 @@ export function ReflectionResultCard({
           {sections.map((section) => {
             const Icon =
               sectionIcons[section.label as keyof typeof sectionIcons] || Leaf;
-            const isQuestion = section.label === "Next question";
+            const isQuestion = section.label === "One next question";
 
             return (
               <div
