@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ReflectionResultCard } from "../components/reflection-result";
 import {
+  Badge,
   Card,
   Disclaimer,
+  LoadingSpinner,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -60,12 +63,14 @@ const initialValues = fields.reduce((values, field) => {
 
 export default function GuidedReflectionPage() {
   const [values, setValues] = useState<GuidedValues>(initialValues);
+  const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState("");
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const hasInput = fields.some((field) => values[field.id].trim());
+  const filledCount = fields.filter((f) => values[f.id].trim()).length;
+  const hasInput = filledCount > 0;
 
   function updateField(field: FieldId, value: string) {
     setValues((current) => ({
@@ -110,36 +115,92 @@ export default function GuidedReflectionPage() {
   }
 
   return (
-    <PageShell>
-      <PageHeader title="Guided Reflection">
-        Move through the moment one piece at a time. Keep your answers brief;
-        the card will do the organising.
+    <PageShell maxWidth="max-w-3xl">
+      <PageHeader eyebrow="Reflect" title="Guided Reflection">
+        Move through the moment one step at a time. Brief answers work best—the
+        reflection card brings the pieces together.
       </PageHeader>
 
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-2">
+          {fields.map((field, index) => {
+            const isActive = index === activeStep;
+            const isFilled = Boolean(values[field.id].trim());
+            return (
+              <button
+                key={field.id}
+                type="button"
+                onClick={() => setActiveStep(index)}
+                className={[
+                  "rounded-lg px-3 py-1.5 text-xs font-medium transition",
+                  isActive
+                    ? "btn-brand text-white shadow-none"
+                    : isFilled
+                      ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                      : "bg-[var(--surface-muted)] text-[var(--foreground-subtle)] hover:text-[var(--foreground-muted)]",
+                ].join(" ")}
+              >
+                {index + 1}. {field.label}
+              </button>
+            );
+          })}
+        </div>
+        <Badge variant="outline">
+          {filledCount}/{fields.length} filled
+        </Badge>
+      </div>
+
       <Card>
-        <div className="space-y-5">
-          {fields.map((field, index) => (
-            <div
-              key={field.id}
-              className="rounded-3xl border border-[#E4DED2] bg-[#FAF8F4] p-4"
-            >
-              <p className="mb-3 text-xs font-medium uppercase tracking-wide text-[#7A8377]">
-                Step {index + 1}
+        {fields.map((field, index) => {
+          if (index !== activeStep) return null;
+          return (
+            <div key={field.id}>
+              <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
+                Step {index + 1} of {fields.length}
               </p>
               <TextareaField
                 label={field.label}
                 helper={`${field.prompt} ${field.helper}`}
-                className="min-h-28"
+                className="mt-4 min-h-40"
                 value={values[field.id]}
                 onChange={(event) => updateField(field.id, event.target.value)}
               />
+              <div className="mt-6 flex flex-wrap gap-3">
+                {index > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setActiveStep(index - 1)}
+                    className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                  >
+                    Back
+                  </button>
+                )}
+                {index < fields.length - 1 ? (
+                  <PrimaryButton
+                    type="button"
+                    size="md"
+                    onClick={() => setActiveStep(index + 1)}
+                  >
+                    Continue
+                  </PrimaryButton>
+                ) : null}
+              </div>
             </div>
-          ))}
-        </div>
+          );
+        })}
 
-        <div className="mt-6">
-          <PrimaryButton onClick={handleReflect} disabled={loading || !hasInput}>
-            {loading ? "Creating your reflection card..." : "Create reflection card"}
+        <div className="mt-8 flex flex-col gap-4 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+          {loading ? (
+            <LoadingSpinner label="Creating your reflection card…" />
+          ) : (
+            <Disclaimer />
+          )}
+          <PrimaryButton
+            size="lg"
+            onClick={handleReflect}
+            disabled={loading || !hasInput}
+          >
+            {loading ? "Processing…" : "Create reflection card"}
           </PrimaryButton>
         </div>
       </Card>
@@ -149,18 +210,7 @@ export default function GuidedReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {result && (
-        <Card className="mt-8">
-          <p className="text-sm font-medium tracking-wide text-[#6B7C6A]">
-            Reflection Card
-          </p>
-          <div className="mt-4 whitespace-pre-wrap leading-7 text-[#35483B]">
-            {result}
-          </div>
-        </Card>
-      )}
-
-      <Disclaimer />
+      {result && <ReflectionResultCard result={result} />}
     </PageShell>
   );
 }

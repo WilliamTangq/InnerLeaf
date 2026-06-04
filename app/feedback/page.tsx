@@ -3,9 +3,12 @@
 import { useState, type FormEvent } from "react";
 import {
   Card,
+  LinkButton,
+  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
+  RadioGroupField,
   StatusCard,
   TextareaField,
 } from "../components/ui";
@@ -33,7 +36,8 @@ const radioGroups = [
   },
   {
     name: "would_use_again",
-    label: "Would you use InnerLeaf again next time you feel emotionally triggered?",
+    label:
+      "Would you use InnerLeaf again next time you feel emotionally triggered?",
     options: ["Yes", "Maybe", "No"],
   },
 ] as const;
@@ -110,46 +114,56 @@ export default function FeedbackPage() {
     }
   }
 
+  if (submitted) {
+    return (
+      <PageShell>
+        <PageHeader eyebrow="Thank you" title="Feedback received">
+          Your input helps shape InnerLeaf into a more useful reflection
+          experience.
+        </PageHeader>
+        <StatusCard tone="success">
+          We appreciate you taking the time to share your experience.
+        </StatusCard>
+        <PageActions className="mt-8">
+          <LinkButton href="/">Back to home</LinkButton>
+          <LinkButton href="/quick" variant="secondary">
+            New reflection
+          </LinkButton>
+        </PageActions>
+      </PageShell>
+    );
+  }
+
   return (
     <PageShell>
-      <PageHeader title="Share feedback">
-        Help us improve InnerLeaf. Your feedback helps us understand whether
-        this tool is useful for emotional reflection.
+      <PageHeader eyebrow="Help us improve" title="Share feedback">
+        A short survey—about two minutes. Your answers stay private and help us
+        understand what works.
       </PageHeader>
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
-          <h2 className="text-xl font-semibold">How did it feel to use?</h2>
-          <div className="mt-6 space-y-6">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            How did it feel to use?
+          </h2>
+          <div className="mt-6 space-y-8">
             {radioGroups.map((group) => (
-              <fieldset key={group.name}>
-                <legend className="text-sm font-semibold">{group.label}</legend>
-                <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                  {group.options.map((option) => (
-                    <label
-                      key={option}
-                      className="flex items-center gap-2 rounded-3xl border border-[#D8D2C4] bg-[#FAF8F4] px-4 py-3 text-sm text-[#4F5F51] transition focus-within:border-[#8FA88B] focus-within:ring-4 focus-within:ring-[#DDE8DA]"
-                    >
-                      <input
-                        type="radio"
-                        name={group.name}
-                        value={option}
-                        checked={values[group.name] === option}
-                        onChange={(event) =>
-                          updateField(group.name, event.target.value)
-                        }
-                      />
-                      <span>{option}</span>
-                    </label>
-                  ))}
-                </div>
-              </fieldset>
+              <RadioGroupField
+                key={group.name}
+                name={group.name}
+                label={group.label}
+                options={group.options}
+                value={values[group.name]}
+                onChange={(value) => updateField(group.name, value)}
+              />
             ))}
           </div>
         </Card>
 
         <Card>
-          <h2 className="text-xl font-semibold">A few open thoughts</h2>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            A few open thoughts
+          </h2>
           <div className="mt-6 space-y-5">
             {textFields.map((field) => (
               <TextareaField
@@ -164,23 +178,19 @@ export default function FeedbackPage() {
             ))}
           </div>
 
-          <div className="mt-6">
-            <PrimaryButton type="submit" disabled={loading}>
-              {loading ? "Sending feedback..." : "Submit feedback"}
+          <div className="mt-8">
+            <PrimaryButton type="submit" size="lg" disabled={loading}>
+              {loading ? "Sending…" : "Submit feedback"}
             </PrimaryButton>
           </div>
         </Card>
       </form>
 
-      <div className="mt-6 space-y-4">
-        {submitted && (
-          <StatusCard tone="success">
-            Thank you. Your feedback helps shape InnerLeaf.
-          </StatusCard>
-        )}
-
-        {error && <StatusCard tone="error">{error}</StatusCard>}
-      </div>
+      {error && (
+        <div className="mt-6">
+          <StatusCard tone="error">{error}</StatusCard>
+        </div>
+      )}
     </PageShell>
   );
 }

@@ -1,8 +1,50 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f4ef;
-  --foreground: #24352b;
+  --background: #f7f6f3;
+  --background-elevated: #fdfcfa;
+  --foreground: #1a2220;
+  --foreground-muted: #55615c;
+  --foreground-subtle: #7a8680;
+  --surface: #ffffff;
+  --surface-muted: #f2f1ec;
+  --border: #e5e3dc;
+  --border-strong: #d2cfc6;
+  /* Brand — from logo gradient (teal → gold) */
+  --brand-teal: #1f9b8f;
+  --brand-teal-deep: #178a80;
+  --brand-gold: #e4b84a;
+  --brand-gold-soft: #f5e6b8;
+  --brand-gradient: linear-gradient(
+    135deg,
+    var(--brand-teal) 0%,
+    #3cb8a8 42%,
+    var(--brand-gold) 100%
+  );
+  --brand-gradient-soft: linear-gradient(
+    135deg,
+    rgba(31, 155, 143, 0.12) 0%,
+    rgba(60, 184, 168, 0.08) 45%,
+    rgba(228, 184, 74, 0.14) 100%
+  );
+  --accent: var(--brand-teal-deep);
+  --accent-hover: #136b63;
+  --accent-soft: #e6f5f3;
+  --accent-ring: #b8e4df;
+  --warning: #8a6f3d;
+  --warning-bg: #f8f3e8;
+  --error: #8f4a42;
+  --error-bg: #faf0ee;
+  --success: var(--brand-teal-deep);
+  --success-bg: #eef8f6;
+  --shadow-sm: 0 1px 2px rgba(26, 34, 32, 0.05);
+  --shadow-md: 0 4px 24px rgba(26, 34, 32, 0.07);
+  --shadow-lg: 0 16px 48px rgba(26, 34, 32, 0.09);
+  --shadow-brand: 0 8px 28px rgba(31, 155, 143, 0.22);
+  --radius-sm: 0.625rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.5rem;
 }
 
 @theme inline {
@@ -15,9 +57,54 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #dfe9dc;
-  color: #24352b;
+  background: var(--accent-ring);
+  color: var(--foreground);
+}
+
+.page-glow {
+  background:
+    radial-gradient(
+      ellipse 90% 60% at 0% 0%,
+      rgba(31, 155, 143, 0.1),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 100% 0%,
+      rgba(228, 184, 74, 0.08),
+      transparent 50%
+    ),
+    var(--background);
+}
+
+.brand-gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-panel {
+  background: var(--brand-gradient-soft);
+  border: 1px solid rgba(31, 155, 143, 0.12);
+}
+
+.btn-brand {
+  background: var(--brand-gradient);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+
+.btn-brand:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 10px 32px rgba(31, 155, 143, 0.28);
+}
+
+.btn-brand:disabled {
+  filter: none;
+  opacity: 0.5;
 }

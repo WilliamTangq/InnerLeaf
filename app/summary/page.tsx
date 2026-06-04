@@ -1,9 +1,12 @@
 import { createClient } from "@supabase/supabase-js";
+import { PatternSection } from "../components/pattern-section";
 import {
-  Card,
+  EmptyState,
   LinkButton,
+  PageActions,
   PageHeader,
   PageShell,
+  StatChip,
   StatusCard,
 } from "../components/ui";
 
@@ -23,11 +26,6 @@ type SummaryReflection = {
   trigger: string | null;
   thought_pattern: string | null;
   behaviour: string | null;
-};
-
-type PatternItem = {
-  value: string;
-  count: number;
 };
 
 function normalizeValue(value: string | null) {
@@ -59,40 +57,6 @@ function topPatterns(values: Array<string | null>) {
     .slice(0, 3);
 }
 
-function PatternSection({
-  title,
-  items,
-}: {
-  title: string;
-  items: PatternItem[];
-}) {
-  return (
-    <Card>
-      <h2 className="text-xl font-semibold">{title}</h2>
-
-      {items.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[#5F6F61]">
-          Not enough structured data yet.
-        </p>
-      ) : (
-        <ol className="mt-5 space-y-3">
-          {items.map((item) => (
-            <li
-              key={item.value}
-              className="rounded-3xl bg-[#F7F4EF] p-4 text-sm leading-6 text-[#4F5F51]"
-            >
-              <span>{item.value}</span>
-              <span className="ml-2 text-xs text-[#7A8377]">
-                {item.count} time{item.count === 1 ? "" : "s"}
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </Card>
-  );
-}
-
 export default async function SummaryPage() {
   const { data, error } = await supabase
     .from("reflections")
@@ -106,6 +70,7 @@ export default async function SummaryPage() {
 
   const reflections = (data ?? []) as SummaryReflection[];
   const hasEnoughData = reflections.length >= 3;
+  const remaining = Math.max(0, 3 - reflections.length);
 
   const repeatedTriggers = topPatterns(reflections.map((item) => item.trigger));
   const repeatedThoughtPatterns = topPatterns(
@@ -116,46 +81,75 @@ export default async function SummaryPage() {
   );
 
   return (
-    <PageShell maxWidth="max-w-4xl">
-      <PageHeader title="Your recent patterns">
-        These patterns are based on your saved reflection cards. They are not
-        diagnosis or medical advice.
+    <PageShell maxWidth="max-w-5xl">
+      <PageHeader eyebrow="Insights" title="Your recent patterns">
+        Patterns drawn from your last saved reflections. For self-understanding
+        only—not diagnosis or medical advice.
       </PageHeader>
 
-      <div className="mb-8 flex flex-wrap gap-3">
+      {!error && (
+        <div className="mb-8 grid gap-3 sm:grid-cols-3">
+          <StatChip
+            label="Reflections analysed"
+            value={String(reflections.length)}
+          />
+          <StatChip
+            label="Window"
+            value="Last 10 cards"
+          />
+          <StatChip
+            label="Status"
+            value={
+              hasEnoughData
+                ? "Patterns available"
+                : `${remaining} more needed`
+            }
+          />
+        </div>
+      )}
+
+      <PageActions>
+        <LinkButton href="/quick">New reflection</LinkButton>
         <LinkButton href="/history" variant="secondary">
           View history
         </LinkButton>
-        <LinkButton href="/feedback" variant="secondary">
-          Share feedback
-        </LinkButton>
-      </div>
+      </PageActions>
 
       {error && (
         <StatusCard tone="error">Failed to load pattern summary.</StatusCard>
       )}
 
       {!error && !hasEnoughData && (
-        <Card>
-          <h2 className="text-xl font-semibold">A little more data will help.</h2>
-          <p className="mt-3 leading-7 text-[#5F6F61]">
-            Save at least 3 reflections to see your repeated patterns.
-          </p>
-          <div className="mt-6">
-            <LinkButton href="/quick">Start Quick Reflection</LinkButton>
-          </div>
-        </Card>
+        <EmptyState
+          title={
+            reflections.length === 0
+              ? "Patterns will appear here"
+              : "Almost there"
+          }
+          description={
+            reflections.length === 0
+              ? "Save a few reflections first. Once you have at least three, InnerLeaf will surface recurring triggers, thought patterns, and behavioural themes."
+              : `You have ${reflections.length} reflection${reflections.length === 1 ? "" : "s"}. Save ${remaining} more to unlock your pattern summary.`
+          }
+          action={<LinkButton href="/quick">Start quick reflection</LinkButton>}
+        />
       )}
 
       {!error && hasEnoughData && (
         <div className="grid gap-5 lg:grid-cols-3">
-          <PatternSection title="Repeated Triggers" items={repeatedTriggers} />
           <PatternSection
-            title="Repeated Thought Patterns"
+            title="Repeated triggers"
+            description="What tends to set off strong reactions"
+            items={repeatedTriggers}
+          />
+          <PatternSection
+            title="Thought patterns"
+            description="How your mind often frames the moment"
             items={repeatedThoughtPatterns}
           />
           <PatternSection
-            title="Recent Behavioural Themes"
+            title="Behavioural themes"
+            description="How you tend to respond"
             items={recentBehaviouralThemes}
           />
         </div>

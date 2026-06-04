@@ -1,9 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
 import {
-  Card,
+  EmptyState,
   LinkButton,
+  PageActions,
   PageHeader,
   PageShell,
+  StatChip,
   StatusCard,
 } from "../components/ui";
 import { ReflectionCards } from "./reflection-cards";
@@ -46,37 +48,60 @@ export default async function HistoryPage() {
   }
 
   const reflections = (data ?? []) as Reflection[];
+  const latest = reflections[0];
 
   return (
     <PageShell maxWidth="max-w-4xl">
-      <PageHeader title="Reflection History">
-        Saved reflection cards, ordered from newest to oldest.
+      <PageHeader eyebrow="Revisit" title="Reflection history">
+        Your saved reflection cards, newest first. Expand any card to read the
+        full reflection.
       </PageHeader>
 
-      <div className="mb-8 flex flex-wrap gap-3">
-        <LinkButton href="/quick">Start Quick Reflection</LinkButton>
+      {!error && reflections.length > 0 && (
+        <div className="mb-8 grid gap-3 sm:grid-cols-2">
+          <StatChip
+            label="Total reflections"
+            value={String(reflections.length)}
+          />
+          <StatChip
+            label="Latest"
+            value={
+              latest
+                ? new Date(latest.created_at).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })
+                : "—"
+            }
+          />
+        </div>
+      )}
+
+      <PageActions>
+        <LinkButton href="/quick">New reflection</LinkButton>
         <LinkButton href="/summary" variant="secondary">
-          View Pattern Summary
+          View patterns
         </LinkButton>
-        <LinkButton href="/feedback" variant="secondary">
-          Share feedback
-        </LinkButton>
-      </div>
+      </PageActions>
 
       {error && (
         <StatusCard tone="error">Failed to load reflections.</StatusCard>
       )}
 
       {!error && reflections.length === 0 && (
-        <Card>
-          <h2 className="text-xl font-semibold">No reflections saved yet.</h2>
-          <p className="mt-3 leading-7 text-[#5F6F61]">
-            Start with a quick reflection and your saved cards will appear here.
-          </p>
-          <div className="mt-6">
-            <LinkButton href="/quick">Start Quick Reflection</LinkButton>
-          </div>
-        </Card>
+        <EmptyState
+          title="No reflections yet"
+          description="Complete a quick or guided reflection and your cards will appear here—ready to revisit whenever you need perspective."
+          action={
+            <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+              <LinkButton href="/quick">Start quick reflection</LinkButton>
+              <LinkButton href="/guided" variant="secondary">
+                Try guided flow
+              </LinkButton>
+            </div>
+          }
+        />
       )}
 
       {!error && reflections.length > 0 && (

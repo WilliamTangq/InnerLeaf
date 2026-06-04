@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Card } from "../components/ui";
+import { Badge, Card } from "../components/ui";
 import type { Reflection } from "./page";
 
 function previewText(value: string | null) {
@@ -11,7 +11,7 @@ function previewText(value: string | null) {
     return "No input saved.";
   }
 
-  return text.length > 120 ? `${text.slice(0, 117)}...` : text;
+  return text.length > 120 ? `${text.slice(0, 117)}…` : text;
 }
 
 function extractSection(aiResult: string | null, section: string) {
@@ -70,7 +70,7 @@ export function ReflectionCards({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
@@ -82,12 +82,23 @@ export function ReflectionCards({
 
         return (
           <Card key={item.id}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0">
-                <p className="text-xs text-[#7A8377]">
-                  {new Date(item.created_at).toLocaleString()}
-                </p>
-                <p className="mt-3 max-w-2xl leading-7 text-[#4F5F51]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <time
+                    dateTime={item.created_at}
+                    className="text-xs text-[var(--foreground-subtle)]"
+                  >
+                    {new Date(item.created_at).toLocaleString(undefined, {
+                      dateStyle: "medium",
+                      timeStyle: "short",
+                    })}
+                  </time>
+                  {item.emotion && (
+                    <Badge variant="accent">{item.emotion}</Badge>
+                  )}
+                </div>
+                <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
                   {previewText(item.user_input)}
                 </p>
               </div>
@@ -95,52 +106,52 @@ export function ReflectionCards({
               <button
                 type="button"
                 onClick={() => toggleCard(item.id)}
-                className="rounded-full border border-[#D8D2C4] px-4 py-2 text-left text-sm text-[#5F7F63] transition hover:border-[#BFCAB8] hover:bg-white/65 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#8FA88B] sm:text-center"
+                className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               >
-                {isOpen ? "Hide full reflection" : "View full reflection"}
+                {isOpen ? "Collapse" : "Read full card"}
               </button>
             </div>
 
             <div className="mt-5 grid gap-3 md:grid-cols-3">
-              <div className="rounded-3xl bg-[#F7F4EF] p-4">
-                <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
-                  Trigger
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#4F5F51]">
-                  {labels.trigger || "Not clearly identified."}
-                </p>
-              </div>
-
-              <div className="rounded-3xl bg-[#F7F4EF] p-4">
-                <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
-                  Thought Pattern
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#4F5F51]">
-                  {labels.thoughtPattern || "Not clearly identified."}
-                </p>
-              </div>
-
-              <div className="rounded-3xl bg-[#F7F4EF] p-4">
-                <p className="text-xs font-semibold uppercase text-[#6B7C6A]">
-                  Next Question
-                </p>
-                <p className="mt-2 text-sm leading-6 text-[#4F5F51]">
-                  {labels.nextQuestion || "Not clearly identified."}
-                </p>
-              </div>
+              {(
+                [
+                  ["Trigger", labels.trigger],
+                  ["Thought pattern", labels.thoughtPattern],
+                  ["Next question", labels.nextQuestion],
+                ] as const
+              ).map(([title, content]) => (
+                <div
+                  key={title}
+                  className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
+                >
+                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                    {title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {content || "Not clearly identified."}
+                  </p>
+                </div>
+              ))}
             </div>
 
             {isOpen && (
-              <div className="mt-5 border-t border-[#E4DED2] pt-5">
-                <h2 className="font-semibold">What happened</h2>
-                <p className="mt-2 whitespace-pre-wrap leading-7 text-[#4F5F51]">
-                  {item.user_input}
-                </p>
-
-                <h2 className="mt-5 font-semibold">InnerLeaf Reflection</h2>
-                <p className="mt-2 whitespace-pre-wrap leading-7 text-[#4F5F51]">
-                  {item.ai_result}
-                </p>
+              <div className="mt-6 space-y-6 border-t border-[var(--border)] pt-6">
+                <div>
+                  <h3 className="text-sm font-medium text-[var(--foreground)]">
+                    What you wrote
+                  </h3>
+                  <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
+                    {item.user_input}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-[var(--foreground)]">
+                    Reflection card
+                  </h3>
+                  <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
+                    {item.ai_result}
+                  </p>
+                </div>
               </div>
             )}
           </Card>

@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { ReflectionResultCard } from "../components/reflection-result";
 import {
   Card,
   Disclaimer,
+  LoadingSpinner,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -51,27 +53,37 @@ export default function QuickReflectionPage() {
 
   return (
     <PageShell>
-      <PageHeader title="Quick Reflection">
-        Write freely for a moment. InnerLeaf will organise the reaction into a
-        clear reflection card.
+      <PageHeader
+        eyebrow="Reflect"
+        title="Quick Reflection"
+      >
+        Write freely for a moment. InnerLeaf will organise your reaction into a
+        structured reflection card you can revisit later.
       </PageHeader>
 
       <Card>
         <TextareaField
           label="What happened?"
-          helper="No need to make it tidy. A few rough sentences are enough."
-          className="min-h-64"
-          placeholder="Write what happened. You can be messy — InnerLeaf will help organise it."
+          helper="No need to polish your words. A few honest sentences are enough."
+          className="min-h-56"
+          placeholder="Describe the moment, what you felt, and what went through your mind…"
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
 
-        <div className="mt-5">
+        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {loading ? (
+            <LoadingSpinner label="Organising your reflection…" />
+          ) : (
+            <Disclaimer />
+          )}
           <PrimaryButton
+            size="lg"
             onClick={handleReflect}
             disabled={loading || !input.trim()}
+            className="sm:shrink-0"
           >
-            {loading ? "Organising your reflection..." : "Break down this reaction"}
+            {loading ? "Processing…" : "Create reflection card"}
           </PrimaryButton>
         </div>
       </Card>
@@ -81,18 +93,7 @@ export default function QuickReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {result && (
-        <Card className="mt-8">
-          <p className="text-sm font-medium tracking-wide text-[#6B7C6A]">
-            Reflection Card
-          </p>
-          <div className="mt-4 whitespace-pre-wrap leading-7 text-[#35483B]">
-            {result}
-          </div>
-        </Card>
-      )}
-
-      <Disclaimer />
+      {result && <ReflectionResultCard result={result} />}
     </PageShell>
   );
 }
