@@ -1,6 +1,17 @@
 "use client";
 
-import { Brain, Footprints, Heart, HelpCircle, Zap } from "lucide-react";
+import {
+  Brain,
+  Footprints,
+  Heart,
+  HelpCircle,
+  Leaf,
+  ListChecks,
+  MessageCircleQuestion,
+  Route,
+  Sparkles,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
 import type { Reflection } from "./page";
@@ -63,13 +74,36 @@ function modeLabel(mode: string | null) {
   return "Reflection";
 }
 
+function formatHistoryDate(value: string) {
+  return new Intl.DateTimeFormat("en-AU", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
+}
+
 const labelIcons = {
+  Validation: Sparkles,
   Emotion: Heart,
   Trigger: Zap,
+  Facts: ListChecks,
+  Interpretation: Route,
   "Thought pattern": Brain,
   Behaviour: Footprints,
+  "Behavioural insight": Leaf,
   "Next question": HelpCircle,
 } as const;
+
+function storedList(value: string | null) {
+  return (value ?? "")
+    .split("\n")
+    .map((item) => item.replace(/^[-•]\s*/, "").trim())
+    .filter(Boolean)
+    .join("\n");
+}
 
 export function ReflectionCards({
   reflections,
@@ -97,13 +131,31 @@ export function ReflectionCards({
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
+          validation: item.emotional_validation,
           emotion: item.emotion || extractedLabels.emotion,
           trigger: item.trigger || extractedLabels.trigger,
+          facts: storedList(item.facts),
+          interpretation: storedList(item.interpretation),
           thoughtPattern: item.thought_pattern || extractedLabels.thoughtPattern,
           behaviour: item.behaviour || extractedLabels.behaviour,
+          behaviouralInsight: item.behavioural_insight,
           nextQuestion: item.next_question || extractedLabels.nextQuestion,
         };
         const isOpen = openCards.has(item.id);
+        const fullSections = [
+          ["Validation", labels.validation],
+          ["Emotion", labels.emotion],
+          ["Trigger", labels.trigger],
+          ["Facts", labels.facts],
+          ["Interpretation", labels.interpretation],
+          ["Thought pattern", labels.thoughtPattern],
+          ["Behaviour", labels.behaviour],
+          ["Behavioural insight", labels.behaviouralInsight],
+          ["Next question", labels.nextQuestion],
+        ] as const;
+        const hasStructuredDetails = fullSections.some(([, content]) =>
+          Boolean(content)
+        );
 
         return (
           <Card key={item.id}>
@@ -114,10 +166,7 @@ export function ReflectionCards({
                     dateTime={item.created_at}
                     className="text-xs text-[var(--foreground-subtle)]"
                   >
-                    {new Date(item.created_at).toLocaleString(undefined, {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
+                    {formatHistoryDate(item.created_at)}
                   </time>
                   {item.emotion && (
                     <Badge variant="accent">{item.emotion}</Badge>
@@ -138,43 +187,45 @@ export function ReflectionCards({
               </button>
             </div>
 
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              {(
-                [
-                  ["Emotion", labels.emotion],
-                  ["Trigger", labels.trigger],
-                  ["Thought pattern", labels.thoughtPattern],
-                  ["Behaviour", labels.behaviour],
-                  ["Next question", labels.nextQuestion],
-                ] as const
-              ).map(([title, content]) => (
-                <div
-                  key={title}
-                  className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
-                >
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const Icon =
-                        labelIcons[title as keyof typeof labelIcons];
-                      return (
-                        <Icon
-                          aria-hidden="true"
-                          size={15}
-                          strokeWidth={1.8}
-                          className="text-[var(--brand-teal-deep)]"
-                        />
-                      );
-                    })()}
-                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                      {title}
+            {!isOpen && (
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                {(
+                  [
+                    ["Emotion", labels.emotion],
+                    ["Trigger", labels.trigger],
+                    ["Thought pattern", labels.thoughtPattern],
+                    ["Behaviour", labels.behaviour],
+                    ["Next question", labels.nextQuestion],
+                  ] as const
+                ).map(([title, content]) => (
+                  <div
+                    key={title}
+                    className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      {(() => {
+                        const Icon =
+                          labelIcons[title as keyof typeof labelIcons];
+                        return (
+                          <Icon
+                            aria-hidden="true"
+                            size={15}
+                            strokeWidth={1.8}
+                            className="text-[var(--brand-teal-deep)]"
+                          />
+                        );
+                      })()}
+                      <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                        {title}
+                      </p>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {content || "Not clearly identified."}
                     </p>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                    {content || "Not clearly identified."}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {isOpen && (
               <div className="mt-6 space-y-6 border-t border-[var(--border)] pt-6">
@@ -186,14 +237,67 @@ export function ReflectionCards({
                     {item.user_input}
                   </p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--foreground)]">
-                    Reflection card
-                  </h3>
-                  <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-                    {item.ai_result}
-                  </p>
-                </div>
+                {hasStructuredDetails ? (
+                  <div>
+                    <div className="mb-3 flex items-center gap-2">
+                      <MessageCircleQuestion
+                        aria-hidden="true"
+                        size={16}
+                        strokeWidth={1.8}
+                        className="text-[var(--brand-teal-deep)]"
+                      />
+                      <h3 className="text-sm font-medium text-[var(--foreground)]">
+                        Full reflection card
+                      </h3>
+                    </div>
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {fullSections
+                        .filter(([, content]) => Boolean(content))
+                        .map(([title, content]) => {
+                          const Icon =
+                            labelIcons[title as keyof typeof labelIcons] ||
+                            Leaf;
+                          const isQuestion = title === "Next question";
+
+                          return (
+                            <div
+                              key={title}
+                              className={[
+                                "rounded-[var(--radius-lg)] border p-4",
+                                isQuestion
+                                  ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
+                                  : "border-[var(--border)] bg-[var(--surface-muted)]",
+                              ].join(" ")}
+                            >
+                              <div className="flex items-center gap-2">
+                                <Icon
+                                  aria-hidden="true"
+                                  size={15}
+                                  strokeWidth={1.8}
+                                  className="text-[var(--brand-teal-deep)]"
+                                />
+                                <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                                  {title}
+                                </p>
+                              </div>
+                              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                                {content}
+                              </p>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-sm font-medium text-[var(--foreground)]">
+                      Reflection card
+                    </h3>
+                    <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
+                      {item.ai_result}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </Card>

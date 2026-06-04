@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { TrendingUp } from "lucide-react";
+import { Leaf, Sparkles, TrendingUp } from "lucide-react";
 import { PatternSection } from "../components/pattern-section";
 import {
   Card,
@@ -109,12 +109,22 @@ function changeSignals(reflections: SummaryReflection[]) {
 function ChangeSection({ signals }: { signals: string[] }) {
   return (
     <Card>
-      <h2 className="text-base font-semibold text-[var(--foreground)]">
-        Small signs of change
-      </h2>
-      <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-        Gentle observations from your saved cards
-      </p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            Small signs of change
+          </h2>
+          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+            Gentle observations from your saved cards
+          </p>
+        </div>
+        <Leaf
+          aria-hidden="true"
+          size={18}
+          strokeWidth={1.8}
+          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+        />
+      </div>
 
       {signals.length === 0 ? (
         <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -125,9 +135,15 @@ function ChangeSection({ signals }: { signals: string[] }) {
           {signals.map((signal) => (
             <li
               key={signal}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--foreground-muted)]"
+              className="flex gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--foreground-muted)]"
             >
-              {signal}
+              <Sparkles
+                aria-hidden="true"
+                size={15}
+                strokeWidth={1.8}
+                className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
+              />
+              <span>{signal}</span>
             </li>
           ))}
         </ul>
