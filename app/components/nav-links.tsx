@@ -5,6 +5,7 @@ import {
   Home,
   Leaf,
   ListChecks,
+  LockKeyhole,
   MessageSquare,
   TrendingUp,
 } from "lucide-react";
@@ -17,6 +18,7 @@ const links = [
   { href: "/guided", label: "Guided", icon: ListChecks },
   { href: "/history", label: "History", icon: Archive },
   { href: "/summary", label: "Patterns", icon: TrendingUp },
+  { href: "/login", label: "Login", icon: LockKeyhole },
 ] as const;
 
 export function NavLinks() {

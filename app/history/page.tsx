@@ -15,11 +15,10 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const dynamic = "force-dynamic";
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error("Missing Supabase server environment variables");
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+const supabase =
+  supabaseUrl && supabaseServiceRoleKey
+    ? createClient(supabaseUrl, supabaseServiceRoleKey)
+    : null;
 
 export type Reflection = {
   id: string | number;
@@ -39,12 +38,17 @@ export type Reflection = {
 };
 
 export default async function HistoryPage() {
-  const { data, error } = await supabase
-    .from("reflections")
-    .select(
-      "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode"
-    )
-    .order("created_at", { ascending: false });
+  const { data, error } = supabase
+    ? await supabase
+        .from("reflections")
+        .select(
+          "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode"
+        )
+        .order("created_at", { ascending: false })
+    : {
+        data: null,
+        error: new Error("Missing Supabase server environment variables"),
+      };
 
   if (error) {
     console.error("Supabase history fetch error:", error);

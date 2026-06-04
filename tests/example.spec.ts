@@ -10,6 +10,7 @@ const routes = [
   { path: "/history", heading: "Reflection history" },
   { path: "/summary", heading: "Your recent patterns" },
   { path: "/feedback", heading: "Share feedback" },
+  { path: "/login", heading: "Login" },
 ] as const;
 
 for (const route of routes) {

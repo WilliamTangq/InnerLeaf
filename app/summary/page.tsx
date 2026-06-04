@@ -17,11 +17,10 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export const dynamic = "force-dynamic";
 
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error("Missing Supabase server environment variables");
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+const supabase =
+  supabaseUrl && supabaseServiceRoleKey
+    ? createClient(supabaseUrl, supabaseServiceRoleKey)
+    : null;
 
 type SummaryReflection = {
   id: string | number;
@@ -153,11 +152,16 @@ function ChangeSection({ signals }: { signals: string[] }) {
 }
 
 export default async function SummaryPage() {
-  const { data, error } = await supabase
-    .from("reflections")
-    .select("id, created_at, emotion, trigger, thought_pattern, behaviour")
-    .order("created_at", { ascending: false })
-    .limit(10);
+  const { data, error } = supabase
+    ? await supabase
+        .from("reflections")
+        .select("id, created_at, emotion, trigger, thought_pattern, behaviour")
+        .order("created_at", { ascending: false })
+        .limit(10)
+    : {
+        data: null,
+        error: new Error("Missing Supabase server environment variables"),
+      };
 
   if (error) {
     console.error("Supabase summary fetch error:", error);
