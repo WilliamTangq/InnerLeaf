@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import {
   Archive,
   Brain,
-  CheckCircle2,
   HelpCircle,
   Leaf,
   PencilLine,
@@ -24,65 +23,47 @@ const steps = [
   {
     icon: PencilLine,
     title: "Write what happened",
-    description: "Start messy. A few honest sentences are enough.",
+    description: "A few honest sentences. Messy is fine.",
   },
   {
     icon: Leaf,
-    title: "InnerLeaf organises it",
-    description: "The moment becomes trigger, facts, interpretation, and one next question.",
+    title: "Get your reflection card",
+    description: "Trigger, facts, interpretation, and one next question.",
   },
   {
     icon: Archive,
-    title: "Save a reflection card",
-    description: "Each response becomes a structured card you can revisit.",
+    title: "Revisit in History",
+    description: "Each moment stays in your personal archive.",
   },
   {
     icon: TrendingUp,
-    title: "Notice repeated patterns",
-    description: "Review recent triggers, thought patterns, and behaviours.",
+    title: "Notice patterns",
+    description: "See what repeats across your last saved cards.",
   },
-] as const;
-
-const comparisons = [
-  {
-    title: "Not a mood tracker",
-    description:
-      "Name the moment, not just the mood. See what triggered the reaction and how your mind framed it.",
-  },
-  {
-    title: "Not open-ended journaling",
-    description:
-      "You are breaking down one episode — not keeping a daily diary. Write freely; InnerLeaf structures the moment.",
-  },
-  {
-    title: "Not a chat thread",
-    description:
-      "Each moment becomes the same reflection card format — saved, comparable, and easy to revisit.",
-  },
-] as const;
-
-const clarityPoints = [
-  "Facts vs interpretation",
-  "One next question",
-  "One main trigger",
-  "One thought pattern",
-  "Saved as a card",
-  "Patterns over time",
 ] as const;
 
 function LandingSection({
   eyebrow,
   title,
   children,
+  className,
 }: {
   eyebrow: string;
   title: string;
   children: ReactNode;
+  className?: string;
 }) {
   return (
-    <section className="mt-24 border-t border-[var(--border)] pt-16">
+    <section
+      className={[
+        "mt-16 border-t border-[var(--border)] pt-12 sm:mt-20 sm:pt-14",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <SectionLabel>{eyebrow}</SectionLabel>
-      <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
+      <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.65rem]">
         {title}
       </h2>
       {children}
@@ -112,13 +93,13 @@ function ReflectionPreview() {
     },
     {
       icon: Brain,
-      label: "Thought Pattern",
-      text: "This might be jumping to a negative conclusion.",
+      label: "Thought pattern",
+      text: "Jumping to a negative conclusion.",
       highlight: false,
     },
     {
       icon: HelpCircle,
-      label: "One Next Question",
+      label: "One next question",
       text: "What else could explain the delay besides rejection?",
       highlight: true,
     },
@@ -127,7 +108,7 @@ function ReflectionPreview() {
   return (
     <Card
       variant="elevated"
-      className="relative overflow-hidden border-[rgba(31,155,143,0.15)]"
+      className="relative overflow-hidden border-[rgba(31,155,143,0.15)] lg:order-2"
     >
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-44 w-44 rounded-full opacity-70"
@@ -137,21 +118,21 @@ function ReflectionPreview() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <SectionLabel>The reflection card</SectionLabel>
-            <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
-              One emotional moment, structured
-            </h2>
+            <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
+              One moment, structured
+            </p>
           </div>
-          <Badge variant="accent">3 min</Badge>
+          <Badge variant="accent">~3 min</Badge>
         </div>
 
-        <div className="mt-5 grid gap-3">
+        <div className="mt-5 grid gap-2.5 sm:gap-3">
           {preview.map((item) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.label}
                 className={[
-                  "rounded-[var(--radius-lg)] border p-4",
+                  "rounded-[var(--radius-lg)] border p-3.5 sm:p-4",
                   item.highlight
                     ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
                     : "border-[var(--border)] bg-[var(--surface-muted)]",
@@ -168,7 +149,7 @@ function ReflectionPreview() {
                     {item.label}
                   </p>
                 </div>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                   {item.text}
                 </p>
               </div>
@@ -183,61 +164,49 @@ function ReflectionPreview() {
 export default function Home() {
   return (
     <PageShell maxWidth="max-w-6xl">
-      <section className="grid gap-12 py-6 lg:grid-cols-[0.98fr_1.02fr] lg:items-center lg:gap-16">
-        <div className="max-w-xl">
+      <section className="grid gap-10 py-4 sm:gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:py-6">
+        <div className="max-w-xl lg:order-1">
           <BrandLogo
             size="hero"
             href={null}
             showWordmark={false}
-            className="mb-8"
+            className="mb-6 sm:mb-8"
           />
-          <Badge variant="accent">Break down one emotional moment</Badge>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[3rem] sm:leading-[1.08]">
-            Understand the pattern behind your{" "}
-            <span className="brand-gradient-text">emotional reaction</span>.
+          <Badge variant="accent">One emotional moment at a time</Badge>
+          <h1 className="mt-4 text-[2rem] font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-[2.75rem] sm:leading-[1.08]">
+            Turn a reaction into a{" "}
+            <span className="brand-gradient-text">reflection card</span>.
           </h1>
-          <p className="mt-5 text-lg leading-8 text-[var(--foreground-muted)]">
-            InnerLeaf is for one intense moment at a time — not daily journaling.
-            You get a reflection card that separates facts from interpretation
-            and ends with one next question.
+          <p className="mt-4 text-base leading-7 text-[var(--foreground-muted)] sm:mt-5 sm:text-lg sm:leading-8">
+            Write freely. InnerLeaf separates facts from interpretation and ends
+            with one next question — then saves the card so you can spot
+            patterns later.
           </p>
 
-          <ul className="mt-5 flex flex-wrap gap-2">
-            {(["Facts vs interpretation", "One next question"] as const).map(
-              (point) => (
-                <li
-                  key={point}
-                  className="rounded-lg border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-medium text-[var(--brand-teal-deep)]"
-                >
-                  {point}
-                </li>
-              )
-            )}
-          </ul>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton href="/quick" size="lg">
+          <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
+            <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
               Start quick reflection
             </LinkButton>
-            <LinkButton href="/guided" variant="secondary" size="lg">
-              Try guided reflection
+            <LinkButton
+              href="/guided"
+              variant="secondary"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              Prefer step-by-step? Try guided
             </LinkButton>
           </div>
-
-          <p className="mt-5 text-xs text-[var(--foreground-subtle)]">
-            For self-reflection only — not clinical care or medical advice.
-          </p>
         </div>
 
         <ReflectionPreview />
       </section>
 
-      <LandingSection eyebrow="How it works" title="From messy feelings to a saved reflection card.">
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <LandingSection eyebrow="How it works" title="Write once. Review clearly.">
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {steps.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Card key={item.title} className="h-full">
+              <Card key={item.title} className="h-full hover:translate-y-0">
                 <div className="flex items-center justify-between gap-3">
                   <Icon
                     aria-hidden="true"
@@ -246,13 +215,13 @@ export default function Home() {
                     className="text-[var(--brand-teal-deep)]"
                   />
                   <span className="text-xs font-medium text-[var(--foreground-subtle)]">
-                    0{index + 1}
+                    {index + 1}
                   </span>
                 </div>
-                <h3 className="mt-5 font-semibold text-[var(--foreground)]">
+                <h3 className="mt-4 font-semibold text-[var(--foreground)]">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                   {item.description}
                 </p>
               </Card>
@@ -262,60 +231,45 @@ export default function Home() {
       </LandingSection>
 
       <LandingSection
-        eyebrow="What you get each time"
-        title="Designed for clarity, not endless analysis."
+        eyebrow="Why InnerLeaf"
+        title="Episode breakdown — not another wellness app."
+        className="mb-16 sm:mb-20"
       >
-        <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {clarityPoints.map((point) => (
-            <div
-              key={point}
-              className="flex items-center gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]"
-            >
-              <CheckCircle2
-                aria-hidden="true"
-                size={16}
-                strokeWidth={1.8}
-                className="shrink-0 text-[var(--brand-teal-deep)]"
-              />
-              {point}
-            </div>
-          ))}
-        </div>
-      </LandingSection>
-
-      <LandingSection eyebrow="Why InnerLeaf" title="Episode breakdown — not another wellness app.">
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
-          {comparisons.map((item) => (
-            <Card key={item.title}>
-              <h3 className="font-semibold text-[var(--foreground)]">
-                {item.title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {item.description}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </LandingSection>
-
-      <section className="mt-24 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-6 shadow-[var(--shadow-md)] sm:p-8">
-        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
-            <SectionLabel>What InnerLeaf does not do</SectionLabel>
-            <p className="mt-3 text-lg font-medium leading-8 text-[var(--foreground)]">
-              InnerLeaf does not score your mood, label you, or tell you what is
-              wrong with you. It helps you break down one moment and leave with
-              one clearer question.
+        <div className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
+          <Card className="hover:translate-y-0">
+            <h3 className="font-semibold text-[var(--foreground)]">
+              Not a mood tracker
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              See what triggered the reaction and how your mind framed it.
             </p>
-          </div>
-          <div className="flex flex-wrap gap-3 md:justify-end">
-            <LinkButton href="/quick">Start quick reflection</LinkButton>
-            <LinkButton href="/history" variant="secondary">
-              View history
-            </LinkButton>
-          </div>
+          </Card>
+          <Card className="hover:translate-y-0">
+            <h3 className="font-semibold text-[var(--foreground)]">
+              Not open-ended journaling
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              One episode, one card — not a daily diary habit.
+            </p>
+          </Card>
+          <Card className="hover:translate-y-0">
+            <h3 className="font-semibold text-[var(--foreground)]">
+              Not a chat thread
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              The same structured format every time, saved for comparison.
+            </p>
+          </Card>
         </div>
-      </section>
+        <div className="mt-10 flex flex-wrap gap-3">
+          <LinkButton href="/quick" size="lg">
+            Start quick reflection
+          </LinkButton>
+          <LinkButton href="/history" variant="secondary">
+            View history
+          </LinkButton>
+        </div>
+      </LandingSection>
     </PageShell>
   );
 }

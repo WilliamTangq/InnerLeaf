@@ -1,6 +1,6 @@
 "use client";
 
-import { Leaf, MessageSquare, Send } from "lucide-react";
+import { Leaf, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import {
   Card,
@@ -14,10 +14,10 @@ import {
   TextareaField,
 } from "../components/ui";
 
-const radioGroups = [
+const experienceQuestions = [
   {
     name: "mode_tried",
-    label: "Which mode did you try?",
+    label: "Which mode did you use?",
     options: ["Quick Reflection", "Guided Reflection", "Both"],
   },
   {
@@ -27,49 +27,48 @@ const radioGroups = [
   },
   {
     name: "reflection_length",
-    label: "Was the reflection card too long, too short, or about right?",
+    label: "Was the reflection card length about right?",
     options: ["Too long", "About right", "Too short"],
   },
   {
     name: "clarity_help",
-    label: "Did the reflection help you understand your reaction more clearly?",
+    label: "Did the card help you see your reaction more clearly?",
     options: ["Yes", "Somewhat", "No"],
   },
   {
     name: "would_use_again",
-    label:
-      "Would you use InnerLeaf again next time you feel emotionally triggered?",
+    label: "Would you use InnerLeaf after an intense moment again?",
     options: ["Yes", "Maybe", "No"],
   },
 ] as const;
 
-const textFields = [
+const openQuestions = [
   {
     name: "comparison_feedback",
-    label:
-      "Compared with ChatGPT, Notes, or talking to a friend, what felt better or worse?",
+    label: "What worked better or worse than Notes, a friend, or a chat tool?",
   },
   {
     name: "blocker",
-    label: "What would stop you from using InnerLeaf again?",
-  },
-  {
-    name: "other_thoughts",
-    label: "Any other thoughts?",
+    label: "What would stop you from coming back?",
   },
 ] as const;
 
-type RadioFieldName = (typeof radioGroups)[number]["name"];
-type TextFieldName = (typeof textFields)[number]["name"];
+type RadioFieldName = (typeof experienceQuestions)[number]["name"];
+type TextFieldName = (typeof openQuestions)[number]["name"] | "other_thoughts";
 type FeedbackValues = Record<RadioFieldName | TextFieldName, string>;
 
-const initialValues = [...radioGroups, ...textFields].reduce(
-  (values, field) => {
-    values[field.name] = "";
-    return values;
-  },
-  {} as FeedbackValues
-);
+const initialValues = {
+  ...experienceQuestions.reduce(
+    (values, field) => {
+      values[field.name] = "";
+      return values;
+    },
+    {} as Record<RadioFieldName, string>
+  ),
+  comparison_feedback: "",
+  blocker: "",
+  other_thoughts: "",
+};
 
 export default function FeedbackPage() {
   const [values, setValues] = useState<FeedbackValues>(initialValues);
@@ -119,19 +118,15 @@ export default function FeedbackPage() {
     return (
       <PageShell>
         <div
-          className="mb-6 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+          className="mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
           aria-hidden="true"
         >
           <Leaf size={22} strokeWidth={1.8} />
         </div>
-        <PageHeader eyebrow="Thank you" title="Feedback received">
-          Your input helps shape InnerLeaf into a more useful reflection
-          experience.
+        <PageHeader compact eyebrow="Thank you" title="Feedback received">
+          Your answers help us improve the reflection experience.
         </PageHeader>
-        <StatusCard tone="success">
-          Thank you. Your feedback helps shape InnerLeaf.
-        </StatusCard>
-        <PageActions className="mt-8">
+        <PageActions>
           <LinkButton href="/">Back to home</LinkButton>
           <LinkButton href="/quick" variant="secondary">
             New reflection
@@ -143,26 +138,18 @@ export default function FeedbackPage() {
 
   return (
     <PageShell>
-      <PageHeader eyebrow="Help us improve" title="Share feedback">
-        A short survey—about two minutes. Your answers stay private and help us
-        understand what works.
+      <PageHeader compact eyebrow="Help us improve" title="Share feedback">
+        About two minutes. All fields are optional except where you choose to
+        answer.
       </PageHeader>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
-          <div className="flex items-center gap-2">
-            <MessageSquare
-              aria-hidden="true"
-              size={18}
-              strokeWidth={1.8}
-              className="text-[var(--brand-teal-deep)]"
-            />
-            <h2 className="text-base font-semibold text-[var(--foreground)]">
-              How did it feel to use?
-            </h2>
-          </div>
-          <div className="mt-6 space-y-8">
-            {radioGroups.map((group) => (
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <Card className="hover:translate-y-0">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            Your experience
+          </h2>
+          <div className="mt-6 space-y-7">
+            {experienceQuestions.map((group) => (
               <RadioGroupField
                 key={group.name}
                 name={group.name}
@@ -175,30 +162,31 @@ export default function FeedbackPage() {
           </div>
         </Card>
 
-        <Card>
-          <div className="flex items-center gap-2">
-            <Leaf
-              aria-hidden="true"
-              size={18}
-              strokeWidth={1.8}
-              className="text-[var(--brand-teal-deep)]"
-            />
-            <h2 className="text-base font-semibold text-[var(--foreground)]">
-              A few open thoughts
-            </h2>
-          </div>
-          <div className="mt-6 space-y-5">
-            {textFields.map((field) => (
+        <Card className="hover:translate-y-0">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            Optional notes
+          </h2>
+          <div className="mt-5 space-y-5">
+            {openQuestions.map((field) => (
               <TextareaField
                 key={field.name}
                 label={field.label}
-                className="min-h-28"
+                className="min-h-24"
                 value={values[field.name]}
                 onChange={(event) =>
                   updateField(field.name, event.target.value)
                 }
               />
             ))}
+            <TextareaField
+              label="Anything else?"
+              name="other_thoughts"
+              className="min-h-24"
+              value={values.other_thoughts}
+              onChange={(event) =>
+                updateField("other_thoughts", event.target.value)
+              }
+            />
           </div>
 
           <div className="mt-8">
@@ -215,7 +203,7 @@ export default function FeedbackPage() {
       </form>
 
       {error && (
-        <div className="mt-6">
+        <div className="mt-4">
           <StatusCard tone="error">{error}</StatusCard>
         </div>
       )}

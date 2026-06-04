@@ -29,31 +29,11 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-subtle)]">
-            Break down emotional moments into reflection cards you can revisit.
-            For self-reflection only — not clinical care.
+            Break down one emotional moment into a reflection card. For
+            self-reflection only — not clinical care or medical advice.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-sm text-[var(--foreground-muted)] sm:items-end">
-          <div className="flex flex-wrap gap-4">
-            <Link
-              className="transition hover:text-[var(--foreground)]"
-              href="/history"
-            >
-              History
-            </Link>
-            <Link
-              className="transition hover:text-[var(--foreground)]"
-              href="/summary"
-            >
-              Patterns
-            </Link>
-            <Link
-              className="transition hover:text-[var(--foreground)]"
-              href="/feedback"
-            >
-              Feedback
-            </Link>
-          </div>
+        <div className="flex flex-col gap-3 text-sm text-[var(--foreground-muted)] sm:items-end">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[var(--foreground-subtle)]">
               Follow InnerLeaf
@@ -106,13 +86,15 @@ export function PageHeader({
   eyebrow,
   title,
   children,
+  compact = false,
 }: {
   eyebrow?: string;
   title: string;
   children?: ReactNode;
+  compact?: boolean;
 }) {
   return (
-    <section className="mb-10">
+    <section className={compact ? "mb-6" : "mb-8"}>
       {eyebrow && (
         <p className="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
           {eyebrow}
@@ -158,13 +140,13 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-xl)] border p-5 transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-md)] sm:p-6",
+        "rounded-[var(--radius-xl)] border p-5 sm:p-6",
         variant === "default" &&
           "border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]",
         variant === "muted" &&
           "border-[var(--border)] bg-[var(--surface-muted)]",
         variant === "elevated" &&
-          "border-[var(--border-strong)] bg-[var(--surface)] shadow-[var(--shadow-lg)]",
+          "border-[var(--border-strong)] bg-[var(--surface)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]",
         className
       )}
     >
@@ -224,17 +206,20 @@ export function LinkButton({
   children,
   variant = "primary",
   size = "md",
+  className,
 }: {
   href: string;
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md" | "lg";
+  className?: string;
 }) {
   return (
     <Link
       href={href}
       className={cx(
         "inline-flex items-center justify-center rounded-lg font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+        className,
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-5 py-2.5 text-sm",
         size === "lg" && "px-6 py-3 text-[15px]",
@@ -402,32 +387,32 @@ export function StatChip({
 
 export function LoadingSpinner({ label }: { label?: string }) {
   return (
-    <div className="flex items-center gap-3 text-sm text-[var(--foreground-muted)]">
+    <div
+      className="flex items-center gap-3 text-sm text-[var(--foreground-muted)]"
+      role="status"
+      aria-live="polite"
+    >
       <span
         className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-[var(--border)] border-t-[var(--brand-teal)]"
-        aria-hidden
+        aria-hidden="true"
       />
-      {label && <span>{label}</span>}
+      {label ? <span>{label}</span> : <span className="sr-only">Loading</span>}
     </div>
   );
 }
 
-export function Disclaimer({ className }: { className?: string }) {
+export function SectionLabel({
+  children,
+  id,
+}: {
+  children: ReactNode;
+  id?: string;
+}) {
   return (
     <p
-      className={cx(
-        "text-xs leading-5 text-[var(--foreground-subtle)]",
-        className
-      )}
+      id={id}
+      className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--foreground-subtle)]"
     >
-      For self-reflection only — not clinical care or medical advice.
-    </p>
-  );
-}
-
-export function SectionLabel({ children }: { children: ReactNode }) {
-  return (
-    <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
       {children}
     </p>
   );

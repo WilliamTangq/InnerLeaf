@@ -1,6 +1,7 @@
 "use client";
 
-import { Archive, HelpCircle, Leaf, PencilLine } from "lucide-react";
+import Link from "next/link";
+import { HelpCircle } from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -8,22 +9,13 @@ import {
 } from "../components/reflection-result";
 import {
   Card,
-  Disclaimer,
-  LinkButton,
   LoadingSpinner,
-  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
   StatusCard,
   TextareaField,
 } from "../components/ui";
-
-const flowSteps = [
-  { label: "Write", icon: PencilLine },
-  { label: "Organise", icon: Leaf },
-  { label: "Card", icon: Archive },
-] as const;
 
 const helperChips = [
   "What happened?",
@@ -76,36 +68,29 @@ export default function QuickReflectionPage() {
 
   return (
     <PageShell>
-      <PageHeader
-        eyebrow="Reflect"
-        title="Quick Reflection"
-      >
-        Describe one emotional moment. InnerLeaf turns it into a reflection card
-        with facts, interpretation, and one next question.
+      <PageHeader compact eyebrow="Reflect" title="Quick Reflection">
+        Describe one emotional moment in your own words.
       </PageHeader>
 
-      <PageActions>
-        <LinkButton href="/" variant="ghost">
-          Home
-        </LinkButton>
-        <LinkButton href="/history" variant="secondary">
-          History
-        </LinkButton>
-      </PageActions>
+      <Card>
+        <TextareaField
+          label="What happened?"
+          helper="A few honest sentences are enough."
+          className="min-h-52 sm:min-h-56"
+          placeholder="What happened, what you felt, and what you assumed…"
+          value={input}
+          onChange={(event) => setInput(event.target.value)}
+        />
 
-      <Card className="brand-panel mb-6">
-        <p className="text-sm text-[var(--foreground-muted)]">
-          Stuck? Tap a prompt — or ignore them and write freely.
-        </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {helperChips.map((chip) => (
             <span
               key={chip}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(31,155,143,0.18)] bg-[var(--surface)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(31,155,143,0.14)] bg-[var(--surface-muted)] px-2.5 py-1 text-xs text-[var(--foreground-muted)]"
             >
               <HelpCircle
                 aria-hidden="true"
-                size={13}
+                size={12}
                 strokeWidth={1.8}
                 className="text-[var(--brand-teal-deep)]"
               />
@@ -113,58 +98,33 @@ export default function QuickReflectionPage() {
             </span>
           ))}
         </div>
-      </Card>
 
-      <div className="mb-6 grid gap-2 sm:grid-cols-3">
-        {flowSteps.map((step) => {
-          const Icon = step.icon;
-          return (
-            <div
-              key={step.label}
-              className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)]"
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs text-[var(--foreground-subtle)]">
+            Prefer structure first?{" "}
+            <Link
+              href="/guided"
+              className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
             >
-              <Icon
-                aria-hidden="true"
-                size={16}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
-              {step.label}
-            </div>
-          );
-        })}
-      </div>
-
-      <Card>
-        <TextareaField
-          label="What happened?"
-          helper="No need to polish your words. A few honest sentences are enough."
-          className="min-h-56"
-          placeholder="Write what happened. You can be messy — InnerLeaf will help organise it."
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-        />
-
-        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              Try guided reflection
+            </Link>
+          </p>
           {loading ? (
             <LoadingSpinner label="Organising your reflection…" />
           ) : (
-            <Disclaimer />
+            <PrimaryButton
+              size="lg"
+              onClick={handleReflect}
+              disabled={loading || !input.trim()}
+              className="w-full sm:w-auto sm:shrink-0"
+            >
+              Break down this reaction
+            </PrimaryButton>
           )}
-          <PrimaryButton
-            size="lg"
-            onClick={handleReflect}
-            disabled={loading || !input.trim()}
-            className="sm:shrink-0"
-          >
-            {loading
-              ? "Organising your reflection..."
-              : "Break down this reaction"}
-          </PrimaryButton>
         </div>
       </Card>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 space-y-3">
         {warning && <StatusCard tone="warning">{warning}</StatusCard>}
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>

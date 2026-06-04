@@ -1,13 +1,5 @@
 "use client";
 
-import {
-  Brain,
-  FileText,
-  Footprints,
-  Heart,
-  Route,
-  Scale,
-} from "lucide-react";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -16,10 +8,8 @@ import {
 import {
   Badge,
   Card,
-  Disclaimer,
   LinkButton,
   LoadingSpinner,
-  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -27,51 +17,36 @@ import {
   TextareaField,
 } from "../components/ui";
 
-const flowSteps = [
-  { label: "Situation", icon: FileText },
-  { label: "Emotion", icon: Heart },
-  { label: "Thought", icon: Brain },
-  { label: "Facts", icon: Scale },
-  { label: "Interpretation", icon: Route },
-  { label: "Behaviour", icon: Footprints },
-] as const;
-
 const fields = [
   {
     id: "situation",
     label: "Situation",
-    prompt: "What happened?",
-    helper: "A simple snapshot of the moment.",
+    helper: "What happened? A short snapshot is enough.",
   },
   {
     id: "emotion",
     label: "Emotion",
-    prompt: "What emotion did you feel?",
-    helper: "One or two words is fine.",
+    helper: "What did you feel? One or two words is fine.",
   },
   {
     id: "automatic_thought",
-    label: "Automatic thought",
-    prompt: "What thought came up immediately?",
-    helper: "The first thought, assumption, or image that appeared.",
+    label: "First thought",
+    helper: "What popped into your mind first?",
   },
   {
     id: "facts",
     label: "Facts",
-    prompt: "What do you know actually happened?",
-    helper: "What you know happened, separate from meaning.",
+    helper: "What do you know actually happened?",
   },
   {
     id: "interpretation",
     label: "Interpretation",
-    prompt: "What did you assume, imagine, or read into the situation?",
-    helper: "The story your mind started to build around the facts.",
+    helper: "What did you assume or read into the situation?",
   },
   {
     id: "behaviour",
     label: "Behaviour",
-    prompt: "How did you react or what did you feel pulled to do?",
-    helper: "What you did, said, avoided, or wanted to do.",
+    helper: "How did you react, or what did you want to do?",
   },
 ] as const;
 
@@ -95,6 +70,7 @@ export default function GuidedReflectionPage() {
 
   const filledCount = fields.filter((f) => values[f.id].trim()).length;
   const hasInput = filledCount > 0;
+  const activeField = fields[activeStep];
 
   function updateField(field: FieldId, value: string) {
     setValues((current) => ({
@@ -112,6 +88,7 @@ export default function GuidedReflectionPage() {
 
     const input = fields
       .map((field) => `${field.label}: ${values[field.id].trim()}`)
+      .filter((line) => line.split(": ")[1])
       .join("\n");
 
     try {
@@ -142,52 +119,24 @@ export default function GuidedReflectionPage() {
 
   return (
     <PageShell maxWidth="max-w-3xl">
-      <PageHeader eyebrow="Reflect" title="Guided Reflection">
-        Walk through one emotional moment — situation, feeling, facts, what you
-        read into it, and how you reacted.
+      <PageHeader compact eyebrow="Reflect" title="Guided Reflection">
+        One step at a time. Skip anything that does not fit — imperfect answers
+        are fine.
       </PageHeader>
 
-      <PageActions>
-        <LinkButton href="/" variant="ghost">
-          Home
+      <p className="-mt-2 mb-6 text-sm text-[var(--foreground-muted)]">
+        Want to write freely instead?{" "}
+        <LinkButton href="/quick" variant="ghost" size="sm">
+          Use quick reflection
         </LinkButton>
-        <LinkButton href="/history" variant="secondary">
-          History
-        </LinkButton>
-      </PageActions>
+      </p>
 
-      <Card className="brand-panel mb-6">
-        <h2 className="font-semibold text-[var(--foreground)]">
-          A calm path through one emotional moment.
-        </h2>
-        <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-          Fill only the steps that feel clear. Skip anything that does not fit
-          the moment.
-        </p>
-      </Card>
-
-      <div className="mb-6 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
-        {flowSteps.map((step) => {
-          const Icon = step.icon;
-          return (
-            <div
-              key={step.label}
-              className="flex items-center gap-2 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-xs text-[var(--foreground-muted)]"
-            >
-              <Icon
-                aria-hidden="true"
-                size={15}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
-              {step.label}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
+      <div
+        className="mb-4 flex items-center justify-between gap-3"
+        role="tablist"
+        aria-label="Reflection steps"
+      >
+        <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1">
           {fields.map((field, index) => {
             const isActive = index === activeStep;
             const isFilled = Boolean(values[field.id].trim());
@@ -195,9 +144,13 @@ export default function GuidedReflectionPage() {
               <button
                 key={field.id}
                 type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`guided-panel-${field.id}`}
+                id={`guided-tab-${field.id}`}
                 onClick={() => setActiveStep(index)}
                 className={[
-                  "rounded-lg px-3 py-1.5 text-xs font-medium transition",
+                  "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
                   isActive
                     ? "btn-brand text-white shadow-none"
                     : isFilled
@@ -205,72 +158,73 @@ export default function GuidedReflectionPage() {
                       : "bg-[var(--surface-muted)] text-[var(--foreground-subtle)] hover:text-[var(--foreground-muted)]",
                 ].join(" ")}
               >
-                {index + 1}. {field.label}
+                {field.label}
               </button>
             );
           })}
         </div>
-        <Badge variant="outline">
-          {filledCount}/{fields.length} filled
-        </Badge>
+        <span className="shrink-0">
+          <Badge variant="outline">
+            {filledCount}/{fields.length}
+          </Badge>
+        </span>
       </div>
 
       <Card>
-        {fields.map((field, index) => {
-          if (index !== activeStep) return null;
-          return (
-            <div key={field.id}>
-              <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
-                Step {index + 1} of {fields.length}
-              </p>
-              <TextareaField
-                label={field.label}
-                helper={`${field.prompt} ${field.helper}`}
-                className="mt-4 min-h-40"
-                value={values[field.id]}
-                onChange={(event) => updateField(field.id, event.target.value)}
-              />
-              <div className="mt-6 flex flex-wrap gap-3">
-                {index > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveStep(index - 1)}
-                    className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                  >
-                    Back
-                  </button>
-                )}
-                {index < fields.length - 1 ? (
-                  <PrimaryButton
-                    type="button"
-                    size="md"
-                    onClick={() => setActiveStep(index + 1)}
-                  >
-                    Continue
-                  </PrimaryButton>
-                ) : null}
-              </div>
-            </div>
-          );
-        })}
+        <div
+          role="tabpanel"
+          id={`guided-panel-${activeField.id}`}
+          aria-labelledby={`guided-tab-${activeField.id}`}
+        >
+          <p className="text-xs font-medium text-[var(--foreground-subtle)]">
+            Step {activeStep + 1} of {fields.length}
+          </p>
+          <TextareaField
+            label={activeField.label}
+            helper={activeField.helper}
+            className="mt-3 min-h-40 sm:min-h-44"
+            value={values[activeField.id]}
+            onChange={(event) => updateField(activeField.id, event.target.value)}
+          />
+          <div className="mt-5 flex flex-wrap gap-3">
+            {activeStep > 0 && (
+              <button
+                type="button"
+                onClick={() => setActiveStep(activeStep - 1)}
+                className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+              >
+                Back
+              </button>
+            )}
+            {activeStep < fields.length - 1 ? (
+              <PrimaryButton
+                type="button"
+                size="md"
+                onClick={() => setActiveStep(activeStep + 1)}
+              >
+                Continue
+              </PrimaryButton>
+            ) : null}
+          </div>
+        </div>
 
-        <div className="mt-8 flex flex-col gap-4 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-3 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-end">
           {loading ? (
             <LoadingSpinner label="Creating your reflection card…" />
           ) : (
-            <Disclaimer />
+            <PrimaryButton
+              size="lg"
+              onClick={handleReflect}
+              disabled={loading || !hasInput}
+              className="w-full sm:w-auto"
+            >
+              Create reflection card
+            </PrimaryButton>
           )}
-          <PrimaryButton
-            size="lg"
-            onClick={handleReflect}
-            disabled={loading || !hasInput}
-          >
-            {loading ? "Processing…" : "Create reflection card"}
-          </PrimaryButton>
         </div>
       </Card>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-4 space-y-3">
         {warning && <StatusCard tone="warning">{warning}</StatusCard>}
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>

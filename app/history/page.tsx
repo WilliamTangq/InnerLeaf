@@ -5,7 +5,6 @@ import {
   PageActions,
   PageHeader,
   PageShell,
-  StatChip,
   StatusCard,
 } from "../components/ui";
 import { ReflectionCards } from "./reflection-cards";
@@ -59,38 +58,44 @@ export default async function HistoryPage() {
 
   return (
     <PageShell maxWidth="max-w-4xl">
-      <PageHeader eyebrow="Revisit" title="Reflection history">
-        Your history is a collection of reflection cards. Over time, these
-        cards help InnerLeaf show repeated triggers and patterns.
+      <PageHeader compact eyebrow="Revisit" title="Reflection history">
+        Your saved reflection cards. Open any card to read the full breakdown.
       </PageHeader>
 
-      {!error && reflections.length > 0 && (
-        <div className="mb-8 grid gap-3 sm:grid-cols-2">
-          <StatChip
-            label="Total reflections"
-            value={String(reflections.length)}
-          />
-          <StatChip
-            label="Latest"
-            value={
-              latest
-                ? new Date(latest.created_at).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })
-                : "—"
-            }
-          />
-        </div>
-      )}
-
-      <PageActions>
+      <PageActions className="mb-6">
         <LinkButton href="/quick">New reflection</LinkButton>
         <LinkButton href="/summary" variant="secondary">
           View patterns
         </LinkButton>
       </PageActions>
+
+      {!error && reflections.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-3 text-sm text-[var(--foreground-muted)]">
+          <span>
+            <span className="font-medium text-[var(--foreground)]">
+              {reflections.length}
+            </span>{" "}
+            saved
+          </span>
+          {latest && (
+            <>
+              <span aria-hidden="true" className="text-[var(--border-strong)]">
+                ·
+              </span>
+              <span>
+                Latest{" "}
+                <time dateTime={latest.created_at}>
+                  {new Date(latest.created_at).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
+              </span>
+            </>
+          )}
+        </div>
+      )}
 
       {error && (
         <StatusCard tone="error">Failed to load reflections.</StatusCard>

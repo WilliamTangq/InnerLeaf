@@ -126,68 +126,84 @@ export function ReflectionResultCard({
     : parseSections(result);
 
   return (
-    <Card
-      variant="elevated"
-      className="mt-8 overflow-hidden border-[rgba(31,155,143,0.12)]"
-    >
-      <div
-        className="-mx-5 -mt-5 mb-5 h-1 sm:-mx-6 sm:-mt-6"
-        style={{ background: "var(--brand-gradient)" }}
-        aria-hidden
-      />
-      <SectionLabel>Your reflection card</SectionLabel>
+    <section aria-labelledby="reflection-card-heading" className="mt-8">
+      <Card
+        variant="elevated"
+        className="overflow-hidden border-[rgba(31,155,143,0.12)]"
+      >
+        <div
+          className="-mx-5 -mt-5 mb-5 h-1 sm:-mx-6 sm:-mt-6"
+          style={{ background: "var(--brand-gradient)" }}
+          aria-hidden="true"
+        />
+        <SectionLabel id="reflection-card-heading">Your reflection card</SectionLabel>
+        <p className="mt-2 text-sm text-[var(--foreground-subtle)]">
+          Saved automatically. Revisit anytime in History.
+        </p>
 
-      {sections ? (
-        <div className="mt-5 grid gap-3">
-          {sections.map((section) => {
-            const Icon =
-              sectionIcons[section.label as keyof typeof sectionIcons] || Leaf;
-            const isQuestion = section.label === "One next question";
+        {sections ? (
+          <div className="mt-5 grid gap-2.5 sm:gap-3">
+            {sections.map((section) => {
+              const Icon =
+                sectionIcons[section.label as keyof typeof sectionIcons] ||
+                Leaf;
+              const isQuestion = section.label === "One next question";
 
-            return (
-              <div
-                key={section.label}
-                className={[
-                  "rounded-[var(--radius-lg)] border p-4 transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-sm)]",
-                  isQuestion
-                    ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
-                    : "border-[var(--border)] bg-[var(--surface-muted)]",
-                ].join(" ")}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
-                    aria-hidden="true"
+              return (
+                <div
+                  key={section.label}
+                  className={[
+                    "rounded-[var(--radius-lg)] border p-3.5 sm:p-4",
+                    isQuestion
+                      ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] ring-1 ring-[rgba(31,155,143,0.12)]"
+                      : "border-[var(--border)] bg-[var(--surface-muted)]",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+                      aria-hidden="true"
+                    >
+                      <Icon size={15} strokeWidth={1.8} />
+                    </span>
+                    <h3 className="text-sm font-medium text-[var(--foreground)]">
+                      {section.label}
+                    </h3>
+                  </div>
+                  <div
+                    className={[
+                      "mt-2 whitespace-pre-wrap text-[var(--foreground-muted)]",
+                      isQuestion
+                        ? "text-[15px] leading-7"
+                        : "text-sm leading-6",
+                    ].join(" ")}
                   >
-                    <Icon size={16} strokeWidth={1.8} />
-                  </span>
-                  <h3 className="text-sm font-medium text-[var(--foreground)]">
-                    {section.label}
-                  </h3>
+                    {section.content}
+                  </div>
                 </div>
-                <div className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-                  {section.content}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="mt-4 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-          {result}
-        </div>
-      )}
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+            {result}
+          </div>
+        )}
 
-      {showActions && (
-        <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">
-          <LinkButton href="/history" variant="secondary" size="sm">
-            View history
-          </LinkButton>
-          <LinkButton href="/summary" variant="ghost" size="sm">
-            See patterns
-          </LinkButton>
-        </PageActions>
-      )}
-    </Card>
+        {showActions && (
+          <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">
+            <LinkButton href="/quick" size="sm">
+              New reflection
+            </LinkButton>
+            <LinkButton href="/history" variant="secondary" size="sm">
+              View history
+            </LinkButton>
+            <LinkButton href="/summary" variant="ghost" size="sm">
+              See patterns
+            </LinkButton>
+          </PageActions>
+        )}
+      </Card>
+    </section>
   );
 }

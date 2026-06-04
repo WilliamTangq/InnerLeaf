@@ -2,29 +2,13 @@
 
 import {
   Brain,
-  Footprints,
-  Heart,
   HelpCircle,
-  Leaf,
-  ListChecks,
-  MessageCircleQuestion,
   Route,
-  Sparkles,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
 import type { Reflection } from "./page";
-
-function previewText(value: string | null) {
-  const text = (value ?? "").replace(/\s+/g, " ").trim();
-
-  if (!text) {
-    return "No input saved.";
-  }
-
-  return text.length > 120 ? `${text.slice(0, 117)}…` : text;
-}
 
 function extractSection(aiResult: string | null, section: string) {
   if (!aiResult) {
@@ -54,10 +38,8 @@ function extractNextQuestion(aiResult: string | null) {
 
 function cardLabels(aiResult: string | null) {
   return {
-    emotion: extractSection(aiResult, "Emotion"),
     trigger: extractSection(aiResult, "Trigger"),
     thoughtPattern: extractSection(aiResult, "Thought Pattern"),
-    behaviour: extractSection(aiResult, "Behaviour"),
     nextQuestion: extractNextQuestion(aiResult),
   };
 }
@@ -85,16 +67,11 @@ function formatHistoryDate(value: string) {
   }).format(new Date(value));
 }
 
-const labelIcons = {
-  "What came up": Sparkles,
-  Emotion: Heart,
+const previewIcons = {
   Trigger: Zap,
-  Facts: ListChecks,
-  Interpretation: Route,
   "Thought pattern": Brain,
-  Behaviour: Footprints,
-  "Behavioural insight": Leaf,
-  "One next question": MessageCircleQuestion,
+  "One next question": HelpCircle,
+  Interpretation: Route,
 } as const;
 
 function storedList(value: string | null) {
@@ -102,7 +79,13 @@ function storedList(value: string | null) {
     .split("\n")
     .map((item) => item.replace(/^[-•]\s*/, "").trim())
     .filter(Boolean)
-    .join("\n");
+    .join(" ");
+}
+
+function previewLine(value: string | null, max = 140) {
+  const text = (value ?? "").replace(/\s+/g, " ").trim();
+  if (!text) return null;
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
 
 export function ReflectionCards({
@@ -131,34 +114,40 @@ export function ReflectionCards({
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
-          validation: item.emotional_validation,
-          emotion: item.emotion || extractedLabels.emotion,
           trigger: item.trigger || extractedLabels.trigger,
-          facts: storedList(item.facts),
+          thoughtPattern:
+            item.thought_pattern || extractedLabels.thoughtPattern,
           interpretation: storedList(item.interpretation),
-          thoughtPattern: item.thought_pattern || extractedLabels.thoughtPattern,
-          behaviour: item.behaviour || extractedLabels.behaviour,
-          behaviouralInsight: item.behavioural_insight,
           nextQuestion: item.next_question || extractedLabels.nextQuestion,
         };
         const isOpen = openCards.has(item.id);
-        const fullSections = [
-          ["What came up", labels.validation],
-          ["Emotion", labels.emotion],
+        const collapsedPreview = [
           ["Trigger", labels.trigger],
-          ["Facts", labels.facts],
-          ["Interpretation", labels.interpretation],
           ["Thought pattern", labels.thoughtPattern],
-          ["Behaviour", labels.behaviour],
-          ["Behavioural insight", labels.behaviouralInsight],
           ["One next question", labels.nextQuestion],
         ] as const;
-        const hasStructuredDetails = fullSections.some(([, content]) =>
+        const visiblePreview = collapsedPreview.filter(([, content]) =>
           Boolean(content)
         );
+        const headline =
+          previewLine(labels.trigger) ||
+          previewLine(item.user_input, 100) ||
+          "Reflection card";
+
+        const fullSections = [
+          ["What came up", item.emotional_validation],
+          ["Emotion", item.emotion],
+          ["Trigger", labels.trigger],
+          ["Facts", storedList(item.facts)],
+          ["Interpretation", labels.interpretation],
+          ["Thought pattern", labels.thoughtPattern],
+          ["Behaviour", item.behaviour],
+          ["Behavioural insight", item.behavioural_insight],
+          ["One next question", labels.nextQuestion],
+        ] as const;
 
         return (
-          <Card key={item.id}>
+          <Card key={item.id} className="hover:translate-y-0">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -173,130 +162,95 @@ export function ReflectionCards({
                   )}
                   <Badge variant="outline">{modeLabel(item.mode)}</Badge>
                 </div>
-                <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-                  {previewText(item.user_input)}
+                <p className="mt-2 text-base font-medium leading-7 text-[var(--foreground)]">
+                  {headline}
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => toggleCard(item.id)}
+                aria-expanded={isOpen}
                 className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               >
                 {isOpen ? "Collapse" : "Read full card"}
               </button>
             </div>
 
-            {!isOpen && (
-              <div className="mt-5 grid gap-3 md:grid-cols-2">
-                {(
-                  [
-                    ["Emotion", labels.emotion],
-                    ["Trigger", labels.trigger],
-                    ["Thought pattern", labels.thoughtPattern],
-                    ["Behaviour", labels.behaviour],
-                    ["One next question", labels.nextQuestion],
-                  ] as const
-                ).map(([title, content]) => (
-                  <div
-                    key={title}
-                    className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      {(() => {
-                        const Icon =
-                          labelIcons[title as keyof typeof labelIcons];
-                        return (
-                          <Icon
-                            aria-hidden="true"
-                            size={15}
-                            strokeWidth={1.8}
-                            className="text-[var(--brand-teal-deep)]"
-                          />
-                        );
-                      })()}
-                      <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+            {!isOpen && visiblePreview.length > 0 && (
+              <dl className="mt-4 grid gap-2.5 sm:grid-cols-3">
+                {visiblePreview.map(([title, content]) => {
+                  const Icon = previewIcons[title as keyof typeof previewIcons];
+                  const isQuestion = title === "One next question";
+                  return (
+                    <div
+                      key={title}
+                      className={[
+                        "rounded-[var(--radius-lg)] border p-3",
+                        isQuestion
+                          ? "border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] sm:col-span-3"
+                          : "border-[var(--border)] bg-[var(--surface-muted)]",
+                      ].join(" ")}
+                    >
+                      <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                        <Icon
+                          aria-hidden="true"
+                          size={14}
+                          strokeWidth={1.8}
+                          className="text-[var(--brand-teal-deep)]"
+                        />
                         {title}
-                      </p>
+                      </dt>
+                      <dd className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+                        {content}
+                      </dd>
                     </div>
-                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                      {content || "Not clearly identified."}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                  );
+                })}
+              </dl>
             )}
 
             {isOpen && (
               <div className="mt-6 space-y-6 border-t border-[var(--border)] pt-6">
-                <div>
-                  <h3 className="text-sm font-medium text-[var(--foreground)]">
-                    What you wrote
-                  </h3>
-                  <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-                    {item.user_input}
-                  </p>
-                </div>
-                {hasStructuredDetails ? (
-                  <div>
-                    <div className="mb-3 flex items-center gap-2">
-                      <MessageCircleQuestion
-                        aria-hidden="true"
-                        size={16}
-                        strokeWidth={1.8}
-                        className="text-[var(--brand-teal-deep)]"
-                      />
-                      <h3 className="text-sm font-medium text-[var(--foreground)]">
-                        Full reflection card
-                      </h3>
-                    </div>
-                    <div className="grid gap-3 md:grid-cols-2">
-                      {fullSections
-                        .filter(([, content]) => Boolean(content))
-                        .map(([title, content]) => {
-                          const Icon =
-                            labelIcons[title as keyof typeof labelIcons] ||
-                            Leaf;
-                          const isQuestion = title === "One next question";
-
-                          return (
-                            <div
-                              key={title}
-                              className={[
-                                "rounded-[var(--radius-lg)] border p-4",
-                                isQuestion
-                                  ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
-                                  : "border-[var(--border)] bg-[var(--surface-muted)]",
-                              ].join(" ")}
-                            >
-                              <div className="flex items-center gap-2">
-                                <Icon
-                                  aria-hidden="true"
-                                  size={15}
-                                  strokeWidth={1.8}
-                                  className="text-[var(--brand-teal-deep)]"
-                                />
-                                <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                                  {title}
-                                </p>
-                              </div>
-                              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                                {content}
-                              </p>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  </div>
-                ) : (
+                {item.user_input && (
                   <div>
                     <h3 className="text-sm font-medium text-[var(--foreground)]">
-                      Reflection card
+                      What you wrote
                     </h3>
-                    <p className="mt-2 whitespace-pre-wrap text-[15px] leading-7 text-[var(--foreground-muted)]">
-                      {item.ai_result}
+                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                      {item.user_input}
                     </p>
                   </div>
+                )}
+                <div className="grid gap-2.5 sm:grid-cols-2">
+                  {fullSections
+                    .filter(([, content]) => Boolean(content))
+                    .map(([title, content]) => {
+                      const isQuestion = title === "One next question";
+                      return (
+                        <div
+                          key={title}
+                          className={[
+                            "rounded-[var(--radius-lg)] border p-3.5",
+                            isQuestion
+                              ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] sm:col-span-2"
+                              : "border-[var(--border)] bg-[var(--surface-muted)]",
+                          ].join(" ")}
+                        >
+                          <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                            {title}
+                          </p>
+                          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                            {content}
+                          </p>
+                        </div>
+                      );
+                    })}
+                </div>
+                {!fullSections.some(([, c]) => c) && item.ai_result && (
+                  <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                    {item.ai_result}
+                  </p>
                 )}
               </div>
             )}

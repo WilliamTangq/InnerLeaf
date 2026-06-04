@@ -18,6 +18,7 @@ const links = [
   { href: "/guided", label: "Guided", icon: ListChecks },
   { href: "/history", label: "History", icon: Archive },
   { href: "/summary", label: "Patterns", icon: TrendingUp },
+  { href: "/feedback", label: "Feedback", icon: MessageSquare },
   { href: "/login", label: "Login", icon: LockKeyhole },
 ] as const;
 
@@ -25,7 +26,10 @@ export function NavLinks() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-wrap items-center gap-1 sm:gap-0.5">
+    <nav
+      aria-label="Main"
+      className="-mx-1 flex max-w-full items-center gap-0.5 overflow-x-auto pb-0.5 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:pb-0"
+    >
       {links.map((link) => {
         const Icon = link.icon;
         const isActive =
@@ -38,10 +42,12 @@ export function NavLinks() {
             key={link.href}
             href={link.href}
             className={[
-              "rounded-lg px-3 py-2 text-sm transition",
+              "shrink-0 rounded-lg px-3 py-2 text-sm whitespace-nowrap transition",
               isActive
                 ? "bg-[var(--accent-soft)] font-medium text-[var(--brand-teal-deep)]"
                 : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
+              link.href === "/login" &&
+                "text-[var(--foreground-subtle)] sm:ml-1",
             ].join(" ")}
           >
             <Icon
@@ -54,23 +60,6 @@ export function NavLinks() {
           </Link>
         );
       })}
-      <Link
-        href="/feedback"
-        className={[
-          "rounded-lg px-3 py-2 text-sm transition",
-          pathname === "/feedback"
-            ? "bg-[var(--accent-soft)] font-medium text-[var(--brand-teal-deep)]"
-            : "text-[var(--foreground-subtle)] hover:text-[var(--foreground-muted)]",
-        ].join(" ")}
-      >
-        <MessageSquare
-          aria-hidden="true"
-          size={14}
-          strokeWidth={1.8}
-          className="mr-1.5 hidden align-[-2px] sm:inline-block"
-        />
-        Feedback
-      </Link>
     </nav>
   );
 }

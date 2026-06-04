@@ -18,7 +18,7 @@ export function PatternSection({
   const maxCount = Math.max(...items.map((item) => item.count), 1);
 
   return (
-    <Card>
+    <Card className="hover:translate-y-0">
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-base font-semibold text-[var(--foreground)]">
