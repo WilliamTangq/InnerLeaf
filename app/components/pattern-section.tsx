@@ -49,11 +49,11 @@ export function PatternSection({
               key={item.value}
               className="flex items-start justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
             >
-              <span className="flex items-start gap-3 text-sm leading-6 text-[var(--foreground-muted)]">
+              <span className="flex min-w-0 flex-1 items-start gap-3 text-sm leading-6 text-[var(--foreground-muted)]">
                 <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[var(--surface)] text-xs font-medium text-[var(--foreground-subtle)]">
                   {index + 1}
                 </span>
-                <span className="flex-1">
+                <span className="min-w-0 flex-1">
                   {item.value}
                   <span className="mt-2 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
                     <span

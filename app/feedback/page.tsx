@@ -139,8 +139,7 @@ export default function FeedbackPage() {
   return (
     <PageShell>
       <PageHeader compact eyebrow="Help us improve" title="Share feedback">
-        About two minutes. All fields are optional except where you choose to
-        answer.
+        About two minutes. Share only what feels useful.
       </PageHeader>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -190,7 +189,12 @@ export default function FeedbackPage() {
           </div>
 
           <div className="mt-8">
-            <PrimaryButton type="submit" size="lg" disabled={loading}>
+            <PrimaryButton
+              type="submit"
+              size="lg"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
               <span className="inline-flex items-center gap-2">
                 {!loading && (
                   <Send aria-hidden="true" size={15} strokeWidth={1.8} />

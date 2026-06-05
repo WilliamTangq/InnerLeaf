@@ -19,6 +19,12 @@ const supabase =
     ? createClient(supabaseUrl, supabaseServiceRoleKey)
     : null;
 
+const historySelect =
+  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, next_step, next_step_type, follow_up_result, follow_up_note, follow_up_at, mode";
+
+const legacyHistorySelect =
+  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode";
+
 export type Reflection = {
   id: string | number;
   created_at: string;
@@ -33,21 +39,39 @@ export type Reflection = {
   behaviour: string | null;
   behavioural_insight: string | null;
   next_question: string | null;
+  next_step: string | null;
+  next_step_type: string | null;
+  follow_up_result: string | null;
+  follow_up_note: string | null;
+  follow_up_at: string | null;
   mode: string | null;
 };
 
 export default async function HistoryPage() {
-  const { data, error } = supabase
-    ? await supabase
+  let data = null;
+  let error: Error | { code?: string; message?: string } | null = null;
+
+  if (supabase) {
+    const response = await supabase
+      .from("reflections")
+      .select(historySelect)
+      .order("created_at", { ascending: false });
+
+    data = response.data;
+    error = response.error;
+
+    if (response.error?.code === "42703") {
+      const legacyResponse = await supabase
         .from("reflections")
-        .select(
-          "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode"
-        )
-        .order("created_at", { ascending: false })
-    : {
-        data: null,
-        error: new Error("Missing Supabase server environment variables"),
-      };
+        .select(legacyHistorySelect)
+        .order("created_at", { ascending: false });
+
+      data = legacyResponse.data;
+      error = legacyResponse.error;
+    }
+  } else {
+    error = new Error("Missing Supabase server environment variables");
+  }
 
   if (error) {
     console.error("Supabase history fetch error:", error);
@@ -98,7 +122,9 @@ export default async function HistoryPage() {
       )}
 
       {error && (
-        <StatusCard tone="error">Failed to load reflections.</StatusCard>
+        <StatusCard tone="error">
+          Reflection history is unavailable right now.
+        </StatusCard>
       )}
 
       {!error && reflections.length === 0 && (

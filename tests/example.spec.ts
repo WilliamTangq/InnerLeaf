@@ -3,12 +3,12 @@ import { expect, test } from "@playwright/test";
 const routes = [
   {
     path: "/",
-    heading: "Understand the pattern behind your emotional reaction.",
+    heading: "Turn a reaction into a reflection card.",
   },
   { path: "/quick", heading: "Quick Reflection" },
   { path: "/guided", heading: "Guided Reflection" },
   { path: "/history", heading: "Reflection history" },
-  { path: "/summary", heading: "Your recent patterns" },
+  { path: "/summary", heading: "Pattern summary" },
   { path: "/feedback", heading: "Share feedback" },
   { path: "/login", heading: "Login" },
 ] as const;
@@ -34,7 +34,7 @@ test("home links to the main reflection flows", async ({ page }) => {
     page.getByRole("link", { name: "Start quick reflection" }).first()
   ).toHaveAttribute("href", "/quick");
   await expect(
-    page.getByRole("link", { name: "Try guided reflection" }).first()
+    page.getByRole("link", { name: "Prefer step-by-step? Try guided" }).first()
   ).toHaveAttribute("href", "/guided");
 });
 

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
   ReflectionResultCard,
@@ -8,7 +9,6 @@ import {
 import {
   Badge,
   Card,
-  LinkButton,
   LoadingSpinner,
   PageHeader,
   PageShell,
@@ -126,9 +126,12 @@ export default function GuidedReflectionPage() {
 
       <p className="-mt-2 mb-6 text-sm text-[var(--foreground-muted)]">
         Want to write freely instead?{" "}
-        <LinkButton href="/quick" variant="ghost" size="sm">
+        <Link
+          href="/quick"
+          className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+        >
           Use quick reflection
-        </LinkButton>
+        </Link>
       </p>
 
       <div

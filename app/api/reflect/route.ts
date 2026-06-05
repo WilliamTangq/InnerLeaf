@@ -27,10 +27,21 @@ type StructuredReflection = {
   behaviour: string;
   behavioural_insight: string;
   next_question: string;
+  next_step_type?: string;
+  next_step?: string;
   captured_clearly?: string;
   still_unclear?: string;
   completed_reflection?: string;
 };
+
+const nextStepTypes = new Set([
+  "Pause",
+  "Clarify facts",
+  "Communicate",
+  "Self-soothe",
+  "Reframe",
+  "Do nothing for now",
+]);
 
 function toStringValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
@@ -46,6 +57,12 @@ function toStringList(value: unknown) {
     .map((item) => item.trim())
     .filter(Boolean)
     .slice(0, 2);
+}
+
+function toNextStepType(value: unknown) {
+  const text = toStringValue(value);
+
+  return nextStepTypes.has(text) ? text : "";
 }
 
 function parseStructuredReflection(text: string): StructuredReflection | null {
@@ -66,6 +83,8 @@ function parseStructuredReflection(text: string): StructuredReflection | null {
       behaviour: toStringValue(value.behaviour),
       behavioural_insight: toStringValue(value.behavioural_insight),
       next_question: toStringValue(value.next_question),
+      next_step_type: toNextStepType(value.next_step_type),
+      next_step: toStringValue(value.next_step),
       captured_clearly: toStringValue(value.captured_clearly),
       still_unclear: toStringValue(value.still_unclear),
       completed_reflection: toStringValue(value.completed_reflection),
@@ -96,6 +115,13 @@ function formatStructuredReflection(reflection: StructuredReflection) {
         .join("\n")
     : "- Not clearly identified.";
 
+  const nextStep = reflection.next_step
+    ? `
+
+8. One Small Next Step
+${reflection.next_step_type ? `[${reflection.next_step_type}]\n` : ""}${reflection.next_step}`
+    : "";
+
   return `1. Emotional Validation
 ${reflection.emotional_validation}
 
@@ -119,7 +145,7 @@ ${reflection.behaviour || "Not clearly identified."}
 ${reflection.behavioural_insight}
 
 7. One Next Question
-${reflection.next_question}`;
+${reflection.next_question}${nextStep}`;
 }
 
 function formatGuidedReflection(reflection: StructuredReflection) {
@@ -180,7 +206,9 @@ For all modes, include exactly these core fields:
   "thought_pattern": "One possible thought pattern, cautious language.",
   "behaviour": "Observed or likely behavioural reaction.",
   "behavioural_insight": "Max 2 sentences explaining the reaction gently.",
-  "next_question": "One practical reflection question."
+  "next_question": "One practical reflection question.",
+  "next_step_type": "Pause | Clarify facts | Communicate | Self-soothe | Reframe | Do nothing for now",
+  "next_step": "One small practical next step."
 }
 
 If mode is guided, also include:
@@ -195,6 +223,10 @@ Rules:
 - Use at most 2 facts.
 - Use at most 2 interpretations.
 - Do not list multiple thought patterns.
+- The next_step must be one small optional action that is realistic within 5 minutes.
+- The next_step must not sound like therapy homework, medical advice, or something the user must do.
+- The next_step should help the user slow down, clarify facts, communicate gently, reframe cautiously, self-soothe, or avoid impulsive behaviour.
+- If the input suggests crisis, self-harm, harm to others, abuse, or immediate danger, do not provide a normal next step. Give a brief safety-oriented next_step encouraging immediate support from local emergency services or a trusted person.
 - Do not wrap the JSON in markdown.
 `;
 }
@@ -245,6 +277,8 @@ export async function POST(request: Request) {
             behaviour: structured.behaviour,
             behavioural_insight: structured.behavioural_insight,
             next_question: structured.next_question,
+            next_step_type: structured.next_step_type || null,
+            next_step: structured.next_step || null,
           }
         : {}),
     };

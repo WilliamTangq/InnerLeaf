@@ -28,7 +28,7 @@ const steps = [
   {
     icon: Leaf,
     title: "Get your reflection card",
-    description: "Trigger, facts, interpretation, and one next question.",
+    description: "Trigger, facts, interpretation, and one small next step.",
   },
   {
     icon: Archive,
@@ -179,8 +179,8 @@ export default function Home() {
           </h1>
           <p className="mt-4 text-base leading-7 text-[var(--foreground-muted)] sm:mt-5 sm:text-lg sm:leading-8">
             Write freely. InnerLeaf separates facts from interpretation and ends
-            with one next question — then saves the card so you can spot
-            patterns later.
+            with one small next step — then saves the card so you can check in
+            and spot patterns later.
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">

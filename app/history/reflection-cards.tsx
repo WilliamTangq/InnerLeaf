@@ -2,8 +2,11 @@
 
 import {
   Brain,
+  CheckCircle2,
+  Footprints,
   HelpCircle,
   Route,
+  Send,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +19,7 @@ function extractSection(aiResult: string | null, section: string) {
   }
 
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Emotion Pattern|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|Reflection Question|One Next Question)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Emotion Pattern|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|Reflection Question|One Next Question|One Small Next Step)\\s*\\n|$)`,
     "i"
   );
   const match = aiResult.match(pattern);
@@ -71,6 +74,7 @@ const previewIcons = {
   Trigger: Zap,
   "Thought pattern": Brain,
   "One next question": HelpCircle,
+  "One small next step": Footprints,
   Interpretation: Route,
 } as const;
 
@@ -84,8 +88,192 @@ function storedList(value: string | null) {
 
 function previewLine(value: string | null, max = 140) {
   const text = (value ?? "").replace(/\s+/g, " ").trim();
-  if (!text) return null;
+  const lower = text.toLowerCase();
+
+  if (
+    !text ||
+    lower === "unspecified" ||
+    lower === "not clearly identified" ||
+    lower === "not identified"
+  ) {
+    return null;
+  }
+
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function formatFollowUpDate(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat("en-AU", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
+}
+
+function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
+  const [selectedResult, setSelectedResult] = useState(
+    reflection.follow_up_result ?? ""
+  );
+  const [note, setNote] = useState(reflection.follow_up_note ?? "");
+  const [savedResult, setSavedResult] = useState(
+    reflection.follow_up_result ?? ""
+  );
+  const [savedAt, setSavedAt] = useState(reflection.follow_up_at ?? "");
+  const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
+    "idle"
+  );
+
+  const nextStep = previewLine(reflection.next_step, 220);
+  const nextStepType = previewLine(reflection.next_step_type, 60);
+  const savedDate = formatFollowUpDate(savedAt);
+
+  if (!nextStep) {
+    return null;
+  }
+
+  async function saveCheckIn() {
+    if (!selectedResult) {
+      return;
+    }
+
+    setStatus("saving");
+
+    try {
+      const response = await fetch("/api/check-in", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: reflection.id,
+          follow_up_result: selectedResult,
+          follow_up_note: note,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Check-in failed");
+      }
+
+      setSavedResult(selectedResult);
+      setSavedAt(new Date().toISOString());
+      setStatus("saved");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  return (
+    <div className="rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] p-4 ring-1 ring-[rgba(31,155,143,0.08)]">
+      <div className="flex flex-wrap items-center gap-2">
+        <Footprints
+          aria-hidden="true"
+          size={16}
+          strokeWidth={1.8}
+          className="text-[var(--brand-teal-deep)]"
+        />
+        <h3 className="text-sm font-semibold text-[var(--foreground)]">
+          One small next step
+        </h3>
+        {nextStepType && (
+          <Badge variant="accent">{nextStepType}</Badge>
+        )}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+        {nextStep}
+      </p>
+
+      {savedResult ? (
+        <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+          <p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
+            <CheckCircle2
+              aria-hidden="true"
+              size={16}
+              strokeWidth={1.8}
+              className="text-[var(--brand-teal-deep)]"
+            />
+            Check-in saved: {savedResult}
+          </p>
+          {savedDate && (
+            <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
+              Checked in {savedDate}
+            </p>
+          )}
+          {note.trim() && (
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {note}
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="mt-4 space-y-3">
+          <p className="text-sm font-medium text-[var(--foreground)]">
+            Did this help?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {["Helped", "Somewhat", "Did not help"].map((result) => {
+              const isSelected = selectedResult === result;
+
+              return (
+                <button
+                  key={result}
+                  type="button"
+                  onClick={() => setSelectedResult(result)}
+                  className={[
+                    "rounded-full border px-3.5 py-2 text-sm font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                    isSelected
+                      ? "border-[rgba(31,155,143,0.28)] bg-[var(--brand-teal)] text-white"
+                      : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]",
+                  ].join(" ")}
+                >
+                  {result}
+                </button>
+              );
+            })}
+          </div>
+          <label className="block">
+            <span className="text-sm font-medium text-[var(--foreground)]">
+              What happened after you tried it? Optional.
+            </span>
+            <textarea
+              value={note}
+              onChange={(event) => setNote(event.target.value)}
+              rows={3}
+              className="mt-2 min-h-24 w-full resize-y rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+              placeholder="A few words is enough."
+            />
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={saveCheckIn}
+              disabled={!selectedResult || status === "saving"}
+              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            >
+              <Send aria-hidden="true" size={15} strokeWidth={1.8} />
+              {status === "saving" ? "Saving..." : "Save check-in"}
+            </button>
+            {status === "saved" && (
+              <p className="text-sm text-[var(--brand-teal-deep)]">
+                Check-in saved.
+              </p>
+            )}
+            {status === "error" && (
+              <p className="text-sm text-[var(--error)]">
+                Could not save check-in. Please try again.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function ReflectionCards({
@@ -114,17 +302,22 @@ export function ReflectionCards({
       {reflections.map((item) => {
         const extractedLabels = cardLabels(item.ai_result);
         const labels = {
-          trigger: item.trigger || extractedLabels.trigger,
+          trigger: previewLine(item.trigger) || extractedLabels.trigger,
           thoughtPattern:
-            item.thought_pattern || extractedLabels.thoughtPattern,
+            previewLine(item.thought_pattern) || extractedLabels.thoughtPattern,
           interpretation: storedList(item.interpretation),
-          nextQuestion: item.next_question || extractedLabels.nextQuestion,
+          nextQuestion:
+            previewLine(item.next_question) || extractedLabels.nextQuestion,
+          nextStep:
+            previewLine(item.next_step) ||
+            extractSection(item.ai_result, "One Small Next Step"),
         };
         const isOpen = openCards.has(item.id);
         const collapsedPreview = [
           ["Trigger", labels.trigger],
           ["Thought pattern", labels.thoughtPattern],
           ["One next question", labels.nextQuestion],
+          ["One small next step", labels.nextStep],
         ] as const;
         const visiblePreview = collapsedPreview.filter(([, content]) =>
           Boolean(content)
@@ -144,6 +337,7 @@ export function ReflectionCards({
           ["Behaviour", item.behaviour],
           ["Behavioural insight", item.behavioural_insight],
           ["One next question", labels.nextQuestion],
+          ["One small next step", labels.nextStep],
         ] as const;
 
         return (
@@ -181,7 +375,9 @@ export function ReflectionCards({
               <dl className="mt-4 grid gap-2.5 sm:grid-cols-3">
                 {visiblePreview.map(([title, content]) => {
                   const Icon = previewIcons[title as keyof typeof previewIcons];
-                  const isQuestion = title === "One next question";
+                  const isQuestion =
+                    title === "One next question" ||
+                    title === "One small next step";
                   return (
                     <div
                       key={title}
@@ -226,7 +422,9 @@ export function ReflectionCards({
                   {fullSections
                     .filter(([, content]) => Boolean(content))
                     .map(([title, content]) => {
-                      const isQuestion = title === "One next question";
+                      const isQuestion =
+                        title === "One next question" ||
+                        title === "One small next step";
                       return (
                         <div
                           key={title}
@@ -252,6 +450,7 @@ export function ReflectionCards({
                     {item.ai_result}
                   </p>
                 )}
+                <NextStepCheckIn reflection={item} />
               </div>
             )}
           </Card>

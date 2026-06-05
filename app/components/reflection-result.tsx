@@ -22,6 +22,8 @@ export type StructuredReflectionResult = {
   behaviour?: string;
   behavioural_insight?: string;
   next_question?: string;
+  next_step_type?: string;
+  next_step?: string;
   captured_clearly?: string;
   still_unclear?: string;
   completed_reflection?: string;
@@ -48,6 +50,7 @@ const sectionIcons = {
   Behaviour: Footprints,
   "Behavioural insight": Leaf,
   "One next question": MessageCircleQuestion,
+  "One small next step": Footprints,
   "Captured clearly": ListChecks,
   "Still unclear": HelpCircle,
   "Completed reflection": Leaf,
@@ -124,6 +127,8 @@ export function ReflectionResultCard({
   const sections = structured
     ? structuredSections(structured)
     : parseSections(result);
+  const nextStep = structured?.next_step?.trim();
+  const nextStepType = structured?.next_step_type?.trim();
 
   return (
     <section aria-labelledby="reflection-card-heading" className="mt-8">
@@ -187,6 +192,33 @@ export function ReflectionResultCard({
         ) : (
           <div className="mt-4 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
             {result}
+          </div>
+        )}
+
+        {nextStep && (
+          <div className="mt-5 rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.24)] bg-[var(--accent-soft)] p-4 ring-1 ring-[rgba(31,155,143,0.1)] sm:p-5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span
+                className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+                aria-hidden="true"
+              >
+                <Footprints size={16} strokeWidth={1.8} />
+              </span>
+              <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                One small next step
+              </h3>
+              {nextStepType && (
+                <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                  {nextStepType}
+                </span>
+              )}
+            </div>
+            <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
+              {nextStep}
+            </p>
+            <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
+              Try this gently, or skip it if it does not fit the moment.
+            </p>
           </div>
         )}
 

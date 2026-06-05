@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { Leaf, Sparkles } from "lucide-react";
+import { CheckCircle2, Footprints, Leaf, Sparkles } from "lucide-react";
 import { PatternSection } from "../components/pattern-section";
 import {
   Card,
@@ -21,6 +21,12 @@ const supabase =
     ? createClient(supabaseUrl, supabaseServiceRoleKey)
     : null;
 
+const summarySelect =
+  "id, created_at, emotion, trigger, thought_pattern, behaviour, next_step_type, follow_up_result";
+
+const legacySummarySelect =
+  "id, created_at, emotion, trigger, thought_pattern, behaviour";
+
 type SummaryReflection = {
   id: string | number;
   created_at: string;
@@ -28,10 +34,24 @@ type SummaryReflection = {
   trigger: string | null;
   thought_pattern: string | null;
   behaviour: string | null;
+  next_step_type: string | null;
+  follow_up_result: string | null;
 };
 
 function normalizeValue(value: string | null) {
-  return (value ?? "").replace(/\s+/g, " ").trim();
+  const normalized = (value ?? "").replace(/\s+/g, " ").trim();
+  const lower = normalized.toLowerCase();
+
+  if (
+    !normalized ||
+    lower === "unspecified" ||
+    lower === "not clearly identified" ||
+    lower === "not identified"
+  ) {
+    return "";
+  }
+
+  return normalized;
 }
 
 function topPatterns(values: Array<string | null>) {
@@ -104,6 +124,47 @@ function changeSignals(reflections: SummaryReflection[]) {
   return signals.slice(0, 3);
 }
 
+function helpfulNextSteps(reflections: SummaryReflection[]) {
+  const counts = new Map<string, { value: string; used: number; helped: number }>();
+
+  reflections.forEach((item) => {
+    const type = normalizeValue(item.next_step_type);
+    const result = normalizeValue(item.follow_up_result);
+
+    if (!type || !result) {
+      return;
+    }
+
+    const current = counts.get(type) ?? {
+      value: type,
+      used: 0,
+      helped: 0,
+    };
+
+    current.used += 1;
+
+    if (result === "Helped" || result === "Somewhat") {
+      current.helped += 1;
+    }
+
+    counts.set(type, current);
+  });
+
+  return Array.from(counts.values())
+    .sort((first, second) => {
+      if (second.helped !== first.helped) {
+        return second.helped - first.helped;
+      }
+
+      if (second.used !== first.used) {
+        return second.used - first.used;
+      }
+
+      return first.value.localeCompare(second.value);
+    })
+    .slice(0, 3);
+}
+
 function ChangeSection({ signals }: { signals: string[] }) {
   return (
     <Card className="hover:translate-y-0">
@@ -150,17 +211,104 @@ function ChangeSection({ signals }: { signals: string[] }) {
   );
 }
 
+function HelpfulNextStepsSection({
+  items,
+}: {
+  items: Array<{ value: string; used: number; helped: number }>;
+}) {
+  const maxUsed = Math.max(...items.map((item) => item.used), 1);
+
+  return (
+    <Card className="hover:translate-y-0">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            Helpful next steps
+          </h2>
+          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+            Based on your saved check-ins
+          </p>
+        </div>
+        <Footprints
+          aria-hidden="true"
+          size={18}
+          strokeWidth={1.8}
+          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+        />
+      </div>
+
+      {items.length === 0 ? (
+        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
+          Check in on a few next steps to see what tends to help.
+        </p>
+      ) : (
+        <ol className="mt-5 space-y-2">
+          {items.map((item) => (
+            <li
+              key={item.value}
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="flex min-w-0 items-start gap-2 text-sm font-medium leading-6 text-[var(--foreground)]">
+                  <CheckCircle2
+                    aria-hidden="true"
+                    size={15}
+                    strokeWidth={1.8}
+                    className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
+                  />
+                  {item.value}
+                </span>
+                <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
+                  {item.used}×
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-[var(--foreground-muted)]">
+                Used {item.used} time{item.used === 1 ? "" : "s"} · You marked
+                helpful {item.helped} time{item.helped === 1 ? "" : "s"}
+              </p>
+              <span className="mt-3 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
+                <span
+                  className="block h-full rounded-full bg-[var(--brand-teal)]/55"
+                  style={{
+                    width: `${Math.max(16, (item.used / maxUsed) * 100)}%`,
+                  }}
+                />
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </Card>
+  );
+}
+
 export default async function SummaryPage() {
-  const { data, error } = supabase
-    ? await supabase
+  let data = null;
+  let error: Error | { code?: string; message?: string } | null = null;
+
+  if (supabase) {
+    const response = await supabase
+      .from("reflections")
+      .select(summarySelect)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    data = response.data;
+    error = response.error;
+
+    if (response.error?.code === "42703") {
+      const legacyResponse = await supabase
         .from("reflections")
-        .select("id, created_at, emotion, trigger, thought_pattern, behaviour")
+        .select(legacySummarySelect)
         .order("created_at", { ascending: false })
-        .limit(10)
-    : {
-        data: null,
-        error: new Error("Missing Supabase server environment variables"),
-      };
+        .limit(10);
+
+      data = legacyResponse.data;
+      error = legacyResponse.error;
+    }
+  } else {
+    error = new Error("Missing Supabase server environment variables");
+  }
 
   if (error) {
     console.error("Supabase summary fetch error:", error);
@@ -178,6 +326,7 @@ export default async function SummaryPage() {
     reflections.map((item) => item.behaviour)
   );
   const signals = changeSignals(reflections);
+  const nextSteps = helpfulNextSteps(reflections);
 
   return (
     <PageShell maxWidth="max-w-5xl">
@@ -194,7 +343,9 @@ export default async function SummaryPage() {
       </PageActions>
 
       {error && (
-        <StatusCard tone="error">Failed to load pattern summary.</StatusCard>
+        <StatusCard tone="error">
+          Pattern summary is unavailable right now.
+        </StatusCard>
       )}
 
       {!error && !hasEnoughData && (
@@ -232,6 +383,7 @@ export default async function SummaryPage() {
               items={recentBehaviouralThemes}
             />
             <ChangeSection signals={signals} />
+            <HelpfulNextStepsSection items={nextSteps} />
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
             <LinkButton href="/quick">Reflect on a new moment</LinkButton>
