@@ -27,13 +27,13 @@ const steps = [
   },
   {
     icon: Leaf,
-    title: "Get your reflection card",
+    title: "InnerLeaf organises it",
     description: "Trigger, facts, interpretation, and one small next step.",
   },
   {
     icon: Archive,
-    title: "Revisit in History",
-    description: "Each moment stays in your personal archive.",
+    title: "Save a reflection card",
+    description: "Keep each card easy to revisit later.",
   },
   {
     icon: TrendingUp,
@@ -99,8 +99,8 @@ function ReflectionPreview() {
     },
     {
       icon: HelpCircle,
-      label: "One next question",
-      text: "What else could explain the delay besides rejection?",
+      label: "One small next step",
+      text: "Before replying, write down one fact and one assumption.",
       highlight: true,
     },
   ] as const;
@@ -117,9 +117,9 @@ function ReflectionPreview() {
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <SectionLabel>The reflection card</SectionLabel>
+            <SectionLabel>Product preview</SectionLabel>
             <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-              One moment, structured
+              A reflection card, not a chat thread
             </p>
           </div>
           <Badge variant="accent">~3 min</Badge>
@@ -174,13 +174,12 @@ export default function Home() {
           />
           <Badge variant="accent">One emotional moment at a time</Badge>
           <h1 className="mt-4 text-[2rem] font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-[2.75rem] sm:leading-[1.08]">
-            Turn a reaction into a{" "}
-            <span className="brand-gradient-text">reflection card</span>.
+            Understand the pattern behind your{" "}
+            <span className="brand-gradient-text">emotional reaction</span>.
           </h1>
           <p className="mt-4 text-base leading-7 text-[var(--foreground-muted)] sm:mt-5 sm:text-lg sm:leading-8">
-            Write freely. InnerLeaf separates facts from interpretation and ends
-            with one small next step — then saves the card so you can check in
-            and spot patterns later.
+            InnerLeaf turns intense emotional moments into structured reflection
+            cards, with one small next step you can check in on later.
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
@@ -193,15 +192,19 @@ export default function Home() {
               size="lg"
               className="w-full sm:w-auto"
             >
-              Prefer step-by-step? Try guided
+              Try guided reflection
             </LinkButton>
           </div>
+          <p className="mt-4 text-sm text-[var(--foreground-subtle)]">
+            You stay in control. InnerLeaf does not diagnose, score, or judge
+            your emotions.
+          </p>
         </div>
 
         <ReflectionPreview />
       </section>
 
-      <LandingSection eyebrow="How it works" title="Write once. Review clearly.">
+      <LandingSection eyebrow="How it works" title="Write freely. Review clearly.">
         <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {steps.map((item, index) => {
             const Icon = item.icon;
@@ -232,7 +235,7 @@ export default function Home() {
 
       <LandingSection
         eyebrow="Why InnerLeaf"
-        title="Episode breakdown — not another wellness app."
+        title="Designed for clarity, not endless analysis."
         className="mb-16 sm:mb-20"
       >
         <div className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
@@ -246,18 +249,18 @@ export default function Home() {
           </Card>
           <Card className="hover:translate-y-0">
             <h3 className="font-semibold text-[var(--foreground)]">
-              Not open-ended journaling
+              Not a therapy chatbot
             </h3>
             <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              One episode, one card — not a daily diary habit.
+              It stays within self-reflection and keeps boundaries clear.
             </p>
           </Card>
           <Card className="hover:translate-y-0">
             <h3 className="font-semibold text-[var(--foreground)]">
-              Not a chat thread
+              Not endless AI analysis
             </h3>
             <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              The same structured format every time, saved for comparison.
+              One trigger. One pattern. One next step.
             </p>
           </Card>
         </div>
@@ -267,6 +270,12 @@ export default function Home() {
           </LinkButton>
           <LinkButton href="/history" variant="secondary">
             View history
+          </LinkButton>
+          <LinkButton href="/summary" variant="ghost">
+            Pattern summary
+          </LinkButton>
+          <LinkButton href="/feedback" variant="ghost">
+            Feedback
           </LinkButton>
         </div>
       </LandingSection>

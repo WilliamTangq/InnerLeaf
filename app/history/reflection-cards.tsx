@@ -59,6 +59,14 @@ function modeLabel(mode: string | null) {
   return "Reflection";
 }
 
+function followUpLabel(result: string | null) {
+  if (!result) {
+    return "Not checked in";
+  }
+
+  return `Checked in: ${result}`;
+}
+
 function formatHistoryDate(value: string) {
   return new Intl.DateTimeFormat("en-AU", {
     day: "numeric",
@@ -311,6 +319,7 @@ export function ReflectionCards({
           nextStep:
             previewLine(item.next_step) ||
             extractSection(item.ai_result, "One Small Next Step"),
+          nextStepType: previewLine(item.next_step_type, 60),
         };
         const isOpen = openCards.has(item.id);
         const collapsedPreview = [
@@ -355,6 +364,14 @@ export function ReflectionCards({
                     <Badge variant="accent">{item.emotion}</Badge>
                   )}
                   <Badge variant="outline">{modeLabel(item.mode)}</Badge>
+                  {labels.nextStepType && (
+                    <Badge variant="accent">{labels.nextStepType}</Badge>
+                  )}
+                  {labels.nextStep && (
+                    <Badge variant={item.follow_up_result ? "accent" : "outline"}>
+                      {followUpLabel(item.follow_up_result)}
+                    </Badge>
+                  )}
                 </div>
                 <p className="mt-2 text-base font-medium leading-7 text-[var(--foreground)]">
                   {headline}

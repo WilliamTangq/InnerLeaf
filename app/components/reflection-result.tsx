@@ -31,13 +31,13 @@ export type StructuredReflectionResult = {
 
 const SECTIONS = [
   { key: "Emotional Validation", label: "What came up" },
-  { key: "Emotion", label: "Emotion" },
   { key: "Trigger", label: "Trigger" },
   { key: "Facts vs Interpretation", label: "Facts & interpretation" },
   { key: "Thought Pattern", label: "Thought pattern" },
   { key: "Behaviour", label: "Behaviour" },
   { key: "Behavioural Insight", label: "Behavioural insight" },
   { key: "One Next Question", label: "One next question" },
+  { key: "One Small Next Step", label: "One small next step" },
 ] as const;
 
 const sectionIcons = {
@@ -58,7 +58,7 @@ const sectionIcons = {
 
 function extractSection(text: string, section: string) {
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|One Next Question|What You Captured Clearly|What May Still Be Unclear|Completed Reflection Card)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|One Next Question|One Small Next Step|What You Captured Clearly|What May Still Be Unclear|Completed Reflection Card)\\s*\\n|$)`,
     "i"
   );
   const match = text.match(pattern);
@@ -82,6 +82,53 @@ function bulletList(items?: string[]) {
   }
 
   return values.map((item) => `- ${item}`).join("\n");
+}
+
+function ReflectionSection({
+  label,
+  content,
+  tone = "default",
+}: {
+  label: string;
+  content?: string;
+  tone?: "default" | "highlight";
+}) {
+  if (!content) {
+    return null;
+  }
+
+  const Icon = sectionIcons[label as keyof typeof sectionIcons] || Leaf;
+
+  return (
+    <div
+      className={[
+        "rounded-[var(--radius-lg)] border p-3.5 transition duration-200 sm:p-4",
+        tone === "highlight"
+          ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] ring-1 ring-[rgba(31,155,143,0.12)]"
+          : "border-[var(--border)] bg-[var(--surface-muted)]",
+      ].join(" ")}
+    >
+      <div className="flex items-center gap-2">
+        <span
+          className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+          aria-hidden="true"
+        >
+          <Icon size={15} strokeWidth={1.8} />
+        </span>
+        <h3 className="text-sm font-medium text-[var(--foreground)]">
+          {label}
+        </h3>
+      </div>
+      <div
+        className={[
+          "mt-2 whitespace-pre-wrap text-[var(--foreground-muted)]",
+          tone === "highlight" ? "text-[15px] leading-7" : "text-sm leading-6",
+        ].join(" ")}
+      >
+        {content}
+      </div>
+    </div>
+  );
 }
 
 function structuredSections(structured: NonNullable<StructuredReflectionResult>) {
@@ -129,6 +176,9 @@ export function ReflectionResultCard({
     : parseSections(result);
   const nextStep = structured?.next_step?.trim();
   const nextStepType = structured?.next_step_type?.trim();
+  const isStructured = Boolean(structured);
+  const facts = structured ? bulletList(structured.facts) : "";
+  const interpretation = structured ? bulletList(structured.interpretation) : "";
 
   return (
     <section aria-labelledby="reflection-card-heading" className="mt-8">
@@ -141,51 +191,89 @@ export function ReflectionResultCard({
           style={{ background: "var(--brand-gradient)" }}
           aria-hidden="true"
         />
-        <SectionLabel id="reflection-card-heading">Your reflection card</SectionLabel>
-        <p className="mt-2 text-sm text-[var(--foreground-subtle)]">
-          Saved automatically. Revisit anytime in History.
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <SectionLabel id="reflection-card-heading">
+              Your reflection card
+            </SectionLabel>
+            <p className="mt-2 text-sm text-[var(--foreground-subtle)]">
+              Saved automatically. Revisit anytime in History.
+            </p>
+          </div>
+          {structured?.emotion && (
+            <span className="self-start rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+              {structured.emotion}
+            </span>
+          )}
+        </div>
 
-        {sections ? (
+        {isStructured && structured ? (
+          <div className="mt-5 grid gap-2.5 sm:gap-3">
+            <ReflectionSection
+              label="What came up"
+              content={structured.emotional_validation}
+            />
+            <ReflectionSection label="Trigger" content={structured.trigger} />
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+              <div className="flex items-center gap-2">
+                <span
+                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+                  aria-hidden="true"
+                >
+                  <ListChecks size={15} strokeWidth={1.8} />
+                </span>
+                <h3 className="text-sm font-medium text-[var(--foreground)]">
+                  Facts & interpretation
+                </h3>
+              </div>
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                    Facts
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                    {facts}
+                  </p>
+                </div>
+                <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                    Interpretation
+                  </p>
+                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                    {interpretation}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <ReflectionSection
+              label="Thought pattern"
+              content={structured.thought_pattern}
+            />
+            <ReflectionSection label="Behaviour" content={structured.behaviour} />
+            <ReflectionSection
+              label="Behavioural insight"
+              content={structured.behavioural_insight}
+            />
+            <ReflectionSection
+              label="One next question"
+              content={structured.next_question}
+              tone="highlight"
+            />
+          </div>
+        ) : sections ? (
           <div className="mt-5 grid gap-2.5 sm:gap-3">
             {sections.map((section) => {
-              const Icon =
-                sectionIcons[section.label as keyof typeof sectionIcons] ||
-                Leaf;
-              const isQuestion = section.label === "One next question";
+              const isQuestion =
+                section.label === "One next question" ||
+                section.label === "One small next step";
 
               return (
-                <div
+                <ReflectionSection
                   key={section.label}
-                  className={[
-                    "rounded-[var(--radius-lg)] border p-3.5 sm:p-4",
-                    isQuestion
-                      ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] ring-1 ring-[rgba(31,155,143,0.12)]"
-                      : "border-[var(--border)] bg-[var(--surface-muted)]",
-                  ].join(" ")}
-                >
-                  <div className="flex items-center gap-2">
-                    <span
-                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
-                      aria-hidden="true"
-                    >
-                      <Icon size={15} strokeWidth={1.8} />
-                    </span>
-                    <h3 className="text-sm font-medium text-[var(--foreground)]">
-                      {section.label}
-                    </h3>
-                  </div>
-                  <div
-                    className={[
-                      "mt-2 whitespace-pre-wrap text-[var(--foreground-muted)]",
-                      isQuestion
-                        ? "text-[15px] leading-7"
-                        : "text-sm leading-6",
-                    ].join(" ")}
-                  >
-                    {section.content}
-                  </div>
-                </div>
+                  label={section.label}
+                  content={section.content}
+                  tone={isQuestion ? "highlight" : "default"}
+                />
               );
             })}
           </div>

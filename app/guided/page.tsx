@@ -9,6 +9,7 @@ import {
 import {
   Badge,
   Card,
+  LoadingCard,
   LoadingSpinner,
   PageHeader,
   PageShell,
@@ -21,31 +22,37 @@ const fields = [
   {
     id: "situation",
     label: "Situation",
+    group: "What happened",
     helper: "What happened? A short snapshot is enough.",
   },
   {
     id: "emotion",
     label: "Emotion",
+    group: "What came up",
     helper: "What did you feel? One or two words is fine.",
   },
   {
     id: "automatic_thought",
-    label: "First thought",
+    label: "Automatic thought",
+    group: "What came up",
     helper: "What popped into your mind first?",
   },
   {
     id: "facts",
     label: "Facts",
+    group: "Fact vs interpretation",
     helper: "What do you know actually happened?",
   },
   {
     id: "interpretation",
     label: "Interpretation",
+    group: "Fact vs interpretation",
     helper: "What did you assume or read into the situation?",
   },
   {
     id: "behaviour",
     label: "Behaviour",
+    group: "How you reacted",
     helper: "How did you react, or what did you want to do?",
   },
 ] as const;
@@ -120,19 +127,18 @@ export default function GuidedReflectionPage() {
   return (
     <PageShell maxWidth="max-w-3xl">
       <PageHeader compact eyebrow="Reflect" title="Guided Reflection">
-        One step at a time. Skip anything that does not fit — imperfect answers
-        are fine.
+        Reflect step by step using a CBT-informed structure.
       </PageHeader>
 
-      <p className="-mt-2 mb-6 text-sm text-[var(--foreground-muted)]">
-        Want to write freely instead?{" "}
+      <div className="-mt-2 mb-6 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
+        <p>This is self-reflection, not therapy. Skip anything that does not fit.</p>
         <Link
           href="/quick"
           className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
         >
           Use quick reflection
         </Link>
-      </p>
+      </div>
 
       <div
         className="mb-4 flex items-center justify-between gap-3"
@@ -173,14 +179,14 @@ export default function GuidedReflectionPage() {
         </span>
       </div>
 
-      <Card>
+      <Card className="hover:translate-y-0">
         <div
           role="tabpanel"
           id={`guided-panel-${activeField.id}`}
           aria-labelledby={`guided-tab-${activeField.id}`}
         >
           <p className="text-xs font-medium text-[var(--foreground-subtle)]">
-            Step {activeStep + 1} of {fields.length}
+            {activeField.group} · Step {activeStep + 1} of {fields.length}
           </p>
           <TextareaField
             label={activeField.label}
@@ -231,6 +237,8 @@ export default function GuidedReflectionPage() {
         {warning && <StatusCard tone="warning">{warning}</StatusCard>}
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
+
+      {loading && <LoadingCard label="Creating your reflection card..." />}
 
       {result && (
         <ReflectionResultCard result={result} structured={structured} />

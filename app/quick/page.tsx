@@ -9,6 +9,7 @@ import {
 } from "../components/reflection-result";
 import {
   Card,
+  LoadingCard,
   LoadingSpinner,
   PageHeader,
   PageShell,
@@ -69,15 +70,15 @@ export default function QuickReflectionPage() {
   return (
     <PageShell>
       <PageHeader compact eyebrow="Reflect" title="Quick Reflection">
-        Describe one emotional moment in your own words.
+        Write freely. InnerLeaf will help organise the moment.
       </PageHeader>
 
-      <Card>
+      <Card className="hover:translate-y-0">
         <TextareaField
           label="What happened?"
           helper="A few honest sentences are enough."
           className="min-h-52 sm:min-h-56"
-          placeholder="What happened, what you felt, and what you assumed…"
+          placeholder="Write what happened. You can be messy — InnerLeaf will help organise it."
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
@@ -128,6 +129,8 @@ export default function QuickReflectionPage() {
         {warning && <StatusCard tone="warning">{warning}</StatusCard>}
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
+
+      {loading && <LoadingCard label="Organising your reflection..." />}
 
       {result && (
         <ReflectionResultCard result={result} structured={structured} />

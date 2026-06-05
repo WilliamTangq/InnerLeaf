@@ -29,8 +29,8 @@ export function Footer() {
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-subtle)]">
-            Break down one emotional moment into a reflection card. For
-            self-reflection only — not clinical care or medical advice.
+            InnerLeaf supports self-reflection. It is not therapy, diagnosis,
+            or medical advice.
           </p>
         </div>
         <div className="flex flex-col gap-3 text-sm text-[var(--foreground-muted)] sm:items-end">
@@ -39,7 +39,7 @@ export function Footer() {
               Follow InnerLeaf
             </span>
             <a
-              className="transition hover:text-[var(--foreground)]"
+              className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               href="https://www.linkedin.com/company/innerleaf"
               rel="noopener noreferrer"
               target="_blank"
@@ -50,7 +50,7 @@ export function Footer() {
               ·
             </span>
             <a
-              className="transition hover:text-[var(--foreground)]"
+              className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               href="https://www.instagram.com/innerleaf.io"
               rel="noopener noreferrer"
               target="_blank"
@@ -142,7 +142,7 @@ export function Card({
       className={cx(
         "rounded-[var(--radius-xl)] border p-5 sm:p-6",
         variant === "default" &&
-          "border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)]",
+          "border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)] transition duration-200",
         variant === "muted" &&
           "border-[var(--border)] bg-[var(--surface-muted)]",
         variant === "elevated" &&
@@ -189,7 +189,7 @@ export function PrimaryButton({
   return (
     <button
       className={cx(
-        "btn-brand inline-flex items-center justify-center rounded-lg font-medium transition disabled:cursor-not-allowed",
+        "btn-brand inline-flex items-center justify-center rounded-lg font-medium transition duration-200 active:translate-y-px disabled:cursor-not-allowed",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-5 py-2.5 text-sm",
@@ -218,7 +218,7 @@ export function LinkButton({
     <Link
       href={href}
       className={cx(
-        "inline-flex items-center justify-center rounded-lg font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+        "inline-flex items-center justify-center rounded-lg font-medium transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         className,
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-5 py-2.5 text-sm",
@@ -256,8 +256,8 @@ export function TextareaField({
       )}
       <textarea
         className={cx(
-          "mt-3 w-full resize-none rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-[15px] leading-7 text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)]",
-          "focus:border-[var(--brand-teal)] focus:ring-2 focus:ring-[var(--accent-ring)]",
+          "mt-3 w-full resize-none rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-[15px] leading-7 text-[var(--foreground)] outline-none transition duration-200 placeholder:text-[var(--foreground-subtle)]",
+          "focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]",
           className
         )}
         {...props}
@@ -291,10 +291,10 @@ export function RadioGroupField({
             <label
               key={option}
               className={cx(
-                "flex cursor-pointer items-center gap-3 rounded-[var(--radius-lg)] border px-4 py-3 text-sm transition",
+                "flex cursor-pointer items-center gap-3 rounded-[var(--radius-lg)] border px-4 py-3 text-sm transition duration-200",
                 selected
                   ? "border-[var(--accent)] bg-[var(--accent-soft)] text-[var(--foreground)] ring-1 ring-[var(--accent-ring)]"
-                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)]"
+                  : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)]"
               )}
             >
               <input
@@ -398,6 +398,22 @@ export function LoadingSpinner({ label }: { label?: string }) {
       />
       {label ? <span>{label}</span> : <span className="sr-only">Loading</span>}
     </div>
+  );
+}
+
+export function LoadingCard({ label }: { label: string }) {
+  return (
+    <Card className="mt-8 overflow-hidden hover:translate-y-0" variant="elevated">
+      <LoadingSpinner label={label} />
+      <div className="mt-6 grid gap-3" aria-hidden="true">
+        <div className="h-4 w-44 rounded-full bg-[var(--surface-muted)]" />
+        <div className="grid gap-2 sm:grid-cols-2">
+          <div className="h-20 rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+          <div className="h-20 rounded-[var(--radius-lg)] bg-[var(--surface-muted)]" />
+        </div>
+        <div className="h-24 rounded-[var(--radius-lg)] bg-[var(--accent-soft)]" />
+      </div>
+    </Card>
   );
 }
 

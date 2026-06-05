@@ -82,12 +82,12 @@ export default async function HistoryPage() {
 
   return (
     <PageShell maxWidth="max-w-4xl">
-      <PageHeader compact eyebrow="Revisit" title="Reflection history">
-        Your saved reflection cards. Open any card to read the full breakdown.
+      <PageHeader compact eyebrow="Revisit" title="Reflection History">
+        Review saved cards and check in on what helped.
       </PageHeader>
 
       <PageActions className="mb-6">
-        <LinkButton href="/quick">New reflection</LinkButton>
+        <LinkButton href="/quick">Start quick reflection</LinkButton>
         <LinkButton href="/summary" variant="secondary">
           View patterns
         </LinkButton>

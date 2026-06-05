@@ -330,13 +330,12 @@ export default async function SummaryPage() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
-      <PageHeader compact eyebrow="Insights" title="Pattern summary">
-        Repeated themes from your last {reflections.length || 0} saved cards
-        (up to 10). For reflection only.
+      <PageHeader compact eyebrow="Insights" title="Your recent patterns">
+        Based on your saved reflection cards.
       </PageHeader>
 
       <PageActions className="mb-6">
-        <LinkButton href="/quick">New reflection</LinkButton>
+        <LinkButton href="/quick">Create another reflection</LinkButton>
         <LinkButton href="/history" variant="secondary">
           View history
         </LinkButton>
@@ -357,8 +356,8 @@ export default async function SummaryPage() {
           }
           description={
             reflections.length === 0
-              ? "Save a few reflection cards first. Patterns appear after at least three moments."
-              : `You have ${reflections.length} saved. Add ${remaining} more to see repeated triggers and thought patterns.`
+              ? "Save at least 3 reflections to see repeated themes. Patterns become clearer when there is more than one moment to compare."
+              : `You have ${reflections.length} saved. Add ${remaining} more to see repeated themes.`
           }
           action={<LinkButton href="/quick">Start quick reflection</LinkButton>}
         />
@@ -386,7 +385,9 @@ export default async function SummaryPage() {
             <HelpfulNextStepsSection items={nextSteps} />
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton href="/quick">Reflect on a new moment</LinkButton>
+            <LinkButton href="/quick">
+              Create another reflection to make patterns clearer
+            </LinkButton>
             <LinkButton href="/history" variant="secondary">
               Open history
             </LinkButton>

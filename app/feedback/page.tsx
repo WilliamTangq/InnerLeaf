@@ -124,7 +124,7 @@ export default function FeedbackPage() {
           <Leaf size={22} strokeWidth={1.8} />
         </div>
         <PageHeader compact eyebrow="Thank you" title="Feedback received">
-          Your answers help us improve the reflection experience.
+          Thank you. Your feedback helps shape InnerLeaf.
         </PageHeader>
         <PageActions>
           <LinkButton href="/">Back to home</LinkButton>
@@ -139,7 +139,8 @@ export default function FeedbackPage() {
   return (
     <PageShell>
       <PageHeader compact eyebrow="Help us improve" title="Share feedback">
-        About two minutes. Share only what feels useful.
+        Help us understand whether InnerLeaf feels clear, useful, and worth
+        returning to.
       </PageHeader>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -199,7 +200,7 @@ export default function FeedbackPage() {
                 {!loading && (
                   <Send aria-hidden="true" size={15} strokeWidth={1.8} />
                 )}
-                {loading ? "Sending…" : "Submit feedback"}
+                {loading ? "Sending feedback..." : "Submit feedback"}
               </span>
             </PrimaryButton>
           </div>
