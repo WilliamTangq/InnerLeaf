@@ -1,15 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import { CheckCircle2, Footprints, Leaf, Sparkles } from "lucide-react";
-import { PatternSection } from "../components/pattern-section";
-import {
-  Card,
-  EmptyState,
-  LinkButton,
-  PageActions,
-  PageHeader,
-  PageShell,
-  StatusCard,
-} from "../components/ui";
+import { SummaryContent } from "./summary-content";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -165,123 +155,6 @@ function helpfulNextSteps(reflections: SummaryReflection[]) {
     .slice(0, 3);
 }
 
-function ChangeSection({ signals }: { signals: string[] }) {
-  return (
-    <Card className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            Gentle observations
-          </h2>
-          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            Themes to notice — not conclusions about you
-          </p>
-        </div>
-        <Leaf
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
-      </div>
-
-      {signals.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
-          Save a few more cards to compare moments more easily.
-        </p>
-      ) : (
-        <ul className="mt-5 space-y-2">
-          {signals.map((signal) => (
-            <li
-              key={signal}
-              className="flex gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--foreground-muted)]"
-            >
-              <Sparkles
-                aria-hidden="true"
-                size={15}
-                strokeWidth={1.8}
-                className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
-              />
-              <span>{signal}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Card>
-  );
-}
-
-function HelpfulNextStepsSection({
-  items,
-}: {
-  items: Array<{ value: string; used: number; helped: number }>;
-}) {
-  const maxUsed = Math.max(...items.map((item) => item.used), 1);
-
-  return (
-    <Card className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            Helpful next steps
-          </h2>
-          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            Based on your saved check-ins
-          </p>
-        </div>
-        <Footprints
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
-      </div>
-
-      {items.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
-          Check in on a few next steps to see what tends to help.
-        </p>
-      ) : (
-        <ol className="mt-5 space-y-2">
-          {items.map((item) => (
-            <li
-              key={item.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="flex min-w-0 items-start gap-2 text-sm font-medium leading-6 text-[var(--foreground)]">
-                  <CheckCircle2
-                    aria-hidden="true"
-                    size={15}
-                    strokeWidth={1.8}
-                    className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
-                  />
-                  {item.value}
-                </span>
-                <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
-                  {item.used}×
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-[var(--foreground-muted)]">
-                Used {item.used} time{item.used === 1 ? "" : "s"} · You marked
-                helpful {item.helped} time{item.helped === 1 ? "" : "s"}
-              </p>
-              <span className="mt-3 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
-                <span
-                  className="block h-full rounded-full bg-[var(--brand-teal)]/55"
-                  style={{
-                    width: `${Math.max(16, (item.used / maxUsed) * 100)}%`,
-                  }}
-                />
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </Card>
-  );
-}
-
 export default async function SummaryPage() {
   let data = null;
   let error: Error | { code?: string; message?: string } | null = null;
@@ -329,71 +202,16 @@ export default async function SummaryPage() {
   const nextSteps = helpfulNextSteps(reflections);
 
   return (
-    <PageShell maxWidth="max-w-5xl">
-      <PageHeader compact eyebrow="Insights" title="Your recent patterns">
-        Based on your saved reflection cards.
-      </PageHeader>
-
-      <PageActions className="mb-6">
-        <LinkButton href="/quick">Create another reflection</LinkButton>
-        <LinkButton href="/history" variant="secondary">
-          View history
-        </LinkButton>
-      </PageActions>
-
-      {error && (
-        <StatusCard tone="error">
-          Pattern summary is unavailable right now.
-        </StatusCard>
-      )}
-
-      {!error && !hasEnoughData && (
-        <EmptyState
-          title={
-            reflections.length === 0
-              ? "No patterns yet"
-              : `${remaining} more card${remaining === 1 ? "" : "s"} to go`
-          }
-          description={
-            reflections.length === 0
-              ? "Save at least 3 reflections to see repeated themes. Patterns become clearer when there is more than one moment to compare."
-              : `You have ${reflections.length} saved. Add ${remaining} more to see repeated themes.`
-          }
-          action={<LinkButton href="/quick">Start quick reflection</LinkButton>}
-        />
-      )}
-
-      {!error && hasEnoughData && (
-        <>
-          <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
-            <PatternSection
-              title="Repeated triggers"
-              description="What tends to set off strong reactions"
-              items={repeatedTriggers}
-            />
-            <PatternSection
-              title="Repeated thought patterns"
-              description="How your mind often frames the moment"
-              items={repeatedThoughtPatterns}
-            />
-            <PatternSection
-              title="Behavioural themes"
-              description="How you tend to respond"
-              items={recentBehaviouralThemes}
-            />
-            <ChangeSection signals={signals} />
-            <HelpfulNextStepsSection items={nextSteps} />
-          </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton href="/quick">
-              Create another reflection to make patterns clearer
-            </LinkButton>
-            <LinkButton href="/history" variant="secondary">
-              Open history
-            </LinkButton>
-          </div>
-        </>
-      )}
-    </PageShell>
+    <SummaryContent
+      hasError={Boolean(error)}
+      reflectionCount={reflections.length}
+      remaining={remaining}
+      hasEnoughData={hasEnoughData}
+      repeatedTriggers={repeatedTriggers}
+      repeatedThoughtPatterns={repeatedThoughtPatterns}
+      recentBehaviouralThemes={recentBehaviouralThemes}
+      signals={signals}
+      nextSteps={nextSteps}
+    />
   );
 }

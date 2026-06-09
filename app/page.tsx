@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import {
   Archive,
@@ -18,29 +20,9 @@ import {
   PageShell,
   SectionLabel,
 } from "./components/ui";
+import { useLanguage } from "./components/language-provider";
 
-const steps = [
-  {
-    icon: PencilLine,
-    title: "Write what happened",
-    description: "A few honest sentences. Messy is fine.",
-  },
-  {
-    icon: Leaf,
-    title: "InnerLeaf organises it",
-    description: "Trigger, facts, interpretation, and one small next step.",
-  },
-  {
-    icon: Archive,
-    title: "Save a reflection card",
-    description: "Keep each card easy to revisit later.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Notice patterns",
-    description: "See what repeats across your last saved cards.",
-  },
-] as const;
+const stepIcons = [PencilLine, Leaf, Archive, TrendingUp] as const;
 
 function LandingSection({
   eyebrow,
@@ -72,35 +54,41 @@ function LandingSection({
 }
 
 function ReflectionPreview() {
+  const { t } = useLanguage();
   const preview = [
     {
       icon: Zap,
       label: "Trigger",
-      text: "A delayed reply from someone important.",
+      labelText: t.reflectionCard.trigger,
+      text: t.home.previewTrigger,
       highlight: false,
     },
     {
       icon: Scale,
       label: "Facts",
-      text: "The message was sent. No reply yet.",
+      labelText: t.reflectionCard.facts,
+      text: t.home.previewFacts,
       highlight: false,
     },
     {
       icon: Route,
       label: "Interpretation",
-      text: "They may be upset with me.",
+      labelText: t.reflectionCard.interpretation,
+      text: t.home.previewInterpretation,
       highlight: false,
     },
     {
       icon: Brain,
       label: "Thought pattern",
-      text: "Jumping to a negative conclusion.",
+      labelText: t.reflectionCard.thoughtPattern,
+      text: t.home.previewPattern,
       highlight: false,
     },
     {
       icon: HelpCircle,
       label: "One small next step",
-      text: "Before replying, write down one fact and one assumption.",
+      labelText: t.reflectionCard.nextStep,
+      text: t.home.previewStep,
       highlight: true,
     },
   ] as const;
@@ -117,9 +105,9 @@ function ReflectionPreview() {
       <div className="relative">
         <div className="flex items-center justify-between gap-3">
           <div>
-            <SectionLabel>Product preview</SectionLabel>
+            <SectionLabel>{t.home.previewEyebrow}</SectionLabel>
             <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-              A reflection card, not a chat thread
+              {t.home.previewTitle}
             </p>
           </div>
           <Badge variant="accent">~3 min</Badge>
@@ -146,7 +134,7 @@ function ReflectionPreview() {
                     className="text-[var(--brand-teal-deep)]"
                   />
                   <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {item.label}
+                  {item.labelText}
                   </p>
                 </div>
                 <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -162,6 +150,8 @@ function ReflectionPreview() {
 }
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <PageShell maxWidth="max-w-6xl">
       <section className="grid gap-10 py-4 sm:gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-14 lg:py-6">
@@ -172,19 +162,17 @@ export default function Home() {
             showWordmark={false}
             className="mb-6 sm:mb-8"
           />
-          <Badge variant="accent">One emotional moment at a time</Badge>
+          <Badge variant="accent">{t.home.badge}</Badge>
           <h1 className="mt-4 text-[2rem] font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-[2.75rem] sm:leading-[1.08]">
-            Understand the pattern behind your{" "}
-            <span className="brand-gradient-text">emotional reaction</span>.
+            {t.home.headline}
           </h1>
           <p className="mt-4 text-base leading-7 text-[var(--foreground-muted)] sm:mt-5 sm:text-lg sm:leading-8">
-            InnerLeaf turns intense emotional moments into structured reflection
-            cards, with one small next step you can check in on later.
+            {t.home.subtitle}
           </p>
 
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
             <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-              Start quick reflection
+              {t.common.startQuick}
             </LinkButton>
             <LinkButton
               href="/guided"
@@ -192,24 +180,23 @@ export default function Home() {
               size="lg"
               className="w-full sm:w-auto"
             >
-              Try guided reflection
+              {t.common.tryGuided}
             </LinkButton>
           </div>
           <p className="mt-4 text-sm text-[var(--foreground-subtle)]">
-            You stay in control. InnerLeaf does not diagnose, score, or judge
-            your emotions.
+            {t.home.boundary}
           </p>
         </div>
 
         <ReflectionPreview />
       </section>
 
-      <LandingSection eyebrow="How it works" title="Write freely. Review clearly.">
+      <LandingSection eyebrow={t.home.howEyebrow} title={t.home.howTitle}>
         <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          {steps.map((item, index) => {
-            const Icon = item.icon;
+          {t.home.steps.map(([title, description], index) => {
+            const Icon = stepIcons[index];
             return (
-              <Card key={item.title} className="h-full hover:translate-y-0">
+              <Card key={title} className="h-full hover:translate-y-0">
                 <div className="flex items-center justify-between gap-3">
                   <Icon
                     aria-hidden="true"
@@ -222,10 +209,10 @@ export default function Home() {
                   </span>
                 </div>
                 <h3 className="mt-4 font-semibold text-[var(--foreground)]">
-                  {item.title}
+                  {title}
                 </h3>
                 <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {item.description}
+                  {description}
                 </p>
               </Card>
             );
@@ -234,48 +221,34 @@ export default function Home() {
       </LandingSection>
 
       <LandingSection
-        eyebrow="Why InnerLeaf"
-        title="Designed for clarity, not endless analysis."
+        eyebrow={t.home.whyEyebrow}
+        title={t.home.whyTitle}
         className="mb-16 sm:mb-20"
       >
         <div className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
-          <Card className="hover:translate-y-0">
-            <h3 className="font-semibold text-[var(--foreground)]">
-              Not a mood tracker
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              See what triggered the reaction and how your mind framed it.
-            </p>
-          </Card>
-          <Card className="hover:translate-y-0">
-            <h3 className="font-semibold text-[var(--foreground)]">
-              Not a therapy chatbot
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              It stays within self-reflection and keeps boundaries clear.
-            </p>
-          </Card>
-          <Card className="hover:translate-y-0">
-            <h3 className="font-semibold text-[var(--foreground)]">
-              Not endless AI analysis
-            </h3>
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              One trigger. One pattern. One next step.
-            </p>
-          </Card>
+          {t.home.differences.map(([title, description]) => (
+            <Card key={title} className="hover:translate-y-0">
+              <h3 className="font-semibold text-[var(--foreground)]">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {description}
+              </p>
+            </Card>
+          ))}
         </div>
         <div className="mt-10 flex flex-wrap gap-3">
           <LinkButton href="/quick" size="lg">
-            Start quick reflection
+            {t.common.startQuick}
           </LinkButton>
           <LinkButton href="/history" variant="secondary">
-            View history
+            {t.common.viewHistory}
           </LinkButton>
           <LinkButton href="/summary" variant="ghost">
-            Pattern summary
+            {t.home.patternSummary}
           </LinkButton>
           <LinkButton href="/feedback" variant="ghost">
-            Feedback
+            {t.nav.feedback}
           </LinkButton>
         </div>
       </LandingSection>

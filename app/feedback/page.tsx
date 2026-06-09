@@ -2,6 +2,7 @@
 
 import { Leaf, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useLanguage } from "../components/language-provider";
 import {
   Card,
   LinkButton,
@@ -15,42 +16,16 @@ import {
 } from "../components/ui";
 
 const experienceQuestions = [
-  {
-    name: "mode_tried",
-    label: "Which mode did you use?",
-    options: ["Quick Reflection", "Guided Reflection", "Both"],
-  },
-  {
-    name: "ease_of_start",
-    label: "Was it easy to start writing?",
-    options: ["Very easy", "Somewhat easy", "Not easy"],
-  },
-  {
-    name: "reflection_length",
-    label: "Was the reflection card length about right?",
-    options: ["Too long", "About right", "Too short"],
-  },
-  {
-    name: "clarity_help",
-    label: "Did the card help you see your reaction more clearly?",
-    options: ["Yes", "Somewhat", "No"],
-  },
-  {
-    name: "would_use_again",
-    label: "Would you use InnerLeaf after an intense moment again?",
-    options: ["Yes", "Maybe", "No"],
-  },
+  { name: "mode_tried" },
+  { name: "ease_of_start" },
+  { name: "reflection_length" },
+  { name: "clarity_help" },
+  { name: "would_use_again" },
 ] as const;
 
 const openQuestions = [
-  {
-    name: "comparison_feedback",
-    label: "What worked better or worse than Notes, a friend, or a chat tool?",
-  },
-  {
-    name: "blocker",
-    label: "What would stop you from coming back?",
-  },
+  { name: "comparison_feedback" },
+  { name: "blocker" },
 ] as const;
 
 type RadioFieldName = (typeof experienceQuestions)[number]["name"];
@@ -71,6 +46,7 @@ const initialValues = {
 };
 
 export default function FeedbackPage() {
+  const { t } = useLanguage();
   const [values, setValues] = useState<FeedbackValues>(initialValues);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -101,14 +77,14 @@ export default function FeedbackPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Feedback could not be saved.");
+        setError(data.error || t.feedback.saveError);
         return;
       }
 
       setSubmitted(true);
       setValues(initialValues);
     } catch {
-      setError("Something went wrong while saving feedback.");
+      setError(t.feedback.error);
     } finally {
       setLoading(false);
     }
@@ -123,13 +99,17 @@ export default function FeedbackPage() {
         >
           <Leaf size={22} strokeWidth={1.8} />
         </div>
-        <PageHeader compact eyebrow="Thank you" title="Feedback received">
-          Thank you. Your feedback helps shape InnerLeaf.
+        <PageHeader
+          compact
+          eyebrow={t.feedback.thankYouEyebrow}
+          title={t.feedback.thankYou}
+        >
+          {t.feedback.success}
         </PageHeader>
         <PageActions>
-          <LinkButton href="/">Back to home</LinkButton>
+          <LinkButton href="/">{t.feedback.backHome}</LinkButton>
           <LinkButton href="/quick" variant="secondary">
-            New reflection
+            {t.common.newReflection}
           </LinkButton>
         </PageActions>
       </PageShell>
@@ -138,23 +118,22 @@ export default function FeedbackPage() {
 
   return (
     <PageShell>
-      <PageHeader compact eyebrow="Help us improve" title="Share feedback">
-        Help us understand whether InnerLeaf feels clear, useful, and worth
-        returning to.
+      <PageHeader compact eyebrow={t.feedback.eyebrow} title={t.feedback.title}>
+        {t.feedback.purpose}
       </PageHeader>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Card className="hover:translate-y-0">
           <h2 className="text-base font-semibold text-[var(--foreground)]">
-            Your experience
+            {t.feedback.experience}
           </h2>
           <div className="mt-6 space-y-7">
             {experienceQuestions.map((group) => (
               <RadioGroupField
                 key={group.name}
                 name={group.name}
-                label={group.label}
-                options={group.options}
+                label={t.feedback.questions[group.name][0]}
+                options={t.feedback.questions[group.name][1]}
                 value={values[group.name]}
                 onChange={(value) => updateField(group.name, value)}
               />
@@ -164,13 +143,13 @@ export default function FeedbackPage() {
 
         <Card className="hover:translate-y-0">
           <h2 className="text-base font-semibold text-[var(--foreground)]">
-            Optional notes
+            {t.feedback.notes}
           </h2>
           <div className="mt-5 space-y-5">
             {openQuestions.map((field) => (
               <TextareaField
                 key={field.name}
-                label={field.label}
+                label={t.feedback.openQuestions[field.name]}
                 className="min-h-24"
                 value={values[field.name]}
                 onChange={(event) =>
@@ -179,7 +158,7 @@ export default function FeedbackPage() {
               />
             ))}
             <TextareaField
-              label="Anything else?"
+              label={t.feedback.anythingElse}
               name="other_thoughts"
               className="min-h-24"
               value={values.other_thoughts}
@@ -200,7 +179,7 @@ export default function FeedbackPage() {
                 {!loading && (
                   <Send aria-hidden="true" size={15} strokeWidth={1.8} />
                 )}
-                {loading ? "Sending feedback..." : "Submit feedback"}
+                {loading ? t.feedback.sending : t.feedback.submit}
               </span>
             </PrimaryButton>
           </div>

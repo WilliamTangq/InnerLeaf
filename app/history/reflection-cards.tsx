@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
+import { useLanguage } from "../components/language-provider";
+import { translateNextStepType } from "../lib/i18n";
 import type { Reflection } from "./page";
 
 function extractSection(aiResult: string | null, section: string) {
@@ -47,24 +49,38 @@ function cardLabels(aiResult: string | null) {
   };
 }
 
-function modeLabel(mode: string | null) {
+type Labels = ReturnType<typeof useLanguage>["t"];
+
+function modeLabel(mode: string | null, labels: Labels) {
   if (mode === "guided") {
-    return "Guided";
+    return labels.history.modeGuided;
   }
 
   if (mode === "quick") {
-    return "Quick";
+    return labels.history.modeQuick;
   }
 
-  return "Reflection";
+  return labels.history.modeReflection;
 }
 
-function followUpLabel(result: string | null) {
-  if (!result) {
-    return "Not checked in";
+function checkInResultLabel(result: string | null, labels: Labels) {
+  if (result === "Helped") {
+    return labels.history.helped;
   }
 
-  return `Checked in: ${result}`;
+  if (result === "Somewhat") {
+    return labels.history.somewhat;
+  }
+
+  return labels.history.didNotHelp;
+}
+
+function followUpLabel(result: string | null, labels: Labels) {
+  if (!result) {
+    return labels.history.notCheckedIn;
+  }
+
+  return `${labels.history.checkedIn}: ${checkInResultLabel(result, labels)}`;
 }
 
 function formatHistoryDate(value: string) {
@@ -85,6 +101,23 @@ const previewIcons = {
   "One small next step": Footprints,
   Interpretation: Route,
 } as const;
+
+function sectionTitle(title: string, labels: Labels) {
+  const map: Record<string, string> = {
+    "What came up": labels.reflectionCard.emotionalValidation,
+    Emotion: labels.reflectionCard.emotion,
+    Trigger: labels.reflectionCard.trigger,
+    Facts: labels.reflectionCard.facts,
+    Interpretation: labels.reflectionCard.interpretation,
+    "Thought pattern": labels.reflectionCard.thoughtPattern,
+    Behaviour: labels.reflectionCard.behaviour,
+    "Behavioural insight": labels.reflectionCard.behaviouralInsight,
+    "One next question": labels.reflectionCard.nextQuestion,
+    "One small next step": labels.reflectionCard.nextStep,
+  };
+
+  return map[title] || title;
+}
 
 function storedList(value: string | null) {
   return (value ?? "")
@@ -125,6 +158,7 @@ function formatFollowUpDate(value: string | null) {
 }
 
 function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
+  const { language, t } = useLanguage();
   const [selectedResult, setSelectedResult] = useState(
     reflection.follow_up_result ?? ""
   );
@@ -187,10 +221,12 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
           className="text-[var(--brand-teal-deep)]"
         />
         <h3 className="text-sm font-semibold text-[var(--foreground)]">
-          One small next step
+          {t.reflectionCard.nextStep}
         </h3>
         {nextStepType && (
-          <Badge variant="accent">{nextStepType}</Badge>
+          <Badge variant="accent">
+            {translateNextStepType(language, nextStepType)}
+          </Badge>
         )}
       </div>
       <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -206,11 +242,11 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
               strokeWidth={1.8}
               className="text-[var(--brand-teal-deep)]"
             />
-            Check-in saved: {savedResult}
+            {t.history.checkInSaved} {checkInResultLabel(savedResult, t)}
           </p>
           {savedDate && (
             <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
-              Checked in {savedDate}
+              {t.history.checkedInAt} {savedDate}
             </p>
           )}
           {note.trim() && (
@@ -222,7 +258,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       ) : (
         <div className="mt-4 space-y-3">
           <p className="text-sm font-medium text-[var(--foreground)]">
-            Did this help?
+            {t.history.helpedQuestion}
           </p>
           <div className="flex flex-wrap gap-2">
             {["Helped", "Somewhat", "Did not help"].map((result) => {
@@ -240,21 +276,21 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
                       : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]",
                   ].join(" ")}
                 >
-                  {result}
+                  {checkInResultLabel(result, t)}
                 </button>
               );
             })}
           </div>
           <label className="block">
             <span className="text-sm font-medium text-[var(--foreground)]">
-              What happened after you tried it? Optional.
+              {t.history.noteLabel}
             </span>
             <textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
               rows={3}
               className="mt-2 min-h-24 w-full resize-y rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
-              placeholder="A few words is enough."
+              placeholder={t.history.notePlaceholder}
             />
           </label>
           <div className="flex flex-wrap items-center gap-3">
@@ -265,16 +301,16 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
               className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
               <Send aria-hidden="true" size={15} strokeWidth={1.8} />
-              {status === "saving" ? "Saving..." : "Save check-in"}
+              {status === "saving" ? t.history.savingCheckIn : t.history.saveCheckIn}
             </button>
             {status === "saved" && (
               <p className="text-sm text-[var(--brand-teal-deep)]">
-                Check-in saved.
+                {t.history.checkInSaved}
               </p>
             )}
             {status === "error" && (
               <p className="text-sm text-[var(--error)]">
-                Could not save check-in. Please try again.
+                {t.common.checkInError}
               </p>
             )}
           </div>
@@ -289,6 +325,7 @@ export function ReflectionCards({
 }: {
   reflections: Reflection[];
 }) {
+  const { language, t } = useLanguage();
   const [openCards, setOpenCards] = useState<Set<string | number>>(new Set());
 
   function toggleCard(id: string | number) {
@@ -363,13 +400,15 @@ export function ReflectionCards({
                   {item.emotion && (
                     <Badge variant="accent">{item.emotion}</Badge>
                   )}
-                  <Badge variant="outline">{modeLabel(item.mode)}</Badge>
+                  <Badge variant="outline">{modeLabel(item.mode, t)}</Badge>
                   {labels.nextStepType && (
-                    <Badge variant="accent">{labels.nextStepType}</Badge>
+                    <Badge variant="accent">
+                      {translateNextStepType(language, labels.nextStepType)}
+                    </Badge>
                   )}
                   {labels.nextStep && (
                     <Badge variant={item.follow_up_result ? "accent" : "outline"}>
-                      {followUpLabel(item.follow_up_result)}
+                      {followUpLabel(item.follow_up_result, t)}
                     </Badge>
                   )}
                 </div>
@@ -384,7 +423,7 @@ export function ReflectionCards({
                 aria-expanded={isOpen}
                 className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               >
-                {isOpen ? "Collapse" : "Read full card"}
+                {isOpen ? t.history.collapse : t.history.readFull}
               </button>
             </div>
 
@@ -412,7 +451,7 @@ export function ReflectionCards({
                           strokeWidth={1.8}
                           className="text-[var(--brand-teal-deep)]"
                         />
-                        {title}
+                        {sectionTitle(title, t)}
                       </dt>
                       <dd className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                         {content}
@@ -428,7 +467,7 @@ export function ReflectionCards({
                 {item.user_input && (
                   <div>
                     <h3 className="text-sm font-medium text-[var(--foreground)]">
-                      What you wrote
+                      {t.history.whatYouWrote}
                     </h3>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
                       {item.user_input}
@@ -453,7 +492,7 @@ export function ReflectionCards({
                           ].join(" ")}
                         >
                           <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                            {title}
+                            {sectionTitle(title, t)}
                           </p>
                           <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
                             {content}

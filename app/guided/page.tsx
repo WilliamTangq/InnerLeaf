@@ -6,6 +6,7 @@ import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
+import { useLanguage } from "../components/language-provider";
 import {
   Badge,
   Card,
@@ -19,42 +20,12 @@ import {
 } from "../components/ui";
 
 const fields = [
-  {
-    id: "situation",
-    label: "Situation",
-    group: "What happened",
-    helper: "What happened? A short snapshot is enough.",
-  },
-  {
-    id: "emotion",
-    label: "Emotion",
-    group: "What came up",
-    helper: "What did you feel? One or two words is fine.",
-  },
-  {
-    id: "automatic_thought",
-    label: "Automatic thought",
-    group: "What came up",
-    helper: "What popped into your mind first?",
-  },
-  {
-    id: "facts",
-    label: "Facts",
-    group: "Fact vs interpretation",
-    helper: "What do you know actually happened?",
-  },
-  {
-    id: "interpretation",
-    label: "Interpretation",
-    group: "Fact vs interpretation",
-    helper: "What did you assume or read into the situation?",
-  },
-  {
-    id: "behaviour",
-    label: "Behaviour",
-    group: "How you reacted",
-    helper: "How did you react, or what did you want to do?",
-  },
+  { id: "situation" },
+  { id: "emotion" },
+  { id: "automatic_thought" },
+  { id: "facts" },
+  { id: "interpretation" },
+  { id: "behaviour" },
 ] as const;
 
 type FieldId = (typeof fields)[number]["id"];
@@ -66,6 +37,7 @@ const initialValues = fields.reduce((values, field) => {
 }, {} as GuidedValues);
 
 export default function GuidedReflectionPage() {
+  const { language, t } = useLanguage();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState("");
@@ -94,7 +66,10 @@ export default function GuidedReflectionPage() {
     setError("");
 
     const input = fields
-      .map((field) => `${field.label}: ${values[field.id].trim()}`)
+      .map((field) => {
+        const [label] = t.guided.fields[field.id];
+        return `${label}: ${values[field.id].trim()}`;
+      })
       .filter((line) => line.split(": ")[1])
       .join("\n");
 
@@ -104,13 +79,13 @@ export default function GuidedReflectionPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input, mode: "guided" }),
+        body: JSON.stringify({ input, mode: "guided", language }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Something went wrong.");
+        setError(data.error || t.common.aiGeneric);
         return;
       }
 
@@ -118,7 +93,7 @@ export default function GuidedReflectionPage() {
       setStructured(data.structured || null);
       setWarning(data.warning || "");
     } catch {
-      setError("Something went wrong while generating the reflection.");
+      setError(t.common.aiGeneric);
     } finally {
       setLoading(false);
     }
@@ -126,17 +101,17 @@ export default function GuidedReflectionPage() {
 
   return (
     <PageShell maxWidth="max-w-3xl">
-      <PageHeader compact eyebrow="Reflect" title="Guided Reflection">
-        Reflect step by step using a CBT-informed structure.
+      <PageHeader compact eyebrow={t.common.reflect} title={t.guided.title}>
+        {t.guided.purpose}
       </PageHeader>
 
       <div className="-mt-2 mb-6 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
-        <p>This is self-reflection, not therapy. Skip anything that does not fit.</p>
+        <p>{t.guided.boundary}</p>
         <Link
           href="/quick"
           className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
         >
-          Use quick reflection
+          {t.guided.quickLink}
         </Link>
       </div>
 
@@ -149,6 +124,7 @@ export default function GuidedReflectionPage() {
           {fields.map((field, index) => {
             const isActive = index === activeStep;
             const isFilled = Boolean(values[field.id].trim());
+            const [label] = t.guided.fields[field.id];
             return (
               <button
                 key={field.id}
@@ -167,7 +143,7 @@ export default function GuidedReflectionPage() {
                       : "bg-[var(--surface-muted)] text-[var(--foreground-subtle)] hover:text-[var(--foreground-muted)]",
                 ].join(" ")}
               >
-                {field.label}
+                {label}
               </button>
             );
           })}
@@ -186,11 +162,12 @@ export default function GuidedReflectionPage() {
           aria-labelledby={`guided-tab-${activeField.id}`}
         >
           <p className="text-xs font-medium text-[var(--foreground-subtle)]">
-            {activeField.group} · Step {activeStep + 1} of {fields.length}
+            {t.guided.fields[activeField.id][2]} · {t.guided.progress}{" "}
+            {activeStep + 1} {t.guided.of} {fields.length}
           </p>
           <TextareaField
-            label={activeField.label}
-            helper={activeField.helper}
+            label={t.guided.fields[activeField.id][0]}
+            helper={t.guided.fields[activeField.id][1]}
             className="mt-3 min-h-40 sm:min-h-44"
             value={values[activeField.id]}
             onChange={(event) => updateField(activeField.id, event.target.value)}
@@ -202,7 +179,7 @@ export default function GuidedReflectionPage() {
                 onClick={() => setActiveStep(activeStep - 1)}
                 className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               >
-                Back
+                {t.guided.back}
               </button>
             )}
             {activeStep < fields.length - 1 ? (
@@ -211,7 +188,7 @@ export default function GuidedReflectionPage() {
                 size="md"
                 onClick={() => setActiveStep(activeStep + 1)}
               >
-                Continue
+                {t.guided.continue}
               </PrimaryButton>
             ) : null}
           </div>
@@ -219,7 +196,7 @@ export default function GuidedReflectionPage() {
 
         <div className="mt-8 flex flex-col gap-3 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-end">
           {loading ? (
-            <LoadingSpinner label="Creating your reflection card…" />
+            <LoadingSpinner label={t.common.loadingGuided} />
           ) : (
             <PrimaryButton
               size="lg"
@@ -227,7 +204,7 @@ export default function GuidedReflectionPage() {
               disabled={loading || !hasInput}
               className="w-full sm:w-auto"
             >
-              Create reflection card
+              {t.guided.button}
             </PrimaryButton>
           )}
         </div>
@@ -238,7 +215,7 @@ export default function GuidedReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {loading && <LoadingCard label="Creating your reflection card..." />}
+      {loading && <LoadingCard label={t.common.loadingGuided} />}
 
       {result && (
         <ReflectionResultCard result={result} structured={structured} />

@@ -1,6 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { normalizeLanguage, translations, type Language } from "../../lib/i18n";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -65,6 +66,10 @@ function toNextStepType(value: unknown) {
   return nextStepTypes.has(text) ? text : "";
 }
 
+function message(language: Language, key: "aiLimit" | "aiGeneric" | "saveWarning" | "structuredWarning") {
+  return translations[language].common[key];
+}
+
 function parseStructuredReflection(text: string): StructuredReflection | null {
   const jsonText = text
     .trim()
@@ -105,51 +110,84 @@ function parseStructuredReflection(text: string): StructuredReflection | null {
   }
 }
 
-function formatStructuredReflection(reflection: StructuredReflection) {
+function nextStepTypeLabel(language: Language, value?: string) {
+  if (!value) {
+    return "";
+  }
+
+  return (
+    translations[language].nextStepTypes[
+      value as keyof typeof translations.en.nextStepTypes
+    ] || value
+  );
+}
+
+function formatStructuredReflection(
+  reflection: StructuredReflection,
+  language: Language
+) {
+  const labels = translations[language].reflectionCard;
   const facts = reflection.facts.length
     ? reflection.facts.map((fact) => `- ${fact}`).join("\n")
-    : "- Not clearly identified.";
+    : `- ${labels.notIdentified}`;
   const interpretation = reflection.interpretation.length
     ? reflection.interpretation
         .map((item) => `- ${item}`)
         .join("\n")
-    : "- Not clearly identified.";
+    : `- ${labels.notIdentified}`;
 
   const nextStep = reflection.next_step
     ? `
 
-8. One Small Next Step
-${reflection.next_step_type ? `[${reflection.next_step_type}]\n` : ""}${reflection.next_step}`
+8. ${labels.nextStep}
+${reflection.next_step_type ? `[${nextStepTypeLabel(language, reflection.next_step_type)}]\n` : ""}${reflection.next_step}`
     : "";
 
-  return `1. Emotional Validation
+  return `1. ${labels.emotionalValidation}
 ${reflection.emotional_validation}
 
-2. Trigger
+2. ${labels.trigger}
 ${reflection.trigger}
 
-3. Facts vs Interpretation
-Facts:
+3. ${labels.factsInterpretation}
+${labels.facts}:
 ${facts}
 
-Interpretation:
+${labels.interpretation}:
 ${interpretation}
 
-4. Thought Pattern
+4. ${labels.thoughtPattern}
 ${reflection.thought_pattern}
 
-5. Behaviour
-${reflection.behaviour || "Not clearly identified."}
+5. ${labels.behaviour}
+${reflection.behaviour || labels.notIdentified}
 
-6. Behavioural Insight
+6. ${labels.behaviouralInsight}
 ${reflection.behavioural_insight}
 
-7. One Next Question
+7. ${labels.nextQuestion}
 ${reflection.next_question}${nextStep}`;
 }
 
-function formatGuidedReflection(reflection: StructuredReflection) {
-  const baseReflection = formatStructuredReflection(reflection);
+function formatGuidedReflection(
+  reflection: StructuredReflection,
+  language: Language
+) {
+  const baseReflection = formatStructuredReflection(reflection, language);
+
+  if (language === "zh") {
+    return `1. 你已经清楚捕捉到的部分
+${reflection.captured_clearly || "你已经识别出这次情绪时刻中的几个重要部分。"}
+
+2. 可能还不清楚的部分
+${reflection.still_unclear || "也许还可以进一步澄清，什么对你来说最重要。"}
+
+3. 完整反思卡片
+${reflection.completed_reflection || baseReflection}
+
+4. 一个反思问题
+${reflection.next_question}`;
+  }
 
   return `1. What You Captured Clearly
 ${reflection.captured_clearly || "You identified several useful parts of the moment."}
@@ -164,7 +202,11 @@ ${reflection.completed_reflection || baseReflection}
 ${reflection.next_question}`;
 }
 
-function buildPrompt(input: string, mode: "quick" | "guided") {
+function buildPrompt(input: string, mode: "quick" | "guided", language: Language) {
+  const languageInstruction =
+    language === "zh"
+      ? "Respond in natural Simplified Chinese. Keep JSON keys in English. Keep next_step_type as one of the exact English enum values."
+      : "Respond in natural English. Keep JSON keys in English.";
   const guidedFields =
     mode === "guided"
       ? `
@@ -178,6 +220,9 @@ This is a guided CBT-informed reflection. Also evaluate the user's completeness 
 
   return `
 You are InnerLeaf, an AI-assisted emotional reflection tool.
+
+Language:
+- ${languageInstruction}
 
 Your role:
 - First acknowledge the user's emotional experience.
@@ -228,13 +273,19 @@ Rules:
 - The next_step should help the user slow down, clarify facts, communicate gently, reframe cautiously, self-soothe, or avoid impulsive behaviour.
 - If the input suggests crisis, self-harm, harm to others, abuse, or immediate danger, do not provide a normal next step. Give a brief safety-oriented next_step encouraging immediate support from local emergency services or a trusted person.
 - Do not wrap the JSON in markdown.
+- JSON keys must stay in English.
 `;
 }
 
 export async function POST(request: Request) {
+  let responseLanguage: Language = "en";
+
   try {
-    const { input, mode: requestedMode } = await request.json();
+    const { input, mode: requestedMode, language: requestedLanguage } =
+      await request.json();
     const mode = requestedMode === "guided" ? "guided" : "quick";
+    const language = normalizeLanguage(requestedLanguage);
+    responseLanguage = language;
 
     if (!input || typeof input !== "string") {
       return NextResponse.json(
@@ -243,7 +294,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const prompt = buildPrompt(input, mode);
+    const prompt = buildPrompt(input, mode, language);
 
     const response = await ai.models.generateContent({
       model: geminiModel,
@@ -258,14 +309,15 @@ export async function POST(request: Request) {
     const structured = parseStructuredReflection(rawResult);
     const result = structured
       ? mode === "guided"
-        ? formatGuidedReflection(structured)
-        : formatStructuredReflection(structured)
+        ? formatGuidedReflection(structured, language)
+        : formatStructuredReflection(structured, language)
       : rawResult;
 
     const reflectionRecord = {
       user_input: input,
       ai_result: result,
       mode,
+      language,
       ...(structured
         ? {
             emotional_validation: structured.emotional_validation,
@@ -296,8 +348,7 @@ export async function POST(request: Request) {
         return NextResponse.json({
           result,
           structured,
-          warning:
-            "Your reflection was generated, but structured details could not be saved.",
+          warning: message(language, "structuredWarning"),
         });
       }
 
@@ -305,7 +356,7 @@ export async function POST(request: Request) {
       return NextResponse.json({
         result,
         structured,
-        warning: "Your reflection was generated, but it could not be saved.",
+        warning: message(language, "saveWarning"),
       });
     }
 
@@ -322,14 +373,14 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "InnerLeaf has reached today's AI usage limit. Please try again later.",
+            message(responseLanguage, "aiLimit"),
         },
         { status: 429 }
       );
     }
 
     return NextResponse.json(
-      { error: "Something went wrong while generating your reflection. Please try again." },
+      { error: message(responseLanguage, "aiGeneric") },
       { status: 500 }
     );
   }

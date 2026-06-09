@@ -1,5 +1,8 @@
+"use client";
+
 import { TrendingUp } from "lucide-react";
 import { Card } from "./ui";
+import { useLanguage } from "./language-provider";
 
 export type PatternItem = {
   value: string;
@@ -15,6 +18,7 @@ export function PatternSection({
   description?: string;
   items: PatternItem[];
 }) {
+  const { t } = useLanguage();
   const maxCount = Math.max(...items.map((item) => item.count), 1);
 
   return (
@@ -40,7 +44,7 @@ export function PatternSection({
 
       {items.length === 0 ? (
         <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
-          Not enough structured data yet.
+          {t.summary.notEnoughData}
         </p>
       ) : (
         <ol className="mt-5 space-y-2">

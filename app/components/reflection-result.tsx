@@ -11,6 +11,8 @@ import {
   Zap,
 } from "lucide-react";
 import { Card, LinkButton, PageActions, SectionLabel } from "./ui";
+import { useLanguage } from "./language-provider";
+import { translateNextStepType } from "../lib/i18n";
 
 export type StructuredReflectionResult = {
   emotional_validation?: string;
@@ -74,11 +76,11 @@ function parseSections(result: string) {
   return parsed.length > 0 ? parsed : null;
 }
 
-function bulletList(items?: string[]) {
+function bulletList(items?: string[], fallback = "Not clearly identified.") {
   const values = items?.filter(Boolean) ?? [];
 
   if (values.length === 0) {
-    return "Not clearly identified.";
+    return fallback;
   }
 
   return values.map((item) => `- ${item}`).join("\n");
@@ -86,10 +88,12 @@ function bulletList(items?: string[]) {
 
 function ReflectionSection({
   label,
+  labelText,
   content,
   tone = "default",
 }: {
   label: string;
+  labelText?: string;
   content?: string;
   tone?: "default" | "highlight";
 }) {
@@ -116,7 +120,7 @@ function ReflectionSection({
           <Icon size={15} strokeWidth={1.8} />
         </span>
         <h3 className="text-sm font-medium text-[var(--foreground)]">
-          {label}
+          {labelText || label}
         </h3>
       </div>
       <div
@@ -171,14 +175,18 @@ export function ReflectionResultCard({
   structured?: StructuredReflectionResult;
   showActions?: boolean;
 }) {
+  const { language, t } = useLanguage();
   const sections = structured
     ? structuredSections(structured)
     : parseSections(result);
   const nextStep = structured?.next_step?.trim();
   const nextStepType = structured?.next_step_type?.trim();
   const isStructured = Boolean(structured);
-  const facts = structured ? bulletList(structured.facts) : "";
-  const interpretation = structured ? bulletList(structured.interpretation) : "";
+  const labels = t.reflectionCard;
+  const facts = structured ? bulletList(structured.facts, labels.notIdentified) : "";
+  const interpretation = structured
+    ? bulletList(structured.interpretation, labels.notIdentified)
+    : "";
 
   return (
     <section aria-labelledby="reflection-card-heading" className="mt-8">
@@ -194,10 +202,10 @@ export function ReflectionResultCard({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <SectionLabel id="reflection-card-heading">
-              Your reflection card
+              {labels.title}
             </SectionLabel>
             <p className="mt-2 text-sm text-[var(--foreground-subtle)]">
-              Saved automatically. Revisit anytime in History.
+              {labels.saved}
             </p>
           </div>
           {structured?.emotion && (
@@ -211,9 +219,14 @@ export function ReflectionResultCard({
           <div className="mt-5 grid gap-2.5 sm:gap-3">
             <ReflectionSection
               label="What came up"
+              labelText={labels.emotionalValidation}
               content={structured.emotional_validation}
             />
-            <ReflectionSection label="Trigger" content={structured.trigger} />
+            <ReflectionSection
+              label="Trigger"
+              labelText={labels.trigger}
+              content={structured.trigger}
+            />
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
               <div className="flex items-center gap-2">
                 <span
@@ -223,13 +236,13 @@ export function ReflectionResultCard({
                   <ListChecks size={15} strokeWidth={1.8} />
                 </span>
                 <h3 className="text-sm font-medium text-[var(--foreground)]">
-                  Facts & interpretation
+                  {labels.factsInterpretation}
                 </h3>
               </div>
               <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
                 <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    Facts
+                    {labels.facts}
                   </p>
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
                     {facts}
@@ -237,7 +250,7 @@ export function ReflectionResultCard({
                 </div>
                 <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
                   <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    Interpretation
+                    {labels.interpretation}
                   </p>
                   <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
                     {interpretation}
@@ -247,15 +260,22 @@ export function ReflectionResultCard({
             </div>
             <ReflectionSection
               label="Thought pattern"
+              labelText={labels.thoughtPattern}
               content={structured.thought_pattern}
             />
-            <ReflectionSection label="Behaviour" content={structured.behaviour} />
+            <ReflectionSection
+              label="Behaviour"
+              labelText={labels.behaviour}
+              content={structured.behaviour}
+            />
             <ReflectionSection
               label="Behavioural insight"
+              labelText={labels.behaviouralInsight}
               content={structured.behavioural_insight}
             />
             <ReflectionSection
               label="One next question"
+              labelText={labels.nextQuestion}
               content={structured.next_question}
               tone="highlight"
             />
@@ -271,6 +291,13 @@ export function ReflectionResultCard({
                 <ReflectionSection
                   key={section.label}
                   label={section.label}
+                  labelText={
+                    section.label === "One next question"
+                      ? labels.nextQuestion
+                      : section.label === "One small next step"
+                        ? labels.nextStep
+                        : section.label
+                  }
                   content={section.content}
                   tone={isQuestion ? "highlight" : "default"}
                 />
@@ -293,11 +320,11 @@ export function ReflectionResultCard({
                 <Footprints size={16} strokeWidth={1.8} />
               </span>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                One small next step
+                {labels.nextStep}
               </h3>
               {nextStepType && (
                 <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                  {nextStepType}
+                  {translateNextStepType(language, nextStepType)}
                 </span>
               )}
             </div>
@@ -305,7 +332,7 @@ export function ReflectionResultCard({
               {nextStep}
             </p>
             <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
-              Try this gently, or skip it if it does not fit the moment.
+              {labels.nextStepHint}
             </p>
           </div>
         )}
@@ -313,13 +340,13 @@ export function ReflectionResultCard({
         {showActions && (
           <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">
             <LinkButton href="/quick" size="sm">
-              New reflection
+              {labels.newReflection}
             </LinkButton>
             <LinkButton href="/history" variant="secondary" size="sm">
-              View history
+              {t.common.viewHistory}
             </LinkButton>
             <LinkButton href="/summary" variant="ghost" size="sm">
-              See patterns
+              {labels.seePatterns}
             </LinkButton>
           </PageActions>
         )}

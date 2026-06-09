@@ -7,6 +7,7 @@ import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
+import { useLanguage } from "../components/language-provider";
 import {
   Card,
   LoadingCard,
@@ -18,14 +19,8 @@ import {
   TextareaField,
 } from "../components/ui";
 
-const helperChips = [
-  "What happened?",
-  "What did you feel?",
-  "What did you assume?",
-  "What did you do next?",
-] as const;
-
 export default function QuickReflectionPage() {
+  const { language, t } = useLanguage();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   const [structured, setStructured] =
@@ -47,13 +42,13 @@ export default function QuickReflectionPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ input, mode: "quick" }),
+        body: JSON.stringify({ input, mode: "quick", language }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Something went wrong.");
+        setError(data.error || t.common.aiGeneric);
         return;
       }
 
@@ -61,7 +56,7 @@ export default function QuickReflectionPage() {
       setStructured(data.structured || null);
       setWarning(data.warning || "");
     } catch {
-      setError("Something went wrong while generating the reflection.");
+      setError(t.common.aiGeneric);
     } finally {
       setLoading(false);
     }
@@ -69,22 +64,22 @@ export default function QuickReflectionPage() {
 
   return (
     <PageShell>
-      <PageHeader compact eyebrow="Reflect" title="Quick Reflection">
-        Write freely. InnerLeaf will help organise the moment.
+      <PageHeader compact eyebrow={t.common.reflect} title={t.quick.title}>
+        {t.quick.purpose}
       </PageHeader>
 
       <Card className="hover:translate-y-0">
         <TextareaField
-          label="What happened?"
-          helper="A few honest sentences are enough."
+          label={t.quick.label}
+          helper={t.quick.helper}
           className="min-h-52 sm:min-h-56"
-          placeholder="Write what happened. You can be messy — InnerLeaf will help organise it."
+          placeholder={t.quick.placeholder}
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {helperChips.map((chip) => (
+          {t.quick.chips.map((chip) => (
             <span
               key={chip}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(31,155,143,0.14)] bg-[var(--surface-muted)] px-2.5 py-1 text-xs text-[var(--foreground-muted)]"
@@ -102,16 +97,16 @@ export default function QuickReflectionPage() {
 
         <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-[var(--foreground-subtle)]">
-            Prefer structure first?{" "}
+            {t.quick.guidedLinkLead}{" "}
             <Link
               href="/guided"
               className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
             >
-              Try guided reflection
+              {t.common.tryGuided}
             </Link>
           </p>
           {loading ? (
-            <LoadingSpinner label="Organising your reflection…" />
+            <LoadingSpinner label={t.common.loadingQuick} />
           ) : (
             <PrimaryButton
               size="lg"
@@ -119,7 +114,7 @@ export default function QuickReflectionPage() {
               disabled={loading || !input.trim()}
               className="w-full sm:w-auto sm:shrink-0"
             >
-              Break down this reaction
+              {t.quick.button}
             </PrimaryButton>
           )}
         </div>
@@ -130,7 +125,7 @@ export default function QuickReflectionPage() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {loading && <LoadingCard label="Organising your reflection..." />}
+      {loading && <LoadingCard label={t.common.loadingQuick} />}
 
       {result && (
         <ReflectionResultCard result={result} structured={structured} />
