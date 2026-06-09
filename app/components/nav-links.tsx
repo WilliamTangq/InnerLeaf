@@ -5,11 +5,11 @@ import { usePathname } from "next/navigation";
 import { LanguageSelector, useLanguage } from "./language-provider";
 
 const links = [
-  { href: "/#product", key: "product" },
-  { href: "/#how-it-works", key: "howItWorks" },
-  { href: "/privacy", key: "privacy" },
+  { href: "/", key: "home" },
+  { href: "/demo", key: "demo" },
+  { href: "/test", key: "test" },
   { href: "/faq", key: "faq" },
-  { href: "/feedback", key: "feedback" },
+  { href: "/privacy", key: "privacy" },
 ] as const;
 
 export function NavLinks() {
@@ -56,6 +56,12 @@ export function NavLinks() {
           className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
         >
           {t.nav.history}
+        </Link>
+        <Link
+          href="/guided"
+          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
+        >
+          {t.nav.guided}
         </Link>
         <Link
           href="/summary"

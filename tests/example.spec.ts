@@ -3,13 +3,15 @@ import { expect, test } from "@playwright/test";
 const routes = [
   {
     path: "/",
-    heading: "Understand the pattern behind your emotional reaction.",
+    heading: "Turn emotional reactions into clear reflection.",
   },
   { path: "/quick", heading: "Quick Reflection" },
   { path: "/guided", heading: "Guided Reflection" },
   { path: "/history", heading: "Reflection History" },
   { path: "/summary", heading: "Your recent patterns" },
   { path: "/feedback", heading: "Share feedback" },
+  { path: "/test", heading: "Test InnerLeaf" },
+  { path: "/demo", heading: "InnerLeaf Demo Flow" },
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
@@ -37,8 +39,8 @@ test("home links to the main reflection flows", async ({ page }) => {
     page.getByRole("link", { name: "Start reflection" }).first()
   ).toHaveAttribute("href", "/quick");
   await expect(
-    page.getByRole("link", { name: "See how it works" }).first()
-  ).toHaveAttribute("href", "#how-it-works");
+    page.getByRole("link", { name: "View demo flow" }).first()
+  ).toHaveAttribute("href", "/demo");
 });
 
 test("quick reflection disables submit until the user writes", async ({ page }) => {

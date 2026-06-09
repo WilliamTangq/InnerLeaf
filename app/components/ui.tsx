@@ -34,6 +34,8 @@ export function Footer() {
     [t.summary.title, "/summary"],
   ] as const;
   const companyLinks = [
+    [t.nav.demo, "/demo"],
+    [t.nav.test, "/test"],
     [t.nav.about, "/about"],
     [t.nav.privacy, "/privacy"],
     [t.nav.faq, "/faq"],

@@ -15,17 +15,17 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://innerleaf.io"),
-  title: "InnerLeaf — AI-assisted emotional reflection",
+  title: "InnerLeaf — Structured reflection for emotional moments",
   description:
-    "Turn emotional moments into structured reflection cards, separate facts from interpretation, and notice repeated patterns over time.",
+    "Turn emotional reactions into structured reflection cards, separate facts from interpretation, and notice repeated patterns over time.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
   },
   openGraph: {
-    title: "InnerLeaf — AI-assisted emotional reflection",
+    title: "InnerLeaf — Structured reflection for emotional moments",
     description:
-      "Turn emotional moments into structured reflection cards, separate facts from interpretation, and notice repeated patterns over time.",
+      "Turn emotional reactions into structured reflection cards, separate facts from interpretation, and notice repeated patterns over time.",
     type: "website",
     images: ["/logo.png"],
   },
