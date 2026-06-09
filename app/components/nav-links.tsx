@@ -1,26 +1,15 @@
 "use client";
 
-import {
-  Archive,
-  Home,
-  Leaf,
-  ListChecks,
-  LockKeyhole,
-  MessageSquare,
-  TrendingUp,
-} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LanguageSelector, useLanguage } from "./language-provider";
 
 const links = [
-  { href: "/", key: "home", icon: Home },
-  { href: "/quick", key: "quick", icon: Leaf },
-  { href: "/guided", key: "guided", icon: ListChecks },
-  { href: "/history", key: "history", icon: Archive },
-  { href: "/summary", key: "summary", icon: TrendingUp },
-  { href: "/feedback", key: "feedback", icon: MessageSquare },
-  { href: "/login", key: "login", icon: LockKeyhole },
+  { href: "/#product", key: "product" },
+  { href: "/#how-it-works", key: "howItWorks" },
+  { href: "/privacy", key: "privacy" },
+  { href: "/faq", key: "faq" },
+  { href: "/feedback", key: "feedback" },
 ] as const;
 
 export function NavLinks() {
@@ -34,12 +23,10 @@ export function NavLinks() {
         className="-mx-1 flex max-w-full items-center gap-0.5 overflow-x-auto pb-0.5 sm:mx-0 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0"
       >
         {links.map((link) => {
-          const Icon = link.icon;
           const label = t.nav[link.key];
           const isActive =
-            link.href === "/"
-              ? pathname === "/"
-              : pathname === link.href || pathname.startsWith(`${link.href}/`);
+            !link.href.includes("#") &&
+            (pathname === link.href || pathname.startsWith(`${link.href}/`));
 
           return (
             <Link
@@ -50,22 +37,34 @@ export function NavLinks() {
                 isActive
                   ? "bg-[var(--accent-soft)] font-medium text-[var(--brand-teal-deep)]"
                   : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
-                link.href === "/login" &&
-                  "text-[var(--foreground-subtle)] sm:ml-1",
               ].join(" ")}
             >
-              <Icon
-                aria-hidden="true"
-                size={14}
-                strokeWidth={1.8}
-                className="mr-1.5 hidden align-[-2px] sm:inline-block"
-              />
               {label}
             </Link>
           );
         })}
       </nav>
-      <LanguageSelector />
+      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+        <Link
+          href="/quick"
+          className="inline-flex items-center justify-center rounded-lg bg-[var(--brand-teal)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+        >
+          {t.common.startReflection}
+        </Link>
+        <Link
+          href="/history"
+          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
+        >
+          {t.nav.history}
+        </Link>
+        <Link
+          href="/summary"
+          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
+        >
+          {t.nav.summary}
+        </Link>
+        <LanguageSelector />
+      </div>
     </div>
   );
 }

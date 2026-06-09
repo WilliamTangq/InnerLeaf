@@ -10,6 +10,9 @@ const routes = [
   { path: "/history", heading: "Reflection History" },
   { path: "/summary", heading: "Your recent patterns" },
   { path: "/feedback", heading: "Share feedback" },
+  { path: "/about", heading: "About InnerLeaf" },
+  { path: "/privacy", heading: "Privacy & Safety Principles" },
+  { path: "/faq", heading: "FAQ" },
   { path: "/login", heading: "Login" },
 ] as const;
 
@@ -31,11 +34,11 @@ test("home links to the main reflection flows", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("link", { name: "Start quick reflection" }).first()
+    page.getByRole("link", { name: "Start reflection" }).first()
   ).toHaveAttribute("href", "/quick");
   await expect(
-    page.getByRole("link", { name: "Try guided reflection" }).first()
-  ).toHaveAttribute("href", "/guided");
+    page.getByRole("link", { name: "See how it works" }).first()
+  ).toHaveAttribute("href", "#how-it-works");
 });
 
 test("quick reflection disables submit until the user writes", async ({ page }) => {

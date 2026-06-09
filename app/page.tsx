@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import {
   Archive,
   Brain,
+  CheckCircle2,
   HelpCircle,
   Leaf,
   PencilLine,
@@ -29,15 +30,19 @@ function LandingSection({
   title,
   children,
   className,
+  id,
 }: {
   eyebrow: string;
   title: string;
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
     <section
+      id={id}
       className={[
+        "scroll-mt-28",
         "mt-16 border-t border-[var(--border)] pt-12 sm:mt-20 sm:pt-14",
         className,
       ]
@@ -134,7 +139,7 @@ function ReflectionPreview() {
                     className="text-[var(--brand-teal-deep)]"
                   />
                   <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                  {item.labelText}
+                    {item.labelText}
                   </p>
                 </div>
                 <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -172,26 +177,30 @@ export default function Home() {
 
           <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row sm:flex-wrap">
             <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-              {t.common.startQuick}
+              {t.common.startReflection}
             </LinkButton>
             <LinkButton
-              href="/guided"
+              href="#how-it-works"
               variant="secondary"
               size="lg"
               className="w-full sm:w-auto"
             >
-              {t.common.tryGuided}
+              {t.common.seeHow}
             </LinkButton>
           </div>
           <p className="mt-4 text-sm text-[var(--foreground-subtle)]">
-            {t.home.boundary}
+            {t.home.safety}
           </p>
         </div>
 
         <ReflectionPreview />
       </section>
 
-      <LandingSection eyebrow={t.home.howEyebrow} title={t.home.howTitle}>
+      <LandingSection
+        id="how-it-works"
+        eyebrow={t.home.howEyebrow}
+        title={t.home.howTitle}
+      >
         <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {t.home.steps.map(([title, description], index) => {
             const Icon = stepIcons[index];
@@ -221,9 +230,30 @@ export default function Home() {
       </LandingSection>
 
       <LandingSection
+        id="product"
+        eyebrow={t.home.featuresEyebrow}
+        title={t.home.featuresTitle}
+      >
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          {t.home.features.map(([title, description]) => (
+            <Card key={title} className="h-full hover:-translate-y-0.5">
+              <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                <Leaf aria-hidden="true" size={18} strokeWidth={1.8} />
+              </div>
+              <h3 className="font-semibold text-[var(--foreground)]">
+                {title}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {description}
+              </p>
+            </Card>
+          ))}
+        </div>
+      </LandingSection>
+
+      <LandingSection
         eyebrow={t.home.whyEyebrow}
         title={t.home.whyTitle}
-        className="mb-16 sm:mb-20"
       >
         <div className="mt-8 grid gap-3 sm:grid-cols-3 sm:gap-4">
           {t.home.differences.map(([title, description]) => (
@@ -237,10 +267,67 @@ export default function Home() {
             </Card>
           ))}
         </div>
+        <div className="mt-6 flex flex-wrap gap-2">
+          {t.home.clarityBullets.map((item) => (
+            <Badge key={item} variant="outline">
+              {item}
+            </Badge>
+          ))}
+        </div>
+      </LandingSection>
+
+      <LandingSection eyebrow={t.home.trustEyebrow} title={t.home.trustTitle}>
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          {t.home.trustCards.map((item) => (
+            <Card key={item} variant="muted" className="p-4 sm:p-5">
+              <CheckCircle2
+                aria-hidden="true"
+                size={18}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              <p className="mt-3 text-sm font-medium leading-6 text-[var(--foreground)]">
+                {item}
+              </p>
+            </Card>
+          ))}
+        </div>
+        <p className="mt-5 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+          {t.home.boundary}
+        </p>
+      </LandingSection>
+
+      <LandingSection
+        eyebrow={t.home.useCasesEyebrow}
+        title={t.home.useCasesTitle}
+      >
+        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {t.home.useCases.map((item) => (
+            <Card key={item} className="p-4 sm:p-5">
+              <p className="text-sm font-medium leading-6 text-[var(--foreground)]">
+                {item}
+              </p>
+            </Card>
+          ))}
+        </div>
+      </LandingSection>
+
+      <section className="mb-16 mt-16 overflow-hidden rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.18)] bg-[var(--surface)] p-6 shadow-[var(--shadow-lg)] sm:mb-20 sm:mt-20 sm:p-8">
+        <div className="max-w-2xl">
+          <SectionLabel>{t.common.reflect}</SectionLabel>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.65rem]">
+            {t.home.finalTitle}
+          </h2>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
+              {t.common.startQuick}
+            </LinkButton>
+            <LinkButton href="/guided" variant="secondary" size="lg">
+              {t.common.tryGuided}
+            </LinkButton>
+          </div>
+        </div>
         <div className="mt-10 flex flex-wrap gap-3">
-          <LinkButton href="/quick" size="lg">
-            {t.common.startQuick}
-          </LinkButton>
           <LinkButton href="/history" variant="secondary">
             {t.common.viewHistory}
           </LinkButton>
@@ -251,7 +338,7 @@ export default function Home() {
             {t.nav.feedback}
           </LinkButton>
         </div>
-      </LandingSection>
+      </section>
     </PageShell>
   );
 }

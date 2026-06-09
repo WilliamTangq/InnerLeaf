@@ -27,44 +27,79 @@ export function TopNav() {
 
 export function Footer() {
   const { t } = useLanguage();
+  const productLinks = [
+    [t.quick.title, "/quick"],
+    [t.guided.title, "/guided"],
+    [t.history.title, "/history"],
+    [t.summary.title, "/summary"],
+  ] as const;
+  const companyLinks = [
+    [t.nav.about, "/about"],
+    [t.nav.privacy, "/privacy"],
+    [t.nav.faq, "/faq"],
+    [t.nav.feedback, "/feedback"],
+  ] as const;
 
   return (
     <footer className="mt-auto border-t border-[var(--border)] bg-[var(--background-elevated)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-5 py-10 sm:flex-row sm:items-start sm:justify-between sm:px-8">
+      <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
+          <p className="max-w-sm text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.footerSections.description}
+          </p>
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-subtle)]">
             {t.common.footer}
           </p>
         </div>
-        <div className="flex flex-col gap-3 text-sm text-[var(--foreground-muted)] sm:items-end">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[var(--foreground-subtle)]">
-              {t.common.follow}
-            </span>
-            <a
-              className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              href="https://www.linkedin.com/company/innerleaf"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              LinkedIn
-            </a>
-            <span aria-hidden="true" className="text-[var(--border-strong)]">
-              ·
-            </span>
-            <a
-              className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              href="https://www.instagram.com/innerleaf.io"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              Instagram
-            </a>
-          </div>
+        <FooterColumn title={t.footerSections.product} links={productLinks} />
+        <FooterColumn title={t.footerSections.company} links={companyLinks} />
+        <div className="flex flex-col gap-3 text-sm text-[var(--foreground-muted)]">
+          <p className="font-medium text-[var(--foreground)]">
+            {t.common.follow}
+          </p>
+          <a
+            className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            href="https://www.linkedin.com/company/innerleaf"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            LinkedIn
+          </a>
+          <a
+            className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            href="https://www.instagram.com/innerleaf.io"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            Instagram
+          </a>
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterColumn({
+  title,
+  links,
+}: {
+  title: string;
+  links: readonly (readonly [string, string])[];
+}) {
+  return (
+    <div className="flex flex-col gap-3 text-sm text-[var(--foreground-muted)]">
+      <p className="font-medium text-[var(--foreground)]">{title}</p>
+      {links.map(([label, href]) => (
+        <Link
+          key={href}
+          href={href}
+          className="underline-offset-4 transition duration-200 hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+        >
+          {label}
+        </Link>
+      ))}
+    </div>
   );
 }
 
