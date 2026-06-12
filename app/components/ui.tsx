@@ -16,8 +16,8 @@ function cx(...classes: Array<string | false | null | undefined>) {
 
 export function TopNav() {
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--border)]/80 bg-[var(--background-elevated)]/90 backdrop-blur-lg">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+    <header className="sticky top-0 z-50 border-b border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.78)] backdrop-blur-xl">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-3 px-4 py-3 sm:px-8">
         <BrandLogo size="md" />
         <NavLinks />
       </div>
@@ -43,8 +43,8 @@ export function Footer() {
   ] as const;
 
   return (
-    <footer className="mt-auto border-t border-[var(--border)] bg-[var(--background-elevated)]">
-      <div className="mx-auto grid w-full max-w-6xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="mt-auto border-t border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.72)]">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-7 px-5 py-8 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_0.8fr]">
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-muted)]">

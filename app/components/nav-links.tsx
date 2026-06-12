@@ -17,10 +17,10 @@ export function NavLinks() {
   const { t } = useLanguage();
 
   return (
-    <div className="flex max-w-full flex-col gap-3 sm:items-end">
+    <div className="flex max-w-full items-center gap-2">
       <nav
         aria-label="Main"
-        className="-mx-1 flex max-w-full items-center gap-0.5 overflow-x-auto pb-0.5 sm:mx-0 sm:flex-wrap sm:justify-end sm:overflow-visible sm:pb-0"
+        className="hidden max-w-full items-center gap-0.5 lg:flex"
       >
         {links.map((link) => {
           const label = t.nav[link.key];
@@ -44,30 +44,12 @@ export function NavLinks() {
           );
         })}
       </nav>
-      <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+      <div className="flex shrink-0 items-center gap-2">
         <Link
           href="/quick"
           className="inline-flex items-center justify-center rounded-lg bg-[var(--brand-teal)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
         >
           {t.common.startReflection}
-        </Link>
-        <Link
-          href="/history"
-          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
-        >
-          {t.nav.history}
-        </Link>
-        <Link
-          href="/guided"
-          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
-        >
-          {t.nav.guided}
-        </Link>
-        <Link
-          href="/summary"
-          className="text-sm text-[var(--foreground-subtle)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline"
-        >
-          {t.nav.summary}
         </Link>
         <LanguageSelector />
       </div>

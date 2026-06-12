@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const routes = [
   {
     path: "/",
-    heading: "Turn emotional reactions into clear reflection.",
+    heading: "Turn emotional overload into clear reflection.",
   },
   { path: "/quick", heading: "Quick Reflection" },
   { path: "/guided", heading: "Guided Reflection" },
@@ -39,7 +39,7 @@ test("home links to the main reflection flows", async ({ page }) => {
     page.getByRole("link", { name: "Start reflection" }).first()
   ).toHaveAttribute("href", "/quick");
   await expect(
-    page.getByRole("link", { name: "View demo flow" }).first()
+    page.getByRole("link", { name: "View demo" }).first()
   ).toHaveAttribute("href", "/demo");
 });
 

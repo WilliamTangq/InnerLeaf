@@ -1,211 +1,157 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import {
-  Archive,
   ArrowRight,
   Brain,
   CheckCircle2,
-  HelpCircle,
+  Feather,
+  FileText,
   Leaf,
   MessageCircle,
   PencilLine,
   Route,
   Scale,
-  ShieldCheck,
   Sparkles,
-  TrendingUp,
-  Zap,
 } from "lucide-react";
 import { BrandLogo } from "./components/brand-logo";
-import {
-  Badge,
-  Card,
-  LinkButton,
-  PageShell,
-  SectionLabel,
-} from "./components/ui";
+import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
 
-const problemIcons = [Zap, MessageCircle, Route, TrendingUp] as const;
-const stepIcons = [PencilLine, Sparkles, Archive, TrendingUp] as const;
-const trustIcons = [ShieldCheck, CheckCircle2, Scale, Leaf, Brain] as const;
+const productIcons = [Scale, Brain, Feather] as const;
+const flowIcons = [PencilLine, Sparkles, FileText, Route] as const;
 
-function MarketingSection({
-  eyebrow,
-  title,
+function Surface({
   children,
-  id,
-  className,
+  className = "",
 }: {
-  eyebrow: string;
-  title: string;
   children: ReactNode;
-  id?: string;
   className?: string;
 }) {
   return (
-    <section
-      id={id}
+    <div
       className={[
-        "scroll-mt-28 border-t border-[var(--border)] pt-12 sm:pt-14",
+        "rounded-[1.75rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.72)] shadow-[0_24px_80px_rgba(26,34,32,0.075)] backdrop-blur-xl",
         className,
       ]
         .filter(Boolean)
         .join(" ")}
     >
-      <SectionLabel>{eyebrow}</SectionLabel>
-      <h2 className="mt-3 max-w-3xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.8rem] sm:leading-tight">
-        {title}
-      </h2>
       {children}
-    </section>
+    </div>
   );
 }
 
-function HeroBackground() {
-  const [showVideo, setShowVideo] = useState(false);
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (reduceMotion.matches) {
-      return;
-    }
-
-    // Optional local asset: add commercially usable footage at public/hero-bg.mp4.
-    // Do not hardcode external video URLs here.
-    fetch("/hero-bg.mp4", { method: "HEAD" })
-      .then((response) => setShowVideo(response.ok))
-      .catch(() => setShowVideo(false));
-  }, []);
-
-  if (!showVideo) {
-    return (
-      <div
-        aria-hidden="true"
-        className="absolute inset-0"
-        style={{ background: "var(--brand-gradient-soft)" }}
-      />
-    );
-  }
-
-  return (
-    <>
-      <video
-        aria-hidden="true"
-        className="absolute inset-0 h-full w-full object-cover opacity-35"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="metadata"
-      >
-        <source src="/hero-bg.mp4" type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-[rgba(255,252,246,0.72)]" />
-    </>
-  );
-}
-
-function ProductMockup({ detailed = false }: { detailed?: boolean }) {
+function TransformationMockup() {
   const { t } = useLanguage();
-  const sections = [
-    [t.reflectionCard.emotionalValidation, t.home.previewValidation],
+  const cardRows = [
     [t.reflectionCard.trigger, t.home.previewTrigger],
     [t.reflectionCard.facts, t.home.previewFacts],
     [t.reflectionCard.interpretation, t.home.previewInterpretation],
     [t.reflectionCard.thoughtPattern, t.home.previewPattern],
-    [t.reflectionCard.nextQuestion, t.home.previewQuestion],
-    [t.reflectionCard.nextStep, t.home.previewStep],
   ] as const;
 
-  const visibleSections = detailed ? sections : sections.slice(1);
-
   return (
-    <Card
-      variant="elevated"
-      className="relative overflow-hidden border-[rgba(31,155,143,0.15)]"
-    >
+    <div className="relative">
       <div
-        className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full opacity-60"
-        style={{ background: "var(--brand-gradient-soft)" }}
+        aria-hidden="true"
+        className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_78%_8%,rgba(228,184,74,0.26),transparent_34%),radial-gradient(circle_at_8%_78%,rgba(31,155,143,0.20),transparent_40%)] blur-3xl"
       />
-      <div className="relative">
-        <div className="mb-5 flex items-center justify-between gap-3">
-          <div>
-            <SectionLabel>{t.home.previewEyebrow}</SectionLabel>
-            <p className="mt-2 text-lg font-semibold text-[var(--foreground)]">
-              {t.home.previewTitle}
-            </p>
-          </div>
-          <Badge variant="accent">~3 min</Badge>
+      <Surface className="relative overflow-hidden p-4 sm:p-5 lg:p-6">
+        <div className="absolute right-6 top-6 hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-white/55 px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)] lg:block">
+          {t.home.previewTitle}
         </div>
 
-        <div className="grid gap-3">
-          {visibleSections.map(([label, text], index) => {
-            const isStep = label === t.reflectionCard.nextStep;
-            return (
-              <div
-                key={label}
-                className={[
-                  "rounded-[var(--radius-lg)] border p-3.5",
-                  isStep
-                    ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
-                    : "border-[var(--border)] bg-[var(--surface-muted)]",
-                ].join(" ")}
-              >
-                <div className="flex items-center gap-2">
-                  <span
-                    aria-hidden="true"
-                    className="flex h-6 w-6 items-center justify-center rounded-lg bg-white/70 text-[var(--brand-teal-deep)]"
-                  >
-                    {index === 0 ? (
-                      <Zap size={14} strokeWidth={1.8} />
-                    ) : index === 1 ? (
-                      <Scale size={14} strokeWidth={1.8} />
-                    ) : index === 2 ? (
-                      <Route size={14} strokeWidth={1.8} />
-                    ) : index === 3 ? (
-                      <Brain size={14} strokeWidth={1.8} />
-                    ) : index === 4 ? (
-                      <HelpCircle size={14} strokeWidth={1.8} />
-                    ) : (
-                      <CheckCircle2 size={14} strokeWidth={1.8} />
-                    )}
-                  </span>
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {label}
-                  </p>
-                </div>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {text}
+        <div className="grid gap-4 lg:grid-cols-[0.82fr_auto_1.18fr] lg:items-center">
+          <div className="rounded-[1.5rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.62)] p-4 shadow-[0_10px_40px_rgba(26,34,32,0.05)] sm:p-5">
+            <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+              <MessageCircle aria-hidden="true" size={15} strokeWidth={1.8} />
+              {t.home.heroStructured}
+            </div>
+            <p className="text-xl font-medium leading-8 tracking-tight text-[var(--foreground)] sm:text-2xl sm:leading-9">
+              “{t.home.heroMessy}”
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {t.home.problemCards.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(247,246,243,0.74)] px-3 py-1 text-xs text-[var(--foreground-subtle)]"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center text-[var(--brand-teal-deep)] lg:px-1">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] shadow-[0_10px_30px_rgba(31,155,143,0.14)] lg:h-14 lg:w-14">
+              <ArrowRight aria-hidden="true" size={22} strokeWidth={1.8} />
+            </div>
+          </div>
+
+          <div className="rounded-[1.85rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.76)] p-4 shadow-[0_16px_50px_rgba(26,34,32,0.08)] sm:p-5">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                  {t.home.previewTitle}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">
+                  {t.home.doesTitle}
                 </p>
               </div>
-            );
-          })}
+              <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                ~3 min
+              </span>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {cardRows.map(([label, value]) => (
+                <div
+                  key={label}
+                  className="rounded-[1.1rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(247,246,243,0.68)] p-3.5"
+                >
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
+                    {label}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 rounded-[1.25rem] border border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(230,245,243,0.94),rgba(255,248,226,0.66))] p-4">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
+                <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
+                {t.reflectionCard.nextStep}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {t.home.previewStep}
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
-    </Card>
+      </Surface>
+    </div>
   );
 }
 
-function HeroVisual() {
-  const { t } = useLanguage();
-
+function SectionHeading({
+  eyebrow,
+  title,
+  children,
+}: {
+  eyebrow: string;
+  title: string;
+  children?: ReactNode;
+}) {
   return (
-    <div className="relative rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.16)] bg-[var(--surface)] p-4 shadow-[var(--shadow-lg)] sm:p-5 lg:order-2">
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-sm leading-6 text-[var(--foreground-muted)]">
-        <div className="mb-2 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-          <MessageCircle aria-hidden="true" size={14} strokeWidth={1.8} />
-          {t.home.heroStructured}
-        </div>
-        “{t.home.heroMessy}”
-      </div>
-      <div className="my-3 flex justify-center text-[var(--brand-teal-deep)]">
-        <ArrowRight aria-hidden="true" size={22} strokeWidth={1.8} />
-      </div>
-      <ProductMockup />
+    <div className="mx-auto max-w-3xl text-center">
+      <SectionLabel>{eyebrow}</SectionLabel>
+      <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
+        {title}
+      </h2>
+      {children}
     </div>
   );
 }
@@ -214,198 +160,129 @@ export default function Home() {
   const { t } = useLanguage();
 
   return (
-    <PageShell maxWidth="max-w-6xl">
-      <section className="relative overflow-hidden rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.14)] px-5 py-8 shadow-[var(--shadow-lg)] sm:px-8 sm:py-12">
-        <HeroBackground />
-        <div className="relative grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-14">
-          <div className="max-w-xl">
-            <BrandLogo
-              size="hero"
-              href={null}
-              showWordmark={false}
-              className="mb-6"
-            />
-            <Badge variant="accent">{t.home.badge}</Badge>
-            <h1 className="mt-4 text-[2.15rem] font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-[3.1rem] sm:leading-[1.06]">
-              {t.home.headline}
-            </h1>
-            <p className="mt-5 text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
-              {t.home.subtitle}
-            </p>
+    <PageShell maxWidth="max-w-[1200px]">
+      <section className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.92),rgba(232,246,241,0.55)_54%,rgba(255,247,221,0.42))] px-5 py-9 shadow-[0_30px_100px_rgba(26,34,32,0.10)] sm:px-8 sm:py-12 lg:px-10">
+        <div
+          aria-hidden="true"
+          className="absolute -right-24 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.18)] blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.13)] blur-3xl"
+        />
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-                {t.common.startReflection}
-              </LinkButton>
-              <LinkButton
-                href="/demo"
-                variant="secondary"
-                size="lg"
-                className="w-full sm:w-auto"
-              >
-                {t.common.viewDemo}
-              </LinkButton>
-            </div>
-            <p className="mt-4 text-sm text-[var(--foreground-subtle)]">
-              {t.home.safety}
-            </p>
+        <div className="relative mx-auto max-w-4xl text-center">
+          <BrandLogo
+            size="lg"
+            href={null}
+            showWordmark={false}
+            className="mb-5 justify-center"
+          />
+          <Badge variant="accent">{t.home.badge}</Badge>
+          <h1 className="mx-auto mt-5 max-w-[820px] text-[2.45rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.75rem] sm:leading-[0.98]">
+            {t.home.headline}
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
+            {t.home.subtitle}
+          </p>
+          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+            <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
+              {t.common.startReflection}
+            </LinkButton>
+            <LinkButton
+              href="/demo"
+              variant="secondary"
+              size="lg"
+              className="w-full sm:w-auto"
+            >
+              {t.common.viewDemo}
+            </LinkButton>
           </div>
+          <p className="mt-4 text-sm leading-6 text-[var(--foreground-subtle)]">
+            {t.home.safety}
+          </p>
+        </div>
 
-          <HeroVisual />
+        <div className="relative mt-10 lg:mt-12">
+          <TransformationMockup />
         </div>
       </section>
 
-      <MarketingSection
-        eyebrow={t.home.problemEyebrow}
-        title={t.home.problemTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {t.home.problemCards.map((item, index) => {
-            const Icon = problemIcons[index];
+      <section className="mt-20 sm:mt-24">
+        <SectionHeading eyebrow={t.home.doesEyebrow} title={t.home.doesTitle} />
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {t.home.doesCards.map((item, index) => {
+            const Icon = productIcons[index];
             return (
-              <Card key={item} className="h-full hover:translate-y-0">
+              <Surface key={item} className="p-5 sm:p-6">
                 <Icon
                   aria-hidden="true"
-                  size={20}
+                  size={21}
                   strokeWidth={1.8}
                   className="text-[var(--brand-teal-deep)]"
                 />
-                <h3 className="mt-4 text-sm font-semibold leading-6 text-[var(--foreground)]">
+                <p className="mt-5 text-base font-medium leading-7 text-[var(--foreground)]">
                   {item}
-                </h3>
-              </Card>
+                </p>
+              </Surface>
             );
           })}
         </div>
-      </MarketingSection>
+      </section>
 
-      <MarketingSection
-        id="product"
-        eyebrow={t.home.previewEyebrow}
-        title={t.home.artifactTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 max-w-3xl">
-          <ProductMockup detailed />
+      <section className="mt-20 sm:mt-24">
+        <SectionHeading eyebrow={t.home.whyEyebrow} title={t.home.whyTitle}>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+            {t.home.differenceNote}
+          </p>
+        </SectionHeading>
+        <div className="mx-auto mt-7 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {t.home.differences.map(([title]) => (
+            <div
+              key={title}
+              className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.68)] px-4 py-3 text-center text-sm font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
+            >
+              {title}
+            </div>
+          ))}
         </div>
-      </MarketingSection>
+      </section>
 
-      <MarketingSection
-        id="how-it-works"
-        eyebrow={t.home.howEyebrow}
-        title={t.home.howTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {t.home.steps.map(([title, description], index) => {
-            const Icon = stepIcons[index];
-            return (
-              <Card key={title} className="h-full hover:translate-y-0">
-                <div className="flex items-center justify-between gap-3">
-                  <Icon
-                    aria-hidden="true"
-                    size={20}
-                    strokeWidth={1.8}
-                    className="text-[var(--brand-teal-deep)]"
-                  />
-                  <span className="text-xs font-medium text-[var(--foreground-subtle)]">
-                    {index + 1}
+      <section className="mt-20 sm:mt-24">
+        <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle} />
+        <Surface className="mx-auto mt-8 max-w-5xl p-4 sm:p-5">
+          <div className="grid gap-3 md:grid-cols-4">
+            {t.home.steps.map(([title], index) => {
+              const Icon = flowIcons[index];
+              return (
+                <div
+                  key={title}
+                  className="flex items-center gap-3 rounded-[1.25rem] bg-[rgba(247,246,243,0.68)] p-3.5"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                   </span>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {title}
+                  </p>
                 </div>
-                <h3 className="mt-4 font-semibold text-[var(--foreground)]">
-                  {title}
-                </h3>
-                <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {description}
-                </p>
-              </Card>
-            );
-          })}
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        eyebrow={t.home.whyEyebrow}
-        title={t.home.whyTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {t.home.differences.map(([title, description]) => (
-            <Card key={title} className="hover:translate-y-0">
-              <h3 className="font-semibold text-[var(--foreground)]">
-                {title}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {description}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        eyebrow={t.home.useCasesEyebrow}
-        title={t.home.useCasesTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {t.home.useCases.map((item) => (
-            <Card key={item} className="p-4 sm:p-5">
-              <p className="text-sm font-medium leading-6 text-[var(--foreground)]">
-                {item}
-              </p>
-            </Card>
-          ))}
-        </div>
-      </MarketingSection>
-
-      <MarketingSection
-        eyebrow={t.home.trustEyebrow}
-        title={t.home.trustTitle}
-        className="mt-16 sm:mt-20"
-      >
-        <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {t.home.trustCards.map((item, index) => {
-            const Icon = trustIcons[index];
-            return (
-              <Card key={item} variant="muted" className="p-4 sm:p-5">
-                <Icon
-                  aria-hidden="true"
-                  size={18}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
-                <p className="mt-3 text-sm font-medium leading-6 text-[var(--foreground)]">
-                  {item}
-                </p>
-              </Card>
-            );
-          })}
-        </div>
-      </MarketingSection>
-
-      <section className="mt-16 rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.18)] bg-[var(--surface)] p-6 shadow-[var(--shadow-lg)] sm:mt-20 sm:p-8">
-        <SectionLabel>{t.home.testingEyebrow}</SectionLabel>
-        <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.8rem]">
-          {t.home.testingTitle}
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--foreground-muted)]">
-          {t.home.testingCopy}
-        </p>
-        <div className="mt-6">
-          <LinkButton href="/test" size="lg">
-            {t.home.testingCta}
-          </LinkButton>
-        </div>
+              );
+            })}
+          </div>
+        </Surface>
       </section>
 
-      <section className="mb-16 mt-16 overflow-hidden rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.18)] bg-[var(--surface)] p-6 shadow-[var(--shadow-lg)] sm:mb-20 sm:mt-20 sm:p-8">
-        <SectionLabel>{t.common.reflect}</SectionLabel>
-        <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.8rem]">
+      <section className="mx-auto mb-12 mt-20 max-w-4xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.78)] p-6 text-center shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-24 sm:p-9">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+          <Leaf aria-hidden="true" size={22} strokeWidth={1.8} />
+        </div>
+        <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.4rem]">
           {t.home.finalTitle}
         </h2>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-[var(--foreground-muted)]">
+          {t.home.finalSubtitle}
+        </p>
+        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
             {t.common.startQuick}
           </LinkButton>
