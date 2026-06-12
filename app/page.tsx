@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { ReactNode } from "react";
 import {
   ArrowRight,
@@ -187,7 +188,7 @@ export default function Home() {
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
             <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-              {t.common.startReflection}
+              {t.common.tryThreeMinute}
             </LinkButton>
             <LinkButton
               href="/demo"
@@ -198,6 +199,12 @@ export default function Home() {
               {t.common.viewDemo}
             </LinkButton>
           </div>
+          <Link
+            href="/test"
+            className="mt-4 inline-flex text-sm font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
+          >
+            {t.common.helpTest}
+          </Link>
           <p className="mt-4 text-sm leading-6 text-[var(--foreground-subtle)]">
             {t.home.safety}
           </p>

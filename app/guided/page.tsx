@@ -7,6 +7,7 @@ import {
   type StructuredReflectionResult,
 } from "../components/reflection-result";
 import { useLanguage } from "../components/language-provider";
+import { rememberSavedReflectionId } from "../lib/local-reflections";
 import {
   Badge,
   Card,
@@ -92,6 +93,7 @@ export default function GuidedReflectionPage() {
       setResult(data.result);
       setStructured(data.structured || null);
       setWarning(data.warning || "");
+      rememberSavedReflectionId(data.id);
     } catch {
       setError(t.common.aiGeneric);
     } finally {

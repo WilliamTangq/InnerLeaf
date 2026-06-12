@@ -1,7 +1,8 @@
 "use client";
 
 import { CheckCircle2, Footprints, Leaf, Sparkles } from "lucide-react";
-import { PatternSection, type PatternItem } from "../components/pattern-section";
+import { useEffect, useState } from "react";
+import { PatternSection } from "../components/pattern-section";
 import {
   Card,
   EmptyState,
@@ -13,6 +14,133 @@ import {
 } from "../components/ui";
 import { useLanguage } from "../components/language-provider";
 import { translateNextStepType } from "../lib/i18n";
+import { getSavedReflectionIds } from "../lib/local-reflections";
+
+type SummaryReflection = {
+  id: string | number;
+  created_at: string;
+  emotion: string | null;
+  trigger: string | null;
+  thought_pattern: string | null;
+  behaviour: string | null;
+  next_step_type: string | null;
+  follow_up_result: string | null;
+};
+
+function cleanRawLabel(value: string | null) {
+  return (value ?? "")
+    .replace(/^\s*\d+\.\s*/g, "")
+    .replace(/^[-*•]\s*/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeCategory(
+  value: string | null,
+  language: "en" | "zh",
+  type: "trigger" | "thought" | "behaviour"
+) {
+  const text = cleanRawLabel(value);
+  const lower = text.toLowerCase();
+
+  if (
+    !text ||
+    lower === "unspecified" ||
+    lower === "not clearly identified" ||
+    lower === "not identified"
+  ) {
+    return "";
+  }
+
+  const maps = {
+    en: {
+      thought: [
+        [/emotional reasoning/i, "Emotional reasoning"],
+        [/mind.?reading/i, "Mind reading"],
+        [/catastroph/i, "Catastrophising"],
+        [/personal/i, "Personalisation"],
+        [/all.?or.?nothing/i, "All-or-nothing thinking"],
+        [/self.?blame/i, "Self-blame"],
+        [/comparison/i, "Comparison thinking"],
+        [/rejection/i, "Rejection sensitivity"],
+        [/low.?energy/i, "Low-energy mode"],
+      ],
+      trigger: [
+        [/delayed reply|late reply|reply/i, "Delayed reply"],
+        [/criticism|comment/i, "Criticism"],
+        [/work|fatigue|shift/i, "Work fatigue"],
+        [/study|exam|assignment/i, "Study pressure"],
+        [/comparison|social/i, "Social comparison"],
+        [/product testing|curiosity/i, "Product testing"],
+        [/pain|period|headache|discomfort/i, "Physical discomfort"],
+      ],
+      behaviour: [
+        [/check|checking/i, "Checking behaviour"],
+        [/avoid|delay|procrastinat/i, "Avoidance"],
+        [/reassurance/i, "Reassurance-seeking"],
+        [/message|text|reply/i, "Emotional messaging"],
+        [/soothe|breath|rest|water|shower|heat/i, "Self-soothing"],
+        [/clarif|fact/i, "Clarifying facts"],
+        [/shutdown|shut down|freeze/i, "Shutdown"],
+        [/delay|wait/i, "Delaying action"],
+      ],
+    },
+    zh: {
+      thought: [
+        [/情绪化推理/, "情绪化推理"],
+        [/读心/, "读心式解读"],
+        [/灾难化/, "灾难化想法"],
+        [/个人化/, "个人化解读"],
+        [/全或无|非黑即白/, "非黑即白"],
+        [/自责/, "自责循环"],
+        [/比较/, "比较思维"],
+        [/被拒绝|拒绝/, "拒绝敏感"],
+        [/低能量/, "低能量模式"],
+      ],
+      trigger: [
+        [/回复|消息/, "回复延迟"],
+        [/批评|评论/, "批评"],
+        [/工作|疲劳|班/, "工作疲劳"],
+        [/学习|考试|作业/, "学习压力"],
+        [/比较|社交/, "社交比较"],
+        [/测试|好奇/, "产品测试"],
+        [/疼|痛|不舒服|经期|头痛/, "身体不适"],
+      ],
+      behaviour: [
+        [/查看|检查|刷/, "反复查看"],
+        [/回避|拖延|逃避/, "回避"],
+        [/确认|安慰/, "寻求确认"],
+        [/消息|回复|发送/, "情绪化发送消息"],
+        [/稳定|呼吸|休息|热水|洗澡|热敷/, "稳定自己"],
+        [/事实|澄清/, "澄清事实"],
+        [/停摆|关机|动不了/, "停摆"],
+        [/等待|延迟/, "延迟行动"],
+      ],
+    },
+  } as const;
+
+  for (const [pattern, label] of maps[language][type]) {
+    if (pattern.test(text)) {
+      return label;
+    }
+  }
+
+  const max = language === "zh" ? 12 : 36;
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function topPatterns(values: string[]) {
+  const counts = new Map<string, number>();
+
+  values.filter(Boolean).forEach((value) => {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  });
+
+  return Array.from(counts.entries())
+    .map(([value, count]) => ({ value, count }))
+    .sort((first, second) => second.count - first.count || first.value.localeCompare(second.value))
+    .slice(0, 3);
+}
 
 function ChangeSection({ signals }: { signals: string[] }) {
   const { t } = useLanguage();
@@ -135,28 +263,77 @@ function HelpfulNextStepsSection({
   );
 }
 
-export function SummaryContent({
-  hasError,
-  reflectionCount,
-  remaining,
-  hasEnoughData,
-  repeatedTriggers,
-  repeatedThoughtPatterns,
-  recentBehaviouralThemes,
-  signals,
-  nextSteps,
-}: {
-  hasError: boolean;
-  reflectionCount: number;
-  remaining: number;
-  hasEnoughData: boolean;
-  repeatedTriggers: PatternItem[];
-  repeatedThoughtPatterns: PatternItem[];
-  recentBehaviouralThemes: PatternItem[];
-  signals: string[];
-  nextSteps: Array<{ value: string; used: number; helped: number }>;
-}) {
-  const { t } = useLanguage();
+export function SummaryContent() {
+  const { language, t } = useLanguage();
+  const [reflections, setReflections] = useState<SummaryReflection[]>([]);
+  const [hasError, setHasError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    async function loadReflections() {
+      const ids = getSavedReflectionIds();
+
+      if (ids.length === 0) {
+        setLoaded(true);
+        return;
+      }
+
+      try {
+        const response = await fetch("/api/reflections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Summary unavailable");
+        }
+
+        setReflections(data.reflections || []);
+      } catch {
+        setHasError(true);
+      } finally {
+        setLoaded(true);
+      }
+    }
+
+    loadReflections();
+  }, []);
+
+  const reflectionCount = reflections.length;
+  const hasEnoughData = reflectionCount >= 3;
+  const repeatedTriggers = topPatterns(
+    reflections.map((item) => normalizeCategory(item.trigger, language, "trigger"))
+  );
+  const repeatedThoughtPatterns = topPatterns(
+    reflections.map((item) =>
+      normalizeCategory(item.thought_pattern, language, "thought")
+    )
+  );
+  const recentBehaviouralThemes = topPatterns(
+    reflections.map((item) => normalizeCategory(item.behaviour, language, "behaviour"))
+  );
+  const signals = hasEnoughData ? t.summary.observationItems.slice(0, 3) : [];
+  const nextStepCounts = new Map<string, { value: string; used: number; helped: number }>();
+
+  reflections.forEach((item) => {
+    const type = cleanRawLabel(item.next_step_type);
+    const result = cleanRawLabel(item.follow_up_result);
+
+    if (!type || !result) {
+      return;
+    }
+
+    const current = nextStepCounts.get(type) ?? { value: type, used: 0, helped: 0 };
+    current.used += 1;
+    if (result === "Helped" || result === "Somewhat") {
+      current.helped += 1;
+    }
+    nextStepCounts.set(type, current);
+  });
+
+  const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
 
   return (
     <PageShell maxWidth="max-w-5xl">
@@ -173,23 +350,15 @@ export function SummaryContent({
 
       {hasError && <StatusCard tone="error">{t.summary.unavailable}</StatusCard>}
 
-      {!hasError && !hasEnoughData && (
+      {!hasError && loaded && !hasEnoughData && (
         <EmptyState
-          title={
-            reflectionCount === 0
-              ? t.summary.emptyTitle
-              : `${remaining} ${t.summary.emptyNeed}`
-          }
-          description={
-            reflectionCount === 0
-              ? t.summary.emptyDescription
-              : t.summary.emptyProgress
-          }
+          title={t.summary.emptyTitle}
+          description={`${t.summary.emptyDescription} ${t.summary.emptySubtext}`}
           action={<LinkButton href="/quick">{t.common.startQuick}</LinkButton>}
         />
       )}
 
-      {!hasError && hasEnoughData && (
+      {!hasError && loaded && hasEnoughData && (
         <>
           <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
             <PatternSection

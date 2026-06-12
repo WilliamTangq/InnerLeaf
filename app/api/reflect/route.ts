@@ -414,7 +414,11 @@ export async function POST(request: Request) {
         : {}),
     };
 
-    const { error } = await supabase.from("reflections").insert(reflectionRecord);
+    const { data: insertedReflection, error } = await supabase
+      .from("reflections")
+      .insert(reflectionRecord)
+      .select("id")
+      .single();
 
     if (error) {
       console.error("Supabase insert error:", error);
@@ -439,7 +443,7 @@ export async function POST(request: Request) {
       });
     }
 
-    return NextResponse.json({ result, structured });
+    return NextResponse.json({ result, structured, id: insertedReflection?.id });
   } catch (error: unknown) {
     console.error("Reflect API error:", error);
 

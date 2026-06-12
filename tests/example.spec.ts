@@ -6,7 +6,7 @@ const routes = [
     heading: "Turn emotional overload into clear reflection.",
   },
   { path: "/quick", heading: "Quick Reflection" },
-  { path: "/guided", heading: "Guided Reflection" },
+  { path: "/guided", heading: "Step-by-step reflection" },
   { path: "/history", heading: "Reflection History" },
   { path: "/summary", heading: "Your recent patterns" },
   { path: "/feedback", heading: "Share feedback" },
@@ -36,7 +36,7 @@ test("home links to the main reflection flows", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("link", { name: "Start reflection" }).first()
+    page.getByRole("link", { name: "Try a 3-minute reflection" }).first()
   ).toHaveAttribute("href", "/quick");
   await expect(
     page.getByRole("link", { name: "View demo" }).first()

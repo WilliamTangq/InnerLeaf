@@ -21,6 +21,8 @@ const experienceQuestions = [
   { name: "reflection_length" },
   { name: "clarity_help" },
   { name: "would_use_again" },
+  { name: "alternative_tool" },
+  { name: "saving_blocker" },
 ] as const;
 
 const openQuestions = [

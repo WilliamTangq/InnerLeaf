@@ -24,6 +24,8 @@ export async function POST(request: Request) {
       reflection_length: textValue(body.reflection_length),
       clarity_help: textValue(body.clarity_help),
       would_use_again: textValue(body.would_use_again),
+      alternative_tool: textValue(body.alternative_tool),
+      saving_blocker: textValue(body.saving_blocker),
       comparison_feedback: textValue(body.comparison_feedback),
       blocker: textValue(body.blocker),
       other_thoughts: textValue(body.other_thoughts),
