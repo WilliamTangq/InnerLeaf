@@ -53,7 +53,7 @@ export const translations = {
       badge: "Beta · Built for emotional reflection, not diagnosis",
       headline: "Turn emotional reactions into clear reflection.",
       subtitle:
-        "InnerLeaf helps you break down one emotional moment into trigger, facts, interpretation, thought pattern, and one small next step.",
+        "InnerLeaf helps emotionally overloaded users turn intense moments into structured reflection and one gentle next step.",
       safety: "Private reflection space. Not therapy or medical advice.",
       boundary:
         "You stay in control. InnerLeaf does not diagnose, score, or judge your emotions.",
@@ -144,7 +144,8 @@ export const translations = {
         "A message was delayed, and you started assuming rejection.",
         "A comment stayed in your head longer than expected.",
         "You compared yourself with someone and felt unsettled.",
-        "You reacted strongly, then wondered why.",
+        "You shut down or felt too low-energy to start.",
+        "Study pressure made everything feel easier to delay.",
       ],
       testingEyebrow: "User testing",
       testingTitle: "Help shape InnerLeaf.",
@@ -243,7 +244,7 @@ export const translations = {
       purpose: "A clear product trust page for the MVP.",
       sections: [
         ["Your reflections are personal", "Write only what you are comfortable saving for history and summary features."],
-        ["InnerLeaf is not a medical service", "It supports self-reflection. It does not diagnose, treat, or provide medical advice."],
+        ["InnerLeaf is not a medical service", "It supports self-reflection. It does not diagnose, provide care, or give medical advice."],
         ["We avoid diagnosis and emotional scoring", "InnerLeaf focuses on triggers, facts, interpretations, patterns, and one small next step."],
         ["We keep outputs short", "Short cards are designed to reduce over-analysis and make review easier."],
         ["You stay in control", "You choose what to write, what to save, and whether to check in later."],
@@ -254,13 +255,13 @@ export const translations = {
       title: "FAQ",
       purpose: "Clear answers about what InnerLeaf is, and what it is not.",
       items: [
-        ["Is InnerLeaf therapy?", "No. InnerLeaf is a self-reflection tool. It does not diagnose, treat, or provide medical advice."],
+        ["Is InnerLeaf therapy?", "No. InnerLeaf is a self-reflection tool. It does not diagnose, provide care, or give medical advice."],
         ["How is InnerLeaf different from ChatGPT?", "ChatGPT gives you a conversation. InnerLeaf gives you a structured reflection card that can be saved, reviewed, and compared over time."],
         ["What is Quick Reflection?", "Quick Reflection lets you write freely. InnerLeaf organises your writing into a reflection card."],
         ["What is Guided Reflection?", "Guided Reflection helps you reflect step by step using a CBT-informed structure. It is not therapy."],
         ["What does Facts vs Interpretation mean?", "Facts are what actually happened. Interpretation is what your mind may have assumed or added."],
         ["What is One Small Next Step?", "It is a small, practical action or question to help you respond more clearly after reflection."],
-        ["Can InnerLeaf help with serious mental health problems?", "InnerLeaf is not designed for crisis support or medical care. If someone is in danger or needs urgent support, they should contact local emergency services or a trusted professional."],
+        ["Can InnerLeaf help with serious or urgent situations?", "InnerLeaf is not designed for crisis support or medical care. If someone is in danger or needs urgent support, they should contact local emergency services or a trusted professional."],
         ["Is my data private?", "For the MVP, reflections are saved to support history and summary features. Avoid entering information you are not comfortable storing. More privacy controls may be added later."],
       ],
     },
@@ -330,9 +331,11 @@ export const translations = {
       thoughtPattern: "Thought pattern",
       behaviour: "Behaviour",
       behaviouralInsight: "Behavioural insight",
+      bodyContext: "Body / context",
       nextQuestion: "One next question",
       nextStep: "One small next step",
       nextStepHint: "Try this gently, or skip it if it does not fit the moment.",
+      reflectionMode: "Reflection mode",
       newReflection: "New reflection",
       seePatterns: "See patterns",
       notIdentified: "Not clearly identified.",
@@ -344,6 +347,13 @@ export const translations = {
       "Self-soothe": "Self-soothe",
       Reframe: "Reframe",
       "Do nothing for now": "Do nothing for now",
+    },
+    detectedModes: {
+      General: "General",
+      "Low-Energy Mode": "Low-Energy Mode",
+      "Study Pressure": "Study Pressure",
+      "Relationship Anxiety": "Relationship Anxiety",
+      "Safety Boundary": "Safety Boundary",
     },
     history: {
       title: "Reflection History",
@@ -479,7 +489,7 @@ export const translations = {
       badge: "测试版 · 为情绪反思而设计，不做诊断",
       headline: "把强烈的情绪反应，整理成清晰的反思。",
       subtitle:
-        "InnerLeaf 帮你把一次情绪时刻拆解成触发点、事实、解读、思维模式，以及一个小的下一步。",
+        "InnerLeaf 帮助情绪过载的用户，把强烈的情绪时刻整理成结构化反思，并找到一个温和的下一步。",
       safety: "私人反思空间。不是治疗，也不提供医疗建议。",
       boundary: "你始终保有主动权。InnerLeaf 不诊断、不打分，也不评判你的情绪。",
       heroMessy: "对方一直没回消息，我开始觉得自己被忽略了。",
@@ -550,7 +560,8 @@ export const translations = {
         "一条消息迟迟没回，你开始担心是不是被拒绝。",
         "一句评论在脑子里反复出现。",
         "你和别人比较后，心里变得不安。",
-        "你反应很强烈，事后想知道为什么。",
+        "你进入低能量状态，什么都不想开始。",
+        "学习压力让你更想把事情全部推到明天。",
       ],
       testingEyebrow: "用户测试",
       testingTitle: "帮助我们完善 InnerLeaf。",
@@ -649,7 +660,7 @@ export const translations = {
       purpose: "这是 MVP 阶段的产品信任说明，不是完整法律隐私政策。",
       sections: [
         ["你的反思内容很个人", "请只写下你愿意保存到历史记录和总结功能中的内容。"],
-        ["InnerLeaf 不是医疗服务", "它支持自我反思，不做诊断、治疗或医疗建议。"],
+        ["InnerLeaf 不是医疗服务", "它支持自我反思，不做诊断，也不提供医疗建议。"],
         ["我们避免诊断和情绪打分", "InnerLeaf 关注触发点、事实、解读、模式和一个小的下一步。"],
         ["我们保持输出简短", "简短卡片有助于减少过度分析，也更容易回看。"],
         ["你始终保有主动权", "你决定写什么、保存什么，以及是否稍后回看。"],
@@ -660,13 +671,13 @@ export const translations = {
       title: "FAQ",
       purpose: "清楚说明 InnerLeaf 是什么，以及不是什么。",
       items: [
-        ["InnerLeaf 是治疗吗？", "不是。InnerLeaf 是自我反思工具，不做诊断、治疗或医疗建议。"],
+        ["InnerLeaf 是治疗吗？", "不是。InnerLeaf 是自我反思工具，不做诊断，也不提供医疗建议。"],
         ["InnerLeaf 和 ChatGPT 有什么不同？", "ChatGPT 给你一段对话。InnerLeaf 给你一张结构化反思卡片，可以保存、回看，并长期比较。"],
         ["什么是快速反思？", "快速反思让你自由书写，InnerLeaf 会把内容整理成反思卡片。"],
         ["什么是引导反思？", "引导反思会用 CBT 启发式结构一步步整理。它不是治疗。"],
         ["事实与解读是什么意思？", "事实是实际发生了什么。解读是你的大脑可能做出的假设或补充。"],
         ["一个小的下一步是什么？", "它是一个小而实际的动作或问题，帮助你在反思之后更清楚地回应。"],
-        ["InnerLeaf 能帮助严重心理健康问题吗？", "InnerLeaf 不是危机支持或医疗护理工具。如果有人处于危险中或需要紧急支持，应联系当地紧急服务或可信任的专业人士。"],
+        ["InnerLeaf 能处理严重或紧急情况吗？", "InnerLeaf 不是危机支持或医疗护理工具。如果有人处于危险中或需要紧急支持，应联系当地紧急服务或可信任的专业人士。"],
         ["我的数据是私密的吗？", "在 MVP 阶段，反思会被保存以支持历史记录和总结功能。请避免输入你不愿意保存的信息。之后可能加入更多隐私控制。"],
       ],
     },
@@ -723,9 +734,11 @@ export const translations = {
       thoughtPattern: "思维模式",
       behaviour: "行为反应",
       behaviouralInsight: "行为洞察",
+      bodyContext: "身体 / 环境因素",
       nextQuestion: "一个反思问题",
       nextStep: "一个小的下一步",
       nextStepHint: "可以温和地尝试；如果不适合此刻，也可以先跳过。",
+      reflectionMode: "反思模式",
       newReflection: "新的反思",
       seePatterns: "查看模式",
       notIdentified: "尚未清楚识别。",
@@ -737,6 +750,13 @@ export const translations = {
       "Self-soothe": "稳定自己",
       Reframe: "换个角度",
       "Do nothing for now": "暂时不行动",
+    },
+    detectedModes: {
+      General: "一般反思",
+      "Low-Energy Mode": "低能量模式",
+      "Study Pressure": "学习压力",
+      "Relationship Anxiety": "关系焦虑",
+      "Safety Boundary": "安全边界",
     },
     history: {
       title: "反思历史",
@@ -840,6 +860,18 @@ export function translateNextStepType(language: Language, value?: string | null)
   return (
     translations[language].nextStepTypes[
       value as keyof typeof translations.en.nextStepTypes
+    ] || value
+  );
+}
+
+export function translateDetectedMode(language: Language, value?: string | null) {
+  if (!value) {
+    return "";
+  }
+
+  return (
+    translations[language].detectedModes[
+      value as keyof typeof translations.en.detectedModes
     ] || value
   );
 }

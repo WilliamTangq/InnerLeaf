@@ -8,11 +8,12 @@ import {
   MessageCircleQuestion,
   Route,
   Sparkles,
+  Waves,
   Zap,
 } from "lucide-react";
 import { Card, LinkButton, PageActions, SectionLabel } from "./ui";
 import { useLanguage } from "./language-provider";
-import { translateNextStepType } from "../lib/i18n";
+import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
 
 export type StructuredReflectionResult = {
   emotional_validation?: string;
@@ -22,10 +23,12 @@ export type StructuredReflectionResult = {
   interpretation?: string[];
   thought_pattern?: string;
   behaviour?: string;
+  body_factor?: string;
   behavioural_insight?: string;
   next_question?: string;
   next_step_type?: string;
   next_step?: string;
+  mode_detected?: string;
   captured_clearly?: string;
   still_unclear?: string;
   completed_reflection?: string;
@@ -37,6 +40,7 @@ const SECTIONS = [
   { key: "Facts vs Interpretation", label: "Facts & interpretation" },
   { key: "Thought Pattern", label: "Thought pattern" },
   { key: "Behaviour", label: "Behaviour" },
+  { key: "Body / context", label: "Body / context" },
   { key: "Behavioural Insight", label: "Behavioural insight" },
   { key: "One Next Question", label: "One next question" },
   { key: "One Small Next Step", label: "One small next step" },
@@ -50,6 +54,7 @@ const sectionIcons = {
   Interpretation: Route,
   "Thought pattern": Brain,
   Behaviour: Footprints,
+  "Body / context": Waves,
   "Behavioural insight": Leaf,
   "One next question": MessageCircleQuestion,
   "One small next step": Footprints,
@@ -60,7 +65,7 @@ const sectionIcons = {
 
 function extractSection(text: string, section: string) {
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|One Next Question|One Small Next Step|What You Captured Clearly|What May Still Be Unclear|Completed Reflection Card)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Body / context|Behavioural Insight|One Next Question|One Small Next Step|What You Captured Clearly|What May Still Be Unclear|Completed Reflection Card)\\s*\\n|$)`,
     "i"
   );
   const match = text.match(pattern);
@@ -84,6 +89,29 @@ function bulletList(items?: string[], fallback = "Not clearly identified.") {
   }
 
   return values.map((item) => `- ${item}`).join("\n");
+}
+
+function meaningfulBodyFactor(value?: string) {
+  const text = value?.trim();
+
+  if (!text) {
+    return "";
+  }
+
+  const lower = text.toLowerCase();
+  const neutralPhrases = [
+    "not mentioned",
+    "not clearly identified",
+    "no clear body",
+    "no body",
+    "not identified",
+    "未提到",
+    "没有明显",
+    "尚未清楚",
+    "未明确",
+  ];
+
+  return neutralPhrases.some((phrase) => lower.includes(phrase)) ? "" : text;
 }
 
 function ReflectionSection({
@@ -150,6 +178,10 @@ function structuredSections(structured: NonNullable<StructuredReflectionResult>)
     },
     { label: "Thought pattern", content: structured.thought_pattern },
     { label: "Behaviour", content: structured.behaviour },
+    {
+      label: "Body / context",
+      content: meaningfulBodyFactor(structured.body_factor),
+    },
     { label: "Behavioural insight", content: structured.behavioural_insight },
     { label: "One next question", content: structured.next_question },
   ].filter((section) => section.content);
@@ -181,6 +213,7 @@ export function ReflectionResultCard({
     : parseSections(result);
   const nextStep = structured?.next_step?.trim();
   const nextStepType = structured?.next_step_type?.trim();
+  const modeDetected = structured?.mode_detected?.trim();
   const isStructured = Boolean(structured);
   const labels = t.reflectionCard;
   const facts = structured ? bulletList(structured.facts, labels.notIdentified) : "";
@@ -208,11 +241,19 @@ export function ReflectionResultCard({
               {labels.saved}
             </p>
           </div>
-          {structured?.emotion && (
-            <span className="self-start rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-              {structured.emotion}
-            </span>
-          )}
+          <div className="flex flex-wrap gap-2 sm:justify-end">
+            {structured?.emotion && (
+              <span className="self-start rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                {structured.emotion}
+              </span>
+            )}
+            {modeDetected && modeDetected !== "General" && (
+              <span className="self-start rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-medium text-[var(--foreground-muted)]">
+                {labels.reflectionMode}:{" "}
+                {translateDetectedMode(language, modeDetected)}
+              </span>
+            )}
+          </div>
         </div>
 
         {isStructured && structured ? (
@@ -267,6 +308,11 @@ export function ReflectionResultCard({
               label="Behaviour"
               labelText={labels.behaviour}
               content={structured.behaviour}
+            />
+            <ReflectionSection
+              label="Body / context"
+              labelText={labels.bodyContext}
+              content={meaningfulBodyFactor(structured.body_factor)}
             />
             <ReflectionSection
               label="Behavioural insight"

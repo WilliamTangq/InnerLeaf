@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
 import { useLanguage } from "../components/language-provider";
-import { translateNextStepType } from "../lib/i18n";
+import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
 import type { Reflection } from "./page";
 
 function extractSection(aiResult: string | null, section: string) {
@@ -111,6 +111,7 @@ function sectionTitle(title: string, labels: Labels) {
     Interpretation: labels.reflectionCard.interpretation,
     "Thought pattern": labels.reflectionCard.thoughtPattern,
     Behaviour: labels.reflectionCard.behaviour,
+    "Body / context": labels.reflectionCard.bodyContext,
     "Behavioural insight": labels.reflectionCard.behaviouralInsight,
     "One next question": labels.reflectionCard.nextQuestion,
     "One small next step": labels.reflectionCard.nextStep,
@@ -141,6 +142,29 @@ function previewLine(value: string | null, max = 140) {
   }
 
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function meaningfulBodyFactor(value: string | null) {
+  const text = previewLine(value);
+
+  if (!text) {
+    return null;
+  }
+
+  const lower = text.toLowerCase();
+  const neutralPhrases = [
+    "not mentioned",
+    "not clearly identified",
+    "no clear body",
+    "no body",
+    "not identified",
+    "未提到",
+    "没有明显",
+    "尚未清楚",
+    "未明确",
+  ];
+
+  return neutralPhrases.some((phrase) => lower.includes(phrase)) ? null : text;
 }
 
 function formatFollowUpDate(value: string | null) {
@@ -357,6 +381,7 @@ export function ReflectionCards({
             previewLine(item.next_step) ||
             extractSection(item.ai_result, "One Small Next Step"),
           nextStepType: previewLine(item.next_step_type, 60),
+          bodyFactor: meaningfulBodyFactor(item.body_factor),
         };
         const isOpen = openCards.has(item.id);
         const collapsedPreview = [
@@ -381,6 +406,7 @@ export function ReflectionCards({
           ["Interpretation", labels.interpretation],
           ["Thought pattern", labels.thoughtPattern],
           ["Behaviour", item.behaviour],
+          ["Body / context", labels.bodyFactor],
           ["Behavioural insight", item.behavioural_insight],
           ["One next question", labels.nextQuestion],
           ["One small next step", labels.nextStep],
@@ -401,6 +427,12 @@ export function ReflectionCards({
                     <Badge variant="accent">{item.emotion}</Badge>
                   )}
                   <Badge variant="outline">{modeLabel(item.mode, t)}</Badge>
+                  {item.mode_detected && item.mode_detected !== "General" && (
+                    <Badge variant="outline">
+                      {t.reflectionCard.reflectionMode}:{" "}
+                      {translateDetectedMode(language, item.mode_detected)}
+                    </Badge>
+                  )}
                   {labels.nextStepType && (
                     <Badge variant="accent">
                       {translateNextStepType(language, labels.nextStepType)}

@@ -12,7 +12,7 @@ const supabase =
     : null;
 
 const historySelect =
-  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, next_step, next_step_type, follow_up_result, follow_up_note, follow_up_at, mode, language";
+  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, body_factor, behavioural_insight, next_question, next_step, next_step_type, mode_detected, follow_up_result, follow_up_note, follow_up_at, mode, language";
 
 const legacyHistorySelect =
   "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, behavioural_insight, next_question, mode";
@@ -29,10 +29,12 @@ export type Reflection = {
   facts: string | null;
   interpretation: string | null;
   behaviour: string | null;
+  body_factor: string | null;
   behavioural_insight: string | null;
   next_question: string | null;
   next_step: string | null;
   next_step_type: string | null;
+  mode_detected: string | null;
   follow_up_result: string | null;
   follow_up_note: string | null;
   follow_up_at: string | null;
