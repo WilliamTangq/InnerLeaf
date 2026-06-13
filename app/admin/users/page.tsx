@@ -24,8 +24,12 @@ type AdminUser = {
   avatar_path: string | null;
   role: "user" | "tester" | "admin";
   created_at: string | null;
+  last_sign_in_at: string | null;
+  email_confirmed_at: string | null;
   reflection_count: number;
   feedback_count: number;
+  last_reflection_at: string | null;
+  last_feedback_at: string | null;
 };
 
 const roles = ["user", "tester", "admin"] as const;
@@ -213,8 +217,8 @@ function AdminUsersContent() {
   return (
     <PageShell maxWidth="max-w-6xl">
       <PageHeader compact eyebrow={t.admin.title} title={t.admin.usersTitle}>
-        {t.admin.usersPurpose}
-      </PageHeader>
+                {t.admin.usersPurpose}
+              </PageHeader>
 
       <PageActions>
         <LinkButton href="/admin">{t.admin.overview}</LinkButton>
@@ -259,7 +263,7 @@ function AdminUsersContent() {
         <div className="grid gap-3">
           {filteredUsers.map((user) => (
             <Card key={user.id} className="hover:translate-y-0">
-              <div className="grid gap-4 lg:grid-cols-[1.5fr_0.75fr_0.7fr_0.7fr_0.7fr_auto] lg:items-center">
+              <div className="grid gap-4 lg:grid-cols-[1.45fr_0.7fr_0.85fr_0.75fr_0.75fr_auto] lg:items-center">
                 <div className="flex min-w-0 items-center gap-3">
                   <Avatar
                     avatarUrl={user.avatar_url}
@@ -297,6 +301,17 @@ function AdminUsersContent() {
                   </p>
                   <p className="mt-1 text-sm text-[var(--foreground-muted)]">
                     {formatDate(user.created_at)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                    {t.admin.activity}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--foreground-muted)]">
+                    {t.admin.lastSignIn}: {formatDate(user.last_sign_in_at)}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--foreground-muted)]">
+                    {t.admin.lastReflection}: {formatDate(user.last_reflection_at)}
                   </p>
                 </div>
                 <div>
@@ -419,6 +434,46 @@ function AdminUsersContent() {
                   {t.admin.removeAvatar}
                 </label>
               )}
+
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                <p className="text-sm font-semibold text-[var(--foreground)]">
+                  {t.admin.accountActivity}
+                </p>
+                <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.created}
+                    </dt>
+                    <dd className="mt-1 text-sm text-[var(--foreground-muted)]">
+                      {formatDate(editingUser.created_at)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.lastSignIn}
+                    </dt>
+                    <dd className="mt-1 text-sm text-[var(--foreground-muted)]">
+                      {formatDate(editingUser.last_sign_in_at)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.emailConfirmed}
+                    </dt>
+                    <dd className="mt-1 text-sm text-[var(--foreground-muted)]">
+                      {formatDate(editingUser.email_confirmed_at)}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.lastFeedback}
+                    </dt>
+                    <dd className="mt-1 text-sm text-[var(--foreground-muted)]">
+                      {formatDate(editingUser.last_feedback_at)}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
             </div>
 
             <div className="mt-6 flex flex-wrap justify-end gap-2">
