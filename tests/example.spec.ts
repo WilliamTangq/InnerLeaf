@@ -15,7 +15,9 @@ const routes = [
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
-  { path: "/login", heading: "Login" },
+  { path: "/login", heading: "Log in to InnerLeaf" },
+  { path: "/register", heading: "Create your InnerLeaf account" },
+  { path: "/reset-password", heading: "Reset your password" },
 ] as const;
 
 for (const route of routes) {

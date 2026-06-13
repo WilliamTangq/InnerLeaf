@@ -6,8 +6,8 @@ import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { rememberSavedReflectionId } from "../lib/local-reflections";
 import {
   Badge,
   Card,
@@ -39,6 +39,7 @@ const initialValues = fields.reduce((values, field) => {
 
 export default function GuidedReflectionPage() {
   const { language, t } = useLanguage();
+  const { session, user } = useAuth();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState("");
@@ -79,6 +80,9 @@ export default function GuidedReflectionPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
         },
         body: JSON.stringify({ input, mode: "guided", language }),
       });
@@ -92,8 +96,7 @@ export default function GuidedReflectionPage() {
 
       setResult(data.result);
       setStructured(data.structured || null);
-      setWarning(data.warning || "");
-      rememberSavedReflectionId(data.id);
+      setWarning(data.warning || (data.saved ? "" : t.common.loginToSave));
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -220,7 +223,28 @@ export default function GuidedReflectionPage() {
       {loading && <LoadingCard label={t.common.loadingGuided} />}
 
       {result && (
-        <ReflectionResultCard result={result} structured={structured} />
+        <>
+          <ReflectionResultCard
+            result={result}
+            structured={structured}
+            statusText={user ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+          />
+          {!user && (
+            <div className="mt-4">
+              <StatusCard tone="neutral">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span>{t.auth.savingUnavailable}</span>
+                  <Link
+                    href="/login?next=/guided"
+                    className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+                  >
+                    {t.auth.loginToSaveButton}
+                  </Link>
+                </div>
+              </StatusCard>
+            </div>
+          )}
+        </>
       )}
     </PageShell>
   );

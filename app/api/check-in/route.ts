@@ -1,13 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-const supabase =
-  supabaseUrl && supabaseServiceRoleKey
-    ? createClient(supabaseUrl, supabaseServiceRoleKey)
-    : null;
+import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
 
 const followUpResults = new Set(["Helped", "Somewhat", "Did not help"]);
 
@@ -17,10 +9,12 @@ function cleanOptionalText(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    if (!supabase) {
+    const user = await getUserFromRequest(request);
+
+    if (!user || !supabaseAdmin) {
       return NextResponse.json(
         { error: "Could not save check-in. Please try again." },
-        { status: 500 }
+        { status: user ? 500 : 401 }
       );
     }
 
@@ -37,14 +31,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("reflections")
       .update({
         follow_up_result,
         follow_up_note: cleanOptionalText(follow_up_note),
         follow_up_at: new Date().toISOString(),
       })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("Supabase check-in update error:", error);

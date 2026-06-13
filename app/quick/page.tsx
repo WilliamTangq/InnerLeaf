@@ -7,8 +7,8 @@ import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { rememberSavedReflectionId } from "../lib/local-reflections";
 import {
   Card,
   LoadingCard,
@@ -22,6 +22,7 @@ import {
 
 export default function QuickReflectionPage() {
   const { language, t } = useLanguage();
+  const { session, user } = useAuth();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   const [structured, setStructured] =
@@ -42,6 +43,9 @@ export default function QuickReflectionPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
         },
         body: JSON.stringify({ input, mode: "quick", language }),
       });
@@ -55,8 +59,7 @@ export default function QuickReflectionPage() {
 
       setResult(data.result);
       setStructured(data.structured || null);
-      setWarning(data.warning || "");
-      rememberSavedReflectionId(data.id);
+      setWarning(data.warning || (data.saved ? "" : t.common.loginToSave));
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -130,7 +133,28 @@ export default function QuickReflectionPage() {
       {loading && <LoadingCard label={t.common.loadingQuick} />}
 
       {result && (
-        <ReflectionResultCard result={result} structured={structured} />
+        <>
+          <ReflectionResultCard
+            result={result}
+            structured={structured}
+            statusText={user ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+          />
+          {!user && (
+            <div className="mt-4">
+              <StatusCard tone="neutral">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <span>{t.auth.savingUnavailable}</span>
+                  <Link
+                    href="/login?next=/quick"
+                    className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+                  >
+                    {t.auth.loginToSaveButton}
+                  </Link>
+                </div>
+              </StatusCard>
+            </div>
+          )}
+        </>
       )}
     </PageShell>
   );

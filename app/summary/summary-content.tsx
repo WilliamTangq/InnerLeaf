@@ -12,9 +12,9 @@ import {
   PageShell,
   StatusCard,
 } from "../components/ui";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { translateNextStepType } from "../lib/i18n";
-import { getSavedReflectionIds } from "../lib/local-reflections";
 
 type SummaryReflection = {
   id: string | number;
@@ -265,24 +265,26 @@ function HelpfulNextStepsSection({
 
 export function SummaryContent() {
   const { language, t } = useLanguage();
+  const { session, user, loading: authLoading } = useAuth();
   const [reflections, setReflections] = useState<SummaryReflection[]>([]);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function loadReflections() {
-      const ids = getSavedReflectionIds();
+      if (authLoading) {
+        return;
+      }
 
-      if (ids.length === 0) {
+      if (!session?.access_token) {
+        setReflections([]);
         setLoaded(true);
         return;
       }
 
       try {
         const response = await fetch("/api/reflections", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids }),
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
         const data = await response.json();
 
@@ -299,7 +301,7 @@ export function SummaryContent() {
     }
 
     loadReflections();
-  }, []);
+  }, [authLoading, session?.access_token]);
 
   const reflectionCount = reflections.length;
   const hasEnoughData = reflectionCount >= 3;
@@ -350,7 +352,24 @@ export function SummaryContent() {
 
       {hasError && <StatusCard tone="error">{t.summary.unavailable}</StatusCard>}
 
-      {!hasError && loaded && !hasEnoughData && (
+      {!hasError && loaded && !user && (
+        <EmptyState
+          title={t.summary.authTitle}
+          description={t.summary.authBody}
+          action={
+            <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+              <LinkButton href="/login?next=/summary">
+                {t.auth.loginRequired}
+              </LinkButton>
+              <LinkButton href="/register?next=/summary" variant="secondary">
+                {t.auth.createAccount}
+              </LinkButton>
+            </div>
+          }
+        />
+      )}
+
+      {!hasError && loaded && user && !hasEnoughData && (
         <EmptyState
           title={t.summary.emptyTitle}
           description={`${t.summary.emptyDescription} ${t.summary.emptySubtext}`}
@@ -358,7 +377,7 @@ export function SummaryContent() {
         />
       )}
 
-      {!hasError && loaded && hasEnoughData && (
+      {!hasError && loaded && user && hasEnoughData && (
         <>
           <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
             <PatternSection

@@ -36,6 +36,8 @@ export const translations = {
       structuredWarning:
         "Your reflection was generated, but structured details could not be saved.",
       checkInError: "Could not save check-in. Please try again.",
+      loginToSave: "Log in to save this reflection to your history.",
+      savedToHistory: "Saved to your history.",
     },
     nav: {
       home: "Home",
@@ -52,6 +54,8 @@ export const translations = {
       summary: "Summary",
       feedback: "Feedback",
       login: "Login",
+      register: "Register",
+      logout: "Log out",
     },
     home: {
       badge: "Beta · Structured reflection, not diagnosis",
@@ -155,6 +159,8 @@ export const translations = {
       title: "Test InnerLeaf",
       purpose:
         "Try one reflection flow, then tell us whether the experience felt clear, useful, and worth returning to.",
+      accountNote:
+        "You can try a reflection without an account. Create an account only if you want to save it to History.",
       whatToDo: "What to do",
       steps: [
         "Choose Quick or Guided Reflection.",
@@ -301,7 +307,7 @@ export const translations = {
       sections: [
         [
           "Where is my reflection stored?",
-          "Saved reflections are stored so that History and Summary can work. In this MVP, only save content you are comfortable storing.",
+          "Saved reflections are connected to your account when you are logged in. They should not be publicly visible to other visitors. In this MVP, only save content you are comfortable storing.",
         ],
         [
           "Is this medical data?",
@@ -399,6 +405,7 @@ export const translations = {
     reflectionCard: {
       title: "Your reflection card",
       saved: "Saved automatically. Revisit anytime in History.",
+      generatedOnly: "Generated only. Log in to save this card to History.",
       emotionalValidation: "Emotional validation",
       emotion: "Emotion",
       trigger: "Trigger",
@@ -439,9 +446,11 @@ export const translations = {
       latest: "Latest",
       emptyTitle: "No saved reflections yet.",
       emptyDescription:
-        "Your reflection history will appear here after you save a card in this browser.",
+        "Your reflection history will appear here after you save a card to your account.",
       emptyNote:
         "InnerLeaf is currently an MVP. Please avoid entering information you would not want stored.",
+      authTitle: "Log in to view your reflection history",
+      authBody: "Your saved reflection cards are private to your account.",
       unavailable: "Reflection history is unavailable right now.",
       modeQuick: "Quick",
       modeGuided: "Guided",
@@ -477,11 +486,13 @@ export const translations = {
       emptyTitle: "Not enough saved reflections yet.",
       emptyNeed: "more saved reflections needed.",
       emptyDescription:
-        "Save at least 3 reflection cards in this browser to see repeated themes.",
+        "Save at least 3 reflection cards to your account to see repeated themes.",
       emptySubtext:
         "Patterns become clearer when there is more than one moment to compare.",
       emptyProgress:
-        "Save more reflection cards in this browser to see repeated themes.",
+        "Save more reflection cards to your account to see repeated themes.",
+      authTitle: "Log in to see your patterns",
+      authBody: "Pattern Summary is based on your saved reflection cards.",
       notEnoughData: "Not enough structured data yet.",
       checkInEmpty: "Check in on a few next steps to see what tends to help.",
       observations: "Gentle observations",
@@ -497,6 +508,44 @@ export const translations = {
       used: "Used",
       markedHelpful: "You marked helpful",
       times: "times",
+    },
+    auth: {
+      account: "Account",
+      email: "Email",
+      password: "Password",
+      confirmPassword: "Confirm password",
+      loginTitle: "Log in to InnerLeaf",
+      loginSubtitle:
+        "Save your reflection cards and review your patterns privately.",
+      loginButton: "Log in",
+      googleButton: "Continue with Google",
+      forgotPassword: "Forgot password?",
+      registerLink: "New to InnerLeaf? Create an account",
+      registerTitle: "Create your InnerLeaf account",
+      registerSubtitle:
+        "Keep your reflection cards connected to you, not the public demo.",
+      registerButton: "Create account",
+      loginLink: "Already have an account? Log in",
+      resetTitle: "Reset your password",
+      resetSubtitle: "Enter your email and we'll send you a reset link.",
+      sendReset: "Send reset link",
+      resetSent: "Password reset link sent. Please check your email.",
+      updatePassword: "Update password",
+      newPassword: "New password",
+      passwordUpdated: "Password updated. You can now log in.",
+      validEmail: "Please enter a valid email.",
+      passwordLength: "Password must be at least 6 characters.",
+      passwordsMismatch: "Passwords do not match.",
+      loginFailed: "Login failed. Please check your email and password.",
+      googleFailed: "Could not continue with Google. Please try again.",
+      loggedOut: "You have been logged out.",
+      checkEmail: "Check your email to confirm your account.",
+      trust: "Your saved reflections are connected to your account.",
+      loginRequired: "Log in",
+      createAccount: "Create account",
+      loginToSaveButton: "Log in to save",
+      savingUnavailable:
+        "You can generate a reflection without an account, but it will not be saved.",
     },
     feedback: {
       eyebrow: "Help us improve",
@@ -556,6 +605,8 @@ export const translations = {
       saveWarning: "反思已生成，但未能保存。",
       structuredWarning: "反思已生成，但结构化内容未能保存。",
       checkInError: "未能保存回看，请再试一次。",
+      loginToSave: "登录后可以把这条反思保存到历史记录。",
+      savedToHistory: "已保存到你的历史记录。",
     },
     nav: {
       home: "首页",
@@ -572,6 +623,8 @@ export const translations = {
       summary: "模式总结",
       feedback: "反馈",
       login: "登录",
+      register: "注册",
+      logout: "退出登录",
     },
     home: {
       badge: "测试版 · 结构化反思，不做诊断",
@@ -673,6 +726,8 @@ export const translations = {
       title: "测试 InnerLeaf",
       purpose:
         "体验一次反思流程，然后告诉我们这个体验是否清晰、有用，以及是否值得再次使用。",
+      accountNote:
+        "你可以不登录先体验一次反思。如果想保存到历史记录，再创建账号。",
       whatToDo: "你可以这样测试",
       steps: [
         "选择快速反思或引导反思。",
@@ -815,7 +870,7 @@ export const translations = {
       sections: [
         [
           "我的反思会保存在哪里？",
-          "保存的反思用于支持历史记录和模式总结功能。在 MVP 阶段，请只保存你愿意被存储的内容。",
+          "登录后保存的反思会和你的账号关联，不应该对其他访客公开可见。在 MVP 阶段，请只保存你愿意被存储的内容。",
         ],
         [
           "这是医疗数据吗？",
@@ -897,6 +952,7 @@ export const translations = {
     reflectionCard: {
       title: "你的反思卡片",
       saved: "已自动保存。你可以随时在历史记录中回看。",
+      generatedOnly: "仅已生成。登录后可以保存到历史记录。",
       emotionalValidation: "情绪确认",
       emotion: "主要情绪",
       trigger: "触发点",
@@ -936,9 +992,11 @@ export const translations = {
       saved: "已保存",
       latest: "最近",
       emptyTitle: "还没有保存的反思记录。",
-      emptyDescription: "当你在这个浏览器中保存反思卡片后，它们会显示在这里。",
+      emptyDescription: "当你把反思卡片保存到账号后，它们会显示在这里。",
       emptyNote:
         "InnerLeaf 当前仍是 MVP 测试版本。请避免输入你不希望被保存的信息。",
+      authTitle: "登录后查看反思历史",
+      authBody: "你保存的反思卡片只会和你的账号关联。",
       unavailable: "暂时无法加载反思历史。",
       modeQuick: "快速",
       modeGuided: "引导",
@@ -974,9 +1032,11 @@ export const translations = {
       emptyTitle: "保存的反思还不够。",
       emptyNeed: "还需要更多保存的反思。",
       emptyDescription:
-        "在这个浏览器中保存至少 3 张反思卡片后，就可以看到重复出现的主题。",
+        "在账号中保存至少 3 张反思卡片后，就可以看到重复出现的主题。",
       emptySubtext: "当有多个情绪时刻可以对比时，模式会更清楚。",
-      emptyProgress: "继续在这个浏览器中保存反思，就能看到重复出现的主题。",
+      emptyProgress: "继续在账号中保存反思，就能看到重复出现的主题。",
+      authTitle: "登录后查看你的模式总结",
+      authBody: "模式总结会基于你保存的反思卡片生成。",
       notEnoughData: "还没有足够的结构化内容。",
       checkInEmpty: "回看几次下一步后，就能看到哪些做法更常被你标记为有帮助。",
       observations: "温和观察",
@@ -992,6 +1052,41 @@ export const translations = {
       used: "使用",
       markedHelpful: "你标记为有帮助",
       times: "次",
+    },
+    auth: {
+      account: "账号",
+      email: "邮箱",
+      password: "密码",
+      confirmPassword: "确认密码",
+      loginTitle: "登录 InnerLeaf",
+      loginSubtitle: "保存你的反思卡片，并私密回看自己的模式。",
+      loginButton: "登录",
+      googleButton: "使用 Google 继续",
+      forgotPassword: "忘记密码？",
+      registerLink: "第一次使用 InnerLeaf？创建账号",
+      registerTitle: "创建 InnerLeaf 账号",
+      registerSubtitle: "让你的反思卡片只和你的账号关联，而不是公开演示数据。",
+      registerButton: "创建账号",
+      loginLink: "已有账号？登录",
+      resetTitle: "重置密码",
+      resetSubtitle: "输入邮箱，我们会发送密码重置链接。",
+      sendReset: "发送重置链接",
+      resetSent: "密码重置链接已发送，请查看邮箱。",
+      updatePassword: "更新密码",
+      newPassword: "新密码",
+      passwordUpdated: "密码已更新。你现在可以登录。",
+      validEmail: "请输入有效邮箱。",
+      passwordLength: "密码至少需要 6 位。",
+      passwordsMismatch: "两次输入的密码不一致。",
+      loginFailed: "登录失败，请检查邮箱和密码。",
+      googleFailed: "无法使用 Google 继续，请再试一次。",
+      loggedOut: "你已退出登录。",
+      checkEmail: "请查看邮箱并确认你的账号。",
+      trust: "你保存的反思会和你的账号关联。",
+      loginRequired: "登录",
+      createAccount: "创建账号",
+      loginToSaveButton: "登录后保存",
+      savingUnavailable: "你可以不登录生成反思，但不会保存到历史记录。",
     },
     feedback: {
       eyebrow: "帮助我们改进",

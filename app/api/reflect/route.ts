@@ -1,22 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { normalizeLanguage, translations, type Language } from "../../lib/i18n";
+import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
 const geminiModel = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-  throw new Error("Missing Supabase server environment variables");
-}
-
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 type StructuredReflection = {
   emotional_validation: string;
@@ -82,7 +73,15 @@ function toDetectedMode(value: unknown) {
   return detectedModes.has(text) ? text : "General";
 }
 
-function message(language: Language, key: "aiLimit" | "aiGeneric" | "saveWarning" | "structuredWarning") {
+function message(
+  language: Language,
+  key:
+    | "aiLimit"
+    | "aiGeneric"
+    | "saveWarning"
+    | "structuredWarning"
+    | "loginToSave"
+) {
   return translations[language].common[key];
 }
 
@@ -390,7 +389,28 @@ export async function POST(request: Request) {
         : formatStructuredReflection(structured, language)
       : rawResult;
 
+    const user = await getUserFromRequest(request);
+
+    if (!user) {
+      return NextResponse.json({
+        result,
+        structured,
+        saved: false,
+        warning: message(language, "loginToSave"),
+      });
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json({
+        result,
+        structured,
+        saved: false,
+        warning: message(language, "saveWarning"),
+      });
+    }
+
     const reflectionRecord = {
+      user_id: user.id,
       user_input: input,
       ai_result: result,
       mode,
@@ -414,7 +434,7 @@ export async function POST(request: Request) {
         : {}),
     };
 
-    const { data: insertedReflection, error } = await supabase
+    const { data: insertedReflection, error } = await supabaseAdmin
       .from("reflections")
       .insert(reflectionRecord)
       .select("id")
@@ -422,15 +442,21 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("Supabase insert error:", error);
-      const { error: fallbackError } = await supabase.from("reflections").insert({
-        user_input: input,
-        ai_result: result,
-      });
+      const { error: fallbackError } = await supabaseAdmin
+        .from("reflections")
+        .insert({
+          user_id: user.id,
+          user_input: input,
+          ai_result: result,
+          mode,
+          language,
+        });
 
       if (!fallbackError) {
         return NextResponse.json({
           result,
           structured,
+          saved: true,
           warning: message(language, "structuredWarning"),
         });
       }
@@ -439,11 +465,17 @@ export async function POST(request: Request) {
       return NextResponse.json({
         result,
         structured,
+        saved: false,
         warning: message(language, "saveWarning"),
       });
     }
 
-    return NextResponse.json({ result, structured, id: insertedReflection?.id });
+    return NextResponse.json({
+      result,
+      structured,
+      id: insertedReflection?.id,
+      saved: true,
+    });
   } catch (error: unknown) {
     console.error("Reflect API error:", error);
 

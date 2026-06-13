@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { getUserFromRequest } from "../../lib/auth-server";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -17,8 +18,10 @@ function textValue(value: unknown) {
 export async function POST(request: Request) {
   try {
     const body = (await request.json()) as Record<string, unknown>;
+    const user = await getUserFromRequest(request);
 
     const { error } = await supabase.from("feedback").insert({
+      user_id: user?.id ?? null,
       mode_tried: textValue(body.mode_tried),
       ease_of_start: textValue(body.ease_of_start),
       reflection_length: textValue(body.reflection_length),

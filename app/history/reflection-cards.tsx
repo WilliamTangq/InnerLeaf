@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Badge, Card } from "../components/ui";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
 import type { Reflection } from "./page";
@@ -183,6 +184,7 @@ function formatFollowUpDate(value: string | null) {
 
 function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
   const { language, t } = useLanguage();
+  const { session } = useAuth();
   const [selectedResult, setSelectedResult] = useState(
     reflection.follow_up_result ?? ""
   );
@@ -215,6 +217,9 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
         },
         body: JSON.stringify({
           id: reflection.id,

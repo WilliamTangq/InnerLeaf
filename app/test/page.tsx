@@ -36,7 +36,9 @@ export default function TestPage() {
         {t.test.purpose}
       </PageHeader>
 
-      <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+      <StatusCard tone="neutral">{t.test.accountNote}</StatusCard>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <Card variant="elevated">
           <SectionLabel>{t.test.whatToDo}</SectionLabel>
           <div className="mt-5 grid gap-3">

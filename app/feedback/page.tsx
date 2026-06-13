@@ -2,6 +2,7 @@
 
 import { Leaf, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
@@ -49,6 +50,7 @@ const initialValues = {
 
 export default function FeedbackPage() {
   const { t } = useLanguage();
+  const { session } = useAuth();
   const [values, setValues] = useState<FeedbackValues>(initialValues);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -72,6 +74,9 @@ export default function FeedbackPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          ...(session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : {}),
         },
         body: JSON.stringify(values),
       });

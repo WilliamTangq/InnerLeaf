@@ -9,13 +9,14 @@ import {
   PageShell,
   StatusCard,
 } from "../components/ui";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { ReflectionCards } from "./reflection-cards";
 import type { Reflection } from "./page";
-import { getSavedReflectionIds } from "../lib/local-reflections";
 
 export function HistoryContent() {
   const { t } = useLanguage();
+  const { session, user, loading: authLoading } = useAuth();
   const [reflections, setReflections] = useState<Reflection[]>([]);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -23,18 +24,19 @@ export function HistoryContent() {
 
   useEffect(() => {
     async function loadReflections() {
-      const ids = getSavedReflectionIds();
+      if (authLoading) {
+        return;
+      }
 
-      if (ids.length === 0) {
+      if (!session?.access_token) {
+        setReflections([]);
         setLoaded(true);
         return;
       }
 
       try {
         const response = await fetch("/api/reflections", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids }),
+          headers: { Authorization: `Bearer ${session.access_token}` },
         });
         const data = await response.json();
 
@@ -51,7 +53,7 @@ export function HistoryContent() {
     }
 
     loadReflections();
-  }, []);
+  }, [authLoading, session?.access_token]);
 
   return (
     <PageShell maxWidth="max-w-4xl">
@@ -96,7 +98,24 @@ export function HistoryContent() {
 
       {hasError && <StatusCard tone="error">{t.history.unavailable}</StatusCard>}
 
-      {!hasError && loaded && reflections.length === 0 && (
+      {!hasError && loaded && !user && (
+        <EmptyState
+          title={t.history.authTitle}
+          description={t.history.authBody}
+          action={
+            <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
+              <LinkButton href="/login?next=/history">
+                {t.auth.loginRequired}
+              </LinkButton>
+              <LinkButton href="/register?next=/history" variant="secondary">
+                {t.auth.createAccount}
+              </LinkButton>
+            </div>
+          }
+        />
+      )}
+
+      {!hasError && loaded && user && reflections.length === 0 && (
         <div className="space-y-4">
           <EmptyState
             title={t.history.emptyTitle}
@@ -116,7 +135,7 @@ export function HistoryContent() {
         </div>
       )}
 
-      {!hasError && loaded && reflections.length > 0 && (
+      {!hasError && loaded && user && reflections.length > 0 && (
         <ReflectionCards reflections={reflections} />
       )}
     </PageShell>

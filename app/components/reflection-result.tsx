@@ -202,10 +202,12 @@ export function ReflectionResultCard({
   result,
   structured,
   showActions = true,
+  statusText,
 }: {
   result: string;
   structured?: StructuredReflectionResult;
   showActions?: boolean;
+  statusText?: string;
 }) {
   const { language, t } = useLanguage();
   const sections = structured
@@ -238,7 +240,7 @@ export function ReflectionResultCard({
               {labels.title}
             </SectionLabel>
             <p className="mt-2 text-sm text-[var(--foreground-subtle)]">
-              {labels.saved}
+              {statusText || labels.saved}
             </p>
           </div>
           <div className="flex flex-wrap gap-2 sm:justify-end">
