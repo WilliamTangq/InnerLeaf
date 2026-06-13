@@ -9,6 +9,7 @@ import type {
 import { BrandLogo } from "./brand-logo";
 import { NavLinks } from "./nav-links";
 import { useLanguage } from "./language-provider";
+import { useAuth } from "./auth-provider";
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -27,24 +28,22 @@ export function TopNav() {
 
 export function Footer() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const productLinks = [
-    [t.quick.title, "/quick"],
-    [t.guided.title, "/guided"],
-    [t.history.title, "/history"],
-    [t.summary.title, "/summary"],
-  ] as const;
-  const companyLinks = [
     [t.nav.demo, "/demo"],
     [t.nav.test, "/test"],
+    [user ? t.nav.workspace : t.nav.login, user ? "/app" : "/login"],
+  ] as const;
+  const companyLinks = [
     [t.nav.about, "/about"],
-    [t.nav.privacy, "/privacy"],
     [t.nav.faq, "/faq"],
+    [t.nav.privacy, "/privacy"],
     [t.nav.feedback, "/feedback"],
   ] as const;
 
   return (
     <footer className="mt-auto border-t border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.72)]">
-      <div className="mx-auto grid w-full max-w-[1200px] gap-7 px-5 py-8 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_0.8fr]">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-6 px-5 py-7 sm:px-8 md:grid-cols-[1.5fr_0.8fr_0.8fr_0.7fr]">
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-muted)]">

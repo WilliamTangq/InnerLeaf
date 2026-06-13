@@ -34,7 +34,7 @@ export async function GET(request: Request) {
     const [profilesResult, reflectionsResult, feedbackResult] = await Promise.all([
       supabaseAdmin
         .from("profiles")
-        .select("id, email, role, created_at")
+        .select("id, email, display_name, avatar_url, role, created_at")
         .order("created_at", { ascending: false }),
       supabaseAdmin.from("reflections").select("user_id"),
       supabaseAdmin.from("feedback").select("user_id"),
@@ -65,6 +65,8 @@ export async function GET(request: Request) {
     const users = (profilesResult.data ?? []).map((profile) => ({
       id: profile.id,
       email: profile.email,
+      display_name: profile.display_name,
+      avatar_url: profile.avatar_url,
       role: profile.role,
       created_at: profile.created_at,
       reflection_count: reflectionCounts.get(profile.id) ?? 0,

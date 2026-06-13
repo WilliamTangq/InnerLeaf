@@ -18,6 +18,7 @@ type AuthContextValue = {
   role: UserRole;
   isAdmin: boolean;
   loading: boolean;
+  refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -27,9 +28,35 @@ type UserProfile = {
   id: string;
   email: string | null;
   role: UserRole;
+  display_name: string | null;
+  avatar_url: string | null;
+  created_at?: string | null;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+async function fetchProfile(nextSession: Session | null) {
+  if (!nextSession?.user) {
+    return null;
+  }
+
+  const { data } = await supabaseBrowser
+    .from("profiles")
+    .select("id, email, role, display_name, avatar_url, created_at")
+    .eq("id", nextSession.user.id)
+    .maybeSingle();
+
+  return data && ["user", "admin", "tester"].includes(data.role)
+    ? (data as UserProfile)
+    : {
+        id: nextSession.user.id,
+        email: nextSession.user.email ?? null,
+        role: "user" as const,
+        display_name: null,
+        avatar_url: null,
+        created_at: null,
+      };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -40,30 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
 
     async function loadProfile(nextSession: Session | null) {
-      if (!nextSession?.user) {
-        setProfile(null);
-        return;
-      }
-
-      const { data } = await supabaseBrowser
-        .from("profiles")
-        .select("id, email, role")
-        .eq("id", nextSession.user.id)
-        .maybeSingle();
+      const nextProfile = await fetchProfile(nextSession);
 
       if (!mounted) {
         return;
       }
 
-      setProfile(
-        data && ["user", "admin", "tester"].includes(data.role)
-          ? (data as UserProfile)
-          : {
-              id: nextSession.user.id,
-              email: nextSession.user.email ?? null,
-              role: "user",
-            }
-      );
+      setProfile(nextProfile);
     }
 
     supabaseBrowser.auth.getSession().then(({ data }) => {
@@ -106,6 +116,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role,
         isAdmin: role === "admin",
         loading,
+        refreshProfile: async () => {
+          setProfile(await fetchProfile(session));
+        },
         signOut: async () => {
           await supabaseBrowser.auth.signOut();
           setSession(null);

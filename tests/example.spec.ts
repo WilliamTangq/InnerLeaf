@@ -26,6 +26,7 @@ const protectedRoutes = [
   "/admin",
   "/admin/users",
   "/admin/feedback",
+  "/admin/system",
 ] as const;
 
 for (const route of routes) {

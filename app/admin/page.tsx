@@ -19,11 +19,12 @@ type Overview = {
   totalUsers: number;
   totalFeedback: number;
   totalReflections: number;
+  usersLast7Days: number;
   reflectionsLast7Days: number;
   feedbackLast7Days: number;
 };
 
-const icons = [Users, MessageSquare, FileText, ShieldCheck, MessageSquare] as const;
+const icons = [Users, MessageSquare, FileText, ShieldCheck, FileText, MessageSquare] as const;
 
 function AdminOverviewContent() {
   const { session } = useAuth();
@@ -61,6 +62,7 @@ function AdminOverviewContent() {
         [t.admin.totalUsers, overview.totalUsers],
         [t.admin.totalFeedback, overview.totalFeedback],
         [t.admin.totalReflections, overview.totalReflections],
+        [t.admin.users7d, overview.usersLast7Days],
         [t.admin.reflections7d, overview.reflectionsLast7Days],
         [t.admin.feedback7d, overview.feedbackLast7Days],
       ]
@@ -77,12 +79,15 @@ function AdminOverviewContent() {
         <LinkButton href="/admin/feedback" variant="secondary">
           {t.admin.feedback}
         </LinkButton>
+        <LinkButton href="/admin/system" variant="ghost">
+          {t.admin.system}
+        </LinkButton>
       </PageActions>
 
       {error && <StatusCard tone="error">{error}</StatusCard>}
 
       {overview && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stats.map(([label, value], index) => {
             const Icon = icons[index];
 
@@ -101,7 +106,8 @@ function AdminOverviewContent() {
         </div>
       )}
 
-      <div className="mt-6">
+      <div className="mt-6 space-y-3">
+        <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
         <StatusCard tone="neutral">{t.admin.deleteDisabled}</StatusCard>
       </div>
     </PageShell>

@@ -52,12 +52,14 @@ export async function GET(request: Request) {
       totalUsers,
       totalFeedback,
       totalReflections,
+      usersLast7Days,
       reflectionsLast7Days,
       feedbackLast7Days,
     ] = await Promise.all([
       tableCount("profiles"),
       tableCount("feedback"),
       tableCount("reflections"),
+      tableCount("profiles", sevenDaysAgo),
       tableCount("reflections", sevenDaysAgo),
       tableCount("feedback", sevenDaysAgo),
     ]);
@@ -66,6 +68,7 @@ export async function GET(request: Request) {
       totalUsers,
       totalFeedback,
       totalReflections,
+      usersLast7Days,
       reflectionsLast7Days,
       feedbackLast7Days,
     });

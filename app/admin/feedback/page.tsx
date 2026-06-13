@@ -63,6 +63,9 @@ function AdminFeedbackContent() {
   const { t } = useLanguage();
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [error, setError] = useState("");
+  const [modeFilter, setModeFilter] = useState("all");
+  const [useAgainFilter, setUseAgainFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function loadFeedback() {
@@ -89,6 +92,31 @@ function AdminFeedbackContent() {
     void loadFeedback();
   }, [session?.access_token, t.admin.unavailable]);
 
+  const modes = Array.from(new Set(feedback.map((item) => item.mode_tried).filter(Boolean)));
+  const useAgainValues = Array.from(
+    new Set(feedback.map((item) => item.would_use_again).filter(Boolean))
+  );
+  const filteredFeedback = feedback.filter((item) => {
+    const query = search.toLowerCase().trim();
+    const values = [
+      item.email,
+      item.mode_tried,
+      item.ease_of_start,
+      item.would_use_again,
+      item.alternative_tool,
+      item.saving_blocker,
+      item.comparison_feedback,
+      item.blocker,
+      item.other_thoughts,
+    ].filter(Boolean);
+
+    return (
+      (modeFilter === "all" || item.mode_tried === modeFilter) &&
+      (useAgainFilter === "all" || item.would_use_again === useAgainFilter) &&
+      (!query || values.some((value) => value?.toLowerCase().includes(query)))
+    );
+  });
+
   return (
     <PageShell maxWidth="max-w-5xl">
       <PageHeader compact eyebrow={t.admin.title} title={t.admin.feedbackTitle}>
@@ -100,15 +128,51 @@ function AdminFeedbackContent() {
         <LinkButton href="/admin/users" variant="secondary">
           {t.admin.users}
         </LinkButton>
+        <LinkButton href="/admin/system" variant="ghost">
+          {t.admin.system}
+        </LinkButton>
       </PageActions>
 
       {error && <StatusCard tone="error">{error}</StatusCard>}
 
-      {!error && feedback.length === 0 ? (
+      <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder={t.admin.search}
+          className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+        />
+        <select
+          value={modeFilter}
+          onChange={(event) => setModeFilter(event.target.value)}
+          className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+        >
+          <option value="all">{t.admin.filterAll}</option>
+          {modes.map((mode) => (
+            <option key={mode} value={mode || ""}>
+              {mode}
+            </option>
+          ))}
+        </select>
+        <select
+          value={useAgainFilter}
+          onChange={(event) => setUseAgainFilter(event.target.value)}
+          className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+        >
+          <option value="all">{t.admin.filterAll}</option>
+          {useAgainValues.map((value) => (
+            <option key={value} value={value || ""}>
+              {value}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {!error && filteredFeedback.length === 0 ? (
         <StatusCard tone="neutral">{t.admin.noFeedback}</StatusCard>
       ) : (
         <div className="grid gap-4">
-          {feedback.map((item) => (
+          {filteredFeedback.map((item) => (
             <Card key={item.id} className="hover:translate-y-0">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>

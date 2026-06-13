@@ -18,12 +18,17 @@ const icons = [PencilLine, Footprints, Archive, TrendingUp] as const;
 function WorkspaceContent() {
   const { t } = useLanguage();
   const { profile, user } = useAuth();
+  const name = profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
 
   return (
     <PageShell maxWidth="max-w-5xl">
       <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
         {t.app.subtitle}
       </PageHeader>
+
+      <p className="-mt-3 mb-5 text-sm font-medium text-[var(--brand-teal-deep)]">
+        {t.app.welcome}, {name}
+      </p>
 
       <StatusCard tone="neutral">{t.app.privacy}</StatusCard>
 
