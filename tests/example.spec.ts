@@ -44,13 +44,25 @@ for (const route of routes) {
 }
 
 for (const path of protectedRoutes) {
-  test(`${path} redirects logged-out visitors to login`, async ({ page }) => {
+  test(`${path} requires auth or reports missing auth setup`, async ({ page }) => {
     await page.goto(path);
 
-    await expect(
-      page.getByRole("heading", { name: "Log in to InnerLeaf", exact: true })
-    ).toBeVisible();
-    await expect(page).toHaveURL(new RegExp(`/login\\?next=${encodeURIComponent(path)}`));
+    const loginHeading = page.getByRole("heading", {
+      name: "Log in to InnerLeaf",
+      exact: true,
+    });
+    const setupHeading = page.getByRole("heading", {
+      name: "Authentication is not configured in this environment.",
+      exact: true,
+    });
+
+    await expect(loginHeading.or(setupHeading)).toBeVisible();
+
+    if (await loginHeading.isVisible()) {
+      await expect(page).toHaveURL(
+        new RegExp(`/login\\?next=${encodeURIComponent(path)}`)
+      );
+    }
   });
 }
 

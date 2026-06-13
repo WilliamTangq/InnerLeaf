@@ -17,6 +17,7 @@ type AuthContextValue = {
   profile: UserProfile | null;
   role: UserRole;
   isAdmin: boolean;
+  authUnavailable: boolean;
   loading: boolean;
   refreshProfile: () => Promise<void>;
   signOut: () => Promise<void>;
@@ -37,6 +38,10 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function fetchProfile(nextSession: Session | null) {
   if (!nextSession?.user) {
+    return null;
+  }
+
+  if (!supabaseBrowser) {
     return null;
   }
 
@@ -65,10 +70,16 @@ async function fetchProfile(nextSession: Session | null) {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(supabaseBrowser));
 
   useEffect(() => {
     let mounted = true;
+
+    if (!supabaseBrowser) {
+      return () => {
+        mounted = false;
+      };
+    }
 
     async function loadProfile(nextSession: Session | null) {
       const nextProfile = await fetchProfile(nextSession);
@@ -119,12 +130,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         role,
         isAdmin: role === "admin",
+        authUnavailable: !supabaseBrowser,
         loading,
         refreshProfile: async () => {
           setProfile(await fetchProfile(session));
         },
         signOut: async () => {
-          await supabaseBrowser.auth.signOut();
+          await supabaseBrowser?.auth.signOut();
           setSession(null);
           setProfile(null);
         },

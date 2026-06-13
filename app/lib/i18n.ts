@@ -556,6 +556,11 @@ export const translations = {
       loadingSession: "Checking your account...",
       continueTitle: "Please log in to continue.",
       continueBody: "Your reflection workspace is private to your account.",
+      authUnavailableTitle:
+        "Authentication is not configured in this environment.",
+      authUnavailableBody:
+        "Public pages can still be viewed, but sign-in and private workspace features need Supabase environment variables.",
+      supabaseUnavailable: "Supabase is not configured for this environment.",
       creatingAccount: "Creating account...",
       rateLimit:
         "Too many signup emails have been requested for this test project. Please wait a while and try again, or use the demo admin login if you are testing.",
@@ -1274,6 +1279,10 @@ export const translations = {
       loadingSession: "正在检查账号...",
       continueTitle: "请先登录后继续。",
       continueBody: "你的反思空间只和你的账号关联。",
+      authUnavailableTitle: "当前环境未配置登录服务。",
+      authUnavailableBody:
+        "公开页面仍可浏览，但登录和私人反思空间需要 Supabase 环境变量。",
+      supabaseUnavailable: "当前环境未配置 Supabase 登录服务。",
       creatingAccount: "正在创建账号...",
       rateLimit:
         "当前测试项目的注册邮件请求过多。请稍后再试，或在测试时使用演示管理员账号登录。",

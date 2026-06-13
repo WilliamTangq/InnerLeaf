@@ -13,14 +13,26 @@ function loginHref(pathname: string) {
 export function RequireAuth({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { loading, user } = useAuth();
+  const { authUnavailable, loading, user } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authUnavailable && !loading && !user) {
       router.replace(loginHref(pathname));
     }
-  }, [loading, pathname, router, user]);
+  }, [authUnavailable, loading, pathname, router, user]);
+
+  if (authUnavailable) {
+    return (
+      <PageShell>
+        <EmptyState
+          title={t.auth.authUnavailableTitle}
+          description={t.auth.authUnavailableBody}
+          action={<LinkButton href="/">{t.nav.home}</LinkButton>}
+        />
+      </PageShell>
+    );
+  }
 
   if (loading) {
     return (
@@ -48,14 +60,26 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAdmin, loading, user } = useAuth();
+  const { authUnavailable, isAdmin, loading, user } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!authUnavailable && !loading && !user) {
       router.replace(loginHref(pathname));
     }
-  }, [loading, pathname, router, user]);
+  }, [authUnavailable, loading, pathname, router, user]);
+
+  if (authUnavailable) {
+    return (
+      <PageShell>
+        <EmptyState
+          title={t.auth.authUnavailableTitle}
+          description={t.auth.authUnavailableBody}
+          action={<LinkButton href="/">{t.nav.home}</LinkButton>}
+        />
+      </PageShell>
+    );
+  }
 
   if (loading) {
     return (

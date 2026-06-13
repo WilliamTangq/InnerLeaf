@@ -119,6 +119,10 @@ export function LoginForm() {
   const demoPassword = process.env.NEXT_PUBLIC_DEMO_LOGIN_PASSWORD;
 
   useEffect(() => {
+    if (!supabaseBrowser) {
+      return;
+    }
+
     supabaseBrowser.auth.getSession().then(({ data }) => {
       if (data.session) {
         router.replace(next);
@@ -141,6 +145,12 @@ export function LoginForm() {
     }
 
     setLoading(true);
+    if (!supabaseBrowser) {
+      setError(t.auth.supabaseUnavailable);
+      setLoading(false);
+      return;
+    }
+
     const { error: authError } = await supabaseBrowser.auth.signInWithPassword({
       email,
       password,
@@ -158,6 +168,9 @@ export function LoginForm() {
 
   return (
     <AuthShell title={t.auth.loginTitle} subtitle={t.auth.loginSubtitle}>
+      {!supabaseBrowser && (
+        <StatusCard tone="error">{t.auth.authUnavailableTitle}</StatusCard>
+      )}
       <form onSubmit={login} className="space-y-4">
         <AuthInput
           label={t.auth.email}
@@ -237,6 +250,12 @@ export function RegisterForm() {
     }
 
     setLoading(true);
+    if (!supabaseBrowser) {
+      setError(t.auth.supabaseUnavailable);
+      setLoading(false);
+      return;
+    }
+
     const { data, error: authError } = await supabaseBrowser.auth.signUp({
       email,
       password,
@@ -265,6 +284,9 @@ export function RegisterForm() {
 
   return (
     <AuthShell title={t.auth.registerTitle} subtitle={t.auth.registerSubtitle}>
+      {!supabaseBrowser && (
+        <StatusCard tone="error">{t.auth.authUnavailableTitle}</StatusCard>
+      )}
       <form onSubmit={register} className="space-y-4">
         <AuthInput
           label={t.auth.email}
@@ -326,6 +348,11 @@ export function ResetPasswordForm() {
 
   useEffect(() => {
     async function loadRecoverySession() {
+      if (!supabaseBrowser) {
+        setRecovery(false);
+        return;
+      }
+
       const code = new URLSearchParams(window.location.search).get("code");
 
       if (code) {
@@ -351,6 +378,12 @@ export function ResetPasswordForm() {
     }
 
     setLoading(true);
+    if (!supabaseBrowser) {
+      setError(t.auth.supabaseUnavailable);
+      setLoading(false);
+      return;
+    }
+
     const { error: authError } =
       await supabaseBrowser.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
@@ -386,6 +419,12 @@ export function ResetPasswordForm() {
     }
 
     setLoading(true);
+    if (!supabaseBrowser) {
+      setError(t.auth.supabaseUnavailable);
+      setLoading(false);
+      return;
+    }
+
     const { error: authError } = await supabaseBrowser.auth.updateUser({
       password,
     });
@@ -401,6 +440,9 @@ export function ResetPasswordForm() {
 
   return (
     <AuthShell title={t.auth.resetTitle} subtitle={t.auth.resetSubtitle}>
+      {!supabaseBrowser && (
+        <StatusCard tone="error">{t.auth.authUnavailableTitle}</StatusCard>
+      )}
       {recovery ? (
         <form onSubmit={updatePassword} className="space-y-4">
           <AuthInput

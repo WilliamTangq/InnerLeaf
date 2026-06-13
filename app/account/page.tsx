@@ -103,6 +103,12 @@ function AccountContent() {
     }
 
     setPasswordStatus("saving");
+    if (!supabaseBrowser) {
+      setPasswordError(t.auth.supabaseUnavailable);
+      setPasswordStatus("error");
+      return;
+    }
+
     const { error } = await supabaseBrowser.auth.updateUser({
       password: newPassword,
     });

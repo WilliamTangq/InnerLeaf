@@ -12,6 +12,11 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     async function finishAuth() {
+      if (!supabaseBrowser) {
+        router.replace("/login");
+        return;
+      }
+
       const code = new URLSearchParams(window.location.search).get("code");
 
       if (code) {
