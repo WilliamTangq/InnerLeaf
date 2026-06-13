@@ -25,6 +25,7 @@ import { createPortal } from "react-dom";
 import type { ComponentType, ReactNode } from "react";
 import { LanguageSelector, useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
+import { Avatar } from "./avatar";
 
 const publicDesktopLinks = [
   { href: "/", key: "home" },
@@ -86,54 +87,8 @@ type IconType = ComponentType<{
   "aria-hidden"?: boolean | "true" | "false";
 }>;
 
-function initials(name?: string | null, email?: string | null) {
-  const value = name || email?.split("@")[0] || "InnerLeaf";
-  const letters = value
-    .split(/\s|[._-]/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-
-  return letters || "IL";
-}
-
 function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
-}
-
-function Avatar({
-  avatarUrl,
-  displayName,
-  email,
-  isAdmin,
-  size = "md",
-}: {
-  avatarUrl?: string;
-  displayName?: string | null;
-  email?: string | null;
-  isAdmin?: boolean;
-  size?: "sm" | "md" | "lg" | "xl";
-}) {
-  return (
-    <span
-      className={[
-        "flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--accent-soft)] font-semibold text-[var(--brand-teal-deep)]",
-        isAdmin ? "ring-2 ring-[rgba(31,155,143,0.24)]" : "",
-        size === "sm" && "h-8 w-8 text-xs",
-        size === "md" && "h-9 w-9 text-xs",
-        size === "lg" && "h-12 w-12 text-sm",
-        size === "xl" && "h-[52px] w-[52px] text-sm",
-      ].join(" ")}
-    >
-      {avatarUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-      ) : (
-        initials(displayName, email)
-      )}
-    </span>
-  );
 }
 
 function useEscapeToClose(open: boolean, close: () => void) {

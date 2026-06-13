@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
+import { Avatar } from "../../components/avatar";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
@@ -19,6 +21,7 @@ type AdminUser = {
   email: string | null;
   display_name: string | null;
   avatar_url: string | null;
+  avatar_path: string | null;
   role: "user" | "tester" | "admin";
   created_at: string | null;
   reflection_count: number;
@@ -48,6 +51,10 @@ function AdminUsersContent() {
   const [updatingId, setUpdatingId] = useState("");
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editDisplayName, setEditDisplayName] = useState("");
+  const [editRole, setEditRole] = useState<AdminUser["role"]>("user");
+  const [removeAvatar, setRemoveAvatar] = useState(false);
 
   useEffect(() => {
     if (!session?.access_token) {
@@ -83,7 +90,9 @@ function AdminUsersContent() {
 
   async function updateUser(
     userId: string,
-    updates: Partial<Pick<AdminUser, "role" | "display_name" | "avatar_url">>
+    updates: Partial<
+      Pick<AdminUser, "role" | "display_name" | "avatar_url" | "avatar_path">
+    >
   ) {
     if (!session?.access_token) {
       return;
@@ -105,7 +114,14 @@ function AdminUsersContent() {
           userId,
           role: updates.role ?? current?.role ?? "user",
           display_name: updates.display_name ?? current?.display_name ?? "",
-          avatar_url: updates.avatar_url ?? current?.avatar_url ?? "",
+          avatar_url:
+            "avatar_url" in updates
+              ? updates.avatar_url
+              : current?.avatar_url ?? "",
+          avatar_path:
+            "avatar_path" in updates
+              ? updates.avatar_path
+              : current?.avatar_path ?? "",
         }),
       });
       const data = await response.json();
@@ -125,6 +141,29 @@ function AdminUsersContent() {
     } finally {
       setUpdatingId("");
     }
+  }
+
+  function openEdit(user: AdminUser) {
+    setEditingUser(user);
+    setEditDisplayName(user.display_name ?? "");
+    setEditRole(user.role);
+    setRemoveAvatar(false);
+    setError("");
+    setMessage("");
+  }
+
+  async function saveEdit() {
+    if (!editingUser) {
+      return;
+    }
+
+    await updateUser(editingUser.id, {
+      display_name: editDisplayName,
+      role: editRole,
+      avatar_url: removeAvatar ? null : editingUser.avatar_url,
+      avatar_path: removeAvatar ? null : editingUser.avatar_path,
+    });
+    setEditingUser(null);
   }
 
   async function deleteUser(userId: string) {
@@ -220,43 +259,30 @@ function AdminUsersContent() {
         <div className="grid gap-3">
           {filteredUsers.map((user) => (
             <Card key={user.id} className="hover:translate-y-0">
-              <div className="grid gap-4 lg:grid-cols-[1.35fr_1fr_0.7fr_0.7fr_0.7fr_1fr] lg:items-center">
+              <div className="grid gap-4 lg:grid-cols-[1.5fr_0.75fr_0.7fr_0.7fr_0.7fr_auto] lg:items-center">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-[var(--accent-soft)] text-sm font-semibold text-[var(--brand-teal-deep)]">
-                    {user.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={user.avatar_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      (user.display_name || user.email || "IL").slice(0, 2).toUpperCase()
-                    )}
-                  </span>
+                  <Avatar
+                    avatarUrl={user.avatar_url}
+                    displayName={user.display_name}
+                    email={user.email}
+                    isAdmin={user.role === "admin"}
+                    rounded="xl"
+                    size="md"
+                  />
                   <div className="min-w-0">
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {t.admin.email}
-                  </p>
-                  <p className="mt-1 break-all text-sm font-semibold text-[var(--foreground)]">
-                    {user.email || "-"}
-                  </p>
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.email}
+                    </p>
+                    <p className="mt-1 break-all text-sm font-semibold text-[var(--foreground)]">
+                      {user.email || "-"}
+                    </p>
+                    {user.display_name && (
+                      <p className="mt-1 truncate text-sm text-[var(--foreground-muted)]">
+                        {user.display_name}
+                      </p>
+                    )}
                   </div>
                 </div>
-                <label className="block">
-                  <span className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {t.admin.displayName}
-                  </span>
-                  <input
-                    value={user.display_name ?? ""}
-                    onChange={(event) =>
-                      setUsers((current) =>
-                        current.map((item) =>
-                          item.id === user.id
-                            ? { ...item, display_name: event.target.value }
-                            : item
-                        )
-                      )
-                    }
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
-                  />
-                </label>
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
                     {t.admin.role}
@@ -289,40 +315,14 @@ function AdminUsersContent() {
                     {user.feedback_count}
                   </p>
                 </div>
-                <label className="block">
-                  <span className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {t.admin.changeRole}
-                  </span>
-                  <select
-                    value={user.role}
-                    onChange={(event) =>
-                      void updateUser(user.id, {
-                        role: event.target.value as AdminUser["role"],
-                      })
-                    }
-                    disabled={updatingId === user.id}
-                    className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
-                  >
-                    {roles.map((role) => (
-                      <option key={role} value={role}>
-                        {role}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <div className="flex flex-wrap gap-2 lg:col-span-6">
+                <div className="flex flex-wrap justify-start gap-2 lg:justify-end">
                   <button
                     type="button"
-                    onClick={() =>
-                      void updateUser(user.id, {
-                        display_name: user.display_name,
-                        avatar_url: user.avatar_url,
-                      })
-                    }
+                    onClick={() => openEdit(user)}
                     disabled={updatingId === user.id}
                     className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
                   >
-                    {t.admin.updateUser}
+                    {t.admin.editUser}
                   </button>
                   <button
                     type="button"
@@ -341,6 +341,106 @@ function AdminUsersContent() {
               </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {editingUser && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(20,35,28,0.16)] px-4 backdrop-blur-sm">
+          <Card
+            className="w-full max-w-lg hover:translate-y-0"
+            variant="elevated"
+          >
+            <div className="mb-5 flex items-start gap-4">
+              <Avatar
+                avatarUrl={removeAvatar ? null : editingUser.avatar_url}
+                displayName={editDisplayName}
+                email={editingUser.email}
+                isAdmin={editRole === "admin"}
+                rounded="2xl"
+                size="xl"
+              />
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                  {t.admin.editUser}
+                </h2>
+                <p className="mt-1 break-all text-sm text-[var(--foreground-muted)]">
+                  {editingUser.email}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label={t.admin.cancel}
+                onClick={() => setEditingUser(null)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] text-[var(--foreground-subtle)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              >
+                <X aria-hidden="true" size={17} strokeWidth={1.8} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <label className="block">
+                <span className="text-sm font-medium text-[var(--foreground)]">
+                  {t.admin.displayName}
+                </span>
+                <input
+                  value={editDisplayName}
+                  onChange={(event) => setEditDisplayName(event.target.value)}
+                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-[var(--foreground)]">
+                  {t.admin.role}
+                </span>
+                <select
+                  value={editRole}
+                  onChange={(event) =>
+                    setEditRole(event.target.value as AdminUser["role"])
+                  }
+                  className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+                >
+                  {roles.map((role) => (
+                    <option key={role} value={role}>
+                      {t.admin.roleLabels[role]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {editingUser.avatar_url && (
+                <label className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2.5 text-sm text-[var(--foreground-muted)]">
+                  <input
+                    type="checkbox"
+                    checked={removeAvatar}
+                    onChange={(event) => setRemoveAvatar(event.target.checked)}
+                    className="h-4 w-4 accent-[var(--brand-teal)]"
+                  />
+                  {t.admin.removeAvatar}
+                </label>
+              )}
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              >
+                {t.admin.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => void saveEdit()}
+                disabled={updatingId === editingUser.id}
+                className="rounded-lg bg-[var(--brand-teal)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {updatingId === editingUser.id
+                  ? t.feedback.sending
+                  : t.admin.saveChanges}
+              </button>
+            </div>
+          </Card>
         </div>
       )}
     </PageShell>

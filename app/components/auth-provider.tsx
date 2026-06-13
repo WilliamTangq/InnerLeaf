@@ -31,6 +31,7 @@ type UserProfile = {
   role: UserRole;
   display_name: string | null;
   avatar_url: string | null;
+  avatar_path: string | null;
   created_at?: string | null;
 };
 
@@ -47,7 +48,7 @@ async function fetchProfile(nextSession: Session | null) {
 
   const { data } = await supabaseBrowser
     .from("profiles")
-    .select("id, email, role, display_name, avatar_url, created_at")
+    .select("id, email, role, display_name, avatar_url, avatar_path, created_at")
     .eq("id", nextSession.user.id)
     .maybeSingle();
 

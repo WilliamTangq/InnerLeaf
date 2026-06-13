@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "../lib/supabase-client";
+import { Avatar } from "../components/avatar";
 import { RequireAuth } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
@@ -15,15 +16,8 @@ import {
   StatusCard,
 } from "../components/ui";
 
-function initials(name?: string | null, email?: string | null) {
-  const value = name || email?.split("@")[0] || "InnerLeaf";
-  return value
-    .split(/\s|[._-]/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("");
-}
+const avatarTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
+const maxAvatarSize = 2 * 1024 * 1024;
 
 function roleLabel(
   role: "user" | "tester" | "admin",
@@ -38,12 +32,16 @@ function AccountContent() {
   const { isAdmin, profile, refreshProfile, role, session, signOut, user } =
     useAuth();
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
-  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? "");
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? null);
+  const [avatarPath, setAvatarPath] = useState(profile?.avatar_path ?? null);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [avatarStatus, setAvatarStatus] = useState<"idle" | "uploading" | "saved" | "error">("idle");
+  const [avatarError, setAvatarError] = useState("");
   const [passwordStatus, setPasswordStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [passwordError, setPasswordError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString(undefined, {
         month: "short",
@@ -72,6 +70,7 @@ function AccountContent() {
         body: JSON.stringify({
           display_name: displayName,
           avatar_url: avatarUrl,
+          avatar_path: avatarPath,
         }),
       });
 
@@ -83,6 +82,127 @@ function AccountContent() {
       setProfileStatus("saved");
     } catch {
       setProfileStatus("error");
+    }
+  }
+
+  async function saveAvatar(nextUrl: string | null, nextPath: string | null) {
+    if (!session?.access_token) {
+      router.push("/login?next=/account");
+      return false;
+    }
+
+    const response = await fetch("/api/account/update-profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
+        display_name: displayName,
+        avatar_url: nextUrl,
+        avatar_path: nextPath,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Avatar update failed");
+    }
+
+    setAvatarUrl(nextUrl);
+    setAvatarPath(nextPath);
+    await refreshProfile();
+    return true;
+  }
+
+  function safeFileName(name: string) {
+    const extension = name.split(".").pop()?.toLowerCase() || "png";
+    const base = name
+      .replace(/\.[^.]+$/, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 40);
+
+    return `${Date.now()}-${base || "avatar"}.${extension}`;
+  }
+
+  async function uploadAvatar(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    setAvatarError("");
+
+    if (!avatarTypes.has(file.type) || file.size > maxAvatarSize) {
+      setAvatarError(t.account.avatarUploadError);
+      setAvatarStatus("error");
+      return;
+    }
+
+    if (!supabaseBrowser || !user) {
+      setAvatarError(t.auth.supabaseUnavailable);
+      setAvatarStatus("error");
+      return;
+    }
+
+    const nextPath = `${user.id}/${safeFileName(file.name)}`;
+    setAvatarStatus("uploading");
+
+    try {
+      const { error: uploadError } = await supabaseBrowser.storage
+        .from("avatars")
+        .upload(nextPath, file, {
+          cacheControl: "3600",
+          contentType: file.type,
+          upsert: false,
+        });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      const { data } = supabaseBrowser.storage
+        .from("avatars")
+        .getPublicUrl(nextPath);
+
+      if (avatarPath) {
+        await supabaseBrowser.storage.from("avatars").remove([avatarPath]);
+      }
+
+      await saveAvatar(data.publicUrl, nextPath);
+      setAvatarStatus("saved");
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      setAvatarError(t.account.avatarUploadFailed);
+      setAvatarStatus("error");
+    }
+  }
+
+  async function removeAvatar() {
+    setAvatarError("");
+
+    if (!supabaseBrowser) {
+      setAvatarError(t.auth.supabaseUnavailable);
+      setAvatarStatus("error");
+      return;
+    }
+
+    setAvatarStatus("uploading");
+
+    try {
+      if (avatarPath) {
+        await supabaseBrowser.storage.from("avatars").remove([avatarPath]);
+      }
+
+      await saveAvatar(null, null);
+      setAvatarStatus("saved");
+    } catch (error) {
+      console.error("Avatar remove error:", error);
+      setAvatarError(t.account.avatarUploadFailed);
+      setAvatarStatus("error");
     }
   }
 
@@ -140,14 +260,14 @@ function AccountContent() {
         <Card variant="elevated" className="hover:translate-y-0">
           <form onSubmit={updateProfile} className="space-y-5">
             <div className="flex items-start gap-4">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-[var(--accent-soft)] text-lg font-semibold text-[var(--brand-teal-deep)]">
-                {avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  initials(displayName, user?.email)
-                )}
-              </div>
+              <Avatar
+                avatarUrl={avatarUrl}
+                displayName={displayName}
+                email={user?.email}
+                isAdmin={isAdmin}
+                rounded="2xl"
+                size="2xl"
+              />
               <div>
                 <h2 className="text-lg font-semibold text-[var(--foreground)]">
                   {t.account.profile}
@@ -158,6 +278,57 @@ function AccountContent() {
               </div>
             </div>
 
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+              <p className="text-sm font-medium text-[var(--foreground)]">
+                {t.account.avatar}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+                {t.account.avatarHint}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="sr-only"
+                  onChange={(event) => void uploadAvatar(event)}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={avatarStatus === "uploading"}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {avatarUrl ? t.account.changePhoto : t.account.uploadPhoto}
+                </button>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => void removeAvatar()}
+                    disabled={avatarStatus === "uploading"}
+                    className="rounded-lg border border-[rgba(155,55,55,0.18)] bg-[rgba(155,55,55,0.04)] px-3 py-2 text-sm font-medium text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {t.account.removePhoto}
+                  </button>
+                )}
+              </div>
+              {avatarStatus === "uploading" && (
+                <p className="mt-3 text-sm text-[var(--foreground-subtle)]">
+                  {t.account.uploadingPhoto}
+                </p>
+              )}
+              {avatarStatus === "saved" && (
+                <div className="mt-3">
+                  <StatusCard tone="success">{t.account.avatarUpdated}</StatusCard>
+                </div>
+              )}
+              {avatarStatus === "error" && avatarError && (
+                <div className="mt-3">
+                  <StatusCard tone="error">{avatarError}</StatusCard>
+                </div>
+              )}
+            </div>
+
             <label className="block">
               <span className="text-sm font-medium text-[var(--foreground)]">
                 {t.account.displayName}
@@ -166,18 +337,6 @@ function AccountContent() {
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
                 placeholder={t.account.displayNamePlaceholder}
-                className="mt-2 w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
-              />
-            </label>
-
-            <label className="block">
-              <span className="text-sm font-medium text-[var(--foreground)]">
-                {t.account.avatarUrl}
-              </span>
-              <input
-                value={avatarUrl}
-                onChange={(event) => setAvatarUrl(event.target.value)}
-                placeholder={t.account.avatarPlaceholder}
                 className="mt-2 w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
               />
             </label>

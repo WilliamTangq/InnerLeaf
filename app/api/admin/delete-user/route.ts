@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("id, email, role")
+      .select("id, email, role, avatar_path")
       .eq("id", userId)
       .maybeSingle();
 
@@ -53,6 +53,16 @@ export async function POST(request: Request) {
         { error: "Admin users cannot be deleted during MVP." },
         { status: 400 }
       );
+    }
+
+    if (profile.avatar_path) {
+      const { error: storageError } = await supabaseAdmin.storage
+        .from("avatars")
+        .remove([profile.avatar_path]);
+
+      if (storageError) {
+        console.error("Supabase admin avatar delete error:", storageError);
+      }
     }
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);

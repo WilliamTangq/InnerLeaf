@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const body = (await request.json()) as Record<string, unknown>;
     const displayName = optionalText(body.display_name);
     const avatarUrl = optionalText(body.avatar_url);
+    const avatarPath = optionalText(body.avatar_path);
 
     const { error } = await supabaseAdmin.from("profiles").upsert(
       {
@@ -26,6 +27,7 @@ export async function POST(request: Request) {
         email: user.email ?? null,
         display_name: displayName,
         avatar_url: avatarUrl,
+        avatar_path: avatarPath,
         updated_at: new Date().toISOString(),
       },
       { onConflict: "id" }

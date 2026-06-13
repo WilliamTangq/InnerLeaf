@@ -67,6 +67,7 @@ export async function POST(request: Request) {
         role,
         display_name: optionalText(body.display_name),
         avatar_url: optionalText(body.avatar_url),
+        avatar_path: optionalText(body.avatar_path),
         updated_at: new Date().toISOString(),
       })
       .eq("id", userId);
