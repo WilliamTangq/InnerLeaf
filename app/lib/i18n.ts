@@ -475,7 +475,7 @@ export const translations = {
     },
     summary: {
       title: "Your recent patterns",
-      purpose: "Based on your saved reflection cards in this browser.",
+      purpose: "Based on your saved reflection cards.",
       createAnother: "Create another reflection",
       repeatedTriggers: "Repeated triggers",
       repeatedTriggersDesc: "What tends to set off strong reactions",
@@ -526,6 +526,10 @@ export const translations = {
       registerSubtitle: "Keep your reflection cards connected to you.",
       registerButton: "Create account",
       loginLink: "Already have an account? Log in",
+      mvpRegisterNote:
+        "During MVP testing, email confirmation may be rate-limited. If signup does not work, please use the provided test account or try again later.",
+      demoLoginHint: "For testing, use the demo account provided by the InnerLeaf team.",
+      demoLoginCredentials: "Demo login:",
       resetTitle: "Reset your password",
       resetSubtitle: "Enter your email and we'll send you a reset link.",
       sendReset: "Send reset link",
@@ -539,11 +543,15 @@ export const translations = {
       loginFailed: "Login failed. Please check your email and password.",
       loggingIn: "Logging in...",
       creatingAccount: "Creating account...",
+      rateLimit:
+        "Too many signup emails have been requested for this test project. Please wait a while and try again, or use the demo admin login if you are testing.",
+      waitBeforeRetry: "Please wait before trying again.",
       loggedOut: "You have been logged out.",
       checkEmail: "Check your email to confirm your account.",
       trust: "Your saved reflections are connected to your account.",
       loginRequired: "Log in",
       createAccount: "Create account",
+      admin: "Admin",
       loginToSaveButton: "Log in to save",
       savingUnavailable:
         "You can try InnerLeaf without an account. Create one only if you want to save your reflection history.",
@@ -1022,7 +1030,7 @@ export const translations = {
     },
     summary: {
       title: "你最近的模式",
-      purpose: "基于你在这个浏览器中保存的反思卡片。",
+      purpose: "基于你保存的反思卡片。",
       createAnother: "再做一次反思",
       repeatedTriggers: "反复出现的触发点",
       repeatedTriggersDesc: "哪些事情容易触发强烈反应",
@@ -1070,6 +1078,10 @@ export const translations = {
       registerSubtitle: "让你的反思卡片只和你的账号关联。",
       registerButton: "创建账号",
       loginLink: "已有账号？登录",
+      mvpRegisterNote:
+        "MVP 测试阶段，注册确认邮件可能会受到频率限制。如果注册失败，请使用提供的测试账号，或稍后再试。",
+      demoLoginHint: "测试时可以使用 InnerLeaf 团队提供的演示账号。",
+      demoLoginCredentials: "演示账号：",
       resetTitle: "重置密码",
       resetSubtitle: "输入邮箱，我们会发送密码重置链接。",
       sendReset: "发送重置链接",
@@ -1083,11 +1095,15 @@ export const translations = {
       loginFailed: "登录失败，请检查邮箱和密码。",
       loggingIn: "正在登录...",
       creatingAccount: "正在创建账号...",
+      rateLimit:
+        "当前测试项目的注册邮件请求过多。请稍后再试，或在测试时使用演示管理员账号登录。",
+      waitBeforeRetry: "请稍等后再试。",
       loggedOut: "你已退出登录。",
       checkEmail: "请查看邮箱并确认你的账号。",
       trust: "你保存的反思会和你的账号关联。",
       loginRequired: "登录",
       createAccount: "创建账号",
+      admin: "管理员",
       loginToSaveButton: "登录后保存",
       savingUnavailable:
         "你可以不登录先体验 InnerLeaf。如果想保存反思历史，再创建账号。",

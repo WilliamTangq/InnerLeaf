@@ -16,7 +16,7 @@ const links = [
 export function NavLinks() {
   const pathname = usePathname();
   const { t } = useLanguage();
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <div className="flex max-w-full items-center gap-2">
@@ -64,6 +64,11 @@ export function NavLinks() {
             <span className="hidden max-w-36 truncate text-xs text-[var(--foreground-subtle)] xl:inline">
               {user.email}
             </span>
+            {isAdmin && (
+              <span className="hidden rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)] md:inline-flex">
+                {t.auth.admin}
+              </span>
+            )}
             <button
               type="button"
               onClick={() => void signOut()}

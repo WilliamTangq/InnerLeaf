@@ -16,6 +16,40 @@ function emailLooksValid(value: string) {
   return /\S+@\S+\.\S+/.test(value);
 }
 
+function isRateLimitError(error: unknown) {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const details = error as { message?: string; status?: number; code?: string };
+  const text = `${details.message ?? ""} ${details.code ?? ""}`.toLowerCase();
+
+  return (
+    details.status === 429 ||
+    text.includes("email rate limit exceeded") ||
+    text.includes("rate_limit") ||
+    text.includes("over_email_send_rate_limit")
+  );
+}
+
+function useCooldown() {
+  const [seconds, setSeconds] = useState(0);
+
+  useEffect(() => {
+    if (seconds <= 0) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setSeconds((current) => Math.max(0, current - 1));
+    }, 1000);
+
+    return () => window.clearTimeout(timer);
+  }, [seconds]);
+
+  return [seconds, setSeconds] as const;
+}
+
 function AuthInput({
   label,
   type,
@@ -80,6 +114,9 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const showDemoLogin = process.env.NEXT_PUBLIC_SHOW_DEMO_LOGIN === "true";
+  const demoEmail = process.env.NEXT_PUBLIC_DEMO_LOGIN_EMAIL;
+  const demoPassword = process.env.NEXT_PUBLIC_DEMO_LOGIN_PASSWORD;
 
   useEffect(() => {
     supabaseBrowser.auth.getSession().then(({ data }) => {
@@ -142,6 +179,13 @@ export function LoginForm() {
         </PrimaryButton>
       </form>
       <div className="mt-5 space-y-2 text-sm text-[var(--foreground-muted)]">
+        {showDemoLogin && demoEmail && demoPassword && (
+          <StatusCard tone="neutral">
+            {t.auth.demoLoginHint}
+            <br />
+            {t.auth.demoLoginCredentials} {demoEmail} / {demoPassword}
+          </StatusCard>
+        )}
         <Link
           href="/reset-password"
           className="block font-medium text-[var(--brand-teal-deep)] hover:underline"
@@ -170,6 +214,7 @@ export function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useCooldown();
 
   async function register(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -200,7 +245,12 @@ export function RegisterForm() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message || t.feedback.error);
+      if (isRateLimitError(authError)) {
+        setError(`${t.auth.rateLimit} ${t.auth.waitBeforeRetry}`);
+        setCooldown(60);
+      } else {
+        setError(authError.message || t.feedback.error);
+      }
       return;
     }
 
@@ -239,9 +289,19 @@ export function RegisterForm() {
         />
         {error && <StatusCard tone="error">{error}</StatusCard>}
         {message && <StatusCard tone="success">{message}</StatusCard>}
-        <PrimaryButton type="submit" disabled={loading} className="w-full">
+        <StatusCard tone="neutral">{t.auth.mvpRegisterNote}</StatusCard>
+        <PrimaryButton
+          type="submit"
+          disabled={loading || cooldown > 0}
+          className="w-full"
+        >
           {loading ? t.auth.creatingAccount : t.auth.registerButton}
         </PrimaryButton>
+        {cooldown > 0 && (
+          <p className="text-sm text-[var(--foreground-subtle)]">
+            {t.auth.waitBeforeRetry} ({cooldown}s)
+          </p>
+        )}
       </form>
       <Link
         href="/login"
@@ -262,6 +322,7 @@ export function ResetPasswordForm() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [recovery, setRecovery] = useState(false);
+  const [cooldown, setCooldown] = useCooldown();
 
   useEffect(() => {
     async function loadRecoverySession() {
@@ -297,7 +358,12 @@ export function ResetPasswordForm() {
     setLoading(false);
 
     if (authError) {
-      setError(authError.message || t.feedback.error);
+      if (isRateLimitError(authError)) {
+        setError(`${t.auth.rateLimit} ${t.auth.waitBeforeRetry}`);
+        setCooldown(60);
+      } else {
+        setError(authError.message || t.feedback.error);
+      }
       return;
     }
 
@@ -368,9 +434,18 @@ export function ResetPasswordForm() {
           />
           {error && <StatusCard tone="error">{error}</StatusCard>}
           {message && <StatusCard tone="success">{message}</StatusCard>}
-          <PrimaryButton type="submit" disabled={loading} className="w-full">
+          <PrimaryButton
+            type="submit"
+            disabled={loading || cooldown > 0}
+            className="w-full"
+          >
             {loading ? t.feedback.sending : t.auth.sendReset}
           </PrimaryButton>
+          {cooldown > 0 && (
+            <p className="text-sm text-[var(--foreground-subtle)]">
+              {t.auth.waitBeforeRetry} ({cooldown}s)
+            </p>
+          )}
         </form>
       )}
     </AuthShell>
