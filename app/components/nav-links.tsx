@@ -20,8 +20,9 @@ import {
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useId, useRef, useState } from "react";
-import type { ComponentType } from "react";
+import { useEffect, useId, useState } from "react";
+import { createPortal } from "react-dom";
+import type { ComponentType, ReactNode } from "react";
 import { LanguageSelector, useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
 
@@ -112,7 +113,7 @@ function Avatar({
   displayName?: string | null;
   email?: string | null;
   isAdmin?: boolean;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }) {
   return (
     <span
@@ -122,6 +123,7 @@ function Avatar({
         size === "sm" && "h-8 w-8 text-xs",
         size === "md" && "h-9 w-9 text-xs",
         size === "lg" && "h-12 w-12 text-sm",
+        size === "xl" && "h-[52px] w-[52px] text-sm",
       ].join(" ")}
     >
       {avatarUrl ? (
@@ -134,18 +136,10 @@ function Avatar({
   );
 }
 
-function useDismissMenu(open: boolean, close: () => void) {
-  const ref = useRef<HTMLDivElement | null>(null);
-
+function useEscapeToClose(open: boolean, close: () => void) {
   useEffect(() => {
     if (!open) {
       return;
-    }
-
-    function onPointerDown(event: PointerEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        close();
-      }
     }
 
     function onKeyDown(event: KeyboardEvent) {
@@ -154,16 +148,12 @@ function useDismissMenu(open: boolean, close: () => void) {
       }
     }
 
-    document.addEventListener("pointerdown", onPointerDown);
     document.addEventListener("keydown", onKeyDown);
 
     return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [close, open]);
-
-  return ref;
 }
 
 function MenuSection({
@@ -233,25 +223,180 @@ function CommandLink({
   );
 }
 
-export function NavLinks() {
-  const pathname = usePathname();
+function AccountDrawerPortal({
+  admin,
+  avatarUrl,
+  close,
+  displayName,
+  email,
+  isAdmin,
+  menuId,
+  pathname,
+  roleText,
+  signOut,
+  t,
+}: {
+  admin: boolean;
+  avatarUrl: string;
+  close: () => void;
+  displayName: string;
+  email?: string | null;
+  isAdmin: boolean;
+  menuId: string;
+  pathname: string;
+  roleText: string;
+  signOut: () => Promise<void>;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
   const router = useRouter();
-  const menuId = useId();
-  const { t } = useLanguage();
-  const { isAdmin, profile, role, signOut, user } = useAuth();
-  const [open, setOpen] = useState(false);
-  const menuRef = useDismissMenu(open, () => setOpen(false));
-  const displayName =
-    profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
-  const avatarUrl = profile?.avatar_url || "";
-  const roleText = profile ? t.admin.roleLabels[role] : "";
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  useEscapeToClose(true, close);
 
   async function logOut() {
     await signOut();
-    setOpen(false);
+    close();
     router.push("/");
     router.refresh();
   }
+
+  const drawer: ReactNode = (
+    <>
+      <button
+        type="button"
+        aria-label={t.nav.menu}
+        onClick={close}
+        className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.08)] backdrop-blur-[1px]"
+      />
+      <aside
+        id={menuId}
+        role="menu"
+        aria-label={t.nav.openAccountMenu}
+        className="fixed right-3 top-[72px] z-[9999] max-h-[calc(100vh-88px)] w-[calc(100vw-24px)] overflow-y-auto rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-3 shadow-[0_32px_110px_rgba(20,35,28,0.24)] sm:right-6 sm:top-20 sm:max-h-[calc(100vh-96px)] sm:w-[min(380px,calc(100vw-48px))] motion-safe:animate-[menuIn_180ms_ease-out]"
+      >
+        <div className="mb-3 rounded-[22px] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-3">
+          <div className="flex items-start gap-3">
+            <Avatar
+              avatarUrl={avatarUrl}
+              displayName={displayName}
+              email={email}
+              isAdmin={isAdmin}
+              size="xl"
+            />
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className="truncate text-[15px] font-semibold leading-5 text-[var(--foreground)]">
+                {displayName}
+              </p>
+              <p className="mt-0.5 truncate text-xs leading-5 text-[var(--foreground-subtle)]">
+                {email}
+              </p>
+              {roleText && (
+                <span className="mt-2 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                  {roleText}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              aria-label={t.nav.menu}
+              onClick={close}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,255,255,0.62)] text-[var(--foreground-subtle)] transition duration-200 hover:bg-[var(--surface)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            >
+              <X aria-hidden="true" size={17} strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <MenuSection title={t.menu.sections.workspace}>
+            {workspaceLinks.map((link) => (
+              <CommandLink
+                key={link.href}
+                href={link.href}
+                icon={link.icon}
+                active={isActive(pathname, link.href)}
+                label={t.nav[link.label]}
+                description={t.menu.descriptions[link.desc]}
+                onClick={close}
+              />
+            ))}
+          </MenuSection>
+
+          <MenuSection title={t.menu.sections.account}>
+            {accountLinks.map((link) => (
+              <CommandLink
+                key={link.href}
+                href={link.href}
+                icon={link.icon}
+                active={isActive(pathname, link.href)}
+                label={
+                  link.label === "account" ? t.account.settings : t.nav[link.label]
+                }
+                description={t.menu.descriptions[link.desc]}
+                onClick={close}
+              />
+            ))}
+          </MenuSection>
+
+          {admin && (
+            <MenuSection title={t.menu.sections.admin}>
+              {adminLinks.map((link) => (
+                <CommandLink
+                  key={link.href}
+                  href={link.href}
+                  icon={link.icon}
+                  active={isActive(pathname, link.href)}
+                  label={t.admin[link.label]}
+                  description={t.menu.descriptions[link.desc]}
+                  onClick={close}
+                />
+              ))}
+            </MenuSection>
+          )}
+
+          <MenuSection title={t.menu.sections.session}>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => void logOut()}
+              className="group flex min-h-[52px] w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            >
+              <span
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground-subtle)] group-hover:text-[var(--brand-teal-deep)]"
+                aria-hidden="true"
+              >
+                <LogOut size={15} strokeWidth={1.8} />
+              </span>
+              <span className="text-[15px] font-semibold">{t.nav.logout}</span>
+            </button>
+          </MenuSection>
+        </div>
+      </aside>
+    </>
+  );
+
+  return typeof document === "undefined" ? null : createPortal(drawer, document.body);
+}
+
+export function NavLinks() {
+  const pathname = usePathname();
+  const menuId = useId();
+  const { t } = useLanguage();
+  const { isAdmin, loading, profile, role, signOut, user } = useAuth();
+  const [open, setOpen] = useState(false);
+  useEscapeToClose(open && !user, () => setOpen(false));
+  const displayName =
+    profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
+  const avatarUrl = profile?.avatar_url || "";
+  const roleText = !loading && profile ? t.admin.roleLabels[role] : "";
 
   return (
     <div className="flex max-w-full items-center gap-2">
@@ -285,7 +430,7 @@ export function NavLinks() {
 
       <LanguageSelector />
 
-      <div className="relative" ref={menuRef}>
+      <div className="relative">
         {!user && (
           <div className="hidden items-center gap-2 sm:flex">
             <Link
@@ -343,149 +488,67 @@ export function NavLinks() {
           )}
         </button>
 
-        {open && (
-          <>
-          <button
-            type="button"
-            aria-label={t.nav.menu}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[950] bg-[rgba(26,34,32,0.12)] backdrop-blur-[1px] md:hidden"
+        {open && user && (
+          <AccountDrawerPortal
+            admin={isAdmin}
+            avatarUrl={avatarUrl}
+            close={() => setOpen(false)}
+            displayName={displayName}
+            email={user.email}
+            isAdmin={isAdmin}
+            menuId={menuId}
+            pathname={pathname}
+            roleText={roleText}
+            signOut={signOut}
+            t={t}
           />
-          <div
-            id={menuId}
-            role="menu"
-            aria-label={user ? t.nav.openAccountMenu : t.nav.menu}
-            className="fixed right-3 top-[4.5rem] z-[1000] max-h-[calc(100vh-5.5rem)] w-[min(92vw,380px)] origin-top-right overflow-y-auto rounded-[1.5rem] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-2.5 shadow-[0_28px_90px_rgba(26,34,32,0.20)] md:absolute md:right-0 md:top-12 md:max-h-[calc(100vh-6rem)] md:w-[22rem] md:bg-[rgba(255,255,248,0.98)] md:shadow-[0_24px_80px_rgba(26,34,32,0.16)] md:backdrop-blur-2xl motion-safe:animate-[menuIn_180ms_ease-out]"
-          >
-            {user ? (
-              <>
-                <div className="mb-2.5 rounded-[1.15rem] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.68))] p-3.5">
-                  <div className="flex items-center gap-3">
-                    <Avatar
-                      avatarUrl={avatarUrl}
-                      displayName={profile?.display_name}
-                      email={user.email}
-                      isAdmin={isAdmin}
-                      size="lg"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-[var(--foreground)]">
-                        {displayName}
-                      </p>
-                      <p className="mt-0.5 truncate text-xs text-[var(--foreground-subtle)]">
-                        {user.email}
-                      </p>
-                      {roleText && (
-                        <span className="mt-2 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                          {roleText}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        )}
 
-                <div className="space-y-2.5">
-                  <MenuSection title={t.menu.sections.workspace}>
-                    {workspaceLinks.map((link) => (
-                      <CommandLink
-                        key={link.href}
-                        href={link.href}
-                        icon={link.icon}
-                        active={isActive(pathname, link.href)}
-                        label={t.nav[link.label]}
-                        description={t.menu.descriptions[link.desc]}
-                        onClick={() => setOpen(false)}
-                      />
-                    ))}
-                  </MenuSection>
-
-                  <MenuSection title={t.menu.sections.account}>
-                    {accountLinks.map((link) => (
-                      <CommandLink
-                        key={link.href}
-                        href={link.href}
-                        icon={link.icon}
-                        active={isActive(pathname, link.href)}
-                        label={
-                          link.label === "account"
-                            ? t.account.settings
-                            : t.nav[link.label]
-                        }
-                        description={t.menu.descriptions[link.desc]}
-                        onClick={() => setOpen(false)}
-                      />
-                    ))}
-                  </MenuSection>
-
-                  {isAdmin && (
-                    <MenuSection title={t.menu.sections.admin}>
-                      {adminLinks.map((link) => (
-                        <CommandLink
-                          key={link.href}
-                          href={link.href}
-                          icon={link.icon}
-                          active={isActive(pathname, link.href)}
-                          label={t.admin[link.label]}
-                          description={t.menu.descriptions[link.desc]}
-                          onClick={() => setOpen(false)}
-                        />
-                      ))}
-                    </MenuSection>
-                  )}
-
-                  <MenuSection title={t.menu.sections.session}>
-                    <button
-                      type="button"
-                      role="menuitem"
-                      onClick={() => void logOut()}
-                      className="group flex min-h-[52px] w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                    >
-                      <span
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground-subtle)] group-hover:text-[var(--brand-teal-deep)]"
-                        aria-hidden="true"
-                      >
-                        <LogOut size={15} strokeWidth={1.8} />
-                      </span>
-                      <span className="text-[15px] font-semibold">{t.nav.logout}</span>
-                    </button>
-                  </MenuSection>
-                </div>
-              </>
-            ) : (
-              <>
-                <MenuSection title={t.menu.sections.product}>
-                  {publicMenuLinks.map((link) => (
-                    <CommandLink
-                      key={link.href}
-                      href={link.href}
-                      icon={link.icon}
-                      active={isActive(pathname, link.href)}
-                      label={t.nav[link.key]}
-                      onClick={() => setOpen(false)}
-                    />
-                  ))}
-                </MenuSection>
-                <div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3">
-                  <Link
-                    href="/register"
-                    role="menuitem"
+        {open && !user && (
+          <>
+            <button
+              type="button"
+              aria-label={t.nav.menu}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.08)] backdrop-blur-[1px] sm:hidden"
+            />
+            <div
+              id={menuId}
+              role="menu"
+              aria-label={t.nav.menu}
+              className="fixed right-3 top-[72px] z-[9999] max-h-[calc(100vh-88px)] w-[calc(100vw-24px)] overflow-y-auto rounded-[24px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-3 shadow-[0_28px_90px_rgba(20,35,28,0.20)] motion-safe:animate-[menuIn_180ms_ease-out] sm:hidden"
+            >
+              <MenuSection title={t.menu.sections.product}>
+                {publicMenuLinks.map((link) => (
+                  <CommandLink
+                    key={link.href}
+                    href={link.href}
+                    icon={link.icon}
+                    active={isActive(pathname, link.href)}
+                    label={t.nav[link.key]}
                     onClick={() => setOpen(false)}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                  >
-                    {t.common.createAccount}
-                  </Link>
-                  <Link
-                    href="/login"
-                    role="menuitem"
-                    onClick={() => setOpen(false)}
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                  >
-                    {t.nav.login}
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
+                  />
+                ))}
+              </MenuSection>
+              <div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3">
+                <Link
+                  href="/register"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                >
+                  {t.common.createAccount}
+                </Link>
+                <Link
+                  href="/login"
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                >
+                  {t.nav.login}
+                </Link>
+              </div>
+            </div>
           </>
         )}
       </div>
