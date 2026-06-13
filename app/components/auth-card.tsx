@@ -9,7 +9,7 @@ import { supabaseBrowser } from "../lib/supabase-client";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
 
 function nextPath(value: string | null) {
-  return value?.startsWith("/") ? value : "/quick";
+  return value?.startsWith("/") ? value : "/app";
 }
 
 function emailLooksValid(value: string) {

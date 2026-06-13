@@ -29,3 +29,45 @@ export async function getUserFromRequest(request: Request): Promise<User | null>
 
   return data.user ?? null;
 }
+
+export type ServerUserRole = "user" | "admin" | "tester";
+
+export async function getProfileForUser(userId: string) {
+  if (!supabaseAdmin) {
+    return null;
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("profiles")
+    .select("id, email, role, created_at")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase profile fetch error:", error);
+    return null;
+  }
+
+  return data as {
+    id: string;
+    email: string | null;
+    role: ServerUserRole;
+    created_at: string | null;
+  } | null;
+}
+
+export async function getAdminFromRequest(request: Request) {
+  const user = await getUserFromRequest(request);
+
+  if (!user) {
+    return { user: null, profile: null, isAdmin: false };
+  }
+
+  const profile = await getProfileForUser(user.id);
+
+  return {
+    user,
+    profile,
+    isAdmin: profile?.role === "admin",
+  };
+}

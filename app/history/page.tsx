@@ -1,4 +1,5 @@
 import { HistoryContent } from "./history-content";
+import { RequireAuth } from "../components/route-guards";
 
 export const dynamic = "force-dynamic";
 
@@ -28,5 +29,9 @@ export type Reflection = {
 };
 
 export default function HistoryPage() {
-  return <HistoryContent />;
+  return (
+    <RequireAuth>
+      <HistoryContent />
+    </RequireAuth>
+  );
 }

@@ -37,6 +37,18 @@ export default function TestPage() {
       </PageHeader>
 
       <StatusCard tone="neutral">{t.test.accountNote}</StatusCard>
+      <div className="mt-5 flex flex-wrap gap-3">
+        <LinkButton href="/register">{t.test.createAccount}</LinkButton>
+        <LinkButton href="/login" variant="secondary">
+          {t.test.login}
+        </LinkButton>
+        <LinkButton href="/demo" variant="ghost">
+          {t.test.viewDemo}
+        </LinkButton>
+        <LinkButton href="/feedback" variant="ghost">
+          {t.test.shareFeedback}
+        </LinkButton>
+      </div>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <Card variant="elevated">

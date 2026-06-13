@@ -3,17 +3,14 @@
 import Link from "next/link";
 import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import {
-  consumePendingReflection,
-  storePendingReflection,
-} from "../lib/pending-reflection";
+import { RequireAuth } from "../components/route-guards";
 import {
   Card,
   LoadingCard,
@@ -25,9 +22,9 @@ import {
   TextareaField,
 } from "../components/ui";
 
-export default function QuickReflectionPage() {
+function QuickReflectionContent() {
   const { language, t } = useLanguage();
-  const { session, user } = useAuth();
+  const { session } = useAuth();
   const router = useRouter();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
@@ -39,27 +36,12 @@ export default function QuickReflectionPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    const pending = consumePendingReflection("quick");
-
-    if (!pending) {
-      return;
-    }
-
-    queueMicrotask(() => {
-      setInput(pending.input);
-      setResult(pending.result);
-      setStructured(pending.structured || null);
-      setSaved(false);
-      setWarning("");
-    });
-  }, [user]);
-
   async function handleReflect() {
+    if (!session?.access_token) {
+      router.push("/login?next=/quick");
+      return;
+    }
+
     setLoading(true);
     setResult("");
     setStructured(null);
@@ -72,6 +54,7 @@ export default function QuickReflectionPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ input, mode: "quick", language }),
       });
@@ -79,6 +62,10 @@ export default function QuickReflectionPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          router.push("/login?next=/quick");
+          return;
+        }
         setError(data.error || t.common.aiGeneric);
         return;
       }
@@ -94,20 +81,8 @@ export default function QuickReflectionPage() {
   }
 
   async function saveReflection() {
-    if (!user) {
-      storePendingReflection({
-        input,
-        result,
-        structured,
-        mode: "quick",
-        language,
-      });
-      router.push("/login?next=/quick&savePending=1");
-      return;
-    }
-
     if (!session?.access_token) {
-      setWarning(t.common.loginToSave);
+      router.push("/login?next=/quick");
       return;
     }
 
@@ -223,7 +198,7 @@ export default function QuickReflectionPage() {
             <div className="mt-4 space-y-3">
               <StatusCard tone="neutral">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span>{user ? t.auth.trust : t.auth.savingUnavailable}</span>
+                  <span>{t.auth.trust}</span>
                   <PrimaryButton
                     type="button"
                     size="sm"
@@ -233,9 +208,7 @@ export default function QuickReflectionPage() {
                   >
                     {saving
                       ? t.common.savingReflection
-                      : user
-                        ? t.common.saveToHistory
-                        : t.auth.loginToSaveButton}
+                      : t.common.saveToHistory}
                   </PrimaryButton>
                 </div>
               </StatusCard>
@@ -244,5 +217,13 @@ export default function QuickReflectionPage() {
         </>
       )}
     </PageShell>
+  );
+}
+
+export default function QuickReflectionPage() {
+  return (
+    <RequireAuth>
+      <QuickReflectionContent />
+    </RequireAuth>
   );
 }

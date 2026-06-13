@@ -2,17 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import {
-  consumePendingReflection,
-  storePendingReflection,
-} from "../lib/pending-reflection";
+import { RequireAuth } from "../components/route-guards";
 import {
   Badge,
   Card,
@@ -42,9 +39,9 @@ const initialValues = fields.reduce((values, field) => {
   return values;
 }, {} as GuidedValues);
 
-export default function GuidedReflectionPage() {
+function GuidedReflectionContent() {
   const { language, t } = useLanguage();
-  const { session, user } = useAuth();
+  const { session } = useAuth();
   const router = useRouter();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
@@ -62,26 +59,6 @@ export default function GuidedReflectionPage() {
   const hasInput = filledCount > 0;
   const activeField = fields[activeStep];
 
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    const pending = consumePendingReflection("guided");
-
-    if (!pending) {
-      return;
-    }
-
-    queueMicrotask(() => {
-      setResult(pending.result);
-      setStructured(pending.structured || null);
-      setGeneratedInput(pending.input);
-      setSaved(false);
-      setWarning("");
-    });
-  }, [user]);
-
   function updateField(field: FieldId, value: string) {
     setValues((current) => ({
       ...current,
@@ -90,6 +67,11 @@ export default function GuidedReflectionPage() {
   }
 
   async function handleReflect() {
+    if (!session?.access_token) {
+      router.push("/login?next=/guided");
+      return;
+    }
+
     setLoading(true);
     setResult("");
     setStructured(null);
@@ -112,6 +94,7 @@ export default function GuidedReflectionPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ input, mode: "guided", language }),
       });
@@ -119,6 +102,10 @@ export default function GuidedReflectionPage() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          router.push("/login?next=/guided");
+          return;
+        }
         setError(data.error || t.common.aiGeneric);
         return;
       }
@@ -143,20 +130,8 @@ export default function GuidedReflectionPage() {
       .join("\n");
     const input = generatedInput || currentInput;
 
-    if (!user) {
-      storePendingReflection({
-        input,
-        result,
-        structured,
-        mode: "guided",
-        language,
-      });
-      router.push("/login?next=/guided&savePending=1");
-      return;
-    }
-
     if (!session?.access_token) {
-      setWarning(t.common.loginToSave);
+      router.push("/login?next=/guided");
       return;
     }
 
@@ -325,7 +300,7 @@ export default function GuidedReflectionPage() {
             <div className="mt-4">
               <StatusCard tone="neutral">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span>{user ? t.auth.trust : t.auth.savingUnavailable}</span>
+                  <span>{t.auth.trust}</span>
                   <PrimaryButton
                     type="button"
                     size="sm"
@@ -335,9 +310,7 @@ export default function GuidedReflectionPage() {
                   >
                     {saving
                       ? t.common.savingReflection
-                      : user
-                        ? t.common.saveToHistory
-                        : t.auth.loginToSaveButton}
+                      : t.common.saveToHistory}
                   </PrimaryButton>
                 </div>
               </StatusCard>
@@ -346,5 +319,13 @@ export default function GuidedReflectionPage() {
         </>
       )}
     </PageShell>
+  );
+}
+
+export default function GuidedReflectionPage() {
+  return (
+    <RequireAuth>
+      <GuidedReflectionContent />
+    </RequireAuth>
   );
 }

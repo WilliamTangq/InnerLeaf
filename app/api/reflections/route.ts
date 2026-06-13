@@ -9,7 +9,10 @@ export async function GET(request: Request) {
     const user = await getUserFromRequest(request);
 
     if (!user) {
-      return NextResponse.json({ reflections: [] });
+      return NextResponse.json(
+        { error: "Please log in to continue." },
+        { status: 401 }
+      );
     }
 
     if (!supabaseAdmin) {

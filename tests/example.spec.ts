@@ -5,10 +5,6 @@ const routes = [
     path: "/",
     heading: "Turn emotional overload into clear reflection.",
   },
-  { path: "/quick", heading: "Quick Reflection" },
-  { path: "/guided", heading: "Step-by-step reflection" },
-  { path: "/history", heading: "Reflection History" },
-  { path: "/summary", heading: "Your recent patterns" },
   { path: "/feedback", heading: "Share feedback" },
   { path: "/test", heading: "Test InnerLeaf" },
   { path: "/demo", heading: "InnerLeaf Demo Flow" },
@@ -18,6 +14,18 @@ const routes = [
   { path: "/login", heading: "Log in to InnerLeaf" },
   { path: "/register", heading: "Create your InnerLeaf account" },
   { path: "/reset-password", heading: "Reset your password" },
+] as const;
+
+const protectedRoutes = [
+  "/app",
+  "/quick",
+  "/guided",
+  "/history",
+  "/summary",
+  "/account",
+  "/admin",
+  "/admin/users",
+  "/admin/feedback",
 ] as const;
 
 for (const route of routes) {
@@ -34,25 +42,24 @@ for (const route of routes) {
   });
 }
 
-test("home links to the main reflection flows", async ({ page }) => {
+for (const path of protectedRoutes) {
+  test(`${path} redirects logged-out visitors to login`, async ({ page }) => {
+    await page.goto(path);
+
+    await expect(
+      page.getByRole("heading", { name: "Log in to InnerLeaf", exact: true })
+    ).toBeVisible();
+    await expect(page).toHaveURL(new RegExp(`/login\\?next=${encodeURIComponent(path)}`));
+  });
+}
+
+test("home links to account creation and demo", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("link", { name: "Try a 3-minute reflection" }).first()
-  ).toHaveAttribute("href", "/quick");
+    page.getByRole("link", { name: "Create account" }).first()
+  ).toHaveAttribute("href", "/register");
   await expect(
     page.getByRole("link", { name: "View demo" }).first()
   ).toHaveAttribute("href", "/demo");
-});
-
-test("quick reflection disables submit until the user writes", async ({ page }) => {
-  await page.goto("/quick");
-
-  const button = page.getByRole("button", { name: "Break down this reaction" });
-  await expect(button).toBeDisabled();
-
-  await page
-    .getByLabel("What happened?")
-    .fill("I felt ignored when a friend did not reply.");
-  await expect(button).toBeEnabled();
 });

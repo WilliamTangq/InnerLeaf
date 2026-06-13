@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
+import { getUserFromRequest } from "../../lib/auth-server";
 import { normalizeLanguage, translations, type Language } from "../../lib/i18n";
 
 const ai = new GoogleGenAI({
@@ -356,6 +357,14 @@ export async function POST(request: Request) {
     const mode = requestedMode === "guided" ? "guided" : "quick";
     const language = normalizeLanguage(requestedLanguage);
     responseLanguage = language;
+    const user = await getUserFromRequest(request);
+
+    if (!user) {
+      return NextResponse.json(
+        { error: translations[language].common.loginToStart },
+        { status: 401 }
+      );
+    }
 
     if (!input || typeof input !== "string") {
       return NextResponse.json(

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LanguageSelector, useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
 
@@ -15,8 +15,15 @@ const links = [
 
 export function NavLinks() {
   const pathname = usePathname();
+  const router = useRouter();
   const { t } = useLanguage();
   const { user, isAdmin, signOut } = useAuth();
+
+  async function logOut() {
+    await signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   return (
     <div className="flex max-w-full items-center gap-2">
@@ -50,6 +57,12 @@ export function NavLinks() {
         {user ? (
           <>
             <Link
+              href="/app"
+              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] sm:inline-flex"
+            >
+              {t.nav.workspace}
+            </Link>
+            <Link
               href="/history"
               className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] sm:inline-flex"
             >
@@ -65,13 +78,22 @@ export function NavLinks() {
               {user.email}
             </span>
             {isAdmin && (
-              <span className="hidden rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)] md:inline-flex">
+              <Link
+                href="/admin"
+                className="hidden rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)] transition hover:bg-[var(--surface-muted)] md:inline-flex"
+              >
                 {t.auth.admin}
-              </span>
+              </Link>
             )}
+            <Link
+              href="/account"
+              className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
+            >
+              {t.nav.account}
+            </Link>
             <button
               type="button"
-              onClick={() => void signOut()}
+              onClick={() => void logOut()}
               className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
               {t.nav.logout}
@@ -86,10 +108,10 @@ export function NavLinks() {
               {t.nav.login}
             </Link>
             <Link
-              href="/quick"
+              href="/register"
               className="inline-flex items-center justify-center rounded-lg bg-[var(--brand-teal)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
-              {t.common.startReflection}
+              {t.common.createAccount}
             </Link>
           </>
         )}

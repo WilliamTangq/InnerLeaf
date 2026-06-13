@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { BrandLogo } from "./components/brand-logo";
+import { useAuth } from "./components/auth-provider";
 import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
 
@@ -159,6 +160,9 @@ function SectionHeading({
 
 export default function Home() {
   const { t } = useLanguage();
+  const { user } = useAuth();
+  const primaryHref = user ? "/app" : "/register";
+  const primaryLabel = user ? t.common.goWorkspace : t.common.createAccount;
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
@@ -187,8 +191,8 @@ export default function Home() {
             {t.home.subtitle}
           </p>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-              {t.common.tryThreeMinute}
+            <LinkButton href={primaryHref} size="lg" className="w-full sm:w-auto">
+              {primaryLabel}
             </LinkButton>
             <LinkButton
               href="/demo"
@@ -200,10 +204,10 @@ export default function Home() {
             </LinkButton>
           </div>
           <Link
-            href="/test"
+            href={user ? "/app" : "/login"}
             className="mt-4 inline-flex text-sm font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
           >
-            {t.common.helpTest}
+            {user ? t.common.goWorkspace : t.auth.loginLink}
           </Link>
           <p className="mt-4 text-sm leading-6 text-[var(--foreground-subtle)]">
             {t.home.safety}
@@ -290,11 +294,11 @@ export default function Home() {
           {t.home.finalSubtitle}
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <LinkButton href="/quick" size="lg" className="w-full sm:w-auto">
-            {t.common.startQuick}
+          <LinkButton href={user ? "/quick" : "/register"} size="lg" className="w-full sm:w-auto">
+            {user ? t.common.startQuick : t.common.createAccount}
           </LinkButton>
-          <LinkButton href="/guided" variant="secondary" size="lg">
-            {t.common.tryGuided}
+          <LinkButton href={user ? "/guided" : "/login"} variant="secondary" size="lg">
+            {user ? t.common.tryGuided : t.nav.login}
           </LinkButton>
         </div>
       </section>
