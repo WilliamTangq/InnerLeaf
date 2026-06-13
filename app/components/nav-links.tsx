@@ -351,7 +351,7 @@ export function NavLinks() {
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
   const avatarUrl = profile?.avatar_url || "";
-  const roleText = !loading && profile ? t.admin.roleLabels[role] : "";
+  const roleText = !loading && profile && role ? t.admin.roleLabels[role] : "";
 
   return (
     <div className="flex max-w-full items-center gap-2">

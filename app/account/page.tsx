@@ -10,6 +10,8 @@ import { useLanguage } from "../components/language-provider";
 import {
   Badge,
   Card,
+  LinkButton,
+  PageActions,
   PageHeader,
   PageShell,
   PrimaryButton,
@@ -20,17 +22,29 @@ const avatarTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxAvatarSize = 2 * 1024 * 1024;
 
 function roleLabel(
-  role: "user" | "tester" | "admin",
+  role: "user" | "tester" | "admin" | null,
   labels: Record<"user" | "tester" | "admin", string>
 ) {
+  if (!role) {
+    return "";
+  }
+
   return labels[role] || role;
 }
 
 function AccountContent() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { isAdmin, profile, refreshProfile, role, session, signOut, user } =
-    useAuth();
+  const {
+    isAdmin,
+    profile,
+    profileLoading,
+    refreshProfile,
+    role,
+    session,
+    signOut,
+    user,
+  } = useAuth();
   const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? null);
   const [avatarPath, setAvatarPath] = useState(profile?.avatar_path ?? null);
@@ -256,6 +270,37 @@ function AccountContent() {
         {t.account.purpose}
       </PageHeader>
 
+      {isAdmin && (
+        <Card
+          variant="elevated"
+          className="mb-5 border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] hover:translate-y-0"
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <Badge variant="accent">{t.auth.admin}</Badge>
+              <h2 className="mt-3 text-xl font-semibold text-[var(--foreground)]">
+                {t.account.adminAccount}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {t.account.adminAccountBody}
+              </p>
+            </div>
+            <PageActions>
+              <LinkButton href="/admin">{t.admin.overview}</LinkButton>
+              <LinkButton href="/admin/users" variant="secondary">
+                {t.admin.users}
+              </LinkButton>
+              <LinkButton href="/admin/feedback" variant="ghost">
+                {t.admin.feedback}
+              </LinkButton>
+              <LinkButton href="/admin/system" variant="ghost">
+                {t.admin.system}
+              </LinkButton>
+            </PageActions>
+          </div>
+        </Card>
+      )}
+
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
         <Card variant="elevated" className="hover:translate-y-0">
           <form onSubmit={updateProfile} className="space-y-5">
@@ -355,7 +400,7 @@ function AccountContent() {
                   {t.account.role}
                 </dt>
                 <dd className="mt-1 flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
-                  {roleLabel(role, t.admin.roleLabels)}
+                  {profileLoading ? t.account.roleLoading : roleLabel(role, t.admin.roleLabels)}
                   {isAdmin && <Badge variant="accent">{t.auth.admin}</Badge>}
                 </dd>
               </div>

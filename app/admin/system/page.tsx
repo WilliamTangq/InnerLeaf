@@ -16,13 +16,18 @@ function SystemContent() {
   const { role } = useAuth();
   const { t } = useLanguage();
   const items = [
+    [t.admin.appName, "InnerLeaf"],
     [t.admin.environment, process.env.NODE_ENV || "development"],
     [t.admin.appVersion, "MVP"],
     [t.admin.authMode, "Email/password"],
     [t.admin.googleLogin, t.admin.disabled],
+    [t.admin.reflectionAccess, t.admin.loginRequired],
+    [t.admin.demoMode, t.admin.staticDemoData],
+    [t.admin.privacyMode, t.admin.userSpecificHistory],
+    [t.admin.availableRoles, "user, tester, admin"],
     [t.admin.publicPages, "/, /about, /privacy, /faq, /demo, /test, /feedback"],
     [t.admin.protectedRoutes, "/app, /quick, /guided, /history, /summary, /account"],
-    [t.admin.currentRole, t.admin.roleLabels[role]],
+    [t.admin.currentRole, role ? t.admin.roleLabels[role] : t.account.roleLoading],
   ] as const;
 
   return (

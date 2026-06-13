@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getAdminFromRequest, supabaseAdmin } from "../../../lib/auth-server";
+import { requireAdmin, supabaseAdmin } from "../../../lib/auth-server";
 
 const protectedAdminEmail = "admin@gmail.com";
 
 export async function POST(request: Request) {
   try {
-    const { isAdmin, user: currentUser } = await getAdminFromRequest(request);
+    const { isAdmin, user: currentUser } = await requireAdmin(request);
 
     if (!isAdmin || !currentUser) {
       return NextResponse.json(
@@ -63,6 +63,32 @@ export async function POST(request: Request) {
       if (storageError) {
         console.error("Supabase admin avatar delete error:", storageError);
       }
+    }
+
+    const { error: reflectionsError } = await supabaseAdmin
+      .from("reflections")
+      .delete()
+      .eq("user_id", userId);
+
+    if (reflectionsError) {
+      console.error("Supabase admin delete reflections error:", reflectionsError);
+      return NextResponse.json(
+        { error: "User could not be deleted." },
+        { status: 500 }
+      );
+    }
+
+    const { error: feedbackError } = await supabaseAdmin
+      .from("feedback")
+      .update({ user_id: null })
+      .eq("user_id", userId);
+
+    if (feedbackError) {
+      console.error("Supabase admin anonymise feedback error:", feedbackError);
+      return NextResponse.json(
+        { error: "User could not be deleted." },
+        { status: 500 }
+      );
     }
 
     const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminFromRequest, supabaseAdmin } from "../../../lib/auth-server";
+import { requireAdmin, supabaseAdmin } from "../../../lib/auth-server";
 
 const roles = new Set(["user", "tester", "admin"]);
 const protectedAdminEmail = "admin@gmail.com";
@@ -10,9 +10,9 @@ function optionalText(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const { isAdmin } = await getAdminFromRequest(request);
+    const { isAdmin, user: currentUser } = await requireAdmin(request);
 
-    if (!isAdmin) {
+    if (!isAdmin || !currentUser) {
       return NextResponse.json(
         { error: "Admin access required." },
         { status: 403 }
@@ -57,6 +57,13 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { error: "The protected admin account must remain admin." },
+        { status: 400 }
+      );
+    }
+
+    if (profile.id === currentUser.id && role !== "admin") {
+      return NextResponse.json(
+        { error: "You cannot remove your own admin access." },
         { status: 400 }
       );
     }

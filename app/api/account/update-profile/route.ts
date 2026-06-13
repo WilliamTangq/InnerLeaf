@@ -20,11 +20,19 @@ export async function POST(request: Request) {
     const displayName = optionalText(body.display_name);
     const avatarUrl = optionalText(body.avatar_url);
     const avatarPath = optionalText(body.avatar_path);
+    const isPrimaryAdmin = user.email?.toLowerCase() === "admin@gmail.com";
+
+    const { data: existingProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
 
     const { error } = await supabaseAdmin.from("profiles").upsert(
       {
         id: user.id,
         email: user.email ?? null,
+        role: isPrimaryAdmin ? "admin" : existingProfile?.role ?? "user",
         display_name: displayName,
         avatar_url: avatarUrl,
         avatar_path: avatarPath,

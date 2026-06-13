@@ -71,3 +71,13 @@ export async function getAdminFromRequest(request: Request) {
     isAdmin: profile?.role === "admin",
   };
 }
+
+export async function requireAdmin(request: Request) {
+  const { user, profile, isAdmin } = await getAdminFromRequest(request);
+
+  if (!user || !isAdmin) {
+    return { user, profile, isAdmin: false, error: "Admin access required." };
+  }
+
+  return { user, profile, isAdmin: true, error: null };
+}
