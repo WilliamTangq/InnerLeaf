@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import {
+  consumePendingReflection,
+  storePendingReflection,
+} from "../lib/pending-reflection";
 import {
   Badge,
   Card,
@@ -40,6 +45,7 @@ const initialValues = fields.reduce((values, field) => {
 export default function GuidedReflectionPage() {
   const { language, t } = useLanguage();
   const { session, user } = useAuth();
+  const router = useRouter();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
   const [result, setResult] = useState("");
@@ -48,10 +54,33 @@ export default function GuidedReflectionPage() {
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [generatedInput, setGeneratedInput] = useState("");
 
   const filledCount = fields.filter((f) => values[f.id].trim()).length;
   const hasInput = filledCount > 0;
   const activeField = fields[activeStep];
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const pending = consumePendingReflection("guided");
+
+    if (!pending) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      setResult(pending.result);
+      setStructured(pending.structured || null);
+      setGeneratedInput(pending.input);
+      setSaved(false);
+      setWarning("");
+    });
+  }, [user]);
 
   function updateField(field: FieldId, value: string) {
     setValues((current) => ({
@@ -66,6 +95,8 @@ export default function GuidedReflectionPage() {
     setStructured(null);
     setWarning("");
     setError("");
+    setSaved(false);
+    setGeneratedInput("");
 
     const input = fields
       .map((field) => {
@@ -74,15 +105,13 @@ export default function GuidedReflectionPage() {
       })
       .filter((line) => line.split(": ")[1])
       .join("\n");
+    setGeneratedInput(input);
 
     try {
       const response = await fetch("/api/reflect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {}),
         },
         body: JSON.stringify({ input, mode: "guided", language }),
       });
@@ -96,11 +125,73 @@ export default function GuidedReflectionPage() {
 
       setResult(data.result);
       setStructured(data.structured || null);
-      setWarning(data.warning || (data.saved ? "" : t.common.loginToSave));
+      setWarning("");
     } catch {
       setError(t.common.aiGeneric);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function saveReflection() {
+    const currentInput = fields
+      .map((field) => {
+        const [label] = t.guided.fields[field.id];
+        return `${label}: ${values[field.id].trim()}`;
+      })
+      .filter((line) => line.split(": ")[1])
+      .join("\n");
+    const input = generatedInput || currentInput;
+
+    if (!user) {
+      storePendingReflection({
+        input,
+        result,
+        structured,
+        mode: "guided",
+        language,
+      });
+      router.push("/login?next=/guided&savePending=1");
+      return;
+    }
+
+    if (!session?.access_token) {
+      setWarning(t.common.loginToSave);
+      return;
+    }
+
+    setSaving(true);
+    setWarning("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/save-reflection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          input,
+          result,
+          structured,
+          mode: "guided",
+          language,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || t.common.saveWarning);
+        return;
+      }
+
+      setSaved(true);
+      setWarning("");
+    } catch {
+      setError(t.common.saveWarning);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -227,19 +318,27 @@ export default function GuidedReflectionPage() {
           <ReflectionResultCard
             result={result}
             structured={structured}
-            statusText={user ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+            showActions={saved}
+            statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
           />
-          {!user && (
+          {!saved && (
             <div className="mt-4">
               <StatusCard tone="neutral">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span>{t.auth.savingUnavailable}</span>
-                  <Link
-                    href="/login?next=/guided"
-                    className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+                  <span>{user ? t.auth.trust : t.auth.savingUnavailable}</span>
+                  <PrimaryButton
+                    type="button"
+                    size="sm"
+                    onClick={saveReflection}
+                    disabled={saving}
+                    className="shrink-0"
                   >
-                    {t.auth.loginToSaveButton}
-                  </Link>
+                    {saving
+                      ? t.common.savingReflection
+                      : user
+                        ? t.common.saveToHistory
+                        : t.auth.loginToSaveButton}
+                  </PrimaryButton>
                 </div>
               </StatusCard>
             </div>

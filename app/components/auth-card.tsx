@@ -81,6 +81,14 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    supabaseBrowser.auth.getSession().then(({ data }) => {
+      if (data.session) {
+        router.replace(next);
+      }
+    });
+  }, [next, router]);
+
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
@@ -111,20 +119,6 @@ export function LoginForm() {
     router.refresh();
   }
 
-  async function googleLogin() {
-    setError("");
-    const redirectTo = `${window.location.origin}/auth/callback`;
-    window.localStorage.setItem("innerleaf_auth_next", next);
-    const { error: authError } = await supabaseBrowser.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo },
-    });
-
-    if (authError) {
-      setError(t.auth.googleFailed);
-    }
-  }
-
   return (
     <AuthShell title={t.auth.loginTitle} subtitle={t.auth.loginSubtitle}>
       <form onSubmit={login} className="space-y-4">
@@ -144,19 +138,9 @@ export function LoginForm() {
         />
         {error && <StatusCard tone="error">{error}</StatusCard>}
         <PrimaryButton type="submit" disabled={loading} className="w-full">
-          {loading ? t.feedback.sending : t.auth.loginButton}
+          {loading ? t.auth.loggingIn : t.auth.loginButton}
         </PrimaryButton>
       </form>
-      <button
-        type="button"
-        onClick={googleLogin}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-      >
-        <span aria-hidden="true" className="text-sm font-semibold">
-          G
-        </span>
-        {t.auth.googleButton}
-      </button>
       <div className="mt-5 space-y-2 text-sm text-[var(--foreground-muted)]">
         <Link
           href="/reset-password"
@@ -229,19 +213,6 @@ export function RegisterForm() {
     setMessage(t.auth.checkEmail);
   }
 
-  async function googleLogin() {
-    setError("");
-    window.localStorage.setItem("innerleaf_auth_next", next);
-    const { error: authError } = await supabaseBrowser.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-
-    if (authError) {
-      setError(t.auth.googleFailed);
-    }
-  }
-
   return (
     <AuthShell title={t.auth.registerTitle} subtitle={t.auth.registerSubtitle}>
       <form onSubmit={register} className="space-y-4">
@@ -269,19 +240,9 @@ export function RegisterForm() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
         {message && <StatusCard tone="success">{message}</StatusCard>}
         <PrimaryButton type="submit" disabled={loading} className="w-full">
-          {loading ? t.feedback.sending : t.auth.registerButton}
+          {loading ? t.auth.creatingAccount : t.auth.registerButton}
         </PrimaryButton>
       </form>
-      <button
-        type="button"
-        onClick={googleLogin}
-        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-      >
-        <span aria-hidden="true" className="text-sm font-semibold">
-          G
-        </span>
-        {t.auth.googleButton}
-      </button>
       <Link
         href="/login"
         className="mt-5 block text-sm font-medium text-[var(--brand-teal-deep)] hover:underline"

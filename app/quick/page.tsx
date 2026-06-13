@@ -2,13 +2,18 @@
 
 import Link from "next/link";
 import { HelpCircle } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import {
+  consumePendingReflection,
+  storePendingReflection,
+} from "../lib/pending-reflection";
 import {
   Card,
   LoadingCard,
@@ -23,6 +28,7 @@ import {
 export default function QuickReflectionPage() {
   const { language, t } = useLanguage();
   const { session, user } = useAuth();
+  const router = useRouter();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   const [structured, setStructured] =
@@ -30,6 +36,28 @@ export default function QuickReflectionPage() {
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!user) {
+      return;
+    }
+
+    const pending = consumePendingReflection("quick");
+
+    if (!pending) {
+      return;
+    }
+
+    queueMicrotask(() => {
+      setInput(pending.input);
+      setResult(pending.result);
+      setStructured(pending.structured || null);
+      setSaved(false);
+      setWarning("");
+    });
+  }, [user]);
 
   async function handleReflect() {
     setLoading(true);
@@ -37,15 +65,13 @@ export default function QuickReflectionPage() {
     setStructured(null);
     setWarning("");
     setError("");
+    setSaved(false);
 
     try {
       const response = await fetch("/api/reflect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          ...(session?.access_token
-            ? { Authorization: `Bearer ${session.access_token}` }
-            : {}),
         },
         body: JSON.stringify({ input, mode: "quick", language }),
       });
@@ -59,11 +85,64 @@ export default function QuickReflectionPage() {
 
       setResult(data.result);
       setStructured(data.structured || null);
-      setWarning(data.warning || (data.saved ? "" : t.common.loginToSave));
+      setWarning("");
     } catch {
       setError(t.common.aiGeneric);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function saveReflection() {
+    if (!user) {
+      storePendingReflection({
+        input,
+        result,
+        structured,
+        mode: "quick",
+        language,
+      });
+      router.push("/login?next=/quick&savePending=1");
+      return;
+    }
+
+    if (!session?.access_token) {
+      setWarning(t.common.loginToSave);
+      return;
+    }
+
+    setSaving(true);
+    setWarning("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/save-reflection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          input,
+          result,
+          structured,
+          mode: "quick",
+          language,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || t.common.saveWarning);
+        return;
+      }
+
+      setSaved(true);
+      setWarning("");
+    } catch {
+      setError(t.common.saveWarning);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -137,19 +216,27 @@ export default function QuickReflectionPage() {
           <ReflectionResultCard
             result={result}
             structured={structured}
-            statusText={user ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+            showActions={saved}
+            statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
           />
-          {!user && (
-            <div className="mt-4">
+          {!saved && (
+            <div className="mt-4 space-y-3">
               <StatusCard tone="neutral">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span>{t.auth.savingUnavailable}</span>
-                  <Link
-                    href="/login?next=/quick"
-                    className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+                  <span>{user ? t.auth.trust : t.auth.savingUnavailable}</span>
+                  <PrimaryButton
+                    type="button"
+                    size="sm"
+                    onClick={saveReflection}
+                    disabled={saving}
+                    className="shrink-0"
                   >
-                    {t.auth.loginToSaveButton}
-                  </Link>
+                    {saving
+                      ? t.common.savingReflection
+                      : user
+                        ? t.common.saveToHistory
+                        : t.auth.loginToSaveButton}
+                  </PrimaryButton>
                 </div>
               </StatusCard>
             </div>

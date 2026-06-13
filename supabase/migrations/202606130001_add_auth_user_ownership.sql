@@ -8,6 +8,8 @@ add column if not exists user_id uuid references auth.users(id) on delete set nu
 
 alter table reflections enable row level security;
 
+drop policy if exists "Allow anonymous read" on reflections;
+drop policy if exists "Allow anonymous insert" on reflections;
 drop policy if exists "Users can insert own reflections" on reflections;
 drop policy if exists "Users can view own reflections" on reflections;
 drop policy if exists "Users can update own reflections" on reflections;

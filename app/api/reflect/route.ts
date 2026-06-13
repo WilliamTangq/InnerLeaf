@@ -1,7 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { normalizeLanguage, translations, type Language } from "../../lib/i18n";
-import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -75,12 +74,7 @@ function toDetectedMode(value: unknown) {
 
 function message(
   language: Language,
-  key:
-    | "aiLimit"
-    | "aiGeneric"
-    | "saveWarning"
-    | "structuredWarning"
-    | "loginToSave"
+  key: "aiLimit" | "aiGeneric"
 ) {
   return translations[language].common[key];
 }
@@ -389,92 +383,10 @@ export async function POST(request: Request) {
         : formatStructuredReflection(structured, language)
       : rawResult;
 
-    const user = await getUserFromRequest(request);
-
-    if (!user) {
-      return NextResponse.json({
-        result,
-        structured,
-        saved: false,
-        warning: message(language, "loginToSave"),
-      });
-    }
-
-    if (!supabaseAdmin) {
-      return NextResponse.json({
-        result,
-        structured,
-        saved: false,
-        warning: message(language, "saveWarning"),
-      });
-    }
-
-    const reflectionRecord = {
-      user_id: user.id,
-      user_input: input,
-      ai_result: result,
-      mode,
-      language,
-      ...(structured
-        ? {
-            emotional_validation: structured.emotional_validation,
-            emotion: structured.emotion,
-            trigger: structured.trigger,
-            thought_pattern: structured.thought_pattern,
-            facts: structured.facts.join("\n"),
-            interpretation: structured.interpretation.join("\n"),
-            behaviour: structured.behaviour,
-            body_factor: structured.body_factor || null,
-            behavioural_insight: structured.behavioural_insight,
-            next_question: structured.next_question,
-            next_step_type: structured.next_step_type || null,
-            next_step: structured.next_step || null,
-            mode_detected: structured.mode_detected || null,
-          }
-        : {}),
-    };
-
-    const { data: insertedReflection, error } = await supabaseAdmin
-      .from("reflections")
-      .insert(reflectionRecord)
-      .select("id")
-      .single();
-
-    if (error) {
-      console.error("Supabase insert error:", error);
-      const { error: fallbackError } = await supabaseAdmin
-        .from("reflections")
-        .insert({
-          user_id: user.id,
-          user_input: input,
-          ai_result: result,
-          mode,
-          language,
-        });
-
-      if (!fallbackError) {
-        return NextResponse.json({
-          result,
-          structured,
-          saved: true,
-          warning: message(language, "structuredWarning"),
-        });
-      }
-
-      console.error("Supabase fallback insert error:", fallbackError);
-      return NextResponse.json({
-        result,
-        structured,
-        saved: false,
-        warning: message(language, "saveWarning"),
-      });
-    }
-
     return NextResponse.json({
       result,
       structured,
-      id: insertedReflection?.id,
-      saved: true,
+      saved: false,
     });
   } catch (error: unknown) {
     console.error("Reflect API error:", error);

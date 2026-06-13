@@ -38,6 +38,8 @@ export const translations = {
       checkInError: "Could not save check-in. Please try again.",
       loginToSave: "Log in to save this reflection to your history.",
       savedToHistory: "Saved to your history.",
+      saveToHistory: "Save to history",
+      savingReflection: "Saving...",
     },
     nav: {
       home: "Home",
@@ -303,7 +305,7 @@ export const translations = {
     privacy: {
       title: "Privacy & Safety Principles",
       purpose:
-        "InnerLeaf is currently an MVP prototype. Please do not enter names, addresses, medical information, or anything you would not want stored. We are testing the structured reflection experience, not collecting clinical data.",
+        "InnerLeaf is currently an MVP prototype using email/password authentication. Please do not enter names, addresses, medical information, or anything you would not want stored. We are testing the structured reflection experience, not collecting clinical data.",
       sections: [
         [
           "Where is my reflection stored?",
@@ -518,12 +520,10 @@ export const translations = {
       loginSubtitle:
         "Save your reflection cards and review your patterns privately.",
       loginButton: "Log in",
-      googleButton: "Continue with Google",
       forgotPassword: "Forgot password?",
       registerLink: "New to InnerLeaf? Create an account",
       registerTitle: "Create your InnerLeaf account",
-      registerSubtitle:
-        "Keep your reflection cards connected to you, not the public demo.",
+      registerSubtitle: "Keep your reflection cards connected to you.",
       registerButton: "Create account",
       loginLink: "Already have an account? Log in",
       resetTitle: "Reset your password",
@@ -537,7 +537,8 @@ export const translations = {
       passwordLength: "Password must be at least 6 characters.",
       passwordsMismatch: "Passwords do not match.",
       loginFailed: "Login failed. Please check your email and password.",
-      googleFailed: "Could not continue with Google. Please try again.",
+      loggingIn: "Logging in...",
+      creatingAccount: "Creating account...",
       loggedOut: "You have been logged out.",
       checkEmail: "Check your email to confirm your account.",
       trust: "Your saved reflections are connected to your account.",
@@ -545,7 +546,7 @@ export const translations = {
       createAccount: "Create account",
       loginToSaveButton: "Log in to save",
       savingUnavailable:
-        "You can generate a reflection without an account, but it will not be saved.",
+        "You can try InnerLeaf without an account. Create one only if you want to save your reflection history.",
     },
     feedback: {
       eyebrow: "Help us improve",
@@ -607,6 +608,8 @@ export const translations = {
       checkInError: "未能保存回看，请再试一次。",
       loginToSave: "登录后可以把这条反思保存到历史记录。",
       savedToHistory: "已保存到你的历史记录。",
+      saveToHistory: "保存到历史记录",
+      savingReflection: "正在保存...",
     },
     nav: {
       home: "首页",
@@ -866,7 +869,7 @@ export const translations = {
     privacy: {
       title: "隐私与安全原则",
       purpose:
-        "InnerLeaf 当前是 MVP 测试版本。请不要输入真实姓名、地址、医疗信息，或任何你不希望被保存的内容。我们正在测试结构化反思体验，而不是收集临床数据。",
+        "InnerLeaf 当前是 MVP 测试版本，使用邮箱和密码登录。请不要输入真实姓名、地址、医疗信息，或任何你不希望被保存的内容。我们正在测试结构化反思体验，而不是收集临床数据。",
       sections: [
         [
           "我的反思会保存在哪里？",
@@ -1061,11 +1064,10 @@ export const translations = {
       loginTitle: "登录 InnerLeaf",
       loginSubtitle: "保存你的反思卡片，并私密回看自己的模式。",
       loginButton: "登录",
-      googleButton: "使用 Google 继续",
       forgotPassword: "忘记密码？",
       registerLink: "第一次使用 InnerLeaf？创建账号",
       registerTitle: "创建 InnerLeaf 账号",
-      registerSubtitle: "让你的反思卡片只和你的账号关联，而不是公开演示数据。",
+      registerSubtitle: "让你的反思卡片只和你的账号关联。",
       registerButton: "创建账号",
       loginLink: "已有账号？登录",
       resetTitle: "重置密码",
@@ -1079,14 +1081,16 @@ export const translations = {
       passwordLength: "密码至少需要 6 位。",
       passwordsMismatch: "两次输入的密码不一致。",
       loginFailed: "登录失败，请检查邮箱和密码。",
-      googleFailed: "无法使用 Google 继续，请再试一次。",
+      loggingIn: "正在登录...",
+      creatingAccount: "正在创建账号...",
       loggedOut: "你已退出登录。",
       checkEmail: "请查看邮箱并确认你的账号。",
       trust: "你保存的反思会和你的账号关联。",
       loginRequired: "登录",
       createAccount: "创建账号",
       loginToSaveButton: "登录后保存",
-      savingUnavailable: "你可以不登录生成反思，但不会保存到历史记录。",
+      savingUnavailable:
+        "你可以不登录先体验 InnerLeaf。如果想保存反思历史，再创建账号。",
     },
     feedback: {
       eyebrow: "帮助我们改进",
