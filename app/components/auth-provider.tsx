@@ -46,16 +46,20 @@ async function fetchProfile(nextSession: Session | null) {
     .eq("id", nextSession.user.id)
     .maybeSingle();
 
-  return data && ["user", "admin", "tester"].includes(data.role)
-    ? (data as UserProfile)
-    : {
-        id: nextSession.user.id,
-        email: nextSession.user.email ?? null,
-        role: "user" as const,
-        display_name: null,
-        avatar_url: null,
-        created_at: null,
-      };
+  if (data && ["user", "admin", "tester"].includes(data.role)) {
+    return data as UserProfile;
+  }
+
+  if (
+    process.env.NODE_ENV !== "production" &&
+    nextSession.user.email?.toLowerCase() === "admin@gmail.com"
+  ) {
+    console.warn(
+      "InnerLeaf admin profile is missing or not marked admin. Run: update public.profiles set role = 'admin' where lower(email) = 'admin@gmail.com';"
+    );
+  }
+
+  return null;
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

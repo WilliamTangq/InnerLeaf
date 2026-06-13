@@ -204,27 +204,27 @@ function CommandLink({
       role="menuitem"
       onClick={onClick}
       className={[
-        "group flex min-h-12 items-center gap-3 rounded-xl px-3 py-2.5 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+        "group flex min-h-[52px] items-center gap-2.5 rounded-xl px-2.5 py-2 transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         active
-          ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+          ? "bg-[rgba(230,245,243,0.72)] text-[var(--brand-teal-deep)]"
           : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
       ].join(" ")}
     >
       <span
         className={[
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border transition",
           active
             ? "border-[rgba(31,155,143,0.18)] bg-[var(--surface)] text-[var(--brand-teal-deep)]"
             : "border-[var(--border)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground-subtle)] group-hover:text-[var(--brand-teal-deep)]",
         ].join(" ")}
         aria-hidden="true"
       >
-        <Icon size={16} strokeWidth={1.8} />
+        <Icon size={15} strokeWidth={1.8} />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-sm font-semibold">{label}</span>
+        <span className="block truncate text-[15px] font-semibold leading-5">{label}</span>
         {description && (
-          <span className="mt-0.5 block truncate text-xs font-normal text-[var(--foreground-subtle)]">
+          <span className="mt-0.5 block truncate text-[12px] font-normal leading-4 text-[var(--foreground-subtle)]">
             {description}
           </span>
         )}
@@ -244,7 +244,7 @@ export function NavLinks() {
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
   const avatarUrl = profile?.avatar_url || "";
-  const roleText = t.admin.roleLabels[role];
+  const roleText = profile ? t.admin.roleLabels[role] : "";
 
   async function logOut() {
     await signOut();
@@ -344,15 +344,22 @@ export function NavLinks() {
         </button>
 
         {open && (
+          <>
+          <button
+            type="button"
+            aria-label={t.nav.menu}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-[950] bg-[rgba(26,34,32,0.12)] backdrop-blur-[1px] md:hidden"
+          />
           <div
             id={menuId}
             role="menu"
             aria-label={user ? t.nav.openAccountMenu : t.nav.menu}
-            className="absolute right-0 top-12 z-50 max-h-[calc(100vh-5rem)] w-[min(22rem,calc(100vw-1.5rem))] origin-top-right overflow-y-auto rounded-[1.5rem] border border-[rgba(40,80,60,0.12)] bg-[rgba(255,255,248,0.96)] p-2.5 shadow-[0_28px_90px_rgba(26,34,32,0.16)] backdrop-blur-2xl motion-safe:animate-[menuIn_180ms_ease-out]"
+            className="fixed right-3 top-[4.5rem] z-[1000] max-h-[calc(100vh-5.5rem)] w-[min(92vw,380px)] origin-top-right overflow-y-auto rounded-[1.5rem] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-2.5 shadow-[0_28px_90px_rgba(26,34,32,0.20)] md:absolute md:right-0 md:top-12 md:max-h-[calc(100vh-6rem)] md:w-[22rem] md:bg-[rgba(255,255,248,0.98)] md:shadow-[0_24px_80px_rgba(26,34,32,0.16)] md:backdrop-blur-2xl motion-safe:animate-[menuIn_180ms_ease-out]"
           >
             {user ? (
               <>
-                <div className="mb-3 rounded-[1.15rem] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.9),rgba(232,246,241,0.62))] p-3.5">
+                <div className="mb-2.5 rounded-[1.15rem] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.68))] p-3.5">
                   <div className="flex items-center gap-3">
                     <Avatar
                       avatarUrl={avatarUrl}
@@ -368,14 +375,16 @@ export function NavLinks() {
                       <p className="mt-0.5 truncate text-xs text-[var(--foreground-subtle)]">
                         {user.email}
                       </p>
-                      <span className="mt-2 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                        {roleText}
-                      </span>
+                      {roleText && (
+                        <span className="mt-2 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                          {roleText}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   <MenuSection title={t.menu.sections.workspace}>
                     {workspaceLinks.map((link) => (
                       <CommandLink
@@ -429,15 +438,15 @@ export function NavLinks() {
                       type="button"
                       role="menuitem"
                       onClick={() => void logOut()}
-                      className="group flex min-h-12 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                      className="group flex min-h-[52px] w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
                     >
                       <span
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground-subtle)] group-hover:text-[var(--brand-teal-deep)]"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border)] bg-[rgba(255,255,255,0.45)] text-[var(--foreground-subtle)] group-hover:text-[var(--brand-teal-deep)]"
                         aria-hidden="true"
                       >
-                        <LogOut size={16} strokeWidth={1.8} />
+                        <LogOut size={15} strokeWidth={1.8} />
                       </span>
-                      <span className="text-sm font-semibold">{t.nav.logout}</span>
+                      <span className="text-[15px] font-semibold">{t.nav.logout}</span>
                     </button>
                   </MenuSection>
                 </div>
@@ -477,6 +486,7 @@ export function NavLinks() {
               </>
             )}
           </div>
+          </>
         )}
       </div>
     </div>
