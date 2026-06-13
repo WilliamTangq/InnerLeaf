@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminConsoleHeader } from "../../components/admin-console-header";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
 import {
   Card,
-  LinkButton,
-  PageActions,
   PageHeader,
   PageShell,
   SectionLabel,
@@ -119,19 +118,11 @@ function AdminFeedbackContent() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
+      <AdminConsoleHeader />
+
       <PageHeader compact eyebrow={t.admin.title} title={t.admin.feedbackTitle}>
         {t.admin.feedbackPurpose}
       </PageHeader>
-
-      <PageActions>
-        <LinkButton href="/admin">{t.admin.overview}</LinkButton>
-        <LinkButton href="/admin/users" variant="secondary">
-          {t.admin.users}
-        </LinkButton>
-        <LinkButton href="/admin/system" variant="ghost">
-          {t.admin.system}
-        </LinkButton>
-      </PageActions>
 
       {error && <StatusCard tone="error">{error}</StatusCard>}
 

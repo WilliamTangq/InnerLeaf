@@ -2,13 +2,12 @@
 
 import { MessageSquare, ShieldCheck, Users, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
+import { AdminConsoleHeader } from "../components/admin-console-header";
 import { RequireAdmin } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
-  LinkButton,
-  PageActions,
   PageHeader,
   PageShell,
   StatChip,
@@ -70,19 +69,11 @@ function AdminOverviewContent() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
+      <AdminConsoleHeader />
+
       <PageHeader compact eyebrow={t.admin.title} title={t.admin.overview}>
         {t.admin.usersPurpose}
       </PageHeader>
-
-      <PageActions>
-        <LinkButton href="/admin/users">{t.admin.users}</LinkButton>
-        <LinkButton href="/admin/feedback" variant="secondary">
-          {t.admin.feedback}
-        </LinkButton>
-        <LinkButton href="/admin/system" variant="ghost">
-          {t.admin.system}
-        </LinkButton>
-      </PageActions>
 
       {error && <StatusCard tone="error">{error}</StatusCard>}
 

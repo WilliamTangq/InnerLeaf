@@ -10,14 +10,13 @@ function optionalText(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const { isAdmin, user: currentUser } = await requireAdmin(request);
+    const admin = await requireAdmin(request);
 
-    if (!isAdmin || !currentUser) {
-      return NextResponse.json(
-        { error: "Admin access required." },
-        { status: 403 }
-      );
+    if (!admin.isAdmin) {
+      return NextResponse.json({ error: admin.error }, { status: 403 });
     }
+
+    const currentUser = admin.user;
 
     if (!supabaseAdmin) {
       return NextResponse.json(

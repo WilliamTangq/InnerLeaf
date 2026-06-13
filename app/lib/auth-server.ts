@@ -31,6 +31,25 @@ export async function getUserFromRequest(request: Request): Promise<User | null>
 }
 
 export type ServerUserRole = "user" | "admin" | "tester";
+type ServerProfile = {
+  id: string;
+  email: string | null;
+  role: ServerUserRole;
+  created_at: string | null;
+};
+type AdminCheckResult =
+  | {
+      user: User;
+      profile: ServerProfile | null;
+      isAdmin: true;
+      error: null;
+    }
+  | {
+      user: User | null;
+      profile: ServerProfile | null;
+      isAdmin: false;
+      error: string;
+    };
 
 export async function getProfileForUser(userId: string) {
   if (!supabaseAdmin) {
@@ -48,12 +67,7 @@ export async function getProfileForUser(userId: string) {
     return null;
   }
 
-  return data as {
-    id: string;
-    email: string | null;
-    role: ServerUserRole;
-    created_at: string | null;
-  } | null;
+  return data as ServerProfile | null;
 }
 
 export async function getAdminFromRequest(request: Request) {
@@ -72,7 +86,7 @@ export async function getAdminFromRequest(request: Request) {
   };
 }
 
-export async function requireAdmin(request: Request) {
+export async function requireAdmin(request: Request): Promise<AdminCheckResult> {
   const { user, profile, isAdmin } = await getAdminFromRequest(request);
 
   if (!user || !isAdmin) {

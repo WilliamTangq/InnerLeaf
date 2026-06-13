@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminFromRequest, supabaseAdmin } from "../../../lib/auth-server";
+import { requireAdmin, supabaseAdmin } from "../../../lib/auth-server";
 
 function countByUser(rows: Array<{ user_id?: string | null }> | null) {
   const counts = new Map<string, number>();
@@ -33,13 +33,10 @@ function latestByUser(rows: Array<{ user_id?: string | null; created_at?: string
 
 export async function GET(request: Request) {
   try {
-    const { isAdmin } = await getAdminFromRequest(request);
+    const admin = await requireAdmin(request);
 
-    if (!isAdmin) {
-      return NextResponse.json(
-        { error: "Admin access required." },
-        { status: 403 }
-      );
+    if (!admin.isAdmin) {
+      return NextResponse.json({ error: admin.error }, { status: 403 });
     }
 
     if (!supabaseAdmin) {

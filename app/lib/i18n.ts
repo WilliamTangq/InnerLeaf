@@ -680,6 +680,10 @@ export const translations = {
       users: "Users",
       feedback: "Feedback",
       system: "System Settings",
+      secureManagement: "Secure management",
+      consoleTitle: "Admin management console",
+      consoleBody:
+        "Manage users, roles, feedback, and system status. Private reflection content is not shown by default.",
       accessTitle: "Admin access required",
       accessBody: "This area is only available to InnerLeaf administrators.",
       totalUsers: "Total users",
@@ -691,6 +695,8 @@ export const translations = {
       usersTitle: "User management",
       usersPurpose:
         "Manage testing roles without exposing private reflection content.",
+      userManagementScope:
+        "Admins can edit account details and roles for all users. Normal users can only manage their own account.",
       feedbackTitle: "Feedback review",
       feedbackPurpose:
         "Review MVP feedback. Private reflection content is not shown here.",
@@ -1417,6 +1423,10 @@ export const translations = {
       users: "用户",
       feedback: "反馈",
       system: "系统设置",
+      secureManagement: "安全管理",
+      consoleTitle: "管理员管理后台",
+      consoleBody:
+        "管理用户、角色、反馈和系统状态。默认不展示用户的私人反思内容。",
       accessTitle: "需要管理员权限",
       accessBody: "此区域仅限 InnerLeaf 管理员访问。",
       totalUsers: "用户总数",
@@ -1427,6 +1437,8 @@ export const translations = {
       feedback7d: "近 7 天反馈",
       usersTitle: "用户管理",
       usersPurpose: "管理测试角色，不展示私人反思内容。",
+      userManagementScope:
+        "管理员可以编辑所有用户的账号信息和角色。普通用户只能管理自己的账号。",
       feedbackTitle: "反馈查看",
       feedbackPurpose: "查看 MVP 反馈。这里不会显示私人反思内容。",
       email: "邮箱",

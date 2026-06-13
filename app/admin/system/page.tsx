@@ -1,12 +1,11 @@
 "use client";
 
+import { AdminConsoleHeader } from "../../components/admin-console-header";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
 import {
   Card,
-  LinkButton,
-  PageActions,
   PageHeader,
   PageShell,
   StatusCard,
@@ -32,19 +31,11 @@ function SystemContent() {
 
   return (
     <PageShell maxWidth="max-w-4xl">
+      <AdminConsoleHeader />
+
       <PageHeader compact eyebrow={t.admin.title} title={t.admin.systemTitle}>
         {t.admin.systemPurpose}
       </PageHeader>
-
-      <PageActions>
-        <LinkButton href="/admin">{t.admin.overview}</LinkButton>
-        <LinkButton href="/admin/users" variant="secondary">
-          {t.admin.users}
-        </LinkButton>
-        <LinkButton href="/admin/feedback" variant="ghost">
-          {t.admin.feedback}
-        </LinkButton>
-      </PageActions>
 
       <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
 

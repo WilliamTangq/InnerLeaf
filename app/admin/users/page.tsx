@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { AdminConsoleHeader } from "../../components/admin-console-header";
 import { Avatar } from "../../components/avatar";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
@@ -9,8 +10,6 @@ import { useLanguage } from "../../components/language-provider";
 import {
   Badge,
   Card,
-  LinkButton,
-  PageActions,
   PageHeader,
   PageShell,
   StatusCard,
@@ -216,21 +215,14 @@ function AdminUsersContent() {
 
   return (
     <PageShell maxWidth="max-w-6xl">
-      <PageHeader compact eyebrow={t.admin.title} title={t.admin.usersTitle}>
-                {t.admin.usersPurpose}
-              </PageHeader>
+      <AdminConsoleHeader />
 
-      <PageActions>
-        <LinkButton href="/admin">{t.admin.overview}</LinkButton>
-        <LinkButton href="/admin/feedback" variant="secondary">
-          {t.admin.feedback}
-        </LinkButton>
-        <LinkButton href="/admin/system" variant="ghost">
-          {t.admin.system}
-        </LinkButton>
-      </PageActions>
+      <PageHeader compact eyebrow={t.admin.title} title={t.admin.usersTitle}>
+        {t.admin.usersPurpose}
+      </PageHeader>
 
       <div className="mb-5 space-y-3">
+        <StatusCard tone="neutral">{t.admin.userManagementScope}</StatusCard>
         <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
         {message && <StatusCard tone="success">{message}</StatusCard>}
         {error && <StatusCard tone="error">{error}</StatusCard>}

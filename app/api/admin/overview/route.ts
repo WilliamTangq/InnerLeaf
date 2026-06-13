@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAdminFromRequest, supabaseAdmin } from "../../../lib/auth-server";
+import { requireAdmin, supabaseAdmin } from "../../../lib/auth-server";
 
 async function tableCount(
   table: "profiles" | "feedback" | "reflections",
@@ -29,13 +29,10 @@ async function tableCount(
 
 export async function GET(request: Request) {
   try {
-    const { isAdmin } = await getAdminFromRequest(request);
+    const admin = await requireAdmin(request);
 
-    if (!isAdmin) {
-      return NextResponse.json(
-        { error: "Admin access required." },
-        { status: 403 }
-      );
+    if (!admin.isAdmin) {
+      return NextResponse.json({ error: admin.error }, { status: 403 });
     }
 
     if (!supabaseAdmin) {
