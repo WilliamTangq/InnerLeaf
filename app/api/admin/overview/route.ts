@@ -27,6 +27,24 @@ async function tableCount(
   return count ?? 0;
 }
 
+async function roleCount(role: "user" | "tester" | "admin") {
+  if (!supabaseAdmin) {
+    return 0;
+  }
+
+  const { count, error } = await supabaseAdmin
+    .from("profiles")
+    .select("*", { count: "exact", head: true })
+    .eq("role", role);
+
+  if (error) {
+    console.error(`Supabase admin role count error for ${role}:`, error);
+    return 0;
+  }
+
+  return count ?? 0;
+}
+
 export async function GET(request: Request) {
   try {
     const admin = await requireAdmin(request);
@@ -47,6 +65,8 @@ export async function GET(request: Request) {
 
     const [
       totalUsers,
+      totalTesters,
+      totalAdmins,
       totalFeedback,
       totalReflections,
       usersLast7Days,
@@ -54,6 +74,8 @@ export async function GET(request: Request) {
       feedbackLast7Days,
     ] = await Promise.all([
       tableCount("profiles"),
+      roleCount("tester"),
+      roleCount("admin"),
       tableCount("feedback"),
       tableCount("reflections"),
       tableCount("profiles", sevenDaysAgo),
@@ -63,6 +85,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       totalUsers,
+      totalTesters,
+      totalAdmins,
       totalFeedback,
       totalReflections,
       usersLast7Days,

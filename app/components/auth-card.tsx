@@ -8,8 +8,90 @@ import { useLanguage } from "./language-provider";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
 
+const userNextPaths = ["/app", "/quick", "/guided", "/history", "/summary", "/account"];
+
 function nextPath(value: string | null) {
-  return value?.startsWith("/") ? value : "/app";
+  if (!value || !value.startsWith("/") || value.startsWith("//")) {
+    return null;
+  }
+
+  return value;
+}
+
+function isAllowedNext(path: string | null, isAdmin: boolean) {
+  if (!path) {
+    return false;
+  }
+
+  if (userNextPaths.some((item) => path === item || path.startsWith(`${item}/`))) {
+    return true;
+  }
+
+  return isAdmin && (path === "/admin" || path.startsWith("/admin/"));
+}
+
+async function roleForCurrentSession() {
+  if (!supabaseBrowser) {
+    return "user";
+  }
+
+  const { data: sessionData } = await supabaseBrowser.auth.getSession();
+  const user = sessionData.session?.user;
+
+  if (!user) {
+    return "user";
+  }
+
+  const { data } = await supabaseBrowser
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (data?.role === "admin" || data?.role === "tester") {
+    return data.role;
+  }
+
+  if (!data?.role && sessionData.session?.access_token) {
+    await fetch("/api/account/update-profile", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${sessionData.session.access_token}`,
+      },
+      body: JSON.stringify({
+        display_name: user.email?.split("@")[0] || "InnerLeaf user",
+        avatar_url: null,
+        avatar_path: null,
+      }),
+    });
+
+    const { data: ensuredProfile } = await supabaseBrowser
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (
+      ensuredProfile?.role === "admin" ||
+      ensuredProfile?.role === "tester"
+    ) {
+      return ensuredProfile.role;
+    }
+  }
+
+  return "user";
+}
+
+async function roleAwareRedirect(next: string | null): Promise<string> {
+  const role = await roleForCurrentSession();
+  const isAdmin = role === "admin";
+
+  if (isAllowedNext(next, isAdmin)) {
+    return next as string;
+  }
+
+  return isAdmin ? "/admin" : "/app";
 }
 
 function emailLooksValid(value: string) {
@@ -125,7 +207,7 @@ export function LoginForm() {
 
     supabaseBrowser.auth.getSession().then(({ data }) => {
       if (data.session) {
-        router.replace(next);
+        roleAwareRedirect(next).then((target) => router.replace(target));
       }
     });
   }, [next, router]);
@@ -162,7 +244,7 @@ export function LoginForm() {
       return;
     }
 
-    router.push(next);
+    router.push(await roleAwareRedirect(next));
     router.refresh();
   }
 
@@ -274,7 +356,7 @@ export function RegisterForm() {
     }
 
     if (data.session) {
-      router.push(next);
+      router.push(await roleAwareRedirect(next));
       router.refresh();
       return;
     }

@@ -1,21 +1,17 @@
 "use client";
 
-import { MessageSquare, ShieldCheck, Users, FileText } from "lucide-react";
+import { FileText, Inbox, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
-import { AdminConsoleHeader } from "../components/admin-console-header";
+import { AdminMetricCard, AdminShell } from "../components/admin-shell";
 import { RequireAdmin } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import {
-  Card,
-  PageHeader,
-  PageShell,
-  StatChip,
-  StatusCard,
-} from "../components/ui";
+import { Card, StatusCard } from "../components/ui";
 
 type Overview = {
   totalUsers: number;
+  totalTesters: number;
+  totalAdmins: number;
   totalFeedback: number;
   totalReflections: number;
   usersLast7Days: number;
@@ -23,7 +19,13 @@ type Overview = {
   feedbackLast7Days: number;
 };
 
-const icons = [Users, MessageSquare, FileText, ShieldCheck, FileText, MessageSquare] as const;
+const statusItems = [
+  "authMode",
+  "googleLogin",
+  "reflectionAccess",
+  "privacyMode",
+  "demoMode",
+] as const;
 
 function AdminOverviewContent() {
   const { session } = useAuth();
@@ -58,50 +60,73 @@ function AdminOverviewContent() {
 
   const stats = overview
     ? [
-        [t.admin.totalUsers, overview.totalUsers],
-        [t.admin.totalFeedback, overview.totalFeedback],
-        [t.admin.totalReflections, overview.totalReflections],
-        [t.admin.users7d, overview.usersLast7Days],
-        [t.admin.reflections7d, overview.reflectionsLast7Days],
-        [t.admin.feedback7d, overview.feedbackLast7Days],
+        { label: t.admin.totalUsers, value: overview.totalUsers, icon: Users },
+        { label: t.admin.totalTesters, value: overview.totalTesters, icon: UserCheck },
+        { label: t.admin.totalAdmins, value: overview.totalAdmins, icon: ShieldCheck },
+        { label: t.admin.totalFeedback, value: overview.totalFeedback, icon: Inbox },
+        { label: t.admin.totalReflections, value: overview.totalReflections, icon: FileText },
+        { label: t.admin.users7d, value: overview.usersLast7Days, icon: Users },
+        { label: t.admin.reflections7d, value: overview.reflectionsLast7Days, icon: FileText },
+        { label: t.admin.feedback7d, value: overview.feedbackLast7Days, icon: Inbox },
       ]
     : [];
 
   return (
-    <PageShell maxWidth="max-w-5xl">
-      <AdminConsoleHeader />
-
-      <PageHeader compact eyebrow={t.admin.title} title={t.admin.overview}>
-        {t.admin.usersPurpose}
-      </PageHeader>
-
+    <AdminShell title={t.admin.overview} purpose={t.admin.overviewPurpose}>
       {error && <StatusCard tone="error">{error}</StatusCard>}
 
       {overview && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {stats.map(([label, value], index) => {
-            const Icon = icons[index];
-
-            return (
-              <Card key={label} className="hover:translate-y-0">
-                <Icon
-                  aria-hidden="true"
-                  size={18}
-                  strokeWidth={1.8}
-                  className="mb-4 text-[var(--brand-teal-deep)]"
-                />
-                <StatChip label={String(label)} value={String(value)} />
-              </Card>
-            );
-          })}
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {stats.map(({ label, value, icon }) => (
+            <AdminMetricCard
+              key={label}
+              label={label}
+              value={value}
+              icon={icon}
+            />
+          ))}
         </div>
       )}
 
-      <div className="mt-6 space-y-3">
-        <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
+      <div className="mt-6 grid gap-3 lg:grid-cols-2">
+        <Card className="hover:translate-y-0">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+            {t.admin.systemTitle}
+          </h2>
+          <div className="mt-4 grid gap-3">
+            {statusItems.map((key) => (
+              <div
+                key={key}
+                className="flex items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2"
+              >
+                <span className="text-sm font-medium text-[var(--foreground)]">
+                  {t.admin[key]}
+                </span>
+                <span className="text-sm text-[var(--foreground-muted)]">
+                  {key === "googleLogin"
+                    ? t.admin.disabled
+                    : key === "authMode"
+                      ? "Email/password"
+                      : key === "reflectionAccess"
+                        ? t.admin.loginRequired
+                        : key === "privacyMode"
+                          ? t.admin.userSpecificHistory
+                          : t.admin.staticDemoData}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+        <div className="space-y-3">
+          <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
+          <StatusCard tone="neutral">{t.admin.turnstileTodo}</StatusCard>
+        </div>
+      </div>
+
+      <div className="mt-6">
         <StatusCard tone="neutral">{t.admin.deleteDisabled}</StatusCard>
       </div>
-    </PageShell>
+    </AdminShell>
   );
 }
 

@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminConsoleHeader } from "../../components/admin-console-header";
+import { AdminShell } from "../../components/admin-shell";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
 import {
   Card,
-  PageHeader,
-  PageShell,
   SectionLabel,
   StatusCard,
 } from "../../components/ui";
@@ -19,6 +17,8 @@ type FeedbackItem = {
   email: string | null;
   mode_tried: string | null;
   ease_of_start: string | null;
+  reflection_length: string | null;
+  clarity_help: string | null;
   would_use_again: string | null;
   alternative_tool: string | null;
   saving_blocker: string | null;
@@ -101,6 +101,8 @@ function AdminFeedbackContent() {
       item.email,
       item.mode_tried,
       item.ease_of_start,
+      item.reflection_length,
+      item.clarity_help,
       item.would_use_again,
       item.alternative_tool,
       item.saving_blocker,
@@ -117,13 +119,7 @@ function AdminFeedbackContent() {
   });
 
   return (
-    <PageShell maxWidth="max-w-5xl">
-      <AdminConsoleHeader />
-
-      <PageHeader compact eyebrow={t.admin.title} title={t.admin.feedbackTitle}>
-        {t.admin.feedbackPurpose}
-      </PageHeader>
-
+    <AdminShell title={t.admin.feedbackTitle} purpose={t.admin.feedbackPurpose}>
       {error && <StatusCard tone="error">{error}</StatusCard>}
 
       <div className="mb-5 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
@@ -180,6 +176,8 @@ function AdminFeedbackContent() {
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 <Field label={t.admin.modeTried} value={item.mode_tried} />
                 <Field label={t.admin.ease} value={item.ease_of_start} />
+                <Field label={t.admin.reflectionLength} value={item.reflection_length} />
+                <Field label={t.admin.clarityHelp} value={item.clarity_help} />
                 <Field label={t.admin.wouldUse} value={item.would_use_again} />
                 <Field label={t.admin.alternative} value={item.alternative_tool} />
                 <Field label={t.admin.blocker} value={item.saving_blocker} />
@@ -196,7 +194,7 @@ function AdminFeedbackContent() {
           ))}
         </div>
       )}
-    </PageShell>
+    </AdminShell>
   );
 }
 

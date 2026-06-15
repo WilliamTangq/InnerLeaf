@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { AdminConsoleHeader } from "../../components/admin-console-header";
+import { AdminShell } from "../../components/admin-shell";
 import { Avatar } from "../../components/avatar";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
@@ -10,8 +10,6 @@ import { useLanguage } from "../../components/language-provider";
 import {
   Badge,
   Card,
-  PageHeader,
-  PageShell,
   StatusCard,
 } from "../../components/ui";
 
@@ -107,14 +105,13 @@ function AdminUsersContent() {
 
     try {
       const current = users.find((item) => item.id === userId);
-      const response = await fetch("/api/admin/update-user", {
-        method: "POST",
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          userId,
           role: updates.role ?? current?.role ?? "user",
           display_name: updates.display_name ?? current?.display_name ?? "",
           avatar_url:
@@ -179,13 +176,11 @@ function AdminUsersContent() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/admin/delete-user", {
-        method: "POST",
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ userId }),
       });
       const data = await response.json();
 
@@ -214,13 +209,7 @@ function AdminUsersContent() {
   });
 
   return (
-    <PageShell maxWidth="max-w-6xl">
-      <AdminConsoleHeader />
-
-      <PageHeader compact eyebrow={t.admin.title} title={t.admin.usersTitle}>
-        {t.admin.usersPurpose}
-      </PageHeader>
-
+    <AdminShell title={t.admin.usersTitle} purpose={t.admin.usersPurpose}>
       <div className="mb-5 space-y-3">
         <StatusCard tone="neutral">{t.admin.userManagementScope}</StatusCard>
         <StatusCard tone="neutral">{t.admin.privateNote}</StatusCard>
@@ -490,7 +479,7 @@ function AdminUsersContent() {
           </Card>
         </div>
       )}
-    </PageShell>
+    </AdminShell>
   );
 }
 
