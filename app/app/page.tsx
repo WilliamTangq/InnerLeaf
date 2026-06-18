@@ -5,11 +5,11 @@ import { useEffect, useState } from "react";
 import { RequireAuth } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { UserShell } from "../components/user-shell";
 import {
   Card,
   LinkButton,
   PageHeader,
-  PageShell,
   SectionLabel,
   StatusCard,
 } from "../components/ui";
@@ -78,7 +78,7 @@ function WorkspaceContent() {
   }, [session?.access_token]);
 
   return (
-    <PageShell maxWidth="max-w-5xl">
+    <UserShell maxWidth="max-w-5xl">
       <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
         {t.app.subtitle}
       </PageHeader>
@@ -161,7 +161,7 @@ function WorkspaceContent() {
               {t.app.noRecent}
             </p>
           )}
-          <LinkButton href="/history" variant="secondary" size="sm" className="mt-4">
+          <LinkButton href="/dashboard/history" variant="secondary" size="sm" className="mt-4">
             {t.common.viewHistory}
           </LinkButton>
         </Card>
@@ -170,7 +170,7 @@ function WorkspaceContent() {
           <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
             {t.app.summaryTeaser}
           </p>
-          <LinkButton href="/summary" variant="secondary" size="sm" className="mt-4">
+          <LinkButton href="/dashboard/summary" variant="secondary" size="sm" className="mt-4">
             {t.common.viewPatterns}
           </LinkButton>
         </Card>
@@ -179,7 +179,7 @@ function WorkspaceContent() {
       <p className="mt-6 text-sm text-[var(--foreground-subtle)]">
         {user?.email || profile?.email}
       </p>
-    </PageShell>
+    </UserShell>
   );
 }
 

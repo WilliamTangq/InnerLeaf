@@ -115,7 +115,7 @@ export default function FeedbackPage() {
         </PageHeader>
         <PageActions>
           <LinkButton href="/">{t.feedback.backHome}</LinkButton>
-          <LinkButton href="/quick" variant="secondary">
+          <LinkButton href="/dashboard/quick" variant="secondary">
             {t.common.newReflection}
           </LinkButton>
         </PageActions>

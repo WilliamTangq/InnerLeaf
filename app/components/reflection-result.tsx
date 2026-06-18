@@ -387,13 +387,13 @@ export function ReflectionResultCard({
 
         {showActions && (
           <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">
-            <LinkButton href="/quick" size="sm">
+            <LinkButton href="/dashboard/quick" size="sm">
               {labels.newReflection}
             </LinkButton>
-            <LinkButton href="/history" variant="secondary" size="sm">
+            <LinkButton href="/dashboard/history" variant="secondary" size="sm">
               {t.common.viewHistory}
             </LinkButton>
-            <LinkButton href="/summary" variant="ghost" size="sm">
+            <LinkButton href="/dashboard/summary" variant="ghost" size="sm">
               {labels.seePatterns}
             </LinkButton>
           </PageActions>

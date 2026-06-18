@@ -13,6 +13,96 @@ async function paramsId(context: { params: Promise<{ id: string }> }) {
   return params.id;
 }
 
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const admin = await requireAdmin(request);
+
+    if (!admin.isAdmin) {
+      return NextResponse.json({ error: admin.error }, { status: 403 });
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: "Admin data is unavailable right now." },
+        { status: 500 }
+      );
+    }
+
+    const userId = await paramsId(context);
+    const [profileResult, reflectionsResult, feedbackResult, authUserResult] =
+      await Promise.all([
+        supabaseAdmin
+          .from("profiles")
+          .select("id, email, display_name, avatar_url, avatar_path, role, created_at")
+          .eq("id", userId)
+          .maybeSingle(),
+        supabaseAdmin
+          .from("reflections")
+          .select("created_at")
+          .eq("user_id", userId),
+        supabaseAdmin
+          .from("feedback")
+          .select("created_at")
+          .eq("user_id", userId),
+        supabaseAdmin.auth.admin.getUserById(userId),
+      ]);
+
+    if (profileResult.error || !profileResult.data) {
+      console.error("Supabase admin GET user profile error:", profileResult.error);
+      return NextResponse.json(
+        { error: "User could not be loaded." },
+        { status: 404 }
+      );
+    }
+
+    if (reflectionsResult.error) {
+      console.error("Supabase admin GET user reflection count error:", reflectionsResult.error);
+    }
+
+    if (feedbackResult.error) {
+      console.error("Supabase admin GET user feedback count error:", feedbackResult.error);
+    }
+
+    if (authUserResult.error) {
+      console.error("Supabase admin GET auth user error:", authUserResult.error);
+    }
+
+    const latestReflection = (reflectionsResult.data ?? [])
+      .map((item) => item.created_at)
+      .filter(Boolean)
+      .sort()
+      .at(-1) ?? null;
+    const latestFeedback = (feedbackResult.data ?? [])
+      .map((item) => item.created_at)
+      .filter(Boolean)
+      .sort()
+      .at(-1) ?? null;
+    const authUser = authUserResult.data?.user ?? null;
+
+    return NextResponse.json({
+      user: {
+        ...profileResult.data,
+        created_at: authUser?.created_at ?? profileResult.data.created_at,
+        last_sign_in_at: authUser?.last_sign_in_at ?? null,
+        email_confirmed_at: authUser?.email_confirmed_at ?? null,
+        reflection_count: reflectionsResult.data?.length ?? 0,
+        feedback_count: feedbackResult.data?.length ?? 0,
+        last_reflection_at: latestReflection,
+        last_feedback_at: latestFeedback,
+      },
+    });
+  } catch (error) {
+    console.error("Admin GET user API error:", error);
+    return NextResponse.json(
+      { error: "User could not be loaded." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(
   request: Request,
   context: { params: Promise<{ id: string }> }

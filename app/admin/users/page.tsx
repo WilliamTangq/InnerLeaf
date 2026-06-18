@@ -312,6 +312,12 @@ function AdminUsersContent() {
                   </p>
                 </div>
                 <div className="flex flex-wrap justify-start gap-2 lg:justify-end">
+                  <a
+                    href={`/admin/users/${user.id}`}
+                    className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+                  >
+                    {t.admin.viewUser}
+                  </a>
                   <button
                     type="button"
                     onClick={() => openEdit(user)}

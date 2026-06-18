@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import {
-  Archive,
   ChevronDown,
   LayoutDashboard,
-  ListChecks,
   LogOut,
   Menu,
   MessageSquare,
   PenLine,
-  Settings,
   Shield,
   ShieldCheck,
   Sparkles,
-  TrendingUp,
   UserRound,
-  Users,
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
@@ -42,42 +37,6 @@ const publicMenuLinks = [
   { href: "/faq", key: "faq", icon: MessageSquare },
   { href: "/privacy", key: "privacy", icon: Shield },
   { href: "/feedback", key: "feedback", icon: MessageSquare },
-] as const;
-
-const workspaceLinks = [
-  {
-    href: "/app",
-    label: "workspace",
-    desc: "workspace",
-    icon: LayoutDashboard,
-  },
-  { href: "/quick", label: "quick", desc: "quick", icon: Sparkles },
-  { href: "/guided", label: "guided", desc: "guided", icon: ListChecks },
-  { href: "/history", label: "history", desc: "history", icon: Archive },
-  { href: "/summary", label: "summary", desc: "summary", icon: TrendingUp },
-] as const;
-
-const accountLinks = [
-  { href: "/account", label: "account", desc: "account", icon: UserRound },
-  { href: "/feedback", label: "feedback", desc: "feedback", icon: MessageSquare },
-  { href: "/privacy", label: "privacy", desc: "privacy", icon: Shield },
-] as const;
-
-const adminLinks = [
-  {
-    href: "/admin",
-    label: "overview",
-    desc: "adminOverview",
-    icon: ShieldCheck,
-  },
-  { href: "/admin/users", label: "users", desc: "adminUsers", icon: Users },
-  {
-    href: "/admin/feedback",
-    label: "feedback",
-    desc: "adminFeedback",
-    icon: MessageSquare,
-  },
-  { href: "/admin/system", label: "system", desc: "adminSystem", icon: Settings },
 ] as const;
 
 type IconType = ComponentType<{
@@ -271,49 +230,38 @@ function AccountDrawerPortal({
         </div>
 
         <div className="space-y-3">
-          <MenuSection title={t.menu.sections.workspace}>
-            {workspaceLinks.map((link) => (
-              <CommandLink
-                key={link.href}
-                href={link.href}
-                icon={link.icon}
-                active={isActive(pathname, link.href)}
-                label={t.nav[link.label]}
-                description={t.menu.descriptions[link.desc]}
-                onClick={close}
-              />
-            ))}
-          </MenuSection>
-
           <MenuSection title={t.menu.sections.account}>
-            {accountLinks.map((link) => (
-              <CommandLink
-                key={link.href}
-                href={link.href}
-                icon={link.icon}
-                active={isActive(pathname, link.href)}
-                label={
-                  link.label === "account" ? t.account.settings : t.nav[link.label]
-                }
-                description={t.menu.descriptions[link.desc]}
-                onClick={close}
-              />
-            ))}
+            <CommandLink
+              href={admin ? "/admin/account" : "/dashboard/account"}
+              icon={UserRound}
+              active={isActive(
+                pathname,
+                admin ? "/admin/account" : "/dashboard/account"
+              )}
+              label={t.account.settings}
+              description={t.menu.descriptions.account}
+              onClick={close}
+            />
           </MenuSection>
 
           {admin && (
             <MenuSection title={t.menu.sections.admin}>
-              {adminLinks.map((link) => (
-                <CommandLink
-                  key={link.href}
-                  href={link.href}
-                  icon={link.icon}
-                  active={isActive(pathname, link.href)}
-                  label={t.admin[link.label]}
-                  description={t.menu.descriptions[link.desc]}
-                  onClick={close}
-                />
-              ))}
+              <CommandLink
+                href="/admin"
+                icon={ShieldCheck}
+                active={isActive(pathname, "/admin")}
+                label={t.app.openAdmin}
+                description={t.menu.descriptions.adminOverview}
+                onClick={close}
+              />
+              <CommandLink
+                href="/dashboard"
+                icon={LayoutDashboard}
+                active={isActive(pathname, "/dashboard")}
+                label={t.nav.workspace}
+                description={t.menu.descriptions.workspace}
+                onClick={close}
+              />
             </MenuSection>
           )}
 
@@ -376,7 +324,7 @@ export function NavLinks() {
 
       {user && (
         <Link
-          href="/app"
+          href="/dashboard"
           className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
         >
           {t.nav.workspace}

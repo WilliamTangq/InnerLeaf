@@ -6,11 +6,11 @@ import {
   LinkButton,
   PageActions,
   PageHeader,
-  PageShell,
   StatusCard,
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { UserShell } from "../components/user-shell";
 import { ReflectionCards } from "./reflection-cards";
 import type { Reflection } from "./page";
 
@@ -56,14 +56,14 @@ export function HistoryContent() {
   }, [authLoading, session?.access_token]);
 
   return (
-    <PageShell maxWidth="max-w-4xl">
+    <UserShell maxWidth="max-w-4xl">
       <PageHeader compact eyebrow={t.common.revisit} title={t.history.title}>
         {t.history.purpose}
       </PageHeader>
 
       <PageActions className="mb-6">
-        <LinkButton href="/quick">{t.common.startQuick}</LinkButton>
-        <LinkButton href="/summary" variant="secondary">
+        <LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>
+        <LinkButton href="/dashboard/summary" variant="secondary">
           {t.common.viewPatterns}
         </LinkButton>
       </PageActions>
@@ -104,10 +104,10 @@ export function HistoryContent() {
           description={t.history.authBody}
           action={
             <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-              <LinkButton href="/login?next=/history">
+              <LinkButton href="/login?next=/dashboard/history">
                 {t.auth.loginRequired}
               </LinkButton>
-              <LinkButton href="/register?next=/history" variant="secondary">
+              <LinkButton href="/register?next=/dashboard/history" variant="secondary">
                 {t.auth.createAccount}
               </LinkButton>
             </div>
@@ -122,8 +122,8 @@ export function HistoryContent() {
             description={t.history.emptyDescription}
             action={
               <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-                <LinkButton href="/quick">{t.common.startQuick}</LinkButton>
-                <LinkButton href="/guided" variant="secondary">
+                <LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>
+                <LinkButton href="/dashboard/guided" variant="secondary">
                   {t.common.tryGuided}
                 </LinkButton>
               </div>
@@ -138,6 +138,6 @@ export function HistoryContent() {
       {!hasError && loaded && user && reflections.length > 0 && (
         <ReflectionCards reflections={reflections} />
       )}
-    </PageShell>
+    </UserShell>
   );
 }

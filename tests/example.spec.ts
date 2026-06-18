@@ -17,17 +17,27 @@ const routes = [
 ] as const;
 
 const protectedRoutes = [
-  "/app",
-  "/quick",
-  "/guided",
-  "/history",
-  "/summary",
-  "/account",
+  "/dashboard",
+  "/dashboard/quick",
+  "/dashboard/guided",
+  "/dashboard/history",
+  "/dashboard/summary",
+  "/dashboard/account",
   "/admin",
+  "/admin/account",
   "/admin/users",
   "/admin/feedback",
   "/admin/system",
 ] as const;
+
+const compatibilityRoutes = {
+  "/app": "/dashboard",
+  "/quick": "/dashboard/quick",
+  "/guided": "/dashboard/guided",
+  "/history": "/dashboard/history",
+  "/summary": "/dashboard/summary",
+  "/account": "/account",
+} as const;
 
 for (const route of routes) {
   test(`${route.path} renders the primary experience`, async ({ page }) => {
@@ -61,6 +71,29 @@ for (const path of protectedRoutes) {
     if (await loginHeading.isVisible()) {
       await expect(page).toHaveURL(
         new RegExp(`/login\\?next=${encodeURIComponent(path)}`)
+      );
+    }
+  });
+}
+
+for (const [path, next] of Object.entries(compatibilityRoutes)) {
+  test(`${path} redirects through the new dashboard architecture`, async ({ page }) => {
+    await page.goto(path);
+
+    const loginHeading = page.getByRole("heading", {
+      name: "Log in to InnerLeaf",
+      exact: true,
+    });
+    const setupHeading = page.getByRole("heading", {
+      name: "Authentication is not configured in this environment.",
+      exact: true,
+    });
+
+    await expect(loginHeading.or(setupHeading)).toBeVisible();
+
+    if (await loginHeading.isVisible()) {
+      await expect(page).toHaveURL(
+        new RegExp(`/login\\?next=${encodeURIComponent(next)}`)
       );
     }
   });

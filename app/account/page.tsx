@@ -1,19 +1,20 @@
 "use client";
 
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "../lib/supabase-client";
+import { AdminShell } from "../components/admin-shell";
 import { Avatar } from "../components/avatar";
 import { RequireAuth } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { UserShell } from "../components/user-shell";
 import {
   Badge,
   Card,
   LinkButton,
   PageActions,
   PageHeader,
-  PageShell,
   PrimaryButton,
   StatusCard,
 } from "../components/ui";
@@ -32,7 +33,7 @@ function roleLabel(
   return labels[role] || role;
 }
 
-function AccountContent() {
+export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" }) {
   const router = useRouter();
   const { t } = useLanguage();
   const {
@@ -68,7 +69,7 @@ function AccountContent() {
     event.preventDefault();
 
     if (!session?.access_token) {
-      router.push("/login?next=/account");
+      router.push(`/login?next=${shell === "admin" ? "/admin/account" : "/dashboard/account"}`);
       return;
     }
 
@@ -101,7 +102,7 @@ function AccountContent() {
 
   async function saveAvatar(nextUrl: string | null, nextPath: string | null) {
     if (!session?.access_token) {
-      router.push("/login?next=/account");
+      router.push(`/login?next=${shell === "admin" ? "/admin/account" : "/dashboard/account"}`);
       return false;
     }
 
@@ -264,8 +265,8 @@ function AccountContent() {
     router.refresh();
   }
 
-  return (
-    <PageShell maxWidth="max-w-4xl">
+  const content = (
+    <>
       <PageHeader compact eyebrow={t.auth.account} title={t.account.settings}>
         {t.account.purpose}
       </PageHeader>
@@ -481,14 +482,45 @@ function AccountContent() {
           </Card>
         </div>
       </div>
-    </PageShell>
+    </>
+  );
+
+  if (shell === "admin") {
+    return (
+      <AdminShell title={t.account.settings} purpose={t.account.adminAccountBody} maxWidth="max-w-4xl">
+        {content}
+      </AdminShell>
+    );
+  }
+
+  return (
+    <UserShell maxWidth="max-w-4xl">
+      {content}
+    </UserShell>
   );
 }
 
 export default function AccountPage() {
+  const router = useRouter();
+  const { isAdmin, loading, user } = useAuth();
+  const { t } = useLanguage();
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+
+    if (!user) {
+      router.replace(`/login?next=${encodeURIComponent("/account")}`);
+      return;
+    }
+
+    router.replace(isAdmin ? "/admin/account" : "/dashboard/account");
+  }, [isAdmin, loading, router, user]);
+
   return (
     <RequireAuth>
-      <AccountContent />
+      <StatusCard tone="neutral">{t.auth.loadingSession}</StatusCard>
     </RequireAuth>
   );
 }

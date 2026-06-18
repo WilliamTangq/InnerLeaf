@@ -227,7 +227,7 @@ export default function DemoPage() {
             </h2>
           </div>
           <div className="flex shrink-0 flex-col gap-3 sm:items-end">
-            <LinkButton href="/quick" size="lg">
+            <LinkButton href="/dashboard/quick" size="lg">
               {t.demo.tryQuick}
             </LinkButton>
             <LinkButton href="/test" variant="secondary">

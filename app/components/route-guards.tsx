@@ -7,7 +7,7 @@ import { useLanguage } from "./language-provider";
 import { EmptyState, LinkButton, LoadingCard, PageShell } from "./ui";
 
 function loginHref(pathname: string) {
-  return `/login?next=${encodeURIComponent(pathname || "/app")}`;
+  return `/login?next=${encodeURIComponent(pathname || "/dashboard")}`;
 }
 
 export function RequireAuth({ children }: { children: ReactNode }) {
@@ -107,7 +107,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
         <EmptyState
           title={t.admin.accessTitle}
           description={t.admin.accessBody}
-          action={<LinkButton href="/app">{t.app.title}</LinkButton>}
+          action={<LinkButton href="/dashboard">{t.app.title}</LinkButton>}
         />
       </PageShell>
     );

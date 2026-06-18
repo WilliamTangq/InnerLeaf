@@ -8,7 +8,14 @@ import { useLanguage } from "./language-provider";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
 
-const userNextPaths = ["/app", "/quick", "/guided", "/history", "/summary", "/account"];
+const userNextPaths = [
+  "/dashboard",
+  "/dashboard/quick",
+  "/dashboard/guided",
+  "/dashboard/history",
+  "/dashboard/summary",
+  "/dashboard/account",
+];
 
 function nextPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -91,7 +98,7 @@ async function roleAwareRedirect(next: string | null): Promise<string> {
     return next as string;
   }
 
-  return isAdmin ? "/admin" : "/app";
+  return isAdmin ? "/admin" : "/dashboard";
 }
 
 function emailLooksValid(value: string) {

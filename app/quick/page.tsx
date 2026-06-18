@@ -11,12 +11,12 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RequireAuth } from "../components/route-guards";
+import { UserShell } from "../components/user-shell";
 import {
   Card,
   LoadingCard,
   LoadingSpinner,
   PageHeader,
-  PageShell,
   PrimaryButton,
   StatusCard,
   TextareaField,
@@ -38,7 +38,7 @@ function QuickReflectionContent() {
 
   async function handleReflect() {
     if (!session?.access_token) {
-      router.push("/login?next=/quick");
+      router.push("/login?next=/dashboard/quick");
       return;
     }
 
@@ -63,7 +63,7 @@ function QuickReflectionContent() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          router.push("/login?next=/quick");
+          router.push("/login?next=/dashboard/quick");
           return;
         }
         setError(data.error || t.common.aiGeneric);
@@ -82,7 +82,7 @@ function QuickReflectionContent() {
 
   async function saveReflection() {
     if (!session?.access_token) {
-      router.push("/login?next=/quick");
+      router.push("/login?next=/dashboard/quick");
       return;
     }
 
@@ -122,7 +122,7 @@ function QuickReflectionContent() {
   }
 
   return (
-    <PageShell>
+    <UserShell maxWidth="max-w-3xl">
       <PageHeader compact eyebrow={t.common.reflect} title={t.quick.title}>
         {t.quick.purpose}
       </PageHeader>
@@ -158,7 +158,7 @@ function QuickReflectionContent() {
           <p className="text-xs text-[var(--foreground-subtle)]">
             {t.quick.guidedLinkLead}{" "}
             <Link
-              href="/guided"
+              href="/dashboard/guided"
               className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
             >
               {t.common.tryGuided}
@@ -216,7 +216,7 @@ function QuickReflectionContent() {
           )}
         </>
       )}
-    </PageShell>
+    </UserShell>
   );
 }
 

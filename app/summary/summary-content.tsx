@@ -9,11 +9,11 @@ import {
   LinkButton,
   PageActions,
   PageHeader,
-  PageShell,
   StatusCard,
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { UserShell } from "../components/user-shell";
 import { translateNextStepType } from "../lib/i18n";
 
 type SummaryReflection = {
@@ -338,14 +338,14 @@ export function SummaryContent() {
   const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
 
   return (
-    <PageShell maxWidth="max-w-5xl">
+    <UserShell maxWidth="max-w-5xl">
       <PageHeader compact eyebrow={t.common.insights} title={t.summary.title}>
         {t.summary.purpose}
       </PageHeader>
 
       <PageActions className="mb-6">
-        <LinkButton href="/quick">{t.summary.createAnother}</LinkButton>
-        <LinkButton href="/history" variant="secondary">
+        <LinkButton href="/dashboard/quick">{t.summary.createAnother}</LinkButton>
+        <LinkButton href="/dashboard/history" variant="secondary">
           {t.common.viewHistory}
         </LinkButton>
       </PageActions>
@@ -358,10 +358,10 @@ export function SummaryContent() {
           description={t.summary.authBody}
           action={
             <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
-              <LinkButton href="/login?next=/summary">
+              <LinkButton href="/login?next=/dashboard/summary">
                 {t.auth.loginRequired}
               </LinkButton>
-              <LinkButton href="/register?next=/summary" variant="secondary">
+              <LinkButton href="/register?next=/dashboard/summary" variant="secondary">
                 {t.auth.createAccount}
               </LinkButton>
             </div>
@@ -373,7 +373,7 @@ export function SummaryContent() {
         <EmptyState
           title={t.summary.emptyTitle}
           description={`${t.summary.emptyDescription} ${t.summary.emptySubtext}`}
-          action={<LinkButton href="/quick">{t.common.startQuick}</LinkButton>}
+          action={<LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>}
         />
       )}
 
@@ -399,13 +399,13 @@ export function SummaryContent() {
             <HelpfulNextStepsSection items={nextSteps} />
           </div>
           <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton href="/quick">{t.summary.makeClearer}</LinkButton>
-            <LinkButton href="/history" variant="secondary">
+            <LinkButton href="/dashboard/quick">{t.summary.makeClearer}</LinkButton>
+            <LinkButton href="/dashboard/history" variant="secondary">
               {t.summary.openHistory}
             </LinkButton>
           </div>
         </>
       )}
-    </PageShell>
+    </UserShell>
   );
 }

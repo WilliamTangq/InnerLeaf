@@ -10,13 +10,13 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RequireAuth } from "../components/route-guards";
+import { UserShell } from "../components/user-shell";
 import {
   Badge,
   Card,
   LoadingCard,
   LoadingSpinner,
   PageHeader,
-  PageShell,
   PrimaryButton,
   StatusCard,
   TextareaField,
@@ -68,7 +68,7 @@ function GuidedReflectionContent() {
 
   async function handleReflect() {
     if (!session?.access_token) {
-      router.push("/login?next=/guided");
+      router.push("/login?next=/dashboard/guided");
       return;
     }
 
@@ -103,7 +103,7 @@ function GuidedReflectionContent() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          router.push("/login?next=/guided");
+          router.push("/login?next=/dashboard/guided");
           return;
         }
         setError(data.error || t.common.aiGeneric);
@@ -131,7 +131,7 @@ function GuidedReflectionContent() {
     const input = generatedInput || currentInput;
 
     if (!session?.access_token) {
-      router.push("/login?next=/guided");
+      router.push("/login?next=/dashboard/guided");
       return;
     }
 
@@ -171,7 +171,7 @@ function GuidedReflectionContent() {
   }
 
   return (
-    <PageShell maxWidth="max-w-3xl">
+    <UserShell maxWidth="max-w-3xl">
       <PageHeader compact eyebrow={t.common.reflect} title={t.guided.title}>
         {t.guided.purpose}
       </PageHeader>
@@ -179,7 +179,7 @@ function GuidedReflectionContent() {
       <div className="-mt-2 mb-6 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
         <p>{t.guided.boundary}</p>
         <Link
-          href="/quick"
+          href="/dashboard/quick"
           className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
         >
           {t.guided.quickLink}
@@ -318,7 +318,7 @@ function GuidedReflectionContent() {
           )}
         </>
       )}
-    </PageShell>
+    </UserShell>
   );
 }
 
