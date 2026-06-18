@@ -28,11 +28,14 @@ export function TopNav() {
 
 export function Footer() {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { isAdmin, user } = useAuth();
   const productLinks = [
     [t.nav.demo, "/demo"],
     [t.nav.test, "/test"],
-    [user ? t.nav.workspace : t.nav.login, user ? "/app" : "/login"],
+    [
+      user ? (isAdmin ? t.admin.overview : t.nav.workspace) : t.nav.login,
+      user ? (isAdmin ? "/admin" : "/dashboard") : "/login",
+    ],
   ] as const;
   const companyLinks = [
     [t.nav.about, "/about"],

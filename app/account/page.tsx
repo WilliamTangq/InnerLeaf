@@ -33,7 +33,7 @@ function roleLabel(
   return labels[role] || role;
 }
 
-export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" }) {
+export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | "none" }) {
   const router = useRouter();
   const { t } = useLanguage();
   const {
@@ -487,6 +487,10 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" })
       </div>
     </>
   );
+
+  if (shell === "none") {
+    return <>{content}</>;
+  }
 
   if (shell === "admin") {
     return (

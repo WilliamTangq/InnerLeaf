@@ -52,6 +52,18 @@ type AdminCheckResult =
       status: 401 | 403;
     };
 
+type AuthCheckResult =
+  | {
+      user: User;
+      error: null;
+      status?: never;
+    }
+  | {
+      user: null;
+      error: string;
+      status: 401;
+    };
+
 export async function getProfileForUser(userId: string) {
   if (!supabaseAdmin) {
     return null;
@@ -69,6 +81,20 @@ export async function getProfileForUser(userId: string) {
   }
 
   return data as ServerProfile | null;
+}
+
+export async function requireAuth(request: Request): Promise<AuthCheckResult> {
+  const user = await getUserFromRequest(request);
+
+  if (!user) {
+    return {
+      user: null,
+      error: "Please log in to continue.",
+      status: 401,
+    };
+  }
+
+  return { user, error: null };
 }
 
 export async function getAdminFromRequest(request: Request) {

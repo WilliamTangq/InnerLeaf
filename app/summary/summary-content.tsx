@@ -13,7 +13,6 @@ import {
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { UserShell } from "../components/user-shell";
 import { translateNextStepType } from "../lib/i18n";
 
 type SummaryReflection = {
@@ -338,7 +337,7 @@ export function SummaryContent() {
   const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
 
   return (
-    <UserShell maxWidth="max-w-5xl">
+    <>
       <PageHeader compact eyebrow={t.common.insights} title={t.summary.title}>
         {t.summary.purpose}
       </PageHeader>
@@ -406,6 +405,6 @@ export function SummaryContent() {
           </div>
         </>
       )}
-    </UserShell>
+    </>
   );
 }

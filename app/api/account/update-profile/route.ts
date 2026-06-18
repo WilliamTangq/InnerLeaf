@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest, supabaseAdmin } from "../../../lib/auth-server";
+import { requireAuth, supabaseAdmin } from "../../../lib/auth-server";
 
 function optionalText(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -7,12 +7,19 @@ function optionalText(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const user = await getUserFromRequest(request);
+    const auth = await requireAuth(request);
 
-    if (!user || !supabaseAdmin) {
+    if (!auth.user) {
+      return NextResponse.json(
+        { error: auth.error },
+        { status: auth.status }
+      );
+    }
+
+    if (!supabaseAdmin) {
       return NextResponse.json(
         { error: "Please log in to continue." },
-        { status: user ? 500 : 401 }
+        { status: 500 }
       );
     }
 
@@ -20,18 +27,18 @@ export async function POST(request: Request) {
     const displayName = optionalText(body.display_name);
     const avatarUrl = optionalText(body.avatar_url);
     const avatarPath = optionalText(body.avatar_path);
-    const isPrimaryAdmin = user.email?.toLowerCase() === "admin@gmail.com";
+    const isPrimaryAdmin = auth.user.email?.toLowerCase() === "admin@gmail.com";
 
     const { data: existingProfile } = await supabaseAdmin
       .from("profiles")
       .select("role")
-      .eq("id", user.id)
+      .eq("id", auth.user.id)
       .maybeSingle();
 
     const { error } = await supabaseAdmin.from("profiles").upsert(
       {
-        id: user.id,
-        email: user.email ?? null,
+        id: auth.user.id,
+        email: auth.user.email ?? null,
         role: isPrimaryAdmin ? "admin" : existingProfile?.role ?? "user",
         display_name: displayName,
         avatar_url: avatarUrl,

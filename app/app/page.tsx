@@ -36,7 +36,7 @@ function formatDate(value: string | null) {
   });
 }
 
-function WorkspaceContent() {
+export function WorkspaceContent() {
   const { t } = useLanguage();
   const { isAdmin, profile, session, user } = useAuth();
   const [recent, setRecent] = useState<RecentReflection | null>(null);
@@ -78,7 +78,7 @@ function WorkspaceContent() {
   }, [session?.access_token]);
 
   return (
-    <UserShell maxWidth="max-w-5xl">
+    <>
       <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
         {t.app.subtitle}
       </PageHeader>
@@ -179,14 +179,16 @@ function WorkspaceContent() {
       <p className="mt-6 text-sm text-[var(--foreground-subtle)]">
         {user?.email || profile?.email}
       </p>
-    </UserShell>
+    </>
   );
 }
 
 export default function WorkspacePage() {
   return (
     <RequireAuth>
-      <WorkspaceContent />
+      <UserShell>
+        <WorkspaceContent />
+      </UserShell>
     </RequireAuth>
   );
 }

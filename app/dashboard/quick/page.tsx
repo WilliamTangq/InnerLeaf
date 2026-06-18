@@ -1,1 +1,5 @@
-export { default } from "../../quick/page";
+import { QuickReflectionContent } from "../../quick/page";
+
+export default function DashboardQuickPage() {
+  return <QuickReflectionContent />;
+}

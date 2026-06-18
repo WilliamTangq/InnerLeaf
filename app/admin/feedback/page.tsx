@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { AdminShell } from "../../components/admin-shell";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
@@ -61,6 +62,7 @@ function AdminFeedbackContent() {
   const { session } = useAuth();
   const { t } = useLanguage();
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
+  const [selectedFeedback, setSelectedFeedback] = useState<FeedbackItem | null>(null);
   const [error, setError] = useState("");
   const [modeFilter, setModeFilter] = useState("all");
   const [useAgainFilter, setUseAgainFilter] = useState("all");
@@ -161,37 +163,104 @@ function AdminFeedbackContent() {
         <div className="grid gap-4">
           {filteredFeedback.map((item) => (
             <Card key={item.id} className="hover:translate-y-0">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <SectionLabel>{t.admin.saved}</SectionLabel>
                   <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">
                     {formatDate(item.created_at)}
                   </p>
+                  <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+                    {item.email || t.admin.anonymous}
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--foreground-subtle)]">
-                  {item.email || "Anonymous"}
-                </p>
-              </div>
-
-              <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                <Field label={t.admin.modeTried} value={item.mode_tried} />
-                <Field label={t.admin.ease} value={item.ease_of_start} />
-                <Field label={t.admin.reflectionLength} value={item.reflection_length} />
-                <Field label={t.admin.clarityHelp} value={item.clarity_help} />
-                <Field label={t.admin.wouldUse} value={item.would_use_again} />
-                <Field label={t.admin.alternative} value={item.alternative_tool} />
-                <Field label={t.admin.blocker} value={item.saving_blocker} />
-              </div>
-
-              {(item.comparison_feedback || item.blocker || item.other_thoughts) && (
-                <div className="mt-4 grid gap-3">
-                  <Field label={t.admin.comments} value={item.comparison_feedback} />
-                  <Field label={t.feedback.openQuestions.blocker} value={item.blocker} />
-                  <Field label={t.feedback.anythingElse} value={item.other_thoughts} />
+                <div className="grid gap-2 text-sm sm:min-w-[360px] sm:grid-cols-3">
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.modeTried}
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--foreground)]">
+                      {item.mode_tried || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.wouldUse}
+                    </p>
+                    <p className="mt-1 font-medium text-[var(--foreground)]">
+                      {item.would_use_again || "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                      {t.admin.blocker}
+                    </p>
+                    <p className="mt-1 truncate font-medium text-[var(--foreground)]">
+                      {item.saving_blocker || "-"}
+                    </p>
+                  </div>
                 </div>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setSelectedFeedback(item)}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--brand-teal-deep)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                >
+                  {t.admin.viewFeedback}
+                </button>
+              </div>
             </Card>
           ))}
+        </div>
+      )}
+
+      {selectedFeedback && (
+        <div className="fixed inset-0 z-[9999] flex items-end justify-center bg-[rgba(20,35,28,0.16)] px-4 py-4 backdrop-blur-[2px] sm:items-center">
+          <button
+            type="button"
+            aria-label={t.admin.cancel}
+            className="absolute inset-0"
+            onClick={() => setSelectedFeedback(null)}
+          />
+          <div className="relative max-h-[calc(100vh-32px)] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-5 shadow-[0_32px_110px_rgba(20,35,28,0.24)] sm:p-6">
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <SectionLabel>{t.admin.feedbackDetail}</SectionLabel>
+                <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
+                  {formatDate(selectedFeedback.created_at)}
+                </h2>
+                <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+                  {selectedFeedback.email || t.admin.anonymous}
+                </p>
+              </div>
+              <button
+                type="button"
+                aria-label={t.admin.cancel}
+                onClick={() => setSelectedFeedback(null)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-[var(--foreground-subtle)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              >
+                <X aria-hidden="true" size={17} strokeWidth={1.8} />
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label={t.admin.modeTried} value={selectedFeedback.mode_tried} />
+              <Field label={t.admin.ease} value={selectedFeedback.ease_of_start} />
+              <Field label={t.admin.reflectionLength} value={selectedFeedback.reflection_length} />
+              <Field label={t.admin.clarityHelp} value={selectedFeedback.clarity_help} />
+              <Field label={t.admin.wouldUse} value={selectedFeedback.would_use_again} />
+              <Field label={t.admin.alternative} value={selectedFeedback.alternative_tool} />
+              <Field label={t.admin.blocker} value={selectedFeedback.saving_blocker} />
+            </div>
+
+            {(selectedFeedback.comparison_feedback ||
+              selectedFeedback.blocker ||
+              selectedFeedback.other_thoughts) && (
+              <div className="mt-4 grid gap-3">
+                <Field label={t.admin.comments} value={selectedFeedback.comparison_feedback} />
+                <Field label={t.feedback.openQuestions.blocker} value={selectedFeedback.blocker} />
+                <Field label={t.feedback.anythingElse} value={selectedFeedback.other_thoughts} />
+              </div>
+            )}
+          </div>
         </div>
       )}
     </AdminShell>

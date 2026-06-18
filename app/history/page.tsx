@@ -1,5 +1,6 @@
 import { HistoryContent } from "./history-content";
 import { RequireAuth } from "../components/route-guards";
+import { UserShell } from "../components/user-shell";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,9 @@ export type Reflection = {
 export default function HistoryPage() {
   return (
     <RequireAuth>
-      <HistoryContent />
+      <UserShell maxWidth="max-w-4xl">
+        <HistoryContent />
+      </UserShell>
     </RequireAuth>
   );
 }

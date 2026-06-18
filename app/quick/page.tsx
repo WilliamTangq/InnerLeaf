@@ -22,7 +22,7 @@ import {
   TextareaField,
 } from "../components/ui";
 
-function QuickReflectionContent() {
+export function QuickReflectionContent() {
   const { language, t } = useLanguage();
   const { session } = useAuth();
   const router = useRouter();
@@ -122,7 +122,7 @@ function QuickReflectionContent() {
   }
 
   return (
-    <UserShell maxWidth="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader compact eyebrow={t.common.reflect} title={t.quick.title}>
         {t.quick.purpose}
       </PageHeader>
@@ -216,14 +216,16 @@ function QuickReflectionContent() {
           )}
         </>
       )}
-    </UserShell>
+    </div>
   );
 }
 
 export default function QuickReflectionPage() {
   return (
     <RequireAuth>
-      <QuickReflectionContent />
+      <UserShell maxWidth="max-w-3xl">
+        <QuickReflectionContent />
+      </UserShell>
     </RequireAuth>
   );
 }

@@ -230,6 +230,19 @@ function AccountDrawerPortal({
         </div>
 
         <div className="space-y-3">
+          {!admin && (
+            <MenuSection title={t.menu.sections.workspace}>
+              <CommandLink
+                href="/dashboard"
+                icon={LayoutDashboard}
+                active={isActive(pathname, "/dashboard")}
+                label={t.nav.workspace}
+                description={t.menu.descriptions.workspace}
+                onClick={close}
+              />
+            </MenuSection>
+          )}
+
           <MenuSection title={t.menu.sections.account}>
             <CommandLink
               href={admin ? "/admin/account" : "/dashboard/account"}
@@ -324,10 +337,10 @@ export function NavLinks() {
 
       {user && (
         <Link
-          href="/dashboard"
+          href={isAdmin ? "/admin" : "/dashboard"}
           className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
         >
-          {t.nav.workspace}
+          {isAdmin ? t.admin.overview : t.nav.workspace}
         </Link>
       )}
 

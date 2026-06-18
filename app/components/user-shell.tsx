@@ -147,8 +147,8 @@ export function UserShell({
             sidebarOpen ? "translate-x-0" : "-translate-x-[calc(100%+24px)] lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgba(255,255,248,0.86)] p-3 shadow-[0_24px_80px_rgba(20,35,28,0.10)] backdrop-blur-xl">
-            <div className="mb-3 rounded-[22px] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-4">
+          <div className="h-full rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgba(255,255,248,0.94)] p-3 shadow-[0_24px_80px_rgba(20,35,28,0.10)] backdrop-blur-xl lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:bg-[rgba(255,255,248,0.78)] lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+            <div className="mb-3 rounded-2xl border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-semibold text-[var(--foreground)]">
                   {t.app.title}
@@ -173,7 +173,7 @@ export function UserShell({
             </div>
             <nav
               aria-label={t.app.title}
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-1.5"
             >
               {userLinks.map((link) => (
                 <UserNavLink

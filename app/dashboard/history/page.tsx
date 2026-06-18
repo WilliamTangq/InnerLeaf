@@ -1,3 +1,7 @@
 export const dynamic = "force-dynamic";
 
-export { default } from "../../history/page";
+import { HistoryContent } from "../../history/history-content";
+
+export default function DashboardHistoryPage() {
+  return <HistoryContent />;
+}

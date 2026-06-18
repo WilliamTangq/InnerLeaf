@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
+import { requireAuth, supabaseAdmin } from "../../lib/auth-server";
 
 const followUpResults = new Set(["Helped", "Somewhat", "Did not help"]);
 
@@ -9,12 +9,19 @@ function cleanOptionalText(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const user = await getUserFromRequest(request);
+    const auth = await requireAuth(request);
 
-    if (!user || !supabaseAdmin) {
+    if (!auth.user) {
       return NextResponse.json(
         { error: "Could not save check-in. Please try again." },
-        { status: user ? 500 : 401 }
+        { status: auth.status }
+      );
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: "Could not save check-in. Please try again." },
+        { status: 500 }
       );
     }
 
@@ -39,7 +46,7 @@ export async function POST(request: Request) {
         follow_up_at: new Date().toISOString(),
       })
       .eq("id", id)
-      .eq("user_id", user.id);
+      .eq("user_id", auth.user.id);
 
     if (error) {
       console.error("Supabase check-in update error:", error);

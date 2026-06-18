@@ -39,7 +39,7 @@ const initialValues = fields.reduce((values, field) => {
   return values;
 }, {} as GuidedValues);
 
-function GuidedReflectionContent() {
+export function GuidedReflectionContent() {
   const { language, t } = useLanguage();
   const { session } = useAuth();
   const router = useRouter();
@@ -171,7 +171,7 @@ function GuidedReflectionContent() {
   }
 
   return (
-    <UserShell maxWidth="max-w-3xl">
+    <div className="max-w-3xl">
       <PageHeader compact eyebrow={t.common.reflect} title={t.guided.title}>
         {t.guided.purpose}
       </PageHeader>
@@ -318,14 +318,16 @@ function GuidedReflectionContent() {
           )}
         </>
       )}
-    </UserShell>
+    </div>
   );
 }
 
 export default function GuidedReflectionPage() {
   return (
     <RequireAuth>
-      <GuidedReflectionContent />
+      <UserShell maxWidth="max-w-3xl">
+        <GuidedReflectionContent />
+      </UserShell>
     </RequireAuth>
   );
 }

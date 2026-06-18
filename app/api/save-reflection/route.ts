@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
+import { requireAuth, supabaseAdmin } from "../../lib/auth-server";
 import { normalizeLanguage } from "../../lib/i18n";
 
 function textValue(value: unknown) {
@@ -22,12 +22,19 @@ function textList(value: unknown) {
 
 export async function POST(request: Request) {
   try {
-    const user = await getUserFromRequest(request);
+    const auth = await requireAuth(request);
 
-    if (!user || !supabaseAdmin) {
+    if (!auth.user) {
+      return NextResponse.json(
+        { error: auth.error },
+        { status: auth.status }
+      );
+    }
+
+    if (!supabaseAdmin) {
       return NextResponse.json(
         { error: "Log in to save this reflection to your history." },
-        { status: user ? 500 : 401 }
+        { status: 500 }
       );
     }
 
@@ -48,7 +55,7 @@ export async function POST(request: Request) {
     const { data, error } = await supabaseAdmin
       .from("reflections")
       .insert({
-        user_id: user.id,
+        user_id: auth.user.id,
         user_input: input,
         ai_result: result,
         mode,

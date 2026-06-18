@@ -1,3 +1,7 @@
 export const dynamic = "force-dynamic";
 
-export { default } from "../../summary/page";
+import { SummaryContent } from "../../summary/summary-content";
+
+export default function DashboardSummaryPage() {
+  return <SummaryContent />;
+}

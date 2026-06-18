@@ -1,17 +1,17 @@
 import { NextResponse } from "next/server";
-import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
+import { requireAuth, supabaseAdmin } from "../../lib/auth-server";
 
 const reflectionSelect =
   "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, body_factor, behavioural_insight, next_question, next_step, next_step_type, mode_detected, follow_up_result, follow_up_note, follow_up_at, mode, language";
 
 export async function GET(request: Request) {
   try {
-    const user = await getUserFromRequest(request);
+    const auth = await requireAuth(request);
 
-    if (!user) {
+    if (!auth.user) {
       return NextResponse.json(
-        { error: "Please log in to continue." },
-        { status: 401 }
+        { error: auth.error },
+        { status: auth.status }
       );
     }
 
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     const { data, error } = await supabaseAdmin
       .from("reflections")
       .select(reflectionSelect)
-      .eq("user_id", user.id)
+      .eq("user_id", auth.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {

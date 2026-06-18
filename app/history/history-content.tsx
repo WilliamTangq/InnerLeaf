@@ -10,7 +10,6 @@ import {
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { UserShell } from "../components/user-shell";
 import { ReflectionCards } from "./reflection-cards";
 import type { Reflection } from "./page";
 
@@ -56,7 +55,7 @@ export function HistoryContent() {
   }, [authLoading, session?.access_token]);
 
   return (
-    <UserShell maxWidth="max-w-4xl">
+    <div className="max-w-4xl">
       <PageHeader compact eyebrow={t.common.revisit} title={t.history.title}>
         {t.history.purpose}
       </PageHeader>
@@ -138,6 +137,6 @@ export function HistoryContent() {
       {!hasError && loaded && user && reflections.length > 0 && (
         <ReflectionCards reflections={reflections} />
       )}
-    </UserShell>
+    </div>
   );
 }
