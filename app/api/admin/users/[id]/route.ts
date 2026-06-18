@@ -21,7 +21,7 @@ export async function GET(
     const admin = await requireAdmin(request);
 
     if (!admin.isAdmin) {
-      return NextResponse.json({ error: admin.error }, { status: 403 });
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     if (!supabaseAdmin) {
@@ -111,7 +111,7 @@ export async function PATCH(
     const admin = await requireAdmin(request);
 
     if (!admin.isAdmin) {
-      return NextResponse.json({ error: admin.error }, { status: 403 });
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     if (!supabaseAdmin) {
@@ -200,7 +200,7 @@ export async function DELETE(
     const admin = await requireAdmin(request);
 
     if (!admin.isAdmin) {
-      return NextResponse.json({ error: admin.error }, { status: 403 });
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     if (!supabaseAdmin) {

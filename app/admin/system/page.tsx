@@ -51,9 +51,12 @@ function SystemContent() {
     [t.admin.googleLogin, t.admin.disabled],
     [t.admin.reflectionAccess, t.admin.loginRequired],
     [t.admin.demoMode, t.admin.staticDemoData],
-    [t.admin.privacyMode, t.admin.userSpecificHistory],
+    [t.admin.historyPrivacy, t.admin.userSpecificHistory],
+    [t.admin.summaryPrivacy, t.admin.userSpecificHistory],
+    [t.admin.adminApisProtected, t.admin.yes],
     [t.admin.availableRoles, "user, tester, admin"],
     [t.admin.avatarUpload, t.admin.enabled],
+    [t.admin.storageBucket, "avatars"],
     [t.admin.feedbackEnabled, t.admin.enabled],
     [
       t.admin.supabaseConfigured,
@@ -66,7 +69,7 @@ function SystemContent() {
     [t.admin.publicPages, "/, /about, /privacy, /faq, /demo, /test, /feedback"],
     [
       t.admin.protectedRoutes,
-      "/app, /quick, /guided, /history, /summary, /account",
+      "/dashboard, /dashboard/quick, /dashboard/guided, /dashboard/history, /dashboard/summary, /dashboard/account, /admin",
     ],
     [t.admin.currentRole, role ? t.admin.roleLabels[role] : t.account.roleLoading],
   ] as const;

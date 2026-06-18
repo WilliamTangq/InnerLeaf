@@ -285,6 +285,9 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" })
               <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
                 {t.account.adminAccountBody}
               </p>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-subtle)]">
+                {t.account.primaryAdminProtection}
+              </p>
             </div>
             <PageActions>
               <LinkButton href="/admin">{t.admin.overview}</LinkButton>

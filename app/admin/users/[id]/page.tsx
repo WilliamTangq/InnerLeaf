@@ -201,6 +201,11 @@ function UserDetailContent() {
                 [t.admin.created, formatDate(user.created_at)],
                 [t.admin.lastSignIn, formatDate(user.last_sign_in_at)],
                 [t.admin.emailConfirmed, formatDate(user.email_confirmed_at)],
+                [t.admin.avatarStatus, user.avatar_url ? t.admin.enabled : t.admin.no],
+                [
+                  t.admin.accountSafety,
+                  deleteDisabled ? t.admin.protected : t.admin.manageable,
+                ],
                 [t.admin.reflectionCount, String(user.reflection_count)],
                 [t.admin.feedbackCount, String(user.feedback_count)],
                 [t.admin.lastReflection, formatDate(user.last_reflection_at)],

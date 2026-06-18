@@ -17,6 +17,7 @@ type AuthContextValue = {
   profile: UserProfile | null;
   role: UserRole | null;
   isAdmin: boolean;
+  isTester: boolean;
   authUnavailable: boolean;
   authLoading: boolean;
   profileLoading: boolean;
@@ -35,6 +36,7 @@ type UserProfile = {
   avatar_url: string | null;
   avatar_path: string | null;
   created_at?: string | null;
+  updated_at?: string | null;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -50,7 +52,7 @@ async function fetchProfile(nextSession: Session | null) {
 
   const { data } = await supabaseBrowser
     .from("profiles")
-    .select("id, email, role, display_name, avatar_url, avatar_path, created_at")
+    .select("id, email, role, display_name, avatar_url, avatar_path, created_at, updated_at")
     .eq("id", nextSession.user.id)
     .maybeSingle();
 
@@ -175,6 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         role,
         isAdmin: role === "admin",
+        isTester: role === "tester",
         authUnavailable: !supabaseBrowser,
         authLoading: loading,
         profileLoading,

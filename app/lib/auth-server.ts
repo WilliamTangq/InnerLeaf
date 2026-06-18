@@ -49,6 +49,7 @@ type AdminCheckResult =
       profile: ServerProfile | null;
       isAdmin: false;
       error: string;
+      status: 401 | 403;
     };
 
 export async function getProfileForUser(userId: string) {
@@ -89,8 +90,24 @@ export async function getAdminFromRequest(request: Request) {
 export async function requireAdmin(request: Request): Promise<AdminCheckResult> {
   const { user, profile, isAdmin } = await getAdminFromRequest(request);
 
-  if (!user || !isAdmin) {
-    return { user, profile, isAdmin: false, error: "Admin access required." };
+  if (!user) {
+    return {
+      user,
+      profile,
+      isAdmin: false,
+      error: "Please log in to continue.",
+      status: 401,
+    };
+  }
+
+  if (!isAdmin) {
+    return {
+      user,
+      profile,
+      isAdmin: false,
+      error: "Admin access required.",
+      status: 403,
+    };
   }
 
   return { user, profile, isAdmin: true, error: null };

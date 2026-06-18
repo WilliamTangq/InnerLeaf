@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const admin = await requireAdmin(request);
 
     if (!admin.isAdmin) {
-      return NextResponse.json({ error: admin.error }, { status: 403 });
+      return NextResponse.json({ error: admin.error }, { status: admin.status });
     }
 
     if (!supabaseAdmin) {

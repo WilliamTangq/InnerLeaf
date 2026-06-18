@@ -10,7 +10,10 @@ import {
   ShieldCheck,
   Users,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./avatar";
 import { BrandLogo } from "./brand-logo";
@@ -29,9 +32,14 @@ const adminLinks = [
   { href: "/admin/users", key: "users", icon: Users },
   { href: "/admin/feedback", key: "feedback", icon: Inbox },
   { href: "/admin/system", key: "system", icon: Settings },
+  { href: "/admin/account", key: "adminAccountNav", icon: ShieldCheck },
 ] as const;
 
 function isActive(pathname: string, href: string) {
+  if (href !== "/admin" && pathname.startsWith(`${href}/`)) {
+    return true;
+  }
+
   return href === pathname;
 }
 
@@ -101,6 +109,7 @@ export function AdminShell({
   const router = useRouter();
   const { t } = useLanguage();
   const { profile, role, signOut, user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   async function logOut() {
     await signOut();
@@ -113,6 +122,14 @@ export function AdminShell({
       <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.88)] backdrop-blur-xl">
         <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
           <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] lg:hidden"
+              aria-label={t.nav.menu}
+            >
+              <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
+            </button>
             <BrandLogo size="md" />
             <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] sm:inline-flex">
               {t.admin.title}
@@ -152,11 +169,34 @@ export function AdminShell({
         </div>
       </header>
       <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[260px_1fr]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        {sidebarOpen && (
+          <button
+            type="button"
+            aria-label={t.nav.menu}
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.12)] backdrop-blur-[1px] lg:hidden"
+          />
+        )}
+        <aside
+          className={[
+            "fixed left-3 top-[72px] z-[9999] w-[min(330px,calc(100vw-24px))] transition duration-200 lg:sticky lg:left-auto lg:top-24 lg:z-auto lg:w-auto lg:self-start",
+            sidebarOpen ? "translate-x-0" : "-translate-x-[calc(100%+24px)] lg:translate-x-0",
+          ].join(" ")}
+        >
           <div className="rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgba(255,255,248,0.86)] p-3 shadow-[0_24px_80px_rgba(20,35,28,0.10)] backdrop-blur-xl">
             <div className="mb-3 rounded-[22px] border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-4">
-              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-                <ShieldCheck aria-hidden="true" size={19} strokeWidth={1.8} />
+              <div className="flex items-start justify-between gap-3">
+                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                  <ShieldCheck aria-hidden="true" size={19} strokeWidth={1.8} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(false)}
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] text-[var(--foreground-subtle)] lg:hidden"
+                  aria-label={t.nav.menu}
+                >
+                  <X aria-hidden="true" size={16} strokeWidth={1.8} />
+                </button>
               </div>
               <p className="text-sm font-semibold text-[var(--foreground)]">
                 {t.admin.consoleTitle}
@@ -168,7 +208,7 @@ export function AdminShell({
 
             <nav
               aria-label={t.admin.consoleTitle}
-              className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible lg:pb-0"
+              className="flex flex-col gap-2"
             >
               {adminLinks.map((link) => (
                 <AdminNavLink
@@ -209,6 +249,9 @@ export function AdminShell({
           </div>
 
           {children}
+          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm text-[var(--foreground-subtle)]">
+            {t.admin.privateNote}
+          </div>
         </section>
       </main>
     </div>
