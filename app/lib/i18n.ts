@@ -418,7 +418,8 @@ export const translations = {
     reflectionCard: {
       title: "Your reflection card",
       saved: "Saved automatically. Revisit anytime in History.",
-      generatedOnly: "Generated only. Save this card to add it to History.",
+      generatedOnly:
+        "Generated. InnerLeaf will add this card to History automatically.",
       emotionalValidation: "Emotional validation",
       momentSummary: "Moment summary",
       momentSummaryFallback: "This moment seems to be about {trigger}.",
@@ -456,6 +457,13 @@ export const translations = {
         "Save this reflection if you want to return to it later.",
       savedCheckInHint:
         "Saved. You can check in on the next step from History later.",
+      autoSavedTitle: "Saved automatically",
+      autoSavedHint:
+        "This reflection is saved to your History. You can come back to it later.",
+      autoSavingHint:
+        "InnerLeaf is saving this reflection to your History.",
+      autoSaveFailedHint:
+        "This reflection was generated, but automatic saving did not complete.",
       saveThisReflection: "Save this reflection",
       savedToHistory: "Saved to history",
       saving: "Saving...",
@@ -1273,7 +1281,7 @@ export const translations = {
     reflectionCard: {
       title: "你的反思卡片",
       saved: "已自动保存。你可以随时在历史记录中回看。",
-      generatedOnly: "仅已生成。保存后会加入历史记录。",
+      generatedOnly: "已生成。InnerLeaf 会自动加入历史记录。",
       emotionalValidation: "情绪确认",
       momentSummary: "时刻总结",
       momentSummaryFallback: "这次情绪时刻似乎和「{trigger}」有关。",
@@ -1308,6 +1316,10 @@ export const translations = {
       saveCheckInTitle: "保存 / 简短回看",
       saveCheckInHint: "如果你想之后回看，可以保存这条反思。",
       savedCheckInHint: "已保存。之后可以在历史记录中回看这个下一步。",
+      autoSavedTitle: "已自动保存",
+      autoSavedHint: "这条反思已保存到历史记录，你之后可以回来查看。",
+      autoSavingHint: "InnerLeaf 正在把这条反思保存到历史记录。",
+      autoSaveFailedHint: "反思已生成，但自动保存未完成。",
       saveThisReflection: "保存这条反思",
       savedToHistory: "已保存到历史记录",
       saving: "正在保存...",

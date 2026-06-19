@@ -193,6 +193,7 @@ export function ReflectionResultCard({
   saved = false,
   saving = false,
   onSave,
+  autoSaved = false,
 }: {
   result: string;
   structured?: StructuredReflectionResult;
@@ -201,6 +202,7 @@ export function ReflectionResultCard({
   saved?: boolean;
   saving?: boolean;
   onSave?: () => void;
+  autoSaved?: boolean;
 }) {
   const { language, t } = useLanguage();
   const { session } = useAuth();
@@ -529,10 +531,18 @@ export function ReflectionResultCard({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                {labels.saveCheckInTitle}
+                {autoSaved ? labels.autoSavedTitle : labels.saveCheckInTitle}
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                {saved ? labels.savedCheckInHint : labels.saveCheckInHint}
+                {autoSaved
+                  ? saved
+                    ? labels.autoSavedHint
+                    : saving
+                      ? labels.autoSavingHint
+                      : labels.autoSaveFailedHint
+                  : saved
+                    ? labels.savedCheckInHint
+                    : labels.saveCheckInHint}
               </p>
             </div>
             {onSave && (

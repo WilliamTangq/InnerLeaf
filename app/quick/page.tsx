@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -24,7 +24,7 @@ import {
 
 export function QuickReflectionContent() {
   const { language, t } = useLanguage();
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const router = useRouter();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
@@ -35,6 +35,112 @@ export function QuickReflectionContent() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
+
+  const draftKey = user?.id ? `innerleaf:quick:${user.id}` : "";
+
+  useEffect(() => {
+    if (!draftKey) {
+      return;
+    }
+
+    let active = true;
+
+    try {
+      const rawDraft = window.localStorage.getItem(draftKey);
+      const draft = rawDraft
+        ? (JSON.parse(rawDraft) as {
+            input?: string;
+            result?: string;
+            structured?: StructuredReflectionResult;
+            saved?: boolean;
+          })
+        : null;
+
+      queueMicrotask(() => {
+        if (!active) {
+          return;
+        }
+
+        setInput(draft?.input ?? "");
+        setResult(draft?.result ?? "");
+        setStructured(draft?.structured ?? null);
+        setSaved(Boolean(draft?.saved));
+        setDraftLoaded(true);
+      });
+    } catch {
+      window.localStorage.removeItem(draftKey);
+      queueMicrotask(() => {
+        if (active) {
+          setDraftLoaded(true);
+        }
+      });
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!draftKey || !draftLoaded) {
+      return;
+    }
+
+    window.localStorage.setItem(
+      draftKey,
+      JSON.stringify({
+        input,
+        result,
+        structured,
+        saved,
+      })
+    );
+  }, [draftKey, draftLoaded, input, result, saved, structured]);
+
+  async function autoSaveReflection(
+    nextInput: string,
+    nextResult: string,
+    nextStructured: StructuredReflectionResult
+  ) {
+    if (!session?.access_token) {
+      return;
+    }
+
+    setSaving(true);
+    setWarning("");
+    setError("");
+
+    try {
+      const response = await fetch("/api/save-reflection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          input: nextInput,
+          result: nextResult,
+          structured: nextStructured,
+          mode: "quick",
+          language,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        setWarning(data.error || t.common.saveWarning);
+        return;
+      }
+
+      setSaved(true);
+      setWarning("");
+    } catch {
+      setWarning(t.common.saveWarning);
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleReflect() {
     if (!session?.access_token) {
@@ -70,54 +176,17 @@ export function QuickReflectionContent() {
         return;
       }
 
-      setResult(data.result);
-      setStructured(data.structured || null);
+      const nextResult = data.result || "";
+      const nextStructured = data.structured || null;
+
+      setResult(nextResult);
+      setStructured(nextStructured);
       setWarning("");
+      void autoSaveReflection(input, nextResult, nextStructured);
     } catch {
       setError(t.common.aiGeneric);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function saveReflection() {
-    if (!session?.access_token) {
-      router.push("/login?next=/dashboard/quick");
-      return;
-    }
-
-    setSaving(true);
-    setWarning("");
-    setError("");
-
-    try {
-      const response = await fetch("/api/save-reflection", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          input,
-          result,
-          structured,
-          mode: "quick",
-          language,
-        }),
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || t.common.saveWarning);
-        return;
-      }
-
-      setSaved(true);
-      setWarning("");
-    } catch {
-      setError(t.common.saveWarning);
-    } finally {
-      setSaving(false);
     }
   }
 
@@ -195,7 +264,7 @@ export function QuickReflectionContent() {
             statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
             saved={saved}
             saving={saving}
-            onSave={saveReflection}
+            autoSaved
           />
         </>
       )}

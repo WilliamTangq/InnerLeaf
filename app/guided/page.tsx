@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -41,7 +41,7 @@ const initialValues = fields.reduce((values, field) => {
 
 export function GuidedReflectionContent() {
   const { language, t } = useLanguage();
-  const { session } = useAuth();
+  const { session, user } = useAuth();
   const router = useRouter();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
@@ -54,10 +54,90 @@ export function GuidedReflectionContent() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [generatedInput, setGeneratedInput] = useState("");
+  const [draftLoaded, setDraftLoaded] = useState(false);
 
   const filledCount = fields.filter((f) => values[f.id].trim()).length;
   const hasInput = filledCount > 0;
   const activeField = fields[activeStep];
+  const draftKey = user?.id ? `innerleaf:guided:${user.id}` : "";
+
+  useEffect(() => {
+    if (!draftKey) {
+      return;
+    }
+
+    let active = true;
+
+    try {
+      const rawDraft = window.localStorage.getItem(draftKey);
+      const draft = rawDraft
+        ? (JSON.parse(rawDraft) as {
+            values?: GuidedValues;
+            activeStep?: number;
+            result?: string;
+            structured?: StructuredReflectionResult;
+            saved?: boolean;
+            generatedInput?: string;
+          })
+        : null;
+
+      queueMicrotask(() => {
+        if (!active) {
+          return;
+        }
+
+        setValues({ ...initialValues, ...(draft?.values ?? {}) });
+        setActiveStep(
+          typeof draft?.activeStep === "number"
+            ? Math.min(Math.max(draft.activeStep, 0), fields.length - 1)
+            : 0
+        );
+        setResult(draft?.result ?? "");
+        setStructured(draft?.structured ?? null);
+        setSaved(Boolean(draft?.saved));
+        setGeneratedInput(draft?.generatedInput ?? "");
+        setDraftLoaded(true);
+      });
+    } catch {
+      window.localStorage.removeItem(draftKey);
+      queueMicrotask(() => {
+        if (active) {
+          setDraftLoaded(true);
+        }
+      });
+    }
+
+    return () => {
+      active = false;
+    };
+  }, [draftKey]);
+
+  useEffect(() => {
+    if (!draftKey || !draftLoaded) {
+      return;
+    }
+
+    window.localStorage.setItem(
+      draftKey,
+      JSON.stringify({
+        values,
+        activeStep,
+        result,
+        structured,
+        saved,
+        generatedInput,
+      })
+    );
+  }, [
+    activeStep,
+    draftKey,
+    draftLoaded,
+    generatedInput,
+    result,
+    saved,
+    structured,
+    values,
+  ]);
 
   function updateField(field: FieldId, value: string) {
     setValues((current) => ({
@@ -110,9 +190,13 @@ export function GuidedReflectionContent() {
         return;
       }
 
-      setResult(data.result);
-      setStructured(data.structured || null);
+      const nextResult = data.result || "";
+      const nextStructured = data.structured || null;
+
+      setResult(nextResult);
+      setStructured(nextStructured);
       setWarning("");
+      void autoSaveReflection(input, nextResult, nextStructured);
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -120,18 +204,12 @@ export function GuidedReflectionContent() {
     }
   }
 
-  async function saveReflection() {
-    const currentInput = fields
-      .map((field) => {
-        const [label] = t.guided.fields[field.id];
-        return `${label}: ${values[field.id].trim()}`;
-      })
-      .filter((line) => line.split(": ")[1])
-      .join("\n");
-    const input = generatedInput || currentInput;
-
+  async function autoSaveReflection(
+    nextInput: string,
+    nextResult: string,
+    nextStructured: StructuredReflectionResult
+  ) {
     if (!session?.access_token) {
-      router.push("/login?next=/dashboard/guided");
       return;
     }
 
@@ -147,9 +225,9 @@ export function GuidedReflectionContent() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          input,
-          result,
-          structured,
+          input: nextInput,
+          result: nextResult,
+          structured: nextStructured,
           mode: "guided",
           language,
         }),
@@ -157,14 +235,14 @@ export function GuidedReflectionContent() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || t.common.saveWarning);
+        setWarning(data.error || t.common.saveWarning);
         return;
       }
 
       setSaved(true);
       setWarning("");
     } catch {
-      setError(t.common.saveWarning);
+      setWarning(t.common.saveWarning);
     } finally {
       setSaving(false);
     }
@@ -297,7 +375,7 @@ export function GuidedReflectionContent() {
             statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
             saved={saved}
             saving={saving}
-            onSave={saveReflection}
+            autoSaved
           />
         </>
       )}
