@@ -13,12 +13,14 @@ import {
   TrendingUp,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar } from "./avatar";
 import { BrandLogo } from "./brand-logo";
 import { useAuth } from "./auth-provider";
 import { LanguageSelector, useLanguage } from "./language-provider";
+import { resolveRoleAwareNextPath } from "../lib/routes";
+import { LoadingCard } from "./ui";
 
 type IconType = ComponentType<{
   size?: number;
@@ -86,6 +88,20 @@ export function UserShell({
     await signOut();
     router.push("/");
     router.refresh();
+  }
+
+  useEffect(() => {
+    if (isAdmin) {
+      router.replace(resolveRoleAwareNextPath(pathname, "admin"));
+    }
+  }, [isAdmin, pathname, router]);
+
+  if (isAdmin) {
+    return (
+      <div className="page-glow min-h-screen px-5 py-10 text-[var(--foreground)] sm:px-8">
+        <LoadingCard label={t.auth.loadingSession} />
+      </div>
+    );
   }
 
   return (

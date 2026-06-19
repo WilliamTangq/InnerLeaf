@@ -7,6 +7,7 @@ import { RequireAuth } from "../components/route-guards";
 import { UserShell } from "../components/user-shell";
 import { LoadingCard } from "../components/ui";
 import { useLanguage } from "../components/language-provider";
+import { resolveRoleAwareNextPath } from "../lib/routes";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -15,12 +16,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { isAdmin, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && isAdmin && pathname === "/dashboard") {
-      router.replace("/admin");
+    if (!loading && isAdmin) {
+      router.replace(resolveRoleAwareNextPath(pathname, "admin"));
     }
   }, [isAdmin, loading, pathname, router]);
 
-  if (!loading && isAdmin && pathname === "/dashboard") {
+  if (!loading && isAdmin) {
     return (
       <div className="page-glow min-h-screen px-5 py-10 text-[var(--foreground)] sm:px-8">
         <LoadingCard label={t.auth.loadingSession} />

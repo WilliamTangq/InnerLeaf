@@ -40,20 +40,12 @@ export function resolveRoleAwareNextPath(value: string | null, role: AppRole) {
   const normalized = legacyRoutes[value] ?? value;
 
   if (role === "admin") {
-    if (normalized === "/dashboard") {
-      return "/admin";
-    }
-
     if (normalized === "/admin" || normalized.startsWith("/admin/")) {
       return normalized;
     }
 
-    if (
-      userDashboardRoutes.some(
-        (path) => normalized === path || normalized.startsWith(`${path}/`)
-      )
-    ) {
-      return normalized;
+    if (normalized === "/dashboard/account") {
+      return "/admin/account";
     }
 
     return "/admin";
@@ -73,4 +65,3 @@ export function resolveRoleAwareNextPath(value: string | null, role: AppRole) {
 
   return "/dashboard";
 }
-

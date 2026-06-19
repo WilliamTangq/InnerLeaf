@@ -3,7 +3,6 @@
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import {
-  ArrowLeft,
   Inbox,
   LayoutDashboard,
   Settings,
@@ -219,13 +218,6 @@ export function AdminShell({
                   active={isActive(pathname, link.href)}
                 />
               ))}
-              <div className="min-w-px border-l border-[var(--border)] lg:my-2 lg:border-l-0 lg:border-t" />
-              <AdminNavLink
-                href="/dashboard"
-                icon={ArrowLeft}
-                label={t.admin.backWorkspace}
-                active={false}
-              />
             </nav>
           </div>
         </aside>
