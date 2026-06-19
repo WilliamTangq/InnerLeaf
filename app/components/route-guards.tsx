@@ -13,14 +13,14 @@ function loginHref(pathname: string) {
 export function RequireAuth({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { authUnavailable, loading, user } = useAuth();
+  const { authUnavailable, loading, profileLoading, user } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (!authUnavailable && !loading && !user) {
+    if (!authUnavailable && !loading && !profileLoading && !user) {
       router.replace(loginHref(pathname));
     }
-  }, [authUnavailable, loading, pathname, router, user]);
+  }, [authUnavailable, loading, pathname, profileLoading, router, user]);
 
   if (authUnavailable) {
     return (
@@ -34,7 +34,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
     );
   }
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <PageShell>
         <LoadingCard label={t.auth.loadingSession} />
@@ -60,14 +60,14 @@ export function RequireAuth({ children }: { children: ReactNode }) {
 export function RequireAdmin({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { authUnavailable, isAdmin, loading, user } = useAuth();
+  const { authUnavailable, isAdmin, loading, profileLoading, role, user } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (!authUnavailable && !loading && !user) {
+    if (!authUnavailable && !loading && !profileLoading && !user) {
       router.replace(loginHref(pathname));
     }
-  }, [authUnavailable, loading, pathname, router, user]);
+  }, [authUnavailable, loading, pathname, profileLoading, router, user]);
 
   if (authUnavailable) {
     return (
@@ -81,7 +81,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
     );
   }
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <PageShell>
         <LoadingCard label={t.auth.loadingSession} />
@@ -101,7 +101,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!isAdmin) {
+  if (!isAdmin || role !== "admin") {
     return (
       <PageShell>
         <EmptyState

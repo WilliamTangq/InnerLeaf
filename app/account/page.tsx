@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { AdminShell } from "../components/admin-shell";
 import { Avatar } from "../components/avatar";
-import { RequireAuth } from "../components/route-guards";
+import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { UserShell } from "../components/user-shell";
@@ -508,26 +508,5 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
 }
 
 export default function AccountPage() {
-  const router = useRouter();
-  const { isAdmin, loading, user } = useAuth();
-  const { t } = useLanguage();
-
-  useEffect(() => {
-    if (loading) {
-      return;
-    }
-
-    if (!user) {
-      router.replace(`/login?next=${encodeURIComponent("/account")}`);
-      return;
-    }
-
-    router.replace(isAdmin ? "/admin/account" : "/dashboard/account");
-  }, [isAdmin, loading, router, user]);
-
-  return (
-    <RequireAuth>
-      <StatusCard tone="neutral">{t.auth.loadingSession}</StatusCard>
-    </RequireAuth>
-  );
+  return <RoleAwareRedirect target="/account" />;
 }

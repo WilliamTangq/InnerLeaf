@@ -1,6 +1,7 @@
 "use client";
 
-import { FileText, Inbox, ShieldCheck, UserCheck, Users } from "lucide-react";
+import Link from "next/link";
+import { FileText, Inbox, Settings, ShieldCheck, UserCheck, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AdminMetricCard, AdminShell } from "../components/admin-shell";
 import { RequireAdmin } from "../components/route-guards";
@@ -87,6 +88,51 @@ function AdminOverviewContent() {
           ))}
         </div>
       )}
+
+      <div className="mt-6 grid gap-3 lg:grid-cols-4">
+        {[
+          {
+            title: t.admin.usersTitle,
+            body: t.admin.usersPurpose,
+            href: "/admin/users",
+            icon: Users,
+          },
+          {
+            title: t.admin.feedbackTitle,
+            body: t.admin.feedbackPurpose,
+            href: "/admin/feedback",
+            icon: Inbox,
+          },
+          {
+            title: t.admin.systemTitle,
+            body: t.admin.systemPurpose,
+            href: "/admin/system",
+            icon: Settings,
+          },
+          {
+            title: t.admin.adminAccountNav,
+            body: t.account.adminAccountBody,
+            href: "/admin/account",
+            icon: ShieldCheck,
+          },
+        ].map(({ title, body, href, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className="group rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface)] p-5 shadow-[var(--shadow-md)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.24)] hover:shadow-[var(--shadow-lg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+          >
+            <span className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+              <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+            </span>
+            <span className="block text-base font-semibold text-[var(--foreground)]">
+              {title}
+            </span>
+            <span className="mt-2 block text-sm leading-6 text-[var(--foreground-muted)]">
+              {body}
+            </span>
+          </Link>
+        ))}
+      </div>
 
       <div className="mt-6 grid gap-3 lg:grid-cols-2">
         <Card className="hover:translate-y-0">

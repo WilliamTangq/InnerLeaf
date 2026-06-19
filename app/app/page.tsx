@@ -10,10 +10,10 @@ import { getDefaultRouteForRole } from "../lib/routes";
 export default function LegacyAppPage() {
   const router = useRouter();
   const { t } = useLanguage();
-  const { loading, role, user } = useAuth();
+  const { loading, profileLoading, role, user } = useAuth();
 
   useEffect(() => {
-    if (loading) {
+    if (loading || profileLoading) {
       return;
     }
 
@@ -23,7 +23,7 @@ export default function LegacyAppPage() {
     }
 
     router.replace(getDefaultRouteForRole(role));
-  }, [loading, role, router, user]);
+  }, [loading, profileLoading, role, router, user]);
 
   return (
     <PageShell>

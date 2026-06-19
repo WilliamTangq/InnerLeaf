@@ -32,6 +32,7 @@ const adminLinks = [
   { href: "/admin/feedback", key: "feedback", icon: Inbox },
   { href: "/admin/system", key: "system", icon: Settings },
   { href: "/admin/account", key: "adminAccountNav", icon: ShieldCheck },
+  { href: "/dashboard", key: "userDashboardNav", icon: LayoutDashboard },
 ] as const;
 
 function isActive(pathname: string, href: string) {
@@ -201,7 +202,7 @@ export function AdminShell({
                 {t.admin.consoleTitle}
               </p>
               <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
-                {t.admin.privateNote}
+                {t.admin.superHostBody}
               </p>
             </div>
 

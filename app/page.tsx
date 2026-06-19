@@ -295,11 +295,27 @@ export default function Home() {
           {t.home.finalSubtitle}
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <LinkButton href={user ? "/quick" : "/register"} size="lg" className="w-full sm:w-auto">
-            {user ? t.common.startQuick : t.common.createAccount}
+          <LinkButton
+            href={user ? getDefaultRouteForRole(role) : "/register"}
+            size="lg"
+            className="w-full sm:w-auto"
+          >
+            {user
+              ? role === "admin"
+                ? t.app.openAdmin
+                : t.nav.workspace
+              : t.common.createAccount}
           </LinkButton>
-          <LinkButton href={user ? "/guided" : "/login"} variant="secondary" size="lg">
-            {user ? t.common.tryGuided : t.nav.login}
+          <LinkButton
+            href={user ? getDefaultRouteForRole(role) : "/login"}
+            variant="secondary"
+            size="lg"
+          >
+            {user
+              ? role === "admin"
+                ? t.app.openAdmin
+                : t.nav.workspace
+              : t.nav.login}
           </LinkButton>
         </div>
       </section>

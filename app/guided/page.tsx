@@ -9,8 +9,7 @@ import {
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { RequireAuth } from "../components/route-guards";
-import { UserShell } from "../components/user-shell";
+import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import {
   Badge,
   Card,
@@ -384,11 +383,5 @@ export function GuidedReflectionContent() {
 }
 
 export default function GuidedReflectionPage() {
-  return (
-    <RequireAuth>
-      <UserShell maxWidth="max-w-3xl">
-        <GuidedReflectionContent />
-      </UserShell>
-    </RequireAuth>
-  );
+  return <RoleAwareRedirect target="/guided" />;
 }

@@ -10,8 +10,7 @@ import {
 } from "../components/reflection-result";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { RequireAuth } from "../components/route-guards";
-import { UserShell } from "../components/user-shell";
+import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import {
   Card,
   LoadingCard,
@@ -273,11 +272,5 @@ export function QuickReflectionContent() {
 }
 
 export default function QuickReflectionPage() {
-  return (
-    <RequireAuth>
-      <UserShell maxWidth="max-w-3xl">
-        <QuickReflectionContent />
-      </UserShell>
-    </RequireAuth>
-  );
+  return <RoleAwareRedirect target="/quick" />;
 }

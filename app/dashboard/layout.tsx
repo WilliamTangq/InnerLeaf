@@ -13,15 +13,15 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
-  const { isAdmin, loading } = useAuth();
+  const { isAdmin, loading, profileLoading } = useAuth();
 
   useEffect(() => {
-    if (!loading && isAdmin) {
+    if (!loading && !profileLoading && isAdmin) {
       router.replace(resolveRoleAwareNextPath(pathname, "admin"));
     }
-  }, [isAdmin, loading, pathname, router]);
+  }, [isAdmin, loading, pathname, profileLoading, router]);
 
-  if (!loading && isAdmin) {
+  if (loading || profileLoading || isAdmin) {
     return (
       <div className="page-glow min-h-screen px-5 py-10 text-[var(--foreground)] sm:px-8">
         <LoadingCard label={t.auth.loadingSession} />
