@@ -6,16 +6,8 @@ import { Leaf } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useLanguage } from "./language-provider";
 import { supabaseBrowser } from "../lib/supabase-client";
+import { normalizeRole, resolveRoleAwareNextPath } from "../lib/routes";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
-
-const userNextPaths = [
-  "/dashboard",
-  "/dashboard/quick",
-  "/dashboard/guided",
-  "/dashboard/history",
-  "/dashboard/summary",
-  "/dashboard/account",
-];
 
 function nextPath(value: string | null) {
   if (!value || !value.startsWith("/") || value.startsWith("//")) {
@@ -23,18 +15,6 @@ function nextPath(value: string | null) {
   }
 
   return value;
-}
-
-function isAllowedNext(path: string | null, isAdmin: boolean) {
-  if (!path) {
-    return false;
-  }
-
-  if (userNextPaths.some((item) => path === item || path.startsWith(`${item}/`))) {
-    return true;
-  }
-
-  return isAdmin && (path === "/admin" || path.startsWith("/admin/"));
 }
 
 async function roleForCurrentSession() {
@@ -55,7 +35,7 @@ async function roleForCurrentSession() {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (data?.role === "admin" || data?.role === "tester") {
+  if (data?.role === "admin" || data?.role === "tester" || data?.role === "user") {
     return data.role;
   }
 
@@ -81,7 +61,8 @@ async function roleForCurrentSession() {
 
     if (
       ensuredProfile?.role === "admin" ||
-      ensuredProfile?.role === "tester"
+      ensuredProfile?.role === "tester" ||
+      ensuredProfile?.role === "user"
     ) {
       return ensuredProfile.role;
     }
@@ -91,14 +72,7 @@ async function roleForCurrentSession() {
 }
 
 async function roleAwareRedirect(next: string | null): Promise<string> {
-  const role = await roleForCurrentSession();
-  const isAdmin = role === "admin";
-
-  if (isAllowedNext(next, isAdmin)) {
-    return next as string;
-  }
-
-  return isAdmin ? "/admin" : "/dashboard";
+  return resolveRoleAwareNextPath(next, normalizeRole(await roleForCurrentSession()));
 }
 
 function emailLooksValid(value: string) {

@@ -1,5 +1,7 @@
 import {
   Brain,
+  CheckCircle2,
+  ChevronDown,
   Footprints,
   Heart,
   HelpCircle,
@@ -11,17 +13,22 @@ import {
   Waves,
   Zap,
 } from "lucide-react";
-import { Card, LinkButton, PageActions, SectionLabel } from "./ui";
+import { useEffect, useMemo, useState } from "react";
+import { Card, LinkButton, PageActions, PrimaryButton, SectionLabel } from "./ui";
+import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
 import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
 
 export type StructuredReflectionResult = {
   emotional_validation?: string;
+  moment_summary?: string;
   emotion?: string;
+  secondary_emotion?: string;
   trigger?: string;
   facts?: string[];
   interpretation?: string[];
   thought_pattern?: string;
+  thought_pattern_explanation?: string;
   behaviour?: string;
   body_factor?: string;
   behavioural_insight?: string;
@@ -29,10 +36,17 @@ export type StructuredReflectionResult = {
   next_step_type?: string;
   next_step?: string;
   mode_detected?: string;
+  gentle_observation?: string;
+  safety_note?: string;
   captured_clearly?: string;
   still_unclear?: string;
   completed_reflection?: string;
 } | null;
+
+type SavedReflectionSignal = {
+  trigger?: string | null;
+  thought_pattern?: string | null;
+};
 
 const SECTIONS = [
   { key: "Emotional Validation", label: "What came up" },
@@ -81,37 +95,45 @@ function parseSections(result: string) {
   return parsed.length > 0 ? parsed : null;
 }
 
-function bulletList(items?: string[], fallback = "Not clearly identified.") {
-  const values = items?.filter(Boolean) ?? [];
-
-  if (values.length === 0) {
-    return fallback;
-  }
-
-  return values.map((item) => `- ${item}`).join("\n");
+function compactItems(items?: string[]) {
+  return (items ?? []).filter(Boolean).slice(0, 2);
 }
 
-function meaningfulBodyFactor(value?: string) {
+function shortenWords(value?: string, maxWords = 25) {
   const text = value?.trim();
 
   if (!text) {
     return "";
   }
 
-  const lower = text.toLowerCase();
-  const neutralPhrases = [
-    "not mentioned",
-    "not clearly identified",
-    "no clear body",
-    "no body",
-    "not identified",
-    "未提到",
-    "没有明显",
-    "尚未清楚",
-    "未明确",
-  ];
+  const words = text.split(/\s+/);
+  return words.length > maxWords
+    ? `${words.slice(0, maxWords).join(" ")}...`
+    : text;
+}
 
-  return neutralPhrases.some((phrase) => lower.includes(phrase)) ? "" : text;
+function normaliseSignal(value?: string | null) {
+  return value?.trim().toLowerCase() ?? "";
+}
+
+function countMatching(
+  history: SavedReflectionSignal[],
+  key: keyof SavedReflectionSignal,
+  current?: string
+) {
+  const signal = normaliseSignal(current);
+
+  if (!signal) {
+    return 0;
+  }
+
+  return history.filter((item) => {
+    const saved = normaliseSignal(item[key]);
+    return (
+      saved &&
+      (saved === signal || saved.includes(signal) || signal.includes(saved))
+    );
+  }).length;
 }
 
 function ReflectionSection({
@@ -163,65 +185,109 @@ function ReflectionSection({
   );
 }
 
-function structuredSections(structured: NonNullable<StructuredReflectionResult>) {
-  const sections = [
-    { label: "What came up", content: structured.emotional_validation },
-    { label: "Emotion", content: structured.emotion },
-    { label: "Trigger", content: structured.trigger },
-    {
-      label: "Facts",
-      content: bulletList(structured.facts),
-    },
-    {
-      label: "Interpretation",
-      content: bulletList(structured.interpretation),
-    },
-    { label: "Thought pattern", content: structured.thought_pattern },
-    { label: "Behaviour", content: structured.behaviour },
-    {
-      label: "Body / context",
-      content: meaningfulBodyFactor(structured.body_factor),
-    },
-    { label: "Behavioural insight", content: structured.behavioural_insight },
-    { label: "One next question", content: structured.next_question },
-  ].filter((section) => section.content);
-
-  const guidedSections = [
-    { label: "Captured clearly", content: structured.captured_clearly },
-    { label: "Still unclear", content: structured.still_unclear },
-  ].filter((section) => section.content);
-
-  if (guidedSections.length > 0) {
-    return [...guidedSections, ...sections];
-  }
-
-  return sections;
-}
-
 export function ReflectionResultCard({
   result,
   structured,
   showActions = true,
   statusText,
+  saved = false,
+  saving = false,
+  onSave,
 }: {
   result: string;
   structured?: StructuredReflectionResult;
   showActions?: boolean;
   statusText?: string;
+  saved?: boolean;
+  saving?: boolean;
+  onSave?: () => void;
 }) {
   const { language, t } = useLanguage();
+  const { session } = useAuth();
+  const [history, setHistory] = useState<SavedReflectionSignal[]>([]);
+  const [checkInState, setCheckInState] = useState("");
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const sections = structured
-    ? structuredSections(structured)
+    ? null
     : parseSections(result);
   const nextStep = structured?.next_step?.trim();
   const nextStepType = structured?.next_step_type?.trim();
   const modeDetected = structured?.mode_detected?.trim();
   const isStructured = Boolean(structured);
   const labels = t.reflectionCard;
-  const facts = structured ? bulletList(structured.facts, labels.notIdentified) : "";
-  const interpretation = structured
-    ? bulletList(structured.interpretation, labels.notIdentified)
-    : "";
+  const factItems = compactItems(structured?.facts);
+  const interpretationItems = compactItems(structured?.interpretation);
+  const repeatedPatternCount = useMemo(
+    () => countMatching(history, "thought_pattern", structured?.thought_pattern),
+    [history, structured?.thought_pattern]
+  );
+  const repeatedTriggerCount = useMemo(
+    () => countMatching(history, "trigger", structured?.trigger),
+    [history, structured?.trigger]
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    if (!session?.access_token || !structured) {
+      return;
+    }
+
+    fetch("/api/reflections", {
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
+    })
+      .then((response) => (response.ok ? response.json() : { reflections: [] }))
+      .then((data) => {
+        if (!active) {
+          return;
+        }
+
+        const reflections = Array.isArray(data.reflections)
+          ? data.reflections
+          : [];
+        setHistory(reflections);
+      })
+      .catch(() => {
+        if (active) {
+          setHistory([]);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [session?.access_token, structured]);
+
+  const momentSummary =
+    structured?.moment_summary ||
+    (structured?.trigger
+      ? labels.momentSummaryFallback.replace("{trigger}", structured.trigger)
+      : "");
+  const gentleObservation = (() => {
+    if (!structured) {
+      return "";
+    }
+
+    if (history.length === 0) {
+      return structured.gentle_observation || labels.gentleObservationEmpty;
+    }
+
+    if (repeatedPatternCount > 0 && structured.thought_pattern) {
+      return labels.gentleObservationPattern
+        .replace("{pattern}", structured.thought_pattern)
+        .replace("{count}", String(repeatedPatternCount + 1));
+    }
+
+    if (repeatedTriggerCount > 0 && structured.trigger) {
+      return labels.gentleObservationTrigger
+        .replace("{trigger}", structured.trigger)
+        .replace("{count}", String(repeatedTriggerCount + 1));
+    }
+
+    return labels.gentleObservationHistory;
+  })();
 
   return (
     <section aria-labelledby="reflection-card-heading" className="mt-8">
@@ -259,16 +325,18 @@ export function ReflectionResultCard({
         </div>
 
         {isStructured && structured ? (
-          <div className="mt-5 grid gap-2.5 sm:gap-3">
+          <div className="mt-5 grid gap-3 sm:gap-3.5">
+            {structured.emotional_validation && (
+              <div className="rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(232,246,237,0.72),rgba(255,255,248,0.92))] p-4 ring-1 ring-[rgba(31,155,143,0.08)] sm:p-5">
+                <p className="max-w-2xl text-[15px] leading-7 text-[var(--foreground)]">
+                  {structured.emotional_validation}
+                </p>
+              </div>
+            )}
             <ReflectionSection
-              label="What came up"
-              labelText={labels.emotionalValidation}
-              content={structured.emotional_validation}
-            />
-            <ReflectionSection
-              label="Trigger"
-              labelText={labels.trigger}
-              content={structured.trigger}
+              label="Captured clearly"
+              labelText={labels.momentSummary}
+              content={momentSummary}
             />
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
               <div className="flex items-center gap-2">
@@ -276,51 +344,150 @@ export function ReflectionResultCard({
                   className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
                   aria-hidden="true"
                 >
-                  <ListChecks size={15} strokeWidth={1.8} />
+                  <Heart size={15} strokeWidth={1.8} />
                 </span>
                 <h3 className="text-sm font-medium text-[var(--foreground)]">
-                  {labels.factsInterpretation}
+                  {labels.emotionSnapshot}
                 </h3>
               </div>
-              <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-                <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {labels.facts}
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                    {facts}
-                  </p>
-                </div>
-                <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
-                  <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                    {labels.interpretation}
-                  </p>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                    {interpretation}
-                  </p>
-                </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {structured.emotion && (
+                  <span className="rounded-full border border-[rgba(31,155,143,0.22)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium text-[var(--brand-teal-deep)]">
+                    {labels.mainEmotion}: {structured.emotion}
+                  </span>
+                )}
+                {structured.secondary_emotion && (
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium text-[var(--foreground-muted)]">
+                    {labels.secondaryEmotion}: {structured.secondary_emotion}
+                  </span>
+                )}
               </div>
             </div>
             <ReflectionSection
-              label="Thought pattern"
-              labelText={labels.thoughtPattern}
-              content={structured.thought_pattern}
+              label="Trigger"
+              labelText={labels.trigger}
+              content={shortenWords(structured.trigger, 25)}
             />
             <ReflectionSection
-              label="Behaviour"
-              labelText={labels.behaviour}
-              content={structured.behaviour}
+              label="Still unclear"
+              labelText={labels.safetyNote}
+              content={structured.safety_note}
+              tone="highlight"
             />
-            <ReflectionSection
-              label="Body / context"
-              labelText={labels.bodyContext}
-              content={meaningfulBodyFactor(structured.body_factor)}
-            />
-            <ReflectionSection
-              label="Behavioural insight"
-              labelText={labels.behaviouralInsight}
-              content={structured.behavioural_insight}
-            />
+            {nextStep && (
+              <div className="rounded-[calc(var(--radius-xl)+2px)] border border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] p-4 shadow-[0_20px_55px_rgba(31,155,143,0.12)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+                    aria-hidden="true"
+                  >
+                    <Footprints size={17} strokeWidth={1.9} />
+                  </span>
+                  <h3 className="text-base font-semibold text-[var(--foreground)]">
+                    {labels.nextStep}
+                  </h3>
+                  {nextStepType && (
+                    <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                      {translateNextStepType(language, nextStepType)}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
+                  {nextStep}
+                </p>
+                <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
+                  {labels.nextStepHint}
+                </p>
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={() => setDetailsOpen((current) => !current)}
+              className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] transition duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+              aria-expanded={detailsOpen}
+            >
+              <span>{labels.detailsToggle}</span>
+              <ChevronDown
+                size={16}
+                strokeWidth={1.8}
+                aria-hidden="true"
+                className={[
+                  "shrink-0 text-[var(--foreground-subtle)] transition duration-200",
+                  detailsOpen ? "rotate-180" : "",
+                ].join(" ")}
+              />
+            </button>
+            {detailsOpen && (
+              <div className="grid gap-3">
+                <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+                      aria-hidden="true"
+                    >
+                      <ListChecks size={15} strokeWidth={1.8} />
+                    </span>
+                    <h3 className="text-sm font-medium text-[var(--foreground)]">
+                      {labels.factsInterpretation}
+                    </h3>
+                  </div>
+                  <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+                    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                        {labels.facts}
+                      </p>
+                      {factItems.length ? (
+                        <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+                          {factItems.map((fact) => (
+                            <li key={fact}>- {fact}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                          {labels.notIdentified}
+                        </p>
+                      )}
+                    </div>
+                    <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                        {labels.interpretation}
+                      </p>
+                      {interpretationItems.length ? (
+                        <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+                          {interpretationItems.map((item) => (
+                            <li key={item}>- {item}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                          {labels.notIdentified}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <ReflectionSection
+                  label="Thought pattern"
+                  labelText={labels.mainThoughtPattern}
+                  content={[
+                    structured.thought_pattern,
+                    structured.thought_pattern_explanation,
+                  ]
+                    .filter(Boolean)
+                    .join("\n")}
+                />
+                <ReflectionSection
+                  label="Behavioural insight"
+                  labelText={labels.behaviouralInsight}
+                  content={structured.behavioural_insight}
+                />
+                <ReflectionSection
+                  label="Body / context"
+                  labelText={labels.gentleObservation}
+                  content={gentleObservation}
+                />
+              </div>
+            )}
             <ReflectionSection
               label="One next question"
               labelText={labels.nextQuestion}
@@ -358,32 +525,70 @@ export function ReflectionResultCard({
           </div>
         )}
 
-        {nextStep && (
-          <div className="mt-5 rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.24)] bg-[var(--accent-soft)] p-4 ring-1 ring-[rgba(31,155,143,0.1)] sm:p-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className="flex h-8 w-8 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
-                aria-hidden="true"
-              >
-                <Footprints size={16} strokeWidth={1.8} />
-              </span>
+        <div className="mt-6 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface-muted)] p-4 sm:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                {labels.nextStep}
+                {labels.saveCheckInTitle}
               </h3>
-              {nextStepType && (
-                <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                  {translateNextStepType(language, nextStepType)}
-                </span>
-              )}
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                {saved ? labels.savedCheckInHint : labels.saveCheckInHint}
+              </p>
             </div>
-            <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-              {nextStep}
-            </p>
-            <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
-              {labels.nextStepHint}
-            </p>
+            {onSave && (
+              <PrimaryButton
+                type="button"
+                size="md"
+                onClick={onSave}
+                disabled={saving || saved}
+                className="w-full shrink-0 sm:w-auto"
+              >
+                {saved
+                  ? labels.savedToHistory
+                  : saving
+                    ? labels.saving
+                    : labels.saveThisReflection}
+              </PrimaryButton>
+            )}
           </div>
-        )}
+          <LinkButton
+            href="/dashboard/quick"
+            variant="secondary"
+            size="md"
+            className="mt-3 w-full sm:w-auto"
+          >
+            {labels.reflectAgain}
+          </LinkButton>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[
+              ["helped", labels.helpful],
+              ["not_quite", labels.notQuite],
+              ["too_much", labels.tooMuch],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setCheckInState(value)}
+                className={[
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                  checkInState === value
+                    ? "border-[rgba(31,155,143,0.32)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                    : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]",
+                ].join(" ")}
+              >
+                {checkInState === value && (
+                  <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
+                )}
+                {label}
+              </button>
+            ))}
+          </div>
+          {checkInState && (
+            <p className="mt-3 text-xs text-[var(--foreground-subtle)]">
+              {labels.microCheckInSaved}
+            </p>
+          )}
+        </div>
 
         {showActions && (
           <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">

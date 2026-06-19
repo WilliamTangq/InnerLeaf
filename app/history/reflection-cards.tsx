@@ -4,7 +4,6 @@ import {
   Brain,
   CheckCircle2,
   Footprints,
-  HelpCircle,
   Route,
   Send,
   Zap,
@@ -52,18 +51,6 @@ function cardLabels(aiResult: string | null) {
 
 type Labels = ReturnType<typeof useLanguage>["t"];
 
-function modeLabel(mode: string | null, labels: Labels) {
-  if (mode === "guided") {
-    return labels.history.modeGuided;
-  }
-
-  if (mode === "quick") {
-    return labels.history.modeQuick;
-  }
-
-  return labels.history.modeReflection;
-}
-
 function checkInResultLabel(result: string | null, labels: Labels) {
   if (result === "Helped") {
     return labels.history.helped;
@@ -98,7 +85,6 @@ function formatHistoryDate(value: string) {
 const previewIcons = {
   Trigger: Zap,
   "Thought pattern": Brain,
-  "One next question": HelpCircle,
   "One small next step": Footprints,
   Interpretation: Route,
 } as const;
@@ -121,12 +107,11 @@ function sectionTitle(title: string, labels: Labels) {
   return map[title] || title;
 }
 
-function storedList(value: string | null) {
+function storedItems(value: string | null) {
   return (value ?? "")
     .split("\n")
     .map((item) => item.replace(/^[-•]\s*/, "").trim())
-    .filter(Boolean)
-    .join(" ");
+    .filter(Boolean);
 }
 
 function previewLine(value: string | null, max = 140) {
@@ -180,6 +165,83 @@ function formatFollowUpDate(value: string | null) {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(value));
+}
+
+function toHistoryCard(item: Reflection) {
+  const extractedLabels = cardLabels(item.ai_result);
+  const originalInput = previewLine(item.user_input, 800) || "";
+  const trigger = previewLine(item.trigger) || extractedLabels.trigger || "";
+  const thoughtPattern =
+    previewLine(item.thought_pattern) || extractedLabels.thoughtPattern || "";
+  const oneNextQuestion =
+    previewLine(item.next_question) || extractedLabels.nextQuestion || "";
+  const oneSmallNextStep =
+    previewLine(item.next_step) ||
+    extractSection(item.ai_result, "One Small Next Step") ||
+    "";
+
+  return {
+    id: item.id,
+    createdAt: item.created_at,
+    originalInput,
+    mainEmotion: previewLine(item.emotion, 80) || "",
+    secondaryEmotion: "",
+    trigger,
+    facts: storedItems(item.facts),
+    interpretations: storedItems(item.interpretation),
+    thoughtPattern,
+    behaviouralInsight: previewLine(item.behavioural_insight, 280) || "",
+    oneSmallNextStep,
+    oneNextQuestion,
+    userFeedback: {
+      result: item.follow_up_result,
+      note: item.follow_up_note,
+    },
+    checkInStatus: item.follow_up_result ? "checked_in" : "not_checked_in",
+    nextStepType: previewLine(item.next_step_type, 60) || "",
+    modeLabel: item.mode,
+    modeDetected: item.mode_detected,
+    raw: item,
+  };
+}
+
+export function isVisibleHistoryReflection(item: Reflection) {
+  const card = toHistoryCard(item);
+  const input = card.originalInput.toLowerCase();
+  const trigger = card.trigger.toLowerCase();
+  const lowQualityInputs = new Set([
+    "test",
+    "testing",
+    "stress",
+    "stressed",
+    "sad",
+    "angry",
+  ]);
+  const weakTriggers = [
+    "unspecified",
+    "not clearly identified",
+    "not identified",
+    "尚未清楚识别",
+    "未明确",
+  ];
+
+  if (!card.originalInput && !card.trigger && !card.thoughtPattern) {
+    return false;
+  }
+
+  if (lowQualityInputs.has(input)) {
+    return false;
+  }
+
+  if (input.length > 0 && input.length < 8 && !input.includes(" ")) {
+    return false;
+  }
+
+  if (!trigger || weakTriggers.some((value) => trigger.includes(value))) {
+    return false;
+  }
+
+  return true;
 }
 
 function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
@@ -374,47 +436,34 @@ export function ReflectionCards({
   return (
     <div className="space-y-4">
       {reflections.map((item) => {
-        const extractedLabels = cardLabels(item.ai_result);
-        const labels = {
-          trigger: previewLine(item.trigger) || extractedLabels.trigger,
-          thoughtPattern:
-            previewLine(item.thought_pattern) || extractedLabels.thoughtPattern,
-          interpretation: storedList(item.interpretation),
-          nextQuestion:
-            previewLine(item.next_question) || extractedLabels.nextQuestion,
-          nextStep:
-            previewLine(item.next_step) ||
-            extractSection(item.ai_result, "One Small Next Step"),
-          nextStepType: previewLine(item.next_step_type, 60),
-          bodyFactor: meaningfulBodyFactor(item.body_factor),
-        };
+        const card = toHistoryCard(item);
+        const bodyFactor = meaningfulBodyFactor(item.body_factor);
         const isOpen = openCards.has(item.id);
         const collapsedPreview = [
-          ["Trigger", labels.trigger],
-          ["Thought pattern", labels.thoughtPattern],
-          ["One next question", labels.nextQuestion],
-          ["One small next step", labels.nextStep],
+          ["Trigger", card.trigger],
+          ["Thought pattern", card.thoughtPattern],
+          ["One small next step", card.oneSmallNextStep],
         ] as const;
         const visiblePreview = collapsedPreview.filter(([, content]) =>
           Boolean(content)
         );
         const headline =
-          previewLine(labels.trigger) ||
-          previewLine(item.user_input, 100) ||
+          previewLine(card.trigger) ||
+          previewLine(card.originalInput, 100) ||
           "Reflection card";
 
         const fullSections = [
           ["What came up", item.emotional_validation],
-          ["Emotion", item.emotion],
-          ["Trigger", labels.trigger],
-          ["Facts", storedList(item.facts)],
-          ["Interpretation", labels.interpretation],
-          ["Thought pattern", labels.thoughtPattern],
+          ["Emotion", card.mainEmotion],
+          ["Trigger", card.trigger],
+          ["Facts", card.facts.join(" ")],
+          ["Interpretation", card.interpretations.join(" ")],
+          ["Thought pattern", card.thoughtPattern],
           ["Behaviour", item.behaviour],
-          ["Body / context", labels.bodyFactor],
-          ["Behavioural insight", item.behavioural_insight],
-          ["One next question", labels.nextQuestion],
-          ["One small next step", labels.nextStep],
+          ["Body / context", bodyFactor],
+          ["Behavioural insight", card.behaviouralInsight],
+          ["One small next step", card.oneSmallNextStep],
+          ["One next question", card.oneNextQuestion],
         ] as const;
 
         return (
@@ -428,22 +477,21 @@ export function ReflectionCards({
                   >
                     {formatHistoryDate(item.created_at)}
                   </time>
-                  {item.emotion && (
-                    <Badge variant="accent">{item.emotion}</Badge>
+                  {card.mainEmotion && (
+                    <Badge variant="accent">{card.mainEmotion}</Badge>
                   )}
-                  <Badge variant="outline">{modeLabel(item.mode, t)}</Badge>
                   {item.mode_detected && item.mode_detected !== "General" && (
                     <Badge variant="outline">
                       {t.reflectionCard.reflectionMode}:{" "}
                       {translateDetectedMode(language, item.mode_detected)}
                     </Badge>
                   )}
-                  {labels.nextStepType && (
+                  {card.nextStepType && (
                     <Badge variant="accent">
-                      {translateNextStepType(language, labels.nextStepType)}
+                      {translateNextStepType(language, card.nextStepType)}
                     </Badge>
                   )}
-                  {labels.nextStep && (
+                  {card.oneSmallNextStep && (
                     <Badge variant={item.follow_up_result ? "accent" : "outline"}>
                       {followUpLabel(item.follow_up_result, t)}
                     </Badge>
@@ -468,9 +516,7 @@ export function ReflectionCards({
               <dl className="mt-4 grid gap-2.5 sm:grid-cols-3">
                 {visiblePreview.map(([title, content]) => {
                   const Icon = previewIcons[title as keyof typeof previewIcons];
-                  const isQuestion =
-                    title === "One next question" ||
-                    title === "One small next step";
+                  const isQuestion = title === "One small next step";
                   return (
                     <div
                       key={title}
@@ -507,7 +553,7 @@ export function ReflectionCards({
                       {t.history.whatYouWrote}
                     </h3>
                     <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                      {item.user_input}
+                      {card.originalInput}
                     </p>
                   </div>
                 )}

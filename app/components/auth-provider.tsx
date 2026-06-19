@@ -58,11 +58,7 @@ async function fetchProfile(nextSession: Session | null) {
 
   if (data && ["user", "admin", "tester"].includes(data.role)) {
     if (process.env.NODE_ENV !== "production") {
-      console.info("InnerLeaf profile role fetched", {
-        userId: nextSession.user.id,
-        email: nextSession.user.email,
-        role: data.role,
-      });
+      console.info("[auth role]", nextSession.user.email, data.role);
     }
 
     return data as UserProfile;

@@ -1,4 +1,4 @@
-import { WorkspaceContent } from "../app/page";
+import { WorkspaceContent } from "./workspace-content";
 
 export default function DashboardPage() {
   return <WorkspaceContent />;

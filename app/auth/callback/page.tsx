@@ -5,45 +5,7 @@ import { useRouter } from "next/navigation";
 import { LoadingCard, PageShell } from "../../components/ui";
 import { useLanguage } from "../../components/language-provider";
 import { supabaseBrowser } from "../../lib/supabase-client";
-
-const userNextPaths = [
-  "/dashboard",
-  "/dashboard/quick",
-  "/dashboard/guided",
-  "/dashboard/history",
-  "/dashboard/summary",
-  "/dashboard/account",
-];
-
-function normalizeNextPath(value: string | null, isAdmin: boolean) {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) {
-    return null;
-  }
-
-  const legacyPaths: Record<string, string> = {
-    "/app": "/dashboard",
-    "/quick": "/dashboard/quick",
-    "/guided": "/dashboard/guided",
-    "/history": "/dashboard/history",
-    "/summary": "/dashboard/summary",
-    "/account": isAdmin ? "/admin/account" : "/dashboard/account",
-  };
-  const normalized = legacyPaths[value] ?? value;
-
-  if (
-    userNextPaths.some(
-      (path) => normalized === path || normalized.startsWith(`${path}/`)
-    )
-  ) {
-    return normalized;
-  }
-
-  if (isAdmin && (normalized === "/admin" || normalized.startsWith("/admin/"))) {
-    return normalized;
-  }
-
-  return null;
-}
+import { normalizeRole, resolveRoleAwareNextPath } from "../../lib/routes";
 
 async function currentRole() {
   if (!supabaseBrowser) {
@@ -106,11 +68,10 @@ export default function AuthCallbackPage() {
         await supabaseBrowser.auth.exchangeCodeForSession(code);
       }
 
-      const role = await currentRole();
-      const isAdmin = role === "admin";
+      const role = normalizeRole(await currentRole());
       const next = window.localStorage.getItem("innerleaf_auth_next");
       window.localStorage.removeItem("innerleaf_auth_next");
-      router.replace(normalizeNextPath(next, isAdmin) ?? (isAdmin ? "/admin" : "/dashboard"));
+      router.replace(resolveRoleAwareNextPath(next, role));
     }
 
     void finishAuth();

@@ -31,7 +31,7 @@ const protectedRoutes = [
 ] as const;
 
 const compatibilityRoutes = {
-  "/app": "/dashboard",
+  "/app": "/app",
   "/quick": "/dashboard/quick",
   "/guided": "/dashboard/guided",
   "/history": "/dashboard/history",

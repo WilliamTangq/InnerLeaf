@@ -295,27 +295,10 @@ export function GuidedReflectionContent() {
             structured={structured}
             showActions={saved}
             statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+            saved={saved}
+            saving={saving}
+            onSave={saveReflection}
           />
-          {!saved && (
-            <div className="mt-4">
-              <StatusCard tone="neutral">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span>{t.auth.trust}</span>
-                  <PrimaryButton
-                    type="button"
-                    size="sm"
-                    onClick={saveReflection}
-                    disabled={saving}
-                    className="shrink-0"
-                  >
-                    {saving
-                      ? t.common.savingReflection
-                      : t.common.saveToHistory}
-                  </PrimaryButton>
-                </div>
-              </StatusCard>
-            </div>
-          )}
         </>
       )}
     </div>

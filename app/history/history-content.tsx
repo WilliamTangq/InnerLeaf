@@ -10,7 +10,10 @@ import {
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { ReflectionCards } from "./reflection-cards";
+import {
+  isVisibleHistoryReflection,
+  ReflectionCards,
+} from "./reflection-cards";
 import type { Reflection } from "./page";
 
 export function HistoryContent() {
@@ -19,7 +22,8 @@ export function HistoryContent() {
   const [reflections, setReflections] = useState<Reflection[]>([]);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const latest = reflections[0];
+  const visibleReflections = reflections.filter(isVisibleHistoryReflection);
+  const latest = visibleReflections[0];
 
   useEffect(() => {
     async function loadReflections() {
@@ -67,11 +71,11 @@ export function HistoryContent() {
         </LinkButton>
       </PageActions>
 
-      {!hasError && reflections.length > 0 && (
+      {!hasError && visibleReflections.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-3 text-sm text-[var(--foreground-muted)]">
           <span>
             <span className="font-medium text-[var(--foreground)]">
-              {reflections.length}
+              {visibleReflections.length}
             </span>{" "}
             {t.history.saved}
           </span>
@@ -114,7 +118,7 @@ export function HistoryContent() {
         />
       )}
 
-      {!hasError && loaded && user && reflections.length === 0 && (
+      {!hasError && loaded && user && visibleReflections.length === 0 && (
         <div className="space-y-4">
           <EmptyState
             title={t.history.emptyTitle}
@@ -134,8 +138,8 @@ export function HistoryContent() {
         </div>
       )}
 
-      {!hasError && loaded && user && reflections.length > 0 && (
-        <ReflectionCards reflections={reflections} />
+      {!hasError && loaded && user && visibleReflections.length > 0 && (
+        <ReflectionCards reflections={visibleReflections} />
       )}
     </div>
   );

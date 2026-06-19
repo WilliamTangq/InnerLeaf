@@ -19,6 +19,7 @@ import { BrandLogo } from "./components/brand-logo";
 import { useAuth } from "./components/auth-provider";
 import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
+import { getDefaultRouteForRole } from "./lib/routes";
 
 const productIcons = [Scale, Brain, Feather] as const;
 const flowIcons = [PencilLine, Sparkles, FileText, Route] as const;
@@ -160,8 +161,8 @@ function SectionHeading({
 
 export default function Home() {
   const { t } = useLanguage();
-  const { user } = useAuth();
-  const primaryHref = user ? "/app" : "/register";
+  const { role, user } = useAuth();
+  const primaryHref = user ? getDefaultRouteForRole(role) : "/register";
   const primaryLabel = user ? t.common.goWorkspace : t.common.createAccount;
 
   return (
@@ -204,7 +205,7 @@ export default function Home() {
             </LinkButton>
           </div>
           <Link
-            href={user ? "/app" : "/login"}
+            href={user ? getDefaultRouteForRole(role) : "/login"}
             className="mt-4 inline-flex text-sm font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
           >
             {user ? t.common.goWorkspace : t.auth.loginLink}

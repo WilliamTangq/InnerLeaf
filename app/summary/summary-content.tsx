@@ -1,8 +1,7 @@
 "use client";
 
-import { CheckCircle2, Footprints, Leaf, Sparkles } from "lucide-react";
+import { CheckCircle2, Footprints, Leaf } from "lucide-react";
 import { useEffect, useState } from "react";
-import { PatternSection } from "../components/pattern-section";
 import {
   Card,
   EmptyState,
@@ -23,6 +22,7 @@ type SummaryReflection = {
   thought_pattern: string | null;
   behaviour: string | null;
   next_step_type: string | null;
+  next_step: string | null;
   follow_up_result: string | null;
 };
 
@@ -141,19 +141,215 @@ function topPatterns(values: string[]) {
     .slice(0, 3);
 }
 
-function ChangeSection({ signals }: { signals: string[] }) {
-  const { t } = useLanguage();
-  const displaySignals = t.summary.observationItems.slice(0, signals.length);
+function joinReadable(items: string[], language: "en" | "zh") {
+  const values = items.filter(Boolean).slice(0, 2);
+
+  if (values.length === 0) {
+    return language === "zh" ? "几个不同触发点" : "a few different triggers";
+  }
+
+  if (values.length === 1) {
+    return values[0];
+  }
+
+  return language === "zh" ? `${values[0]}和${values[1]}` : `${values[0]} and ${values[1]}`;
+}
+
+function thoughtExplanation(pattern: string, language: "en" | "zh") {
+  const lower = pattern.toLowerCase();
+
+  if (language === "zh") {
+    if (/读心|mind/.test(pattern)) return "信息不完整时，大脑容易先替别人补全意思。";
+    if (/灾难|catastroph/.test(pattern)) return "不确定时，注意力容易先跳到较坏的可能性。";
+    if (/比较|comparison/.test(pattern)) return "你可能会把别人的状态当作衡量自己的依据。";
+    if (/个人化|personal/.test(pattern)) return "你可能会把别人的反应过快地归因到自己身上。";
+    if (/非黑即白|all/.test(pattern)) return "事情容易被看成只有成功或失败两种结果。";
+    if (/情绪化推理|emotional/.test(pattern)) return "感受很强时，它可能会被当成事实。";
+    if (/确认|reassurance/.test(pattern)) return "不确定时，你可能会想通过反复确认来降低不安。";
+    if (/回避|avoid/.test(pattern)) return "压力升高时，先避开会短暂减轻负担。";
+    if (/自责|blame/.test(pattern)) return "你可能会先把责任放到自己身上。";
+    if (/概括|general/.test(pattern)) return "一次事件容易被理解成更大的固定模式。";
+    return "这个模式可能影响了你理解当下的方式。";
+  }
+
+  if (lower.includes("mind")) return "When information is missing, your mind may fill in the other person's meaning.";
+  if (lower.includes("catastroph")) return "Uncertainty may pull attention toward the worst possible explanation.";
+  if (lower.includes("comparison")) return "Someone else's situation may become a quick measure of your own.";
+  if (lower.includes("personal")) return "Another person's behaviour may start to feel like a statement about you.";
+  if (lower.includes("all-or-nothing")) return "The moment may start to feel like either success or failure.";
+  if (lower.includes("emotional")) return "A strong feeling may start to feel like evidence.";
+  if (lower.includes("reassurance")) return "Uncertainty may create an urge to check or seek confirmation.";
+  if (lower.includes("avoid")) return "Stepping away may briefly reduce pressure when the moment feels too much.";
+  if (lower.includes("blame")) return "You may be putting responsibility on yourself before the facts are clear.";
+  if (lower.includes("general")) return "One event may start to feel like proof of a larger pattern.";
+  return "This pattern may be shaping how the moment gets interpreted.";
+}
+
+function behaviourSentence(behaviour: string, language: "en" | "zh") {
+  if (!behaviour) {
+    return language === "zh"
+      ? "你的行为模式还不够清楚，需要更多卡片来对比。"
+      : "Your behavioural pattern is not clear enough yet; more cards will make it easier to compare.";
+  }
+
+  if (language === "zh") {
+    const map: Record<string, string> = {
+      反复查看: "你可能会反复查看、等待、重读，或在心里回放这件事。",
+      回避: "你可能会先避开、拖延，或把回应推迟到压力小一点的时候。",
+      寻求确认: "你可能会想通过确认、提问或等待回应来让自己稳定下来。",
+      情绪化发送消息: "你可能会在情绪很满时想立刻发送消息或回应。",
+      稳定自己: "你已经开始用一些让身体和情绪降速的动作来回应。",
+      澄清事实: "你开始把事实和假设分开，再决定下一步怎么回应。",
+      停摆: "压力很高时，你可能会停下来、卡住，或暂时动不了。",
+      延迟行动: "你可能会选择先等待，让反应慢一点再发生。",
+    };
+    return map[behaviour] || `你的反应里反复出现的是：${behaviour}。`;
+  }
+
+  const map: Record<string, string> = {
+    "Checking behaviour": "You tend to check, wait, reread, or mentally replay the situation before responding.",
+    Avoidance: "You tend to step back, delay, or avoid the moment until the pressure feels lower.",
+    "Reassurance-seeking": "You may look for confirmation before your system feels settled.",
+    "Emotional messaging": "You may feel pulled to message or respond while the emotion is still high.",
+    "Self-soothing": "You are starting to use small actions that slow the body and emotion down.",
+    "Clarifying facts": "You are starting to separate facts from assumptions before choosing a response.",
+    Shutdown: "When pressure rises, you may freeze, shut down, or find it hard to start.",
+    "Delaying action": "You may wait before acting so the first reaction has time to settle.",
+  };
+  return map[behaviour] || `One repeated behavioural theme is ${behaviour}.`;
+}
+
+function changeNoticed(
+  stepType: string,
+  behaviour: string,
+  language: "en" | "zh"
+) {
+  const signal = `${stepType} ${behaviour}`.toLowerCase();
+
+  if (language === "zh") {
+    if (/clarify|澄清|fact|事实/.test(signal)) {
+      return "一个小变化是，你开始在反应前区分事实和假设。";
+    }
+    if (/pause|暂停|delay|等待|延迟/.test(signal)) {
+      return "一个小变化是，你开始给反应留出一点暂停空间。";
+    }
+    if (/self|稳定|soothe|休息|呼吸/.test(signal)) {
+      return "一个小变化是，你开始先稳定身体和情绪，再处理事情。";
+    }
+    if (/communicate|沟通|消息/.test(signal)) {
+      return "一个小变化是，你开始把回应变得更慢、更清楚。";
+    }
+    return "一个小变化是，你已经在把混乱的反应整理成可以回看的卡片。";
+  }
+
+  if (/clarify|fact/.test(signal)) {
+    return "One small change is that you are starting to pause and separate facts from assumptions before reacting.";
+  }
+  if (/pause|delay|wait/.test(signal)) {
+    return "One small change is that you are creating a little space before responding.";
+  }
+  if (/self|soothe|rest|breath/.test(signal)) {
+    return "One small change is that you are starting with stabilising yourself before solving the situation.";
+  }
+  if (/communicate|message/.test(signal)) {
+    return "One small change is that you are making responses slower and clearer.";
+  }
+  return "One small change is that you are turning messy reactions into cards you can review.";
+}
+
+function suggestedFocus(pattern: string, language: "en" | "zh") {
+  const lower = pattern.toLowerCase();
+
+  if (language === "zh") {
+    if (/读心|mind/.test(pattern)) return "下一次反思时，先写下一个事实和两个其他可能解释。";
+    if (/灾难|catastroph/.test(pattern)) return "下一次反思时，区分最坏情况、中性情况和最可能情况。";
+    if (/比较|comparison/.test(pattern)) return "下一次反思时，先停止查看触发源，再回到一个自己的真实需要。";
+    if (/个人化|personal/.test(pattern)) return "下一次反思时，把对方的行为和你的自我价值分开看。";
+    if (/非黑即白|all/.test(pattern)) return "下一次反思时，只选择一个 10 分钟的开始动作。";
+    if (/情绪化推理|emotional/.test(pattern)) return "下一次反思时，先命名感受，再检查事实是否支持它。";
+    if (/确认|reassurance/.test(pattern)) return "下一次反思时，可以先写下想发送的话，但晚一点再决定是否发送。";
+    if (/回避|avoid/.test(pattern)) return "下一次反思时，选择一个阻力最低的小动作。";
+    if (/自责|blame/.test(pattern)) return "下一次反思时，只识别哪些部分真的在你的控制范围内。";
+    if (/概括|general/.test(pattern)) return "下一次反思时，看看这是一次事件，还是已经被多次证明的模式。";
+    return "下一次反思时，专注识别一个事实和一个假设，再选择回应。";
+  }
+
+  if (lower.includes("mind")) return "For your next reflection, write one fact and two alternative explanations before choosing a response.";
+  if (lower.includes("catastroph")) return "For your next reflection, separate the worst-case, neutral-case, and most likely case.";
+  if (lower.includes("comparison")) return "For your next reflection, stop checking the trigger source and return to one personal need.";
+  if (lower.includes("personal")) return "For your next reflection, separate the other person's behaviour from your own worth.";
+  if (lower.includes("all-or-nothing")) return "For your next reflection, choose one 10-minute starting action.";
+  if (lower.includes("emotional")) return "For your next reflection, name the feeling first, then check whether the facts support it.";
+  if (lower.includes("reassurance")) return "For your next reflection, draft the message but wait before sending.";
+  if (lower.includes("avoid")) return "For your next reflection, choose one low-friction action.";
+  if (lower.includes("blame")) return "For your next reflection, identify what was actually under your control.";
+  if (lower.includes("general")) return "For your next reflection, ask whether this is one event or a repeated proven pattern.";
+  return "For your next reflection, focus on identifying one fact and one assumption before choosing a response.";
+}
+
+function SummaryNarrativeCard({
+  repeatedTriggers,
+  repeatedThoughtPatterns,
+  behaviouralThemes,
+  nextStepTypes,
+}: {
+  repeatedTriggers: Array<{ value: string; count: number }>;
+  repeatedThoughtPatterns: Array<{ value: string; count: number }>;
+  behaviouralThemes: Array<{ value: string; count: number }>;
+  nextStepTypes: Array<{ value: string; count: number }>;
+}) {
+  const { language, t } = useLanguage();
+  const topTrigger = repeatedTriggers[0]?.value || "";
+  const themeTriggers = joinReadable(
+    repeatedTriggers.map((item) => item.value),
+    language
+  );
+  const topThought = repeatedThoughtPatterns[0]?.value || "";
+  const topBehaviour = behaviouralThemes[0]?.value || "";
+  const topStepType = nextStepTypes[0]?.value || "";
+  const rows = [
+    [
+      t.summary.recentEmotionalTheme,
+      t.summary.recentEmotionalThemeText.replace("{triggers}", themeTriggers),
+    ],
+    [
+      t.summary.repeatedTrigger,
+      topTrigger
+        ? t.summary.repeatedTriggerText.replace("{trigger}", topTrigger)
+        : t.summary.noRepeatedTrigger,
+    ],
+    [
+      t.summary.repeatedThoughtPattern,
+      topThought
+        ? t.summary.repeatedThoughtPatternText
+            .replace("{pattern}", topThought)
+            .replace("{explanation}", thoughtExplanation(topThought, language))
+        : t.summary.noRepeatedThought,
+    ],
+    [
+      t.summary.behaviouralPattern,
+      behaviourSentence(topBehaviour, language),
+    ],
+    [
+      t.summary.changeNoticed,
+      changeNoticed(topStepType, topBehaviour, language),
+    ],
+    [t.summary.gentleReassurance, t.summary.gentleReassuranceText],
+    [
+      t.summary.suggestedFocus,
+      suggestedFocus(topThought, language),
+    ],
+  ];
 
   return (
-    <Card className="hover:translate-y-0">
+    <Card variant="elevated" className="hover:translate-y-0">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {t.summary.observations}
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+            {t.summary.narrativeTitle}
           </h2>
           <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            {t.summary.observationsDesc}
+            {t.summary.narrativeDesc}
           </p>
         </div>
         <Leaf
@@ -164,28 +360,56 @@ function ChangeSection({ signals }: { signals: string[] }) {
         />
       </div>
 
-      {displaySignals.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
-          {t.summary.emptyProgress}
-        </p>
-      ) : (
-        <ul className="mt-5 space-y-2">
-          {displaySignals.map((signal) => (
+      <dl className="mt-5 grid gap-2.5">
+        {rows.map(([label, text]) => (
+          <div
+            key={label}
+            className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+          >
+            <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+              {label}
+            </dt>
+            <dd className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+              {text}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </Card>
+  );
+}
+
+function LegacyPatternList({
+  title,
+  items,
+}: {
+  title: string;
+  items: Array<{ value: string; count: number }>;
+}) {
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="hover:translate-y-0">
+      <h2 className="text-base font-semibold text-[var(--foreground)]">
+        {title}
+      </h2>
+      <ul className="mt-4 space-y-2">
+        {items.map((item) => (
             <li
-              key={signal}
-              className="flex gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm leading-6 text-[var(--foreground-muted)]"
+              key={item.value}
+              className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
             >
-              <Sparkles
-                aria-hidden="true"
-                size={15}
-                strokeWidth={1.8}
-                className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
-              />
-              <span>{signal}</span>
+              <span className="text-sm leading-6 text-[var(--foreground-muted)]">
+                {item.value}
+              </span>
+              <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
+                {item.count}×
+              </span>
             </li>
-          ))}
-        </ul>
-      )}
+        ))}
+      </ul>
     </Card>
   );
 }
@@ -315,7 +539,9 @@ export function SummaryContent() {
   const recentBehaviouralThemes = topPatterns(
     reflections.map((item) => normalizeCategory(item.behaviour, language, "behaviour"))
   );
-  const signals = hasEnoughData ? t.summary.observationItems.slice(0, 3) : [];
+  const repeatedNextStepTypes = topPatterns(
+    reflections.map((item) => cleanRawLabel(item.next_step_type))
+  );
   const nextStepCounts = new Map<string, { value: string; used: number; helped: number }>();
 
   reflections.forEach((item) => {
@@ -371,30 +597,34 @@ export function SummaryContent() {
       {!hasError && loaded && user && !hasEnoughData && (
         <EmptyState
           title={t.summary.emptyTitle}
-          description={`${t.summary.emptyDescription} ${t.summary.emptySubtext}`}
+          description={t.summary.moreReflectionsNeeded}
           action={<LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>}
         />
       )}
 
       {!hasError && loaded && user && hasEnoughData && (
         <>
-          <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
-            <PatternSection
-              title={t.summary.repeatedTriggers}
-              description={t.summary.repeatedTriggersDesc}
-              items={repeatedTriggers}
+          <div className="grid gap-4 lg:gap-5">
+            <SummaryNarrativeCard
+              repeatedTriggers={repeatedTriggers}
+              repeatedThoughtPatterns={repeatedThoughtPatterns}
+              behaviouralThemes={recentBehaviouralThemes}
+              nextStepTypes={repeatedNextStepTypes}
             />
-            <PatternSection
-              title={t.summary.repeatedThoughts}
-              description={t.summary.repeatedThoughtsDesc}
-              items={repeatedThoughtPatterns}
-            />
-            <PatternSection
-              title={t.summary.behaviouralThemes}
-              description={t.summary.behaviouralThemesDesc}
-              items={recentBehaviouralThemes}
-            />
-            <ChangeSection signals={signals} />
+            <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
+              <LegacyPatternList
+                title={t.summary.repeatedTriggers}
+                items={repeatedTriggers}
+              />
+              <LegacyPatternList
+                title={t.summary.repeatedThoughts}
+                items={repeatedThoughtPatterns}
+              />
+              <LegacyPatternList
+                title={t.summary.behaviouralThemes}
+                items={recentBehaviouralThemes}
+              />
+            </div>
             <HelpfulNextStepsSection items={nextSteps} />
           </div>
           <div className="mt-8 flex flex-wrap gap-3">

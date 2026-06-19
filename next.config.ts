@@ -4,11 +4,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
-        source: "/app",
-        destination: "/dashboard",
-        permanent: false,
-      },
-      {
         source: "/quick",
         destination: "/dashboard/quick",
         permanent: false,
