@@ -42,35 +42,24 @@ type UserProfile = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function fetchProfile(nextSession: Session | null) {
-  if (!nextSession?.user) {
+  if (!nextSession?.access_token || !nextSession.user) {
     return null;
   }
 
-  if (!supabaseBrowser) {
+  const response = await fetch("/api/account/profile", {
+    headers: {
+      Authorization: `Bearer ${nextSession.access_token}`,
+    },
+  });
+
+  if (!response.ok) {
     return null;
   }
 
-  const { data } = await supabaseBrowser
-    .from("profiles")
-    .select("id, email, role, display_name, avatar_url, avatar_path, created_at, updated_at")
-    .eq("id", nextSession.user.id)
-    .maybeSingle();
+  const data = (await response.json()) as { profile?: UserProfile };
 
-  if (data && ["user", "admin", "tester"].includes(data.role)) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info("[auth role]", nextSession.user.email, data.role);
-    }
-
-    return data as UserProfile;
-  }
-
-  if (
-    process.env.NODE_ENV !== "production" &&
-    nextSession.user.email?.toLowerCase() === "admin@gmail.com"
-  ) {
-    console.warn(
-      "InnerLeaf admin profile is missing or not marked admin. Run: update public.profiles set role = 'admin' where lower(email) = 'admin@gmail.com';"
-    );
+  if (data.profile && ["user", "admin", "tester"].includes(data.profile.role)) {
+    return data.profile;
   }
 
   return null;

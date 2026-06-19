@@ -27,7 +27,7 @@ function roleLabel(
   labels: Record<"user" | "tester" | "admin", string>
 ) {
   if (!role) {
-    return "";
+    return labels.user;
   }
 
   return labels[role] || role;

@@ -19,36 +19,29 @@ async function currentRole() {
     return "user";
   }
 
-  const { data } = await supabaseBrowser
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
+  const response = await fetch("/api/account/profile", {
+    headers: {
+      Authorization: `Bearer ${sessionData.session?.access_token}`,
+    },
+  });
 
-  if (!data?.role && sessionData.session?.access_token) {
-    await fetch("/api/account/update-profile", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${sessionData.session.access_token}`,
-      },
-      body: JSON.stringify({
-        display_name: user.email?.split("@")[0] || "InnerLeaf user",
-        avatar_url: null,
-        avatar_path: null,
-      }),
-    });
-
-    const { data: repairedProfile } = await supabaseBrowser
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    return repairedProfile?.role === "admin" ? "admin" : "user";
+  if (!response.ok) {
+    return "user";
   }
 
-  return data?.role === "admin" ? "admin" : "user";
+  const data = (await response.json()) as {
+    profile?: { role?: string | null };
+  };
+
+  if (
+    data.profile?.role === "admin" ||
+    data.profile?.role === "tester" ||
+    data.profile?.role === "user"
+  ) {
+    return data.profile.role;
+  }
+
+  return "user";
 }
 
 export default function AuthCallbackPage() {
