@@ -19,6 +19,7 @@ import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
 import { resolveRoleAwareNextPath } from "../lib/routes";
+import { trackEvent } from "../lib/analytics";
 import { LoadingCard } from "./ui";
 
 type IconType = ComponentType<{
@@ -80,13 +81,18 @@ export function UserShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { isAdmin, profile, role, signOut, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
 
   async function logOut() {
+    trackEvent("logout_clicked", {
+      locale: language,
+      authenticated_state: true,
+      role_bucket: role ?? "user",
+    });
     await signOut();
     router.push("/");
     router.refresh();

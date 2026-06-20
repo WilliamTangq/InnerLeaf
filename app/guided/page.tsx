@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RoleAwareRedirect } from "../components/role-aware-redirect";
+import { trackEvent } from "../lib/analytics";
 import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Badge,
@@ -42,7 +43,7 @@ const initialValues = fields.reduce((values, field) => {
 
 export function GuidedReflectionContent() {
   const { language, t } = useLanguage();
-  const { session, user } = useAuth();
+  const { role, session, user } = useAuth();
   const router = useRouter();
   const [values, setValues] = useState<GuidedValues>(initialValues);
   const [activeStep, setActiveStep] = useState(0);
@@ -196,6 +197,14 @@ export function GuidedReflectionContent() {
 
     try {
       const reflectionLanguage = detectReflectionLanguage(input, language);
+      trackEvent("guided_reflection_started", {
+        locale: language,
+        authenticated_state: true,
+        role_bucket: role ?? "user",
+        mode: "guided",
+        reflection_language: reflectionLanguage,
+        completed_fields: filledCount,
+      });
       const response = await fetch("/api/reflect", {
         method: "POST",
         headers: {
@@ -227,6 +236,14 @@ export function GuidedReflectionContent() {
       setResult(nextResult);
       setStructured(nextStructured);
       setWarning("");
+      trackEvent("reflection_generated", {
+        locale: language,
+        authenticated_state: true,
+        role_bucket: role ?? "user",
+        mode: "guided",
+        reflection_language: reflectionLanguage,
+        structured: Boolean(nextStructured),
+      });
       void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
     } catch {
       setError(t.common.aiGeneric);
@@ -273,6 +290,14 @@ export function GuidedReflectionContent() {
 
       setSaved(true);
       setWarning("");
+      trackEvent("reflection_saved", {
+        locale: language,
+        authenticated_state: true,
+        role_bucket: role ?? "user",
+        mode: "guided",
+        reflection_language: nextLanguage,
+        structured: Boolean(nextStructured),
+      });
     } catch {
       setWarning(t.common.saveWarning);
     } finally {
@@ -420,7 +445,19 @@ export function GuidedReflectionContent() {
                     {t.feedbackPrompt.body}
                   </p>
                 </div>
-                <LinkButton href="/feedback" variant="secondary" size="sm">
+                <LinkButton
+                  href="/feedback"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() =>
+                    trackEvent("feedback_prompt_clicked", {
+                      locale: language,
+                      authenticated_state: true,
+                      role_bucket: role ?? "user",
+                      mode: "guided",
+                    })
+                  }
+                >
                   {t.feedbackPrompt.cta}
                 </LinkButton>
               </div>

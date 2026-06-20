@@ -17,6 +17,7 @@ import { Badge, Card, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
+import { trackEvent } from "../lib/analytics";
 import type { Reflection } from "./page";
 
 function extractSection(aiResult: string | null, section: string) {
@@ -389,7 +390,7 @@ export function isVisibleHistoryReflection(item: Reflection) {
 
 function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
   const { language, t } = useLanguage();
-  const { session } = useAuth();
+  const { role, session } = useAuth();
   const initialNote = parseCheckInNote(reflection.follow_up_note);
   const [selectedResult, setSelectedResult] = useState(
     reflection.follow_up_result ?? ""
@@ -452,6 +453,14 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       setSavedAt(new Date().toISOString());
       setStatus("saved");
       setShowForm(true);
+      trackEvent("check_in_completed", {
+        locale: language,
+        authenticated_state: Boolean(session),
+        role_bucket: role ?? "user",
+        has_feel_now: Boolean(feelNow.trim()),
+        has_different_now: Boolean(differentNow.trim()),
+        result_bucket: selectedResult,
+      });
     } catch {
       setStatus("error");
     }
@@ -531,7 +540,19 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
                     {t.feedbackPrompt.body}
                   </p>
                 </div>
-                <LinkButton href="/feedback" variant="secondary" size="sm">
+                <LinkButton
+                  href="/feedback"
+                  variant="secondary"
+                  size="sm"
+                  onClick={() =>
+                    trackEvent("feedback_prompt_clicked", {
+                      locale: language,
+                      authenticated_state: Boolean(session),
+                      role_bucket: role ?? "user",
+                      source: "check_in",
+                    })
+                  }
+                >
                   {t.feedbackPrompt.cta}
                 </LinkButton>
               </div>
@@ -541,7 +562,15 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       ) : !showForm ? (
         <button
           type="button"
-          onClick={() => setShowForm(true)}
+          onClick={() => {
+            trackEvent("check_in_opened", {
+              locale: language,
+              authenticated_state: Boolean(session),
+              role_bucket: role ?? "user",
+              had_previous_check_in: false,
+            });
+            setShowForm(true);
+          }}
           className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
         >
           <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
@@ -633,6 +662,7 @@ export function ReflectionCards({
   reflections: Reflection[];
 }) {
   const { language, t } = useLanguage();
+  const { role, user } = useAuth();
   const [openCards, setOpenCards] = useState<Set<string | number>>(new Set());
   const groupedReflections = reflections.reduce<
     Array<{ label: string; items: Reflection[] }>
@@ -657,6 +687,14 @@ export function ReflectionCards({
         next.delete(id);
       } else {
         next.add(id);
+        trackEvent("reflection_detail_opened", {
+          locale: language,
+          authenticated_state: Boolean(user),
+          role_bucket: role ?? "user",
+          has_check_in: Boolean(
+            reflections.find((item) => item.id === id)?.follow_up_result
+          ),
+        });
       }
 
       return next;

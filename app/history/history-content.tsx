@@ -17,10 +17,11 @@ import {
   ReflectionCards,
 } from "./reflection-cards";
 import type { Reflection } from "./page";
+import { trackEvent } from "../lib/analytics";
 
 export function HistoryContent() {
-  const { t } = useLanguage();
-  const { session, user, loading: authLoading } = useAuth();
+  const { language, t } = useLanguage();
+  const { role, session, user, loading: authLoading } = useAuth();
   const [reflections, setReflections] = useState<Reflection[]>([]);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -62,6 +63,16 @@ export function HistoryContent() {
 
     loadReflections();
   }, [authLoading, session?.access_token]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      trackEvent("history_viewed", {
+        locale: language,
+        authenticated_state: Boolean(user),
+        role_bucket: role ?? (user ? "user" : "logged_out"),
+      });
+    }
+  }, [authLoading, language, role, user]);
 
   return (
     <div className="max-w-4xl">

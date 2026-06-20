@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { useEffect, useMemo } from "react";
 import {
   ArrowRight,
   Brain,
@@ -20,6 +21,7 @@ import { BrandLogo } from "./components/brand-logo";
 import { useAuth } from "./components/auth-provider";
 import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
+import { trackEvent } from "./lib/analytics";
 import { getDefaultRouteForRole } from "./lib/routes";
 
 const howIcons = [PencilLine, Sparkles, FileText] as const;
@@ -212,7 +214,7 @@ function ProductTransformation() {
 }
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { role, user } = useAuth();
   const workspaceHref = user ? getDefaultRouteForRole(role) : "/register";
   const isAdmin = role === "admin";
@@ -222,6 +224,18 @@ export default function Home() {
       ? t.app.openAdmin
       : t.common.goWorkspace
     : t.common.createAccount;
+  const trackingContext = useMemo(
+    () => ({
+      locale: language,
+      authenticated_state: Boolean(user),
+      role_bucket: role ?? "logged_out",
+    }),
+    [language, role, user]
+  );
+
+  useEffect(() => {
+    trackEvent("landing_page_viewed", trackingContext);
+  }, [trackingContext]);
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
@@ -255,7 +269,14 @@ export default function Home() {
               {t.home.subtitle}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-              <LinkButton href={primaryHref} size="lg" className="w-full sm:w-auto">
+              <LinkButton
+                href={primaryHref}
+                size="lg"
+                className="w-full sm:w-auto"
+                onClick={() =>
+                  trackEvent("hero_create_account_clicked", trackingContext)
+                }
+              >
                 {primaryLabel}
               </LinkButton>
               <LinkButton
@@ -263,6 +284,9 @@ export default function Home() {
                 variant="secondary"
                 size="lg"
                 className="w-full sm:w-auto"
+                onClick={() =>
+                  trackEvent("hero_view_demo_clicked", trackingContext)
+                }
               >
                 {t.common.viewDemo}
               </LinkButton>
@@ -273,6 +297,9 @@ export default function Home() {
             <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center">
               <Link
                 href="/test"
+                onClick={() =>
+                  trackEvent("hero_help_test_clicked", trackingContext)
+                }
                 className="font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
               >
                 {t.common.helpTest}

@@ -11,6 +11,7 @@ import {
   UserPlus,
 } from "lucide-react";
 import { useAuth } from "../components/auth-provider";
+import { AnalyticsPageView } from "../components/analytics-tracker";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
@@ -37,6 +38,7 @@ export default function TestPage() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
+      <AnalyticsPageView event="test_page_viewed" />
       <PageHeader eyebrow={t.nav.test} title={t.test.title}>
         {t.test.purpose}
       </PageHeader>

@@ -7,6 +7,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useLanguage } from "./language-provider";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { normalizeRole, resolveRoleAwareNextPath } from "../lib/routes";
+import { trackEvent } from "../lib/analytics";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
 
 function nextPath(value: string | null) {
@@ -166,7 +167,7 @@ function AuthShell({
 }
 
 export function LoginForm() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const router = useRouter();
   const params = useSearchParams();
   const next = nextPath(params.get("next"));
@@ -193,6 +194,11 @@ export function LoginForm() {
   async function login(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    trackEvent("login_started", {
+      locale: language,
+      authenticated_state: false,
+      role_bucket: "logged_out",
+    });
 
     if (!emailLooksValid(email)) {
       setError(t.auth.validEmail);
@@ -222,7 +228,13 @@ export function LoginForm() {
       return;
     }
 
-    router.push(await roleAwareRedirect(next));
+    const nextRole = await roleForCurrentSession();
+    trackEvent("login_completed", {
+      locale: language,
+      authenticated_state: true,
+      role_bucket: nextRole,
+    });
+    router.push(resolveRoleAwareNextPath(next, normalizeRole(nextRole)));
     router.refresh();
   }
 
@@ -277,7 +289,7 @@ export function LoginForm() {
 }
 
 export function RegisterForm() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const router = useRouter();
   const params = useSearchParams();
   const next = nextPath(params.get("next"));
@@ -293,6 +305,11 @@ export function RegisterForm() {
     event.preventDefault();
     setError("");
     setMessage("");
+    trackEvent("register_started", {
+      locale: language,
+      authenticated_state: false,
+      role_bucket: "logged_out",
+    });
 
     if (!emailLooksValid(email)) {
       setError(t.auth.validEmail);
@@ -334,11 +351,24 @@ export function RegisterForm() {
     }
 
     if (data.session) {
-      router.push(await roleAwareRedirect(next));
+      const nextRole = await roleForCurrentSession();
+      trackEvent("register_completed", {
+        locale: language,
+        authenticated_state: true,
+        role_bucket: nextRole,
+        email_confirmation_required: false,
+      });
+      router.push(resolveRoleAwareNextPath(next, normalizeRole(nextRole)));
       router.refresh();
       return;
     }
 
+    trackEvent("register_completed", {
+      locale: language,
+      authenticated_state: false,
+      role_bucket: "logged_out",
+      email_confirmation_required: true,
+    });
     setMessage(t.auth.checkEmail);
   }
 

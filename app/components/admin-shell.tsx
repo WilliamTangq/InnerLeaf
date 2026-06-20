@@ -15,6 +15,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
+import { trackEvent } from "../lib/analytics";
 
 type IconType = ComponentType<{
   size?: number;
@@ -109,11 +110,16 @@ export function AdminShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { profile, role, signOut, user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   async function logOut() {
+    trackEvent("logout_clicked", {
+      locale: language,
+      authenticated_state: true,
+      role_bucket: role ?? "admin",
+    });
     await signOut();
     router.push("/");
     router.refresh();

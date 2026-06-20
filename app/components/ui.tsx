@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type {
   ButtonHTMLAttributes,
+  MouseEventHandler,
   ReactNode,
   TextareaHTMLAttributes,
 } from "react";
@@ -250,16 +251,19 @@ export function LinkButton({
   variant = "primary",
   size = "md",
   className,
+  onClick,
 }: {
   href: string;
   children: ReactNode;
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md" | "lg";
   className?: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cx(
         "inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         className,

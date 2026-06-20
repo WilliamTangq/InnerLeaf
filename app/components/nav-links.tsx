@@ -31,6 +31,7 @@ import { LanguageSelector, useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
 import { Avatar } from "./avatar";
 import { BrandLogo } from "./brand-logo";
+import { trackEvent } from "../lib/analytics";
 
 const publicDesktopLinks = [
   { href: "/students", key: "forStudents" },
@@ -296,6 +297,10 @@ function AccountDrawerPortal({
   useEscapeToClose(true, close);
 
   async function logOut() {
+    trackEvent("logout_clicked", {
+      authenticated_state: true,
+      role_bucket: isAdmin ? "admin" : "user",
+    });
     await signOut();
     close();
     router.push("/");
@@ -576,7 +581,13 @@ function PublicMobileDrawerPortal({
               active={false}
               label={t.nav.dashboard}
               description={t.publicNav.dashboardHint}
-              onClick={close}
+              onClick={() => {
+                trackEvent("header_dashboard_clicked", {
+                  authenticated_state: false,
+                  role_bucket: "logged_out",
+                });
+                close();
+              }}
             />
           </MenuSection>
         </div>
@@ -585,7 +596,13 @@ function PublicMobileDrawerPortal({
           <Link
             href="/register"
             role="menuitem"
-            onClick={close}
+            onClick={() => {
+              trackEvent("header_get_started_clicked", {
+                authenticated_state: false,
+                role_bucket: "logged_out",
+              });
+              close();
+            }}
             className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
           >
             {t.common.getStarted}
@@ -593,7 +610,13 @@ function PublicMobileDrawerPortal({
           <Link
             href="/login"
             role="menuitem"
-            onClick={close}
+            onClick={() => {
+              trackEvent("header_login_clicked", {
+                authenticated_state: false,
+                role_bucket: "logged_out",
+              });
+              close();
+            }}
             className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
           >
             {t.nav.login}
@@ -609,7 +632,7 @@ function PublicMobileDrawerPortal({
 export function NavLinks() {
   const pathname = usePathname();
   const menuId = useId();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { isAdmin, loading, profile, role, signOut, user } = useAuth();
   const [open, setOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState<"product" | "resources" | null>(
@@ -828,6 +851,13 @@ export function NavLinks() {
       {user && (
         <Link
           href={defaultRoute}
+          onClick={() =>
+            trackEvent("header_dashboard_clicked", {
+              locale: language,
+              authenticated_state: true,
+              role_bucket: role ?? "user",
+            })
+          }
           className="hidden rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.72)] px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
         >
           {isAdmin ? t.admin.overview : t.nav.workspace}
@@ -847,18 +877,39 @@ export function NavLinks() {
             </Link>
             <Link
               href="/login"
+              onClick={() =>
+                trackEvent("header_dashboard_clicked", {
+                  locale: language,
+                  authenticated_state: false,
+                  role_bucket: "logged_out",
+                })
+              }
               className="rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.72)] px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
             >
               {t.nav.dashboard}
             </Link>
             <Link
               href="/login"
+              onClick={() =>
+                trackEvent("header_login_clicked", {
+                  locale: language,
+                  authenticated_state: false,
+                  role_bucket: "logged_out",
+                })
+              }
               className="rounded-full px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
             >
               {t.nav.login}
             </Link>
             <Link
               href="/register"
+              onClick={() =>
+                trackEvent("header_get_started_clicked", {
+                  locale: language,
+                  authenticated_state: false,
+                  role_bucket: "logged_out",
+                })
+              }
               className="inline-flex items-center justify-center rounded-full bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
               {t.common.getStarted}

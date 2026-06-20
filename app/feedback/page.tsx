@@ -2,8 +2,10 @@
 
 import { CheckCircle2, Leaf, MessageSquareText, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { AnalyticsPageView } from "../components/analytics-tracker";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { trackEvent } from "../lib/analytics";
 import {
   Card,
   LinkButton,
@@ -49,8 +51,8 @@ const initialValues = {
 };
 
 export default function FeedbackPage() {
-  const { t } = useLanguage();
-  const { session } = useAuth();
+  const { language, t } = useLanguage();
+  const { role, session } = useAuth();
   const [values, setValues] = useState<FeedbackValues>(initialValues);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -90,6 +92,13 @@ export default function FeedbackPage() {
 
       setSubmitted(true);
       setValues(initialValues);
+      trackEvent("feedback_submitted", {
+        locale: language,
+        authenticated_state: Boolean(session),
+        role_bucket: role ?? "logged_out",
+        mode: values.mode_tried || "unspecified",
+        has_comments: Boolean(values.other_thoughts.trim()),
+      });
     } catch {
       setError(t.feedback.error);
     } finally {
@@ -130,6 +139,7 @@ export default function FeedbackPage() {
 
   return (
     <PageShell>
+      <AnalyticsPageView event="feedback_page_viewed" />
       <PageHeader compact eyebrow={t.feedback.eyebrow} title={t.feedback.title}>
         {t.feedback.purpose}
       </PageHeader>

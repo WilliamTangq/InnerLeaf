@@ -12,6 +12,7 @@ import {
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
+import { trackEvent } from "../lib/analytics";
 import { translateNextStepType } from "../lib/i18n";
 
 type SummaryReflection = {
@@ -614,7 +615,7 @@ function CheckInSignalsSection({
 
 export function SummaryContent() {
   const { language, t } = useLanguage();
-  const { session, user, loading: authLoading } = useAuth();
+  const { role, session, user, loading: authLoading } = useAuth();
   const [reflections, setReflections] = useState<SummaryReflection[]>([]);
   const [hasError, setHasError] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -651,6 +652,16 @@ export function SummaryContent() {
 
     loadReflections();
   }, [authLoading, session?.access_token]);
+
+  useEffect(() => {
+    if (!authLoading) {
+      trackEvent("summary_viewed", {
+        locale: language,
+        authenticated_state: Boolean(user),
+        role_bucket: role ?? (user ? "user" : "logged_out"),
+      });
+    }
+  }, [authLoading, language, role, user]);
 
   const reflectionCount = reflections.length;
   const hasEnoughData = reflectionCount >= 3;
@@ -801,7 +812,20 @@ export function SummaryContent() {
                   {t.feedbackPrompt.body}
                 </p>
               </div>
-              <LinkButton href="/feedback" variant="secondary" size="sm">
+              <LinkButton
+                href="/feedback"
+                variant="secondary"
+                size="sm"
+                onClick={() =>
+                  trackEvent("feedback_prompt_clicked", {
+                    locale: language,
+                    authenticated_state: Boolean(user),
+                    role_bucket: role ?? "user",
+                    source: "summary",
+                    has_enough_data: hasEnoughData,
+                  })
+                }
+              >
                 {t.feedbackPrompt.cta}
               </LinkButton>
             </div>

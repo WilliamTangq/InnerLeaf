@@ -11,6 +11,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { VideoBlock } from "../components/video-block";
+import { AnalyticsPageView } from "../components/analytics-tracker";
 import { useLanguage } from "../components/language-provider";
 import {
   Badge,
@@ -134,6 +135,7 @@ export default function DemoPage() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
+      <AnalyticsPageView event="demo_viewed" />
       <PageHeader eyebrow={t.nav.demo} title={t.demo.title}>
         {t.demo.purpose}
       </PageHeader>

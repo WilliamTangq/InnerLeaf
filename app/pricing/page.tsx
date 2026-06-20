@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalyticsPageView } from "../components/analytics-tracker";
 import { Card, LinkButton, PageHeader, PageShell } from "../components/ui";
 import { useLanguage } from "../components/language-provider";
 
@@ -8,6 +9,7 @@ export default function PricingPage() {
 
   return (
     <PageShell maxWidth="max-w-5xl">
+      <AnalyticsPageView event="pricing_viewed" />
       <PageHeader eyebrow={t.nav.pricing} title={t.pricing.title}>
         {t.pricing.purpose}
       </PageHeader>
