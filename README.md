@@ -22,6 +22,42 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Role-routing acceptance tests
+
+The role-routing Playwright spec verifies the privacy-critical split between the admin console and the normal user reflection workspace. It does not create or mutate Supabase Auth users automatically.
+
+Create these test accounts manually in Supabase Auth before running the live login checks:
+
+- Admin: `admin@gmail.com` / `123456` with profile role `admin`
+- Normal user: `user@test.com` / `123456` with profile role `user`
+
+Add the credentials to your local environment when you want the live login tests to run:
+
+```bash
+TEST_ADMIN_EMAIL=admin@gmail.com
+TEST_ADMIN_PASSWORD=123456
+TEST_USER_EMAIL=user@test.com
+TEST_USER_PASSWORD=123456
+```
+
+SQL reminder for the normal user profile:
+
+```sql
+update public.profiles
+set role = 'user'
+where lower(email) = 'user@test.com';
+```
+
+SQL reminder for the admin profile:
+
+```sql
+update public.profiles
+set role = 'admin'
+where lower(email) = 'admin@gmail.com';
+```
+
+If any `TEST_*` credential is missing, the matching live login test is skipped with a setup message instead of silently creating users.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
