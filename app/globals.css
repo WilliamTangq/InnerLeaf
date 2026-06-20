@@ -8,6 +8,7 @@
   --foreground-subtle: #7a8680;
   --surface: #ffffff;
   --surface-muted: #f2f1ec;
+  --surface-warm: rgba(255, 255, 248, 0.9);
   --border: #e5e3dc;
   --border-strong: #d2cfc6;
   /* Brand — from logo gradient (teal → gold) */
@@ -37,9 +38,11 @@
   --error-bg: #faf0ee;
   --success: var(--brand-teal-deep);
   --success-bg: #eef8f6;
-  --shadow-sm: 0 1px 2px rgba(26, 34, 32, 0.05);
-  --shadow-md: 0 4px 24px rgba(26, 34, 32, 0.07);
-  --shadow-lg: 0 16px 48px rgba(26, 34, 32, 0.09);
+  --shadow-sm: 0 1px 2px rgba(26, 34, 32, 0.045);
+  --shadow-md: 0 10px 34px rgba(26, 34, 32, 0.065);
+  --shadow-lg: 0 22px 70px rgba(26, 34, 32, 0.09);
+  --shadow-shell: 0 14px 48px rgba(26, 34, 32, 0.075);
+  --shadow-topbar: 0 8px 30px rgba(26, 34, 32, 0.055);
   --shadow-brand: 0 8px 28px rgba(31, 155, 143, 0.22);
   --radius-sm: 0.625rem;
   --radius-md: 1rem;
@@ -59,6 +62,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 ::selection {
@@ -104,6 +108,18 @@ body {
 .page-glow > * {
   position: relative;
   z-index: 1;
+}
+
+.topbar-surface {
+  background: rgba(253, 252, 250, 0.985);
+  border-bottom: 1px solid rgba(40, 80, 60, 0.11);
+  box-shadow: var(--shadow-topbar);
+}
+
+.shell-panel {
+  border: 1px solid rgba(40, 80, 60, 0.11);
+  background: rgba(255, 255, 248, 0.9);
+  box-shadow: var(--shadow-shell);
 }
 
 .brand-gradient-text {

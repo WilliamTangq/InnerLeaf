@@ -17,8 +17,8 @@ function cx(...classes: Array<string | false | null | undefined>) {
 
 export function TopNav() {
   return (
-    <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.10)] bg-[rgba(253,252,250,0.97)]">
-      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
+    <header className="topbar-surface sticky top-0 z-[1200]">
+      <div className="mx-auto flex min-h-[68px] w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
         <BrandLogo size="md" />
         <NavLinks />
       </div>
@@ -117,7 +117,7 @@ export function PageShell({
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
       <TopNav />
-      <main className={cx("mx-auto w-full flex-1 px-5 py-10 sm:px-8", maxWidth)}>
+      <main className={cx("mx-auto w-full flex-1 px-5 py-8 sm:px-8 sm:py-10", maxWidth)}>
         {children}
       </main>
       <Footer />
@@ -185,11 +185,11 @@ export function Card({
       className={cx(
         "rounded-[var(--radius-xl)] border p-5 sm:p-6",
         variant === "default" &&
-          "border-[var(--border)] bg-[var(--surface)] shadow-[var(--shadow-md)] transition duration-200",
+          "border-[rgba(40,80,60,0.10)] bg-[rgba(255,255,248,0.88)] shadow-[var(--shadow-md)] transition duration-200",
         variant === "muted" &&
-          "border-[var(--border)] bg-[var(--surface-muted)]",
+          "border-[rgba(40,80,60,0.08)] bg-[rgba(247,246,243,0.72)]",
         variant === "elevated" &&
-          "border-[var(--border-strong)] bg-[var(--surface)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)]",
+          "border-[rgba(40,80,60,0.12)] bg-[rgba(255,255,248,0.92)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.22)]",
         className
       )}
     >

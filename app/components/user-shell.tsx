@@ -142,7 +142,7 @@ export function UserShell({
         onMenu={() => setSidebarOpen(true)}
       />
 
-      <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[250px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[250px_1fr]">
         {sidebarOpen && (
           <button
             type="button"
@@ -153,12 +153,12 @@ export function UserShell({
         )}
         <aside
           className={[
-            "fixed inset-y-0 left-0 z-[9999] w-[min(330px,calc(100vw-40px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-auto lg:w-auto lg:self-start",
+            "fixed inset-y-0 left-0 z-[9999] w-[min(330px,calc(100vw-40px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start",
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="h-full overflow-y-auto border-r border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-4 shadow-[0_24px_80px_rgba(20,35,28,0.22)] lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:border lg:bg-[rgba(255,255,248,0.88)] lg:p-3 lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
-            <div className="mb-3 rounded-2xl border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-4">
+          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:p-3">
+            <div className="mb-3 rounded-2xl border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.64))] p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-semibold text-[var(--foreground)]">
                   {t.app.title}
@@ -219,7 +219,7 @@ export function UserShell({
           </div>
         </aside>
 
-        <section className={["w-full", maxWidth].join(" ")}>{children}</section>
+        <section className={["w-full pb-8", maxWidth].join(" ")}>{children}</section>
       </main>
     </div>
   );
