@@ -188,7 +188,7 @@ function AccountDrawerPortal({
         type="button"
         aria-label={t.nav.menu}
         onClick={close}
-        className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.08)] backdrop-blur-[1px]"
+        className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.26)]"
       />
       <aside
         id={menuId}
@@ -309,6 +309,18 @@ export function NavLinks() {
   const { isAdmin, loading, profile, role, signOut, user } = useAuth();
   const [open, setOpen] = useState(false);
   useEscapeToClose(open && !user, () => setOpen(false));
+  useEffect(() => {
+    if (!open || user) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open, user]);
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
   const avatarUrl = profile?.avatar_url || "";
@@ -371,7 +383,7 @@ export function NavLinks() {
           aria-expanded={open}
           onClick={() => setOpen((current) => !current)}
           className={[
-            "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] px-2.5 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] backdrop-blur-xl transition duration-200 hover:bg-[var(--surface-muted)] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+            "inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.95)] px-2.5 text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition duration-200 hover:bg-[var(--surface-muted)] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
             user ? "" : "sm:hidden",
           ].join(" ")}
         >
@@ -426,7 +438,7 @@ export function NavLinks() {
               type="button"
               aria-label={t.nav.menu}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.08)] backdrop-blur-[1px] sm:hidden"
+              className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)] sm:hidden"
             />
             <div
               id={menuId}

@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { NextResponse } from "next/server";
 import { getUserFromRequest, supabaseAdmin } from "../../lib/auth-server";
 import { normalizeLanguage, translations, type Language } from "../../lib/i18n";
+import { detectReflectionLanguage } from "../../lib/reflection-language";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -505,10 +506,6 @@ function detectPatternKey(pattern: string): PatternKey {
   return "mindReading";
 }
 
-function detectOutputLanguage(input: string, selectedLanguage: Language): Language {
-  return /[\u3400-\u9fff]/.test(input) ? "zh" : selectedLanguage;
-}
-
 function applyNextStepVariation(
   reflection: StructuredReflection,
   cardCount: number,
@@ -738,7 +735,12 @@ ${reflection.completed_reflection || baseReflection}
 ${reflection.next_question}`;
 }
 
-function buildQuickPrompt(input: string) {
+function buildQuickPrompt(input: string, reflectionLanguage: Language) {
+  const languageInstruction =
+    reflectionLanguage === "zh"
+      ? "Write all user-facing JSON values in natural Simplified Chinese. Keep JSON keys in English. Use key English terms in brackets only when useful. Do not switch to English unless the user explicitly mixed in an English term."
+      : "Write all user-facing JSON values in natural English. Keep JSON keys in English. Do not switch to Chinese unless reflectionLanguage is zh.";
+
   return `
 You are InnerLeaf, an AI-assisted emotional reflection tool.
 
@@ -747,8 +749,9 @@ Product boundary:
 - You help emotionally overloaded users turn one intense moment into a short, warm, structured reflection card.
 
 Tone:
-- Main language should match the user's input.
-- If the user writes in Chinese, use natural Chinese. Add key psychology terms bilingually only where useful.
+- Target reflection language: ${reflectionLanguage}.
+- ${languageInstruction}
+- Match the user's input language. Do not switch to Chinese unless target reflection language is zh.
 - Be warm, calm, direct, and non-judgmental.
 - First validate the user's emotional experience, then structure the moment.
 - Do not make the user feel analysed, judged, or labelled.
@@ -827,7 +830,7 @@ Output JSON schema:
 
 function buildPrompt(input: string, mode: "quick" | "guided", language: Language) {
   if (mode === "quick") {
-    return buildQuickPrompt(input);
+    return buildQuickPrompt(input, language);
   }
 
   const languageInstruction =
@@ -971,16 +974,28 @@ export async function POST(request: Request) {
   let responseLanguage: Language = "en";
 
   try {
-    const { input, mode: requestedMode, language: requestedLanguage } =
+    const {
+      input,
+      mode: requestedMode,
+      language: requestedLanguage,
+      reflectionLanguage: requestedReflectionLanguage,
+    } =
       await request.json();
     const mode = requestedMode === "guided" ? "guided" : "quick";
-    const language = normalizeLanguage(requestedLanguage);
-    responseLanguage = language;
+    const uiLanguage = normalizeLanguage(requestedLanguage);
+    const reflectionLanguage =
+      requestedReflectionLanguage === "en" || requestedReflectionLanguage === "zh"
+        ? requestedReflectionLanguage
+        : detectReflectionLanguage(
+            typeof input === "string" ? input : "",
+            uiLanguage
+          );
+    responseLanguage = uiLanguage;
     const user = await getUserFromRequest(request);
 
     if (!user) {
       return NextResponse.json(
-        { error: translations[language].common.loginToStart },
+        { error: translations[uiLanguage].common.loginToStart },
         { status: 401 }
       );
     }
@@ -993,7 +1008,7 @@ export async function POST(request: Request) {
     }
 
     const cardCount = await getUserReflectionCount(user.id);
-    const prompt = buildPrompt(input, mode, language);
+    const prompt = buildPrompt(input, mode, reflectionLanguage);
 
     const response = await ai.models.generateContent({
       model: geminiModel,
@@ -1011,13 +1026,13 @@ export async function POST(request: Request) {
         ? applyNextStepVariation(
             parsedStructured,
             cardCount,
-            detectOutputLanguage(input, language)
+            reflectionLanguage
           )
         : parsedStructured;
     const result = structured
       ? mode === "guided"
-        ? formatGuidedReflection(structured, language)
-        : formatStructuredReflection(structured, language)
+        ? formatGuidedReflection(structured, reflectionLanguage)
+        : formatStructuredReflection(structured, reflectionLanguage)
       : rawResult;
 
     return NextResponse.json({

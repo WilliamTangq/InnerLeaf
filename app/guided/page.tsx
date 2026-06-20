@@ -10,6 +10,7 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RoleAwareRedirect } from "../components/role-aware-redirect";
+import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Badge,
   Card,
@@ -80,21 +81,34 @@ export function GuidedReflectionContent() {
           })
         : null;
 
+      if (draft?.saved) {
+        window.localStorage.removeItem(draftKey);
+      }
+
       queueMicrotask(() => {
         if (!active) {
           return;
         }
 
-        setValues({ ...initialValues, ...(draft?.values ?? {}) });
-        setActiveStep(
-          typeof draft?.activeStep === "number"
-            ? Math.min(Math.max(draft.activeStep, 0), fields.length - 1)
-            : 0
-        );
-        setResult(draft?.result ?? "");
-        setStructured(draft?.structured ?? null);
-        setSaved(Boolean(draft?.saved));
-        setGeneratedInput(draft?.generatedInput ?? "");
+        if (draft?.saved) {
+          setValues({ ...initialValues });
+          setActiveStep(0);
+          setResult("");
+          setStructured(null);
+          setSaved(false);
+          setGeneratedInput("");
+        } else {
+          setValues({ ...initialValues, ...(draft?.values ?? {}) });
+          setActiveStep(
+            typeof draft?.activeStep === "number"
+              ? Math.min(Math.max(draft.activeStep, 0), fields.length - 1)
+              : 0
+          );
+          setResult(draft?.result ?? "");
+          setStructured(draft?.structured ?? null);
+          setSaved(false);
+          setGeneratedInput(draft?.generatedInput ?? "");
+        }
         setDraftLoaded(true);
       });
     } catch {
@@ -116,6 +130,16 @@ export function GuidedReflectionContent() {
       return;
     }
 
+    if (saved) {
+      window.localStorage.removeItem(draftKey);
+      return;
+    }
+
+    if (!hasInput && !result && !structured) {
+      window.localStorage.removeItem(draftKey);
+      return;
+    }
+
     window.localStorage.setItem(
       draftKey,
       JSON.stringify({
@@ -123,7 +147,7 @@ export function GuidedReflectionContent() {
         activeStep,
         result,
         structured,
-        saved,
+        saved: false,
         generatedInput,
       })
     );
@@ -132,6 +156,7 @@ export function GuidedReflectionContent() {
     draftKey,
     draftLoaded,
     generatedInput,
+    hasInput,
     result,
     saved,
     structured,
@@ -169,13 +194,19 @@ export function GuidedReflectionContent() {
     setGeneratedInput(input);
 
     try {
+      const reflectionLanguage = detectReflectionLanguage(input, language);
       const response = await fetch("/api/reflect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ input, mode: "guided", language }),
+        body: JSON.stringify({
+          input,
+          mode: "guided",
+          language,
+          reflectionLanguage,
+        }),
       });
 
       const data = await response.json();
@@ -195,7 +226,7 @@ export function GuidedReflectionContent() {
       setResult(nextResult);
       setStructured(nextStructured);
       setWarning("");
-      void autoSaveReflection(input, nextResult, nextStructured);
+      void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -206,7 +237,8 @@ export function GuidedReflectionContent() {
   async function autoSaveReflection(
     nextInput: string,
     nextResult: string,
-    nextStructured: StructuredReflectionResult
+    nextStructured: StructuredReflectionResult,
+    nextLanguage: "en" | "zh"
   ) {
     if (!session?.access_token) {
       return;
@@ -228,7 +260,7 @@ export function GuidedReflectionContent() {
           result: nextResult,
           structured: nextStructured,
           mode: "guided",
-          language,
+          language: nextLanguage,
         }),
       });
       const data = await response.json();

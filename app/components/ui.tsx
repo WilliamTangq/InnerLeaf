@@ -17,7 +17,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 
 export function TopNav() {
   return (
-    <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.84)] backdrop-blur-xl">
+    <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.10)] bg-[rgba(253,252,250,0.97)]">
       <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
         <BrandLogo size="md" />
         <NavLinks />

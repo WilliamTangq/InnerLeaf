@@ -12,8 +12,6 @@ import { UserShell } from "../components/user-shell";
 import {
   Badge,
   Card,
-  LinkButton,
-  PageActions,
   PageHeader,
   PrimaryButton,
   StatusCard,
@@ -267,42 +265,10 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
 
   const content = (
     <>
-      <PageHeader compact eyebrow={t.auth.account} title={t.account.settings}>
-        {t.account.purpose}
-      </PageHeader>
-
-      {isAdmin && (
-        <Card
-          variant="elevated"
-          className="mb-5 border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] hover:translate-y-0"
-        >
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <Badge variant="accent">{t.auth.admin}</Badge>
-              <h2 className="mt-3 text-xl font-semibold text-[var(--foreground)]">
-                {t.account.adminAccount}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {t.account.adminAccountBody}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-subtle)]">
-                {t.account.primaryAdminProtection}
-              </p>
-            </div>
-            <PageActions>
-              <LinkButton href="/admin">{t.admin.overview}</LinkButton>
-              <LinkButton href="/admin/users" variant="secondary">
-                {t.admin.users}
-              </LinkButton>
-              <LinkButton href="/admin/feedback" variant="ghost">
-                {t.admin.feedback}
-              </LinkButton>
-              <LinkButton href="/admin/system" variant="ghost">
-                {t.admin.system}
-              </LinkButton>
-            </PageActions>
-          </div>
-        </Card>
+      {shell !== "admin" && (
+        <PageHeader compact eyebrow={t.auth.account} title={t.account.settings}>
+          {t.account.purpose}
+        </PageHeader>
       )}
 
       <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
@@ -483,6 +449,17 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
               {t.account.logout}
             </PrimaryButton>
           </Card>
+          {isAdmin && (
+            <Card className="border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] hover:translate-y-0">
+              <Badge variant="accent">{t.auth.admin}</Badge>
+              <h2 className="mt-3 text-lg font-semibold text-[var(--foreground)]">
+                {t.account.adminAccount}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {t.account.primaryAdminProtection}
+              </p>
+            </Card>
+          )}
         </div>
       </div>
     </>
@@ -494,7 +471,12 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
 
   if (shell === "admin") {
     return (
-      <AdminShell title={t.account.settings} purpose={t.account.adminAccountBody} maxWidth="max-w-4xl">
+      <AdminShell
+        eyebrow={t.account.adminAccountEyebrow}
+        title={t.account.adminAccount}
+        purpose={t.account.adminAccountPurpose}
+        maxWidth="max-w-4xl"
+      >
         {content}
       </AdminShell>
     );

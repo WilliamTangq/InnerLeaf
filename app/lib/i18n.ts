@@ -380,6 +380,7 @@ export const translations = {
       placeholder:
         "Write freely about one emotional moment.\nWhat happened? What did you feel? What did your mind assume? What did you do next?",
       button: "Break down this reaction",
+      startNew: "Start a new reflection",
       guidedLinkLead: "Prefer structure first?",
     },
     guided: {
@@ -720,6 +721,9 @@ export const translations = {
       created: "Created",
       adminAccount: "Admin account",
       adminAccountBody: "You have access to system management tools.",
+      adminAccountEyebrow: "ADMIN ACCOUNT",
+      adminAccountPurpose:
+        "Manage your admin profile, password, and protected account context.",
       primaryAdminProtection:
         "Primary admin accounts are protected from deletion and demotion.",
       privacy:
@@ -1269,6 +1273,7 @@ export const translations = {
       placeholder:
         "直接写下一次让你情绪波动的时刻。\n发生了什么？你感受到什么？你当时怎么理解？你后来做了什么？",
       button: "拆解这次反应",
+      startNew: "开始新的反思",
       guidedLinkLead: "想一步步整理？",
     },
     guided: {
@@ -1565,6 +1570,8 @@ export const translations = {
       created: "创建时间",
       adminAccount: "管理员账号",
       adminAccountBody: "你可以访问系统管理工具。",
+      adminAccountEyebrow: "管理员账号",
+      adminAccountPurpose: "管理管理员资料、密码和受保护账号信息。",
       primaryAdminProtection:
         "主管理员账号受到保护，不能被删除或降级。",
       privacy:

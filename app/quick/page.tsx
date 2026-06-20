@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -11,6 +11,7 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RoleAwareRedirect } from "../components/role-aware-redirect";
+import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Card,
   LoadingCard,
@@ -56,15 +57,26 @@ export function QuickReflectionContent() {
           })
         : null;
 
+      if (draft?.saved) {
+        window.localStorage.removeItem(draftKey);
+      }
+
       queueMicrotask(() => {
         if (!active) {
           return;
         }
 
-        setInput(draft?.input ?? "");
-        setResult(draft?.result ?? "");
-        setStructured(draft?.structured ?? null);
-        setSaved(Boolean(draft?.saved));
+        if (draft?.saved) {
+          setInput("");
+          setResult("");
+          setStructured(null);
+          setSaved(false);
+        } else {
+          setInput(draft?.input ?? "");
+          setResult(draft?.result ?? "");
+          setStructured(draft?.structured ?? null);
+          setSaved(false);
+        }
         setDraftLoaded(true);
       });
     } catch {
@@ -86,21 +98,64 @@ export function QuickReflectionContent() {
       return;
     }
 
+    if (saved) {
+      window.localStorage.removeItem(draftKey);
+      return;
+    }
+
+    if (!input && !result && !structured) {
+      window.localStorage.removeItem(draftKey);
+      return;
+    }
+
     window.localStorage.setItem(
       draftKey,
       JSON.stringify({
         input,
         result,
         structured,
-        saved,
+        saved: false,
       })
     );
   }, [draftKey, draftLoaded, input, result, saved, structured]);
 
+  const startNewReflection = useCallback(() => {
+    setInput("");
+    setResult("");
+    setStructured(null);
+    setWarning("");
+    setError("");
+    setLoading(false);
+    setSaving(false);
+    setSaved(false);
+
+    if (draftKey) {
+      window.localStorage.removeItem(draftKey);
+    }
+  }, [draftKey]);
+
+  useEffect(() => {
+    function onNewReflection() {
+      if (saved) {
+        startNewReflection();
+      }
+    }
+
+    window.addEventListener("innerleaf:new-quick-reflection", onNewReflection);
+
+    return () => {
+      window.removeEventListener(
+        "innerleaf:new-quick-reflection",
+        onNewReflection
+      );
+    };
+  }, [saved, startNewReflection]);
+
   async function autoSaveReflection(
     nextInput: string,
     nextResult: string,
-    nextStructured: StructuredReflectionResult
+    nextStructured: StructuredReflectionResult,
+    nextLanguage: "en" | "zh"
   ) {
     if (!session?.access_token) {
       return;
@@ -122,7 +177,7 @@ export function QuickReflectionContent() {
           result: nextResult,
           structured: nextStructured,
           mode: "quick",
-          language,
+          language: nextLanguage,
         }),
       });
       const data = await response.json();
@@ -155,13 +210,19 @@ export function QuickReflectionContent() {
     setSaved(false);
 
     try {
+      const reflectionLanguage = detectReflectionLanguage(input, language);
       const response = await fetch("/api/reflect", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ input, mode: "quick", language }),
+        body: JSON.stringify({
+          input,
+          mode: "quick",
+          language,
+          reflectionLanguage,
+        }),
       });
 
       const data = await response.json();
@@ -181,7 +242,7 @@ export function QuickReflectionContent() {
       setResult(nextResult);
       setStructured(nextStructured);
       setWarning("");
-      void autoSaveReflection(input, nextResult, nextStructured);
+      void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -265,6 +326,16 @@ export function QuickReflectionContent() {
             saving={saving}
             autoSaved
           />
+          {saved && (
+            <div className="mt-4 flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[var(--surface-muted)] p-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm font-medium text-[var(--brand-teal-deep)]">
+                {t.common.savedToHistory}
+              </p>
+              <PrimaryButton type="button" onClick={startNewReflection}>
+                {t.quick.startNew}
+              </PrimaryButton>
+            </div>
+          )}
         </>
       )}
     </div>

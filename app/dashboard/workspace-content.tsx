@@ -9,7 +9,6 @@ import {
   LinkButton,
   PageHeader,
   SectionLabel,
-  StatusCard,
 } from "../components/ui";
 
 const icons = [PencilLine, Footprints, Archive, TrendingUp] as const;
@@ -78,15 +77,22 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
-        {t.app.subtitle}
-      </PageHeader>
-
-      <p className="-mt-3 mb-5 text-sm font-medium text-[var(--brand-teal-deep)]">
-        {t.app.welcome}, {name}
-      </p>
-
-      <StatusCard tone="neutral">{t.app.privacy}</StatusCard>
+      <Card
+        variant="elevated"
+        className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(238,249,244,0.72))] hover:translate-y-0"
+      >
+        <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
+          {t.app.subtitle}
+        </PageHeader>
+        <div className="-mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm font-semibold text-[var(--brand-teal-deep)]">
+            {t.app.welcome}, {name}
+          </p>
+          <span className="inline-flex w-fit rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--surface)] px-3 py-1 text-xs font-medium text-[var(--foreground-muted)]">
+            {t.app.privacy}
+          </span>
+        </div>
+      </Card>
 
       {isAdmin && (
         <Card
@@ -110,7 +116,7 @@ export function WorkspaceContent() {
         </Card>
       )}
 
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
         {t.app.cards.map(([title, description, cta, href], index) => {
           const Icon = icons[index];
 
@@ -191,4 +197,3 @@ export function WorkspaceContent() {
     </>
   );
 }
-

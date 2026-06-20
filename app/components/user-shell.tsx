@@ -47,15 +47,18 @@ function UserNavLink({
   icon: Icon,
   label,
   active,
+  onClick,
 }: {
   href: string;
   icon: IconType;
   label: string;
   active: boolean;
+  onClick?: () => void;
 }) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={[
         "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         active
@@ -96,6 +99,28 @@ export function UserShell({
     }
   }, [isAdmin, pathname, router]);
 
+  useEffect(() => {
+    if (!sidebarOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setSidebarOpen(false);
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [sidebarOpen]);
+
   if (isAdmin) {
     return (
       <div className="page-glow min-h-screen px-5 py-10 text-[var(--foreground)] sm:px-8">
@@ -106,7 +131,7 @@ export function UserShell({
 
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
-      <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.86)] backdrop-blur-xl">
+      <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.10)] bg-[rgba(253,252,250,0.97)]">
         <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
           <div className="flex items-center gap-2">
             <button
@@ -154,16 +179,16 @@ export function UserShell({
             type="button"
             aria-label={t.nav.menu}
             onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.12)] backdrop-blur-[1px] lg:hidden"
+            className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)] lg:hidden"
           />
         )}
         <aside
           className={[
-            "fixed left-3 top-[72px] z-[9999] w-[min(320px,calc(100vw-24px))] transition duration-200 lg:sticky lg:left-auto lg:top-24 lg:z-auto lg:w-auto lg:self-start",
-            sidebarOpen ? "translate-x-0" : "-translate-x-[calc(100%+24px)] lg:translate-x-0",
+            "fixed inset-y-0 left-0 z-[9999] w-[min(330px,calc(100vw-40px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-auto lg:w-auto lg:self-start",
+            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="h-full rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgba(255,255,248,0.94)] p-3 shadow-[0_24px_80px_rgba(20,35,28,0.10)] backdrop-blur-xl lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:bg-[rgba(255,255,248,0.78)] lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
+          <div className="h-full overflow-y-auto border-r border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-4 shadow-[0_24px_80px_rgba(20,35,28,0.22)] lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:border lg:bg-[rgba(255,255,248,0.88)] lg:p-3 lg:shadow-[inset_0_1px_0_rgba(255,255,255,0.68)]">
             <div className="mb-3 rounded-2xl border border-[var(--border)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-sm font-semibold text-[var(--foreground)]">
@@ -202,6 +227,14 @@ export function UserShell({
                       : t.nav[link.key]
                   }
                   active={isActive(pathname, link.href)}
+                  onClick={() => {
+                    setSidebarOpen(false);
+                    if (link.href === pathname && link.href === "/dashboard/quick") {
+                      window.dispatchEvent(
+                        new Event("innerleaf:new-quick-reflection")
+                      );
+                    }
+                  }}
                 />
               ))}
               <div className="min-w-px border-l border-[var(--border)] lg:my-2 lg:border-l-0 lg:border-t" />
