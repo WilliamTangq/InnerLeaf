@@ -171,6 +171,13 @@ export const translations = {
       previewValidation: "It makes sense that the silence felt intense when the relationship matters to you.",
       previewQuestion: "What is one thing you know for sure before responding?",
       previewStep: "Before replying, write down one fact and one assumption.",
+      transformationEyebrow: "Product transformation",
+      transformationTitle: "From a difficult moment to something clearer.",
+      transformationCopy:
+        "InnerLeaf turns the raw moment into a calm reflection card, then gives one small action that fits the pattern.",
+      transformationMessy: "Messy emotional moment",
+      transformationCard: "Structured reflection card",
+      transformationStep: "One small next step",
       problemEyebrow: "The problem",
       problemTitle:
         "When feelings get intense, facts and interpretations blur.",
@@ -1384,6 +1391,13 @@ export const translations = {
       previewValidation: "当这段关系对你重要时，沉默让你感到强烈是可以理解的。",
       previewQuestion: "在回复之前，有哪一件事是你确定知道的？",
       previewStep: "回复之前，先写下一个事实和一个假设。",
+      transformationEyebrow: "产品转化",
+      transformationTitle: "把困难时刻，整理成更清楚的内容。",
+      transformationCopy:
+        "InnerLeaf 会把原始的情绪时刻整理成平静的反思卡片，再给出一个符合当前模式的小步骤。",
+      transformationMessy: "混乱的情绪时刻",
+      transformationCard: "结构化反思卡片",
+      transformationStep: "一个小的下一步",
       problemEyebrow: "问题",
       problemTitle: "情绪变强时，事实和解读会混在一起。",
       problemCards: [

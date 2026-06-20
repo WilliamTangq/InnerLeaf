@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Brain,
   CheckCircle2,
+  Clock3,
   Feather,
   FileText,
   Leaf,
@@ -26,6 +27,7 @@ const pathIcons = [PencilLine, Route, FileText, Brain, MessageCircle] as const;
 const comparisonIcons = [Feather, MessageCircle, ShieldCheck] as const;
 const patternIcons = [FileText, MessageCircle, Brain] as const;
 const trustIcons = [ShieldCheck, FileText, Leaf] as const;
+const transformationIcons = [MessageCircle, FileText, CheckCircle2] as const;
 
 function Surface({
   children,
@@ -37,7 +39,7 @@ function Surface({
   return (
     <div
       className={[
-        "rounded-[1.75rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.72)] shadow-[0_24px_80px_rgba(26,34,32,0.075)] backdrop-blur-xl",
+        "rounded-[2rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,248,0.78)] shadow-[0_28px_90px_rgba(26,34,32,0.075)] backdrop-blur-xl",
         className,
       ]
         .filter(Boolean)
@@ -61,80 +63,71 @@ function TransformationMockup() {
     <div className="relative">
       <div
         aria-hidden="true"
-        className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_78%_8%,rgba(228,184,74,0.26),transparent_34%),radial-gradient(circle_at_8%_78%,rgba(31,155,143,0.20),transparent_40%)] blur-3xl"
+        className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_78%_8%,rgba(228,184,74,0.18),transparent_34%),radial-gradient(circle_at_8%_78%,rgba(31,155,143,0.16),transparent_42%)] blur-3xl"
       />
       <Surface className="relative overflow-hidden p-4 sm:p-5 lg:p-6">
-        <div className="absolute right-6 top-6 hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-white/55 px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)] lg:block">
-          {t.home.previewTitle}
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-[0.82fr_auto_1.18fr] lg:items-center">
-          <div className="rounded-[1.5rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.62)] p-4 shadow-[0_10px_40px_rgba(26,34,32,0.05)] sm:p-5">
-            <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+        <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(31,155,143,0.22),transparent)]" />
+        <div className="rounded-[1.65rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,255,0.58)] p-4 shadow-[0_14px_44px_rgba(26,34,32,0.055)] sm:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
               <MessageCircle aria-hidden="true" size={15} strokeWidth={1.8} />
               {t.home.heroStructured}
             </div>
-            <p className="text-xl font-medium leading-8 tracking-tight text-[var(--foreground)] sm:text-2xl sm:leading-9">
-              “{t.home.heroMessy}”
-            </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {t.home.problemCards.map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(247,246,243,0.74)] px-3 py-1 text-xs text-[var(--foreground-subtle)]"
-                >
-                  {item}
-                </span>
-              ))}
-            </div>
+            <span className="rounded-full border border-[rgba(35,70,55,0.08)] bg-white/70 px-3 py-1 text-xs font-medium text-[var(--foreground-subtle)]">
+              {t.common.exampleReflection}
+            </span>
           </div>
+          <p className="mt-4 text-xl font-medium leading-8 tracking-tight text-[var(--foreground)] sm:text-2xl sm:leading-9">
+            “{t.home.heroMessy}”
+          </p>
+        </div>
 
-          <div className="flex justify-center text-[var(--brand-teal-deep)] lg:px-1">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] shadow-[0_10px_30px_rgba(31,155,143,0.14)] lg:h-14 lg:w-14">
-              <ArrowRight aria-hidden="true" size={22} strokeWidth={1.8} />
-            </div>
+        <div className="my-4 flex justify-center text-[var(--brand-teal-deep)]">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] shadow-[0_10px_28px_rgba(31,155,143,0.12)]">
+            <ArrowRight aria-hidden="true" size={21} strokeWidth={1.8} />
           </div>
+        </div>
 
-          <div className="rounded-[1.85rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.76)] p-4 shadow-[0_16px_50px_rgba(26,34,32,0.08)] sm:p-5">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
-                  {t.home.previewTitle}
-                </p>
-                <p className="mt-1 text-sm font-semibold text-[var(--foreground)]">
-                  {t.home.doesTitle}
-                </p>
-              </div>
-              <span className="rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                ~3 min
-              </span>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {cardRows.map(([label, value]) => (
-                <div
-                  key={label}
-                  className="rounded-[1.1rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(247,246,243,0.68)] p-3.5"
-                >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
-                    {label}
-                  </p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                    {value}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-3 rounded-[1.25rem] border border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(230,245,243,0.94),rgba(255,248,226,0.66))] p-4">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
-                <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
-                {t.reflectionCard.nextStep}
-              </div>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {t.home.previewStep}
+        <div className="rounded-[1.85rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.78)] p-4 shadow-[0_18px_54px_rgba(26,34,32,0.08)] sm:p-5">
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                {t.home.previewTitle}
+              </p>
+              <p className="mt-1 max-w-sm text-sm font-semibold leading-6 text-[var(--foreground)]">
+                {t.home.doesTitle}
               </p>
             </div>
+            <span className="flex items-center gap-1.5 rounded-full bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+              <Clock3 aria-hidden="true" size={13} strokeWidth={1.8} />
+              ~3 min
+            </span>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            {cardRows.map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-[1.1rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(247,246,243,0.62)] p-3.5"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
+                  {label}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-3 rounded-[1.25rem] border border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(230,245,243,0.92),rgba(255,248,226,0.58))] p-4">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
+              <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
+              {t.reflectionCard.nextStep}
+            </div>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.home.previewStep}
+            </p>
           </div>
         </div>
       </Surface>
@@ -162,6 +155,62 @@ function SectionHeading({
   );
 }
 
+function ProductTransformation() {
+  const { t } = useLanguage();
+  const items = [
+    [t.home.transformationMessy, t.home.heroMessy],
+    [t.home.transformationCard, t.home.doesTitle],
+    [t.home.transformationStep, t.home.previewStep],
+  ] as const;
+
+  return (
+    <section className="mt-12 sm:mt-16">
+      <Surface className="overflow-hidden p-5 sm:p-7 lg:p-8">
+        <div className="grid gap-7 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
+          <div>
+            <SectionLabel>{t.home.transformationEyebrow}</SectionLabel>
+            <h2 className="mt-3 max-w-lg text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.4rem] sm:leading-tight">
+              {t.home.transformationTitle}
+            </h2>
+            <p className="mt-4 max-w-md text-base leading-7 text-[var(--foreground-muted)]">
+              {t.home.transformationCopy}
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-3">
+            {items.map(([title, body], index) => {
+              const Icon = transformationIcons[index];
+              return (
+                <div
+                  key={title}
+                  className="relative rounded-[1.5rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,255,0.58)] p-4 shadow-[0_12px_36px_rgba(26,34,32,0.045)]"
+                >
+                  {index < items.length - 1 && (
+                    <ArrowRight
+                      aria-hidden="true"
+                      size={17}
+                      strokeWidth={1.8}
+                      className="absolute -right-5 top-1/2 hidden -translate-y-1/2 text-[var(--foreground-subtle)] md:block"
+                    />
+                  )}
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+                  </span>
+                  <h3 className="mt-4 text-sm font-semibold uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {body}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </Surface>
+    </section>
+  );
+}
+
 export default function Home() {
   const { t } = useLanguage();
   const { role, user } = useAuth();
@@ -176,17 +225,17 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[2.75rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.97),rgba(232,246,241,0.64)_52%,rgba(255,247,221,0.46))] px-5 py-8 shadow-[0_34px_110px_rgba(26,34,32,0.11)] sm:px-8 sm:py-12 lg:px-10">
+      <section className="relative overflow-hidden rounded-[3rem] border border-[rgba(35,70,55,0.09)] bg-[linear-gradient(140deg,rgba(255,255,248,0.98),rgba(237,248,244,0.66)_55%,rgba(255,249,229,0.48))] px-5 py-8 shadow-[0_38px_120px_rgba(26,34,32,0.105)] sm:px-8 sm:py-12 lg:px-10">
         <div
           aria-hidden="true"
-          className="absolute -right-24 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.18)] blur-3xl"
+          className="absolute -right-28 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.14)] blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.13)] blur-3xl"
+          className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.11)] blur-3xl"
         />
 
-        <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div className="relative grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
           <div>
             <BrandLogo
               size="lg"
@@ -195,7 +244,7 @@ export default function Home() {
               className="mb-5"
             />
             <Badge variant="accent">{t.home.badge}</Badge>
-            <h1 className="mt-5 max-w-[720px] text-[2.6rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.75rem] sm:leading-[0.96]">
+            <h1 className="mt-5 max-w-[720px] text-[2.55rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.65rem] sm:leading-[0.96]">
               {t.home.headline}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
@@ -251,6 +300,8 @@ export default function Home() {
         </div>
       </section>
 
+      <ProductTransformation />
+
       <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
@@ -262,15 +313,22 @@ export default function Home() {
             const Icon = howIcons[index];
             return (
               <Surface key={title} className="p-5 sm:p-6">
-                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-                  <Icon aria-hidden="true" size={19} strokeWidth={1.8} />
-                </span>
-                <h3 className="mt-5 text-lg font-semibold tracking-tight text-[var(--foreground)]">
-                  {title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {body}
-                </p>
+                <div className="flex items-start gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                    <Icon aria-hidden="true" size={19} strokeWidth={1.8} />
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                      0{index + 1}
+                    </p>
+                    <h3 className="mt-2 text-lg font-semibold tracking-tight text-[var(--foreground)]">
+                      {title}
+                    </h3>
+                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {body}
+                    </p>
+                  </div>
+                </div>
               </Surface>
             );
           })}
@@ -286,11 +344,17 @@ export default function Home() {
             {t.home.pathIntro}
           </p>
         </SectionHeading>
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-[1.1fr_1.1fr_0.95fr_0.95fr_0.95fr]">
           {t.home.pathCards.map(([title, body], index) => {
             const Icon = pathIcons[index];
             return (
-              <Surface key={title} className="p-5">
+              <Surface
+                key={title}
+                className={[
+                  "p-5",
+                  index < 2 ? "lg:min-h-[250px]" : "lg:min-h-[220px]",
+                ].join(" ")}
+              >
                 <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
                   <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                 </span>
@@ -307,36 +371,46 @@ export default function Home() {
       </section>
 
       <section id="why-innerleaf" className="mt-16 scroll-mt-24 sm:mt-20">
-        <SectionHeading eyebrow={t.home.whyEyebrow} title={t.home.whyTitle}>
-          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
-            {t.home.differenceNote}
-          </p>
-        </SectionHeading>
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {t.home.differences.map(([title, body], index) => {
-            const Icon = comparisonIcons[index];
-            return (
-              <Surface key={title} className="p-5 sm:p-6">
-                <Icon
-                  aria-hidden="true"
-                  size={21}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
-                <h3 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)]">
-                  {title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {body}
-                </p>
-              </Surface>
-            );
-          })}
-        </div>
+        <Surface className="overflow-hidden p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-9 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+            <div>
+              <SectionLabel>{t.home.whyEyebrow}</SectionLabel>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.45rem] sm:leading-tight">
+                {t.home.whyTitle}
+              </h2>
+              <p className="mt-4 max-w-lg text-base leading-7 text-[var(--foreground-muted)]">
+                {t.home.differenceNote}
+              </p>
+            </div>
+            <div className="grid gap-3">
+              {t.home.differences.map(([title, body], index) => {
+                const Icon = comparisonIcons[index];
+                return (
+                  <div
+                    key={title}
+                    className="flex gap-4 rounded-[1.5rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(247,246,243,0.58)] p-4"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/70 text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
+                      <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                        {body}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Surface>
       </section>
 
       <section className="mt-16 sm:mt-20">
-        <Surface className="overflow-hidden p-6 sm:p-8">
+        <Surface className="overflow-hidden p-6 sm:p-8 lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
               <SectionLabel>{t.home.patternEyebrow}</SectionLabel>
@@ -375,7 +449,7 @@ export default function Home() {
       </section>
 
       <section className="mt-16 sm:mt-20">
-        <Surface className="overflow-hidden p-6 sm:p-8">
+        <Surface className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,255,248,0.82),rgba(232,246,241,0.56))] p-6 sm:p-8 lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
               <SectionLabel>{t.home.trustEyebrow}</SectionLabel>
@@ -406,7 +480,7 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mx-auto mb-12 mt-16 max-w-5xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,255,248,0.88),rgba(232,246,241,0.62))] p-6 shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-8">
+      <section className="mx-auto mb-12 mt-16 max-w-5xl rounded-[2.35rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,255,248,0.92),rgba(232,246,241,0.66))] p-6 shadow-[0_24px_88px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <SectionLabel>{t.home.testingEyebrow}</SectionLabel>
