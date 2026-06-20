@@ -34,7 +34,7 @@ export function AppTopbar({
   roleChip?: string;
 }) {
   return (
-    <header className="topbar-surface sticky top-0 z-[1200]">
+    <header className="app-topbar-sticky topbar-surface">
       <div className="mx-auto flex min-h-[74px] w-full max-w-[1360px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
