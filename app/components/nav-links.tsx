@@ -30,6 +30,7 @@ import type { ComponentType, ReactNode } from "react";
 import { LanguageSelector, useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
 import { Avatar } from "./avatar";
+import { BrandLogo } from "./brand-logo";
 
 const publicDesktopLinks = [
   { href: "/students", key: "forStudents" },
@@ -97,12 +98,14 @@ type MegaSection = {
 };
 
 function MegaPanel({
+  close,
   sections,
 }: {
+  close: () => void;
   sections: MegaSection[];
 }) {
   return (
-    <div className="absolute left-1/2 top-[calc(100%+12px)] z-[950] w-[min(860px,calc(100vw-48px))] -translate-x-1/2 rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-4 shadow-[0_28px_90px_rgba(20,35,28,0.18)]">
+    <div className="rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-4 shadow-[0_28px_90px_rgba(20,35,28,0.18)]">
       <div className="grid gap-4 lg:grid-cols-3">
         {sections.map((section) => (
           <div key={section.title} className="rounded-[22px] bg-[rgba(247,246,243,0.62)] p-3">
@@ -117,6 +120,7 @@ function MegaPanel({
                   <Link
                     key={item.title}
                     href={item.href}
+                    onClick={close}
                     className="group flex gap-3 rounded-2xl p-3 transition duration-200 hover:bg-[rgba(230,245,243,0.72)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[rgba(255,255,255,0.58)] text-[var(--brand-teal-deep)] transition group-hover:bg-[var(--surface)]">
@@ -141,32 +145,54 @@ function MegaPanel({
   );
 }
 
+function MegaOverlayPortal({
+  close,
+  sections,
+}: {
+  close: () => void;
+  sections: MegaSection[];
+}) {
+  const overlay: ReactNode = (
+    <>
+      <button
+        type="button"
+        aria-label="Close navigation menu"
+        onClick={close}
+        className="fixed inset-x-0 bottom-0 top-[68px] z-[910] hidden bg-[rgba(20,35,28,0.08)] lg:block"
+      />
+      <div className="fixed left-1/2 top-[82px] z-[920] hidden w-[min(980px,calc(100vw-64px))] -translate-x-1/2 lg:block">
+        <MegaPanel close={close} sections={sections} />
+      </div>
+    </>
+  );
+
+  return typeof document === "undefined" ? null : createPortal(overlay, document.body);
+}
+
 function MegaTrigger({
   active,
   label,
   open,
   onClick,
-  onMouseEnter,
-  sections,
 }: {
   active: boolean;
   label: string;
   open: boolean;
   onClick: () => void;
-  onMouseEnter: () => void;
-  sections: MegaSection[];
 }) {
   return (
-    <div className="relative" onMouseEnter={onMouseEnter}>
+    <div className="relative">
       <button
         type="button"
         aria-expanded={open}
         onClick={onClick}
         className={[
           "inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-          active || open
-            ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-            : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
+          open
+            ? "bg-[rgba(31,155,143,0.12)] text-[var(--brand-teal-deep)] shadow-[inset_0_0_0_1px_rgba(31,155,143,0.16)]"
+            : active
+              ? "bg-[rgba(247,246,243,0.9)] text-[var(--foreground)] shadow-[inset_0_0_0_1px_rgba(40,80,60,0.10)]"
+              : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
         ].join(" ")}
       >
         {label}
@@ -177,7 +203,6 @@ function MegaTrigger({
           className={open ? "rotate-180 transition" : "transition"}
         />
       </button>
-      {open && <MegaPanel sections={sections} />}
     </div>
   );
 }
@@ -221,9 +246,9 @@ function CommandLink({
         <Icon size={15} strokeWidth={1.8} />
       </span>
       <span className="min-w-0">
-        <span className="block truncate text-[15px] font-semibold leading-5">{label}</span>
+        <span className="block text-[15px] font-semibold leading-5">{label}</span>
         {description && (
-          <span className="mt-0.5 block truncate text-[12px] font-normal leading-4 text-[var(--foreground-subtle)]">
+          <span className="mt-0.5 block text-[12px] font-normal leading-4 text-[var(--foreground-subtle)]">
             {description}
           </span>
         )}
@@ -397,6 +422,190 @@ function AccountDrawerPortal({
   return typeof document === "undefined" ? null : createPortal(drawer, document.body);
 }
 
+function MobileAccordion({
+  defaultOpen = false,
+  sections,
+  title,
+  pathname,
+  close,
+}: {
+  defaultOpen?: boolean;
+  sections: MegaSection[];
+  title: string;
+  pathname: string;
+  close: () => void;
+}) {
+  const [expanded, setExpanded] = useState(defaultOpen);
+
+  return (
+    <div className="rounded-[22px] border border-[var(--border)] bg-[rgba(247,246,243,0.72)] p-2">
+      <button
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => setExpanded((current) => !current)}
+        className="flex min-h-11 w-full items-center justify-between rounded-2xl px-3 text-left text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--surface)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+      >
+        {title}
+        <ChevronDown
+          aria-hidden="true"
+          size={16}
+          strokeWidth={1.9}
+          className={expanded ? "rotate-180 transition" : "transition"}
+        />
+      </button>
+      {expanded && (
+        <div className="mt-2 space-y-4 px-1 pb-1">
+          {sections.map((section) => (
+            <MenuSection key={section.title} title={section.title}>
+              {section.items.map((item) => (
+                <CommandLink
+                  key={item.title}
+                  href={item.href}
+                  icon={item.icon}
+                  active={isActive(pathname, item.href)}
+                  label={item.title}
+                  description={item.description}
+                  onClick={close}
+                />
+              ))}
+            </MenuSection>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PublicMobileDrawerPortal({
+  close,
+  menuId,
+  pathname,
+  productSections,
+  resourceSections,
+  t,
+}: {
+  close: () => void;
+  menuId: string;
+  pathname: string;
+  productSections: MegaSection[];
+  resourceSections: MegaSection[];
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
+
+  useEscapeToClose(true, close);
+
+  const drawer: ReactNode = (
+    <>
+      <button
+        type="button"
+        aria-label={t.nav.menu}
+        onClick={close}
+        className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)]"
+      />
+      <aside
+        id={menuId}
+        role="menu"
+        aria-label={t.nav.menu}
+        className="fixed inset-y-3 right-3 z-[9999] flex w-[min(420px,calc(100vw-24px))] flex-col overflow-hidden rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] shadow-[0_32px_110px_rgba(20,35,28,0.24)] motion-safe:animate-[menuIn_180ms_ease-out] sm:hidden"
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--border)] p-4">
+          <BrandLogo size="sm" />
+          <div className="flex items-center gap-2">
+            <LanguageSelector />
+            <button
+              type="button"
+              aria-label={t.nav.menu}
+              onClick={close}
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-subtle)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            >
+              <X aria-hidden="true" size={18} strokeWidth={1.8} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-3 overflow-y-auto p-3">
+          <MobileAccordion
+            title={t.nav.product}
+            sections={productSections}
+            pathname={pathname}
+            close={close}
+            defaultOpen
+          />
+          <MobileAccordion
+            title={t.nav.resources}
+            sections={resourceSections}
+            pathname={pathname}
+            close={close}
+          />
+          <MenuSection title={t.publicNav.more}>
+            <CommandLink
+              href="/students"
+              icon={GraduationCap}
+              active={isActive(pathname, "/students")}
+              label={t.nav.forStudents}
+              description={t.students.short}
+              onClick={close}
+            />
+            <CommandLink
+              href="/pricing"
+              icon={ShieldCheck}
+              active={isActive(pathname, "/pricing")}
+              label={t.nav.pricing}
+              description={t.pricing.short}
+              onClick={close}
+            />
+            <CommandLink
+              href="/demo"
+              icon={Sparkles}
+              active={isActive(pathname, "/demo")}
+              label={t.nav.demo}
+              description={t.publicNav.items.demo.description}
+              onClick={close}
+            />
+            <CommandLink
+              href="/login"
+              icon={LayoutDashboard}
+              active={false}
+              label={t.nav.dashboard}
+              description={t.publicNav.dashboardHint}
+              onClick={close}
+            />
+          </MenuSection>
+        </div>
+
+        <div className="grid gap-2 border-t border-[var(--border)] p-3">
+          <Link
+            href="/register"
+            role="menuitem"
+            onClick={close}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+          >
+            {t.common.getStarted}
+          </Link>
+          <Link
+            href="/login"
+            role="menuitem"
+            onClick={close}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+          >
+            {t.nav.login}
+          </Link>
+        </div>
+      </aside>
+    </>
+  );
+
+  return typeof document === "undefined" ? null : createPortal(drawer, document.body);
+}
+
 export function NavLinks() {
   const pathname = usePathname();
   const menuId = useId();
@@ -409,17 +618,26 @@ export function NavLinks() {
   useEscapeToClose(open && !user, () => setOpen(false));
   useEscapeToClose(megaOpen !== null, () => setMegaOpen(null));
   useEffect(() => {
-    if (!open || user) {
-      return;
+    queueMicrotask(() => {
+      setMegaOpen(null);
+      setOpen(false);
+    });
+  }, [pathname]);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+
+    function closeDesktopMenu(event: MediaQueryListEvent) {
+      if (event.matches) {
+        setMegaOpen(null);
+      }
     }
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    mediaQuery.addEventListener("change", closeDesktopMenu);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      mediaQuery.removeEventListener("change", closeDesktopMenu);
     };
-  }, [open, user]);
+  }, []);
   const displayName =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
   const avatarUrl = profile?.avatar_url || "";
@@ -556,7 +774,6 @@ export function NavLinks() {
     <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
       <nav
         aria-label="Main"
-        onMouseLeave={() => setMegaOpen(null)}
         className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
       >
         <MegaTrigger
@@ -566,8 +783,6 @@ export function NavLinks() {
           onClick={() =>
             setMegaOpen((current) => (current === "product" ? null : "product"))
           }
-          onMouseEnter={() => setMegaOpen("product")}
-          sections={productSections}
         />
         <MegaTrigger
           label={t.nav.resources}
@@ -584,8 +799,6 @@ export function NavLinks() {
               current === "resources" ? null : "resources"
             )
           }
-          onMouseEnter={() => setMegaOpen("resources")}
-          sections={resourceSections}
         />
         <div className="flex items-center gap-0.5">
           {publicDesktopLinks.map((link) => (
@@ -604,6 +817,13 @@ export function NavLinks() {
           ))}
         </div>
       </nav>
+
+      {megaOpen && (
+        <MegaOverlayPortal
+          close={() => setMegaOpen(null)}
+          sections={megaOpen === "product" ? productSections : resourceSections}
+        />
+      )}
 
       {user && (
         <Link
@@ -703,95 +923,14 @@ export function NavLinks() {
         )}
 
         {open && !user && (
-          <>
-            <button
-              type="button"
-              aria-label={t.nav.menu}
-              onClick={() => setOpen(false)}
-              className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)] sm:hidden"
-            />
-            <div
-              id={menuId}
-              role="menu"
-              aria-label={t.nav.menu}
-              className="fixed right-3 top-[72px] z-[9999] max-h-[calc(100vh-88px)] w-[calc(100vw-24px)] overflow-y-auto rounded-[24px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-3 shadow-[0_28px_90px_rgba(20,35,28,0.20)] motion-safe:animate-[menuIn_180ms_ease-out] sm:hidden"
-            >
-              <MenuSection title={t.nav.product}>
-                {productSections.flatMap((section) =>
-                  section.items.map((item) => (
-                  <CommandLink
-                    key={`${section.title}-${item.title}`}
-                    href={item.href}
-                    icon={item.icon}
-                    active={isActive(pathname, item.href)}
-                    label={item.title}
-                    description={item.description}
-                    onClick={() => setOpen(false)}
-                  />
-                  ))
-                )}
-              </MenuSection>
-              <MenuSection title={t.nav.resources}>
-                {resourceSections.flatMap((section) =>
-                  section.items.map((item) => (
-                    <CommandLink
-                      key={`${section.title}-${item.title}`}
-                      href={item.href}
-                      icon={item.icon}
-                      active={isActive(pathname, item.href)}
-                      label={item.title}
-                      description={item.description}
-                      onClick={() => setOpen(false)}
-                    />
-                  ))
-                )}
-              </MenuSection>
-              <MenuSection title={t.publicNav.more}>
-                <CommandLink
-                  href="/students"
-                  icon={GraduationCap}
-                  active={isActive(pathname, "/students")}
-                  label={t.nav.forStudents}
-                  description={t.students.short}
-                  onClick={() => setOpen(false)}
-                />
-                <CommandLink
-                  href="/pricing"
-                  icon={ShieldCheck}
-                  active={isActive(pathname, "/pricing")}
-                  label={t.nav.pricing}
-                  description={t.pricing.short}
-                  onClick={() => setOpen(false)}
-                />
-                <CommandLink
-                  href="/login"
-                  icon={LayoutDashboard}
-                  active={false}
-                  label={t.nav.dashboard}
-                  description={t.publicNav.dashboardHint}
-                  onClick={() => setOpen(false)}
-                />
-              </MenuSection>
-              <div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3">
-                <Link
-                  href="/register"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                >
-                  {t.common.getStarted}
-                </Link>
-                <Link
-                  href="/login"
-                  role="menuitem"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                >
-                  {t.nav.login}
-                </Link>
-              </div>
-            </div>
-          </>
+          <PublicMobileDrawerPortal
+            close={() => setOpen(false)}
+            menuId={menuId}
+            pathname={pathname}
+            productSections={productSections}
+            resourceSections={resourceSections}
+            t={t}
+          />
         )}
       </div>
     </div>

@@ -26,6 +26,8 @@ const productIcons = [Scale, Brain, Feather] as const;
 const featureIcons = [PencilLine, Route, FileText, Brain] as const;
 const flowIcons = [PencilLine, Sparkles, FileText, Route] as const;
 const differenceIcons = [Feather, MessageCircle, ShieldCheck] as const;
+const conversionIcons = [Sparkles, PencilLine, ShieldCheck] as const;
+const trustIcons = [ShieldCheck, FileText, Leaf] as const;
 
 function Surface({
   children,
@@ -172,11 +174,11 @@ export default function Home() {
     ? isAdmin
       ? t.app.openAdmin
       : t.common.goWorkspace
-    : t.common.createAccount;
+    : t.common.getStarted;
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.94),rgba(232,246,241,0.58)_52%,rgba(255,247,221,0.42))] px-5 py-8 shadow-[0_30px_100px_rgba(26,34,32,0.10)] sm:px-8 sm:py-12 lg:px-10">
+      <section className="relative overflow-hidden rounded-[2.75rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.96),rgba(232,246,241,0.62)_52%,rgba(255,247,221,0.45))] px-5 py-8 shadow-[0_34px_110px_rgba(26,34,32,0.11)] sm:px-8 sm:py-12 lg:px-10">
         <div
           aria-hidden="true"
           className="absolute -right-24 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.18)] blur-3xl"
@@ -195,7 +197,7 @@ export default function Home() {
               className="mb-5"
             />
             <Badge variant="accent">{t.home.badge}</Badge>
-            <h1 className="mt-5 max-w-[720px] text-[2.55rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.55rem] sm:leading-[0.98]">
+            <h1 className="mt-5 max-w-[720px] text-[2.6rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.75rem] sm:leading-[0.96]">
               {t.home.headline}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
@@ -214,6 +216,9 @@ export default function Home() {
                 {t.common.viewDemo}
               </LinkButton>
             </div>
+            <p className="mt-3 max-w-lg text-xs leading-5 text-[var(--foreground-subtle)]">
+              {t.home.ctaHint}
+            </p>
             <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center">
               <Link
                 href="/test"
@@ -232,9 +237,55 @@ export default function Home() {
             <p className="mt-5 max-w-xl text-sm leading-6 text-[var(--foreground-subtle)]">
               {t.home.safety}
             </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              {t.home.heroPills.map((pill) => (
+                <span
+                  key={pill}
+                  className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.64)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]"
+                >
+                  {pill}
+                </span>
+              ))}
+            </div>
           </div>
 
           <TransformationMockup />
+        </div>
+      </section>
+
+      <section className="mt-12 sm:mt-14">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {t.home.conversionCards.map(([title, body, cta, href], index) => {
+            const Icon = conversionIcons[index];
+            const resolvedHref =
+              href === "/register" && user ? workspaceHref : href;
+            const resolvedCta =
+              href === "/register" && user ? primaryLabel : cta;
+
+            return (
+              <Surface key={title} className="p-5 sm:p-6">
+                <div className="flex items-start gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                    <Icon aria-hidden="true" size={19} strokeWidth={1.8} />
+                  </span>
+                  <div>
+                    <h2 className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
+                      {title}
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {body}
+                    </p>
+                    <Link
+                      href={resolvedHref}
+                      className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
+                    >
+                      {resolvedCta}
+                    </Link>
+                  </div>
+                </div>
+              </Surface>
+            );
+          })}
         </div>
       </section>
 
@@ -267,7 +318,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="why-innerleaf" className="mt-16 scroll-mt-24 sm:mt-20">
+      <section id="what-innerleaf-does" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.doesEyebrow} title={t.home.doesTitle} />
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {t.home.doesCards.map((item, index) => {
@@ -289,7 +340,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
+      <section id="why-innerleaf" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.whyEyebrow} title={t.home.whyTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
             {t.home.differenceNote}
@@ -321,7 +372,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle} />
         <Surface className="mx-auto mt-8 max-w-5xl p-4 sm:p-5">
           <div className="grid gap-3 md:grid-cols-4">
@@ -348,29 +399,6 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mt-16 grid gap-4 sm:mt-20 lg:grid-cols-2">
-        {t.home.demoRealCards.map(([title, body, cta, href], index) => (
-          <Surface key={title} className="p-6 sm:p-7">
-            <Badge variant={index === 0 ? "outline" : "accent"}>
-              {index === 0 ? t.common.demoData : t.auth.trust}
-            </Badge>
-            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
-              {title}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
-              {body}
-            </p>
-            <LinkButton
-              href={index === 0 ? href : user ? workspaceHref : href}
-              variant={index === 0 ? "secondary" : "primary"}
-              className="mt-5"
-            >
-              {index === 0 ? cta : user ? primaryLabel : cta}
-            </LinkButton>
-          </Surface>
-        ))}
-      </section>
-
       <section className="mt-16 sm:mt-20">
         <Surface className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
           <div>
@@ -394,17 +422,35 @@ export default function Home() {
       </section>
 
       <section className="mt-16 sm:mt-20">
-        <SectionHeading eyebrow={t.home.trustEyebrow} title={t.home.trustTitle} />
-        <div className="mx-auto mt-7 grid max-w-5xl gap-3 sm:grid-cols-3">
-          {t.home.trustCards.map((item) => (
-            <div
-              key={item}
-              className="rounded-2xl border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.68)] px-4 py-4 text-sm font-medium leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
-            >
-              {item}
+        <Surface className="overflow-hidden p-6 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <SectionLabel>{t.home.trustEyebrow}</SectionLabel>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
+                {t.home.trustTitle}
+              </h2>
+              <p className="mt-4 text-sm leading-7 text-[var(--foreground-muted)]">
+                {t.home.trustCopy}
+              </p>
             </div>
-          ))}
-        </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {t.home.trustCards.map((item, index) => {
+                const Icon = trustIcons[index];
+                return (
+                  <div
+                    key={item}
+                    className="rounded-2xl border border-[rgba(35,70,55,0.10)] bg-[rgba(247,246,243,0.68)] p-4 text-sm font-medium leading-6 text-[var(--foreground-muted)]"
+                  >
+                    <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                      <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
+                    </span>
+                    {item}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </Surface>
       </section>
 
       <section className="mx-auto mb-12 mt-16 max-w-4xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.78)] p-6 text-center shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-9">

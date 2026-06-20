@@ -150,6 +150,13 @@ export const translations = {
       subtitle:
         "InnerLeaf helps you break down one intense moment into trigger, facts, interpretation, thought pattern, and one small next step.",
       safety: "Private self-reflection space. Not therapy or medical advice.",
+      ctaHint:
+        "Start with an account when you want to save. Use the demo first if you only want to explore.",
+      heroPills: [
+        "Fictional demo data",
+        "Private saved history",
+        "Short reflection cards",
+      ],
       boundary:
         "You stay in control. InnerLeaf does not diagnose, score, or judge your emotions.",
       heroMessy: "I keep replaying why they replied so late.",
@@ -171,6 +178,26 @@ export const translations = {
         "A small event feels bigger than expected",
         "Your mind fills in the missing meaning",
         "You react before the pattern is clear",
+      ],
+      conversionCards: [
+        [
+          "Explore the demo",
+          "See fictional cards and the pitch flow before creating an account.",
+          "View demo",
+          "/demo",
+        ],
+        [
+          "Help us test",
+          "Follow a short tester path and tell us where the experience feels clear or confusing.",
+          "Join testing",
+          "/test",
+        ],
+        [
+          "Start for real",
+          "Create a private workspace to save reflections, check in later, and review patterns.",
+          "Get started",
+          "/register",
+        ],
       ],
       doesEyebrow: "What InnerLeaf does",
       doesTitle: "One moment. One card. One next step.",
@@ -240,7 +267,9 @@ export const translations = {
         "Saved for review over time",
       ],
       trustEyebrow: "Trust and boundaries",
-      trustTitle: "Clear support without clinical claims.",
+      trustTitle: "Built for private self-reflection.",
+      trustCopy:
+        "InnerLeaf is an MVP, so the product is careful about what it promises. It organises reflection cards inside your account and keeps demo content separate from real use.",
       trustCards: [
         "Saved reflections are connected to your account.",
         "Demo pages use fictional sample data, not real user history.",
@@ -1275,6 +1304,13 @@ export const translations = {
       subtitle:
         "InnerLeaf 帮你把一次强烈的情绪时刻拆解成触发点、事实、解读、思维模式，以及一个小的下一步。",
       safety: "私人自我反思空间。不是治疗，也不提供医疗建议。",
+      ctaHint:
+        "想保存时再创建账号。只是想先了解产品，可以先查看演示。",
+      heroPills: [
+        "虚构演示数据",
+        "私人保存历史",
+        "简短反思卡片",
+      ],
       boundary: "你始终保有主动权。InnerLeaf 不诊断、不打分，也不评判你的情绪。",
       heroMessy: "我一直在想，为什么对方这么晚才回复。",
       heroStructured: "混乱感受 → 结构化卡片",
@@ -1294,6 +1330,26 @@ export const translations = {
         "一个小事件突然变得很重",
         "大脑开始补全缺失的含义",
         "在看清模式前，反应已经发生",
+      ],
+      conversionCards: [
+        [
+          "先看演示",
+          "创建账号前，先查看虚构样本卡片和展示流程。",
+          "查看演示",
+          "/demo",
+        ],
+        [
+          "帮助我们测试",
+          "按短流程体验，并告诉我们哪里清楚或容易困惑。",
+          "参与测试",
+          "/test",
+        ],
+        [
+          "开始真实使用",
+          "创建私人反思空间，保存卡片、之后回看，并查看模式。",
+          "开始使用",
+          "/register",
+        ],
       ],
       doesEyebrow: "InnerLeaf 做什么",
       doesTitle: "一次情绪时刻。一张反思卡片。一个下一步。",
@@ -1360,7 +1416,9 @@ export const translations = {
         "长期保存和回看",
       ],
       trustEyebrow: "信任与边界",
-      trustTitle: "清晰支持，不做临床承诺。",
+      trustTitle: "为私人自我反思而设计。",
+      trustCopy:
+        "InnerLeaf 仍处于 MVP 阶段，所以我们会谨慎说明产品边界。真实反思保存在你的账号空间，演示内容和真实使用分开。",
       trustCards: [
         "保存的反思会和你的账号关联。",
         "演示页面使用虚构样本数据，不是真实用户历史。",
