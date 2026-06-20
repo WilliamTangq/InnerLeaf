@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import {
   Archive,
+  Leaf,
   LayoutDashboard,
   ListChecks,
   LogOut,
@@ -60,8 +61,8 @@ function UserNavLink({
       className={[
         "flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         active
-          ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[inset_0_0_0_1px_rgba(31,155,143,0.13)]"
-          : "text-[var(--foreground-muted)] hover:bg-[rgba(255,254,248,0.76)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]",
+          ? "bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.42))] text-[var(--brand-teal-deep)] shadow-[inset_0_0_0_1px_rgba(31,155,143,0.15),0_8px_24px_rgba(17,111,104,0.08)]"
+          : "text-[var(--foreground-muted)] hover:bg-[rgba(255,254,248,0.78)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]",
       ].join(" ")}
     >
       <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
@@ -142,7 +143,7 @@ export function UserShell({
         onMenu={() => setSidebarOpen(true)}
       />
 
-      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-7 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[258px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-8 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[268px_1fr]">
         {sidebarOpen && (
           <button
             type="button"
@@ -157,12 +158,24 @@ export function UserShell({
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem] lg:p-3.5">
-            <div className="mb-3 rounded-[1.5rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.68))] p-4 shadow-[var(--shadow-sm)]">
+          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2.15rem] lg:p-3.5">
+            <div className="mb-4 rounded-[1.65rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.68))] p-4 shadow-[var(--shadow-soft)]">
               <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-semibold text-[var(--foreground)]">
-                  {t.app.title}
-                </p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
+                    <Leaf aria-hidden="true" size={18} strokeWidth={1.8} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {t.app.title}
+                    </p>
+                    {role && (
+                      <span className="mt-1 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.76)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--brand-teal-deep)]">
+                        {t.admin.roleLabels[role]}
+                      </span>
+                    )}
+                  </div>
+                </div>
                 <button
                   type="button"
                   onClick={() => setSidebarOpen(false)}
@@ -175,15 +188,10 @@ export function UserShell({
               <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
                 {t.app.privacy}
               </p>
-              {role && (
-                <span className="mt-3 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                  {t.admin.roleLabels[role]}
-                </span>
-              )}
             </div>
             <nav
               aria-label={t.app.title}
-              className="flex flex-col gap-1.5"
+              className="flex flex-col gap-2"
             >
               {userLinks.map((link) => (
                 <UserNavLink
@@ -206,7 +214,7 @@ export function UserShell({
                   }}
                 />
               ))}
-              <div className="min-w-px border-l border-[var(--border)] lg:my-2 lg:border-l-0 lg:border-t" />
+              <div className="min-w-px border-l border-[var(--border)] lg:my-3 lg:border-l-0 lg:border-t" />
               <button
                 type="button"
                 onClick={() => void logOut()}
