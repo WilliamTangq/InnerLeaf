@@ -18,7 +18,7 @@ function cx(...classes: Array<string | false | null | undefined>) {
 export function TopNav() {
   return (
     <header className="topbar-surface sticky top-0 z-[1200]">
-      <div className="mx-auto flex min-h-[68px] w-full max-w-[1200px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
+      <div className="mx-auto flex min-h-[74px] w-full max-w-[1240px] items-center justify-between gap-2 px-4 py-3 sm:gap-3 sm:px-8">
         <BrandLogo size="md" />
         <NavLinks />
       </div>
@@ -45,8 +45,8 @@ export function Footer() {
   ] as const;
 
   return (
-    <footer className="mt-auto border-t border-[rgba(40,80,60,0.08)] bg-[rgba(253,252,250,0.72)]">
-      <div className="mx-auto grid w-full max-w-[1200px] gap-6 px-5 py-7 sm:px-8 md:grid-cols-[1.5fr_0.8fr_0.8fr_0.7fr]">
+    <footer className="mt-auto border-t border-[rgba(40,80,60,0.08)] bg-[rgba(255,253,248,0.76)] backdrop-blur-xl">
+      <div className="mx-auto grid w-full max-w-[1240px] gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.5fr_0.8fr_0.8fr_0.7fr]">
         <div className="flex flex-col gap-4">
           <BrandLogo size="sm" href={null} showWordmark />
           <p className="max-w-sm text-sm leading-6 text-[var(--foreground-muted)]">
@@ -117,7 +117,7 @@ export function PageShell({
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
       <TopNav />
-      <main className={cx("mx-auto w-full flex-1 px-5 py-8 sm:px-8 sm:py-10", maxWidth)}>
+      <main className={cx("mx-auto w-full flex-1 px-5 py-9 sm:px-8 sm:py-12", maxWidth)}>
         {children}
       </main>
       <Footer />
@@ -143,7 +143,7 @@ export function PageHeader({
           {eyebrow}
         </p>
       )}
-      <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2rem] sm:leading-tight">
+      <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight">
         {title}
       </h1>
       {children && (
@@ -183,13 +183,13 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-xl)] border p-5 sm:p-6",
+        "rounded-[calc(var(--radius-xl)+6px)] border p-5 sm:p-6",
         variant === "default" &&
-          "border-[rgba(40,80,60,0.10)] bg-[rgba(255,255,248,0.88)] shadow-[var(--shadow-md)] transition duration-200",
+          "border-[rgba(40,80,60,0.095)] bg-[rgba(255,254,248,0.9)] shadow-[var(--shadow-md)] transition duration-200",
         variant === "muted" &&
-          "border-[rgba(40,80,60,0.08)] bg-[rgba(247,246,243,0.72)]",
+          "border-[rgba(40,80,60,0.075)] bg-[rgba(246,242,233,0.68)]",
         variant === "elevated" &&
-          "border-[rgba(40,80,60,0.12)] bg-[rgba(255,255,248,0.92)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.22)]",
+          "border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.94)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.22)]",
         className
       )}
     >
@@ -208,7 +208,7 @@ export function Badge({
   return (
     <span
       className={cx(
-        "inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
         variant === "neutral" &&
           "bg-[var(--surface-muted)] text-[var(--foreground-muted)]",
         variant === "accent" &&
@@ -232,11 +232,11 @@ export function PrimaryButton({
   return (
     <button
       className={cx(
-        "btn-brand inline-flex items-center justify-center rounded-lg font-medium transition duration-200 active:translate-y-px disabled:cursor-not-allowed",
+        "btn-brand inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px disabled:cursor-not-allowed",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-5 py-2.5 text-sm",
-        size === "lg" && "px-6 py-3 text-[15px]",
+        size === "lg" && "px-6 py-3.5 text-[15px]",
         className
       )}
       {...props}
@@ -261,14 +261,14 @@ export function LinkButton({
     <Link
       href={href}
       className={cx(
-        "inline-flex items-center justify-center rounded-lg font-medium transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+        "inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         className,
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-5 py-2.5 text-sm",
-        size === "lg" && "px-6 py-3 text-[15px]",
+        size === "lg" && "px-6 py-3.5 text-[15px]",
         variant === "primary" && "btn-brand text-white",
         variant === "secondary" &&
-          "border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)]",
+          "border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.86)] text-[var(--foreground)] shadow-[var(--shadow-sm)] hover:border-[var(--border-strong)] hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)]",
         variant === "ghost" &&
           "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
       )}
@@ -299,7 +299,7 @@ export function TextareaField({
       )}
       <textarea
         className={cx(
-          "mt-3 w-full resize-none rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4 text-[15px] leading-7 text-[var(--foreground)] outline-none transition duration-200 placeholder:text-[var(--foreground-subtle)]",
+          "mt-3 w-full resize-none rounded-[calc(var(--radius-lg)+4px)] border border-[var(--border)] bg-[rgba(255,254,248,0.92)] p-4 text-[15px] leading-7 text-[var(--foreground)] shadow-[var(--shadow-sm)] outline-none transition duration-200 placeholder:text-[var(--foreground-subtle)]",
           "focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]",
           className
         )}
@@ -367,7 +367,7 @@ export function StatusCard({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-lg)] border px-4 py-3 text-sm leading-6",
+        "rounded-[var(--radius-lg)] border px-4 py-3 text-sm leading-6 shadow-[var(--shadow-sm)]",
         tone === "neutral" &&
           "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground-muted)]",
         tone === "warning" &&

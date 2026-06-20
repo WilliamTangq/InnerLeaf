@@ -35,18 +35,18 @@ export function AppTopbar({
 }) {
   return (
     <header className="topbar-surface sticky top-0 z-[1200]">
-      <div className="mx-auto flex min-h-[68px] w-full max-w-[1320px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
+      <div className="mx-auto flex min-h-[74px] w-full max-w-[1360px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onMenu}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,255,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] lg:hidden"
             aria-label={menuLabel}
           >
             <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
           </button>
           <BrandLogo size="md" />
-          <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] sm:inline-flex">
+          <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:inline-flex">
             {badgeLabel}
           </span>
         </div>
@@ -56,7 +56,7 @@ export function AppTopbar({
           <Link
             href={accountHref}
             aria-label={accountLabel}
-            className="flex min-h-10 items-center gap-2 rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,255,248,0.92)] px-2.5 py-1.5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            className="flex min-h-10 items-center gap-2 rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] px-2.5 py-1.5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
           >
             <Avatar
               avatarUrl={avatarUrl ?? ""}
@@ -77,7 +77,7 @@ export function AppTopbar({
           <button
             type="button"
             onClick={onLogout}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,255,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             aria-label={logoutLabel}
           >
             <LogOut aria-hidden="true" size={17} strokeWidth={1.8} />

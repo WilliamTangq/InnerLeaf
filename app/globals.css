@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f7f6f3;
-  --background-elevated: #fdfcfa;
-  --foreground: #1a2220;
-  --foreground-muted: #55615c;
-  --foreground-subtle: #7a8680;
-  --surface: #ffffff;
-  --surface-muted: #f2f1ec;
-  --surface-warm: rgba(255, 255, 248, 0.9);
-  --border: #e5e3dc;
-  --border-strong: #d2cfc6;
+  --background: #f8f5ee;
+  --background-elevated: #fffdfa;
+  --foreground: #121c19;
+  --foreground-muted: #50615a;
+  --foreground-subtle: #7b8983;
+  --surface: #fffefa;
+  --surface-muted: #f2efe7;
+  --surface-warm: rgba(255, 254, 248, 0.92);
+  --border: #e6e0d5;
+  --border-strong: #cec6b8;
   /* Brand — from logo gradient (teal → gold) */
   --brand-teal: #1f9b8f;
-  --brand-teal-deep: #178a80;
-  --brand-gold: #e4b84a;
-  --brand-gold-soft: #f5e6b8;
+  --brand-teal-deep: #116f68;
+  --brand-gold: #d9b34a;
+  --brand-gold-soft: #f5e7bd;
   --brand-gradient: linear-gradient(
     135deg,
     var(--brand-teal) 0%,
@@ -29,21 +29,23 @@
     rgba(228, 184, 74, 0.14) 100%
   );
   --accent: var(--brand-teal-deep);
-  --accent-hover: #136b63;
-  --accent-soft: #e6f5f3;
-  --accent-ring: #b8e4df;
+  --accent-hover: #0f5f59;
+  --accent-soft: #e7f4ef;
+  --accent-ring: #b7dfd8;
   --warning: #8a6f3d;
   --warning-bg: #f8f3e8;
   --error: #8f4a42;
   --error-bg: #faf0ee;
   --success: var(--brand-teal-deep);
   --success-bg: #eef8f6;
-  --shadow-sm: 0 1px 2px rgba(26, 34, 32, 0.045);
-  --shadow-md: 0 10px 34px rgba(26, 34, 32, 0.065);
-  --shadow-lg: 0 22px 70px rgba(26, 34, 32, 0.09);
-  --shadow-shell: 0 14px 48px rgba(26, 34, 32, 0.075);
-  --shadow-topbar: 0 8px 30px rgba(26, 34, 32, 0.055);
-  --shadow-brand: 0 8px 28px rgba(31, 155, 143, 0.22);
+  --shadow-sm: 0 1px 2px rgba(18, 28, 25, 0.045);
+  --shadow-soft: 0 10px 28px rgba(18, 28, 25, 0.055);
+  --shadow-md: 0 16px 46px rgba(18, 28, 25, 0.07);
+  --shadow-lg: 0 28px 90px rgba(18, 28, 25, 0.105);
+  --shadow-xl: 0 42px 130px rgba(18, 28, 25, 0.13);
+  --shadow-shell: 0 22px 64px rgba(18, 28, 25, 0.09);
+  --shadow-topbar: 0 10px 34px rgba(18, 28, 25, 0.07);
+  --shadow-brand: 0 12px 34px rgba(17, 111, 104, 0.25);
   --radius-sm: 0.625rem;
   --radius-md: 1rem;
   --radius-lg: 1.25rem;
@@ -58,7 +60,10 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 12% -10%, rgba(31, 155, 143, 0.12), transparent 32rem),
+    radial-gradient(circle at 88% -8%, rgba(217, 179, 74, 0.12), transparent 30rem),
+    linear-gradient(180deg, #fffdf8 0%, var(--background) 42rem);
   color: var(--foreground);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -74,16 +79,16 @@ body {
   position: relative;
   background:
     radial-gradient(
-      ellipse 90% 60% at 0% 0%,
-      rgba(31, 155, 143, 0.1),
+      ellipse 90% 56% at 0% 0%,
+      rgba(31, 155, 143, 0.105),
       transparent 55%
     ),
     radial-gradient(
       ellipse 70% 50% at 100% 0%,
-      rgba(228, 184, 74, 0.08),
+      rgba(217, 179, 74, 0.085),
       transparent 50%
     ),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.38), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.54), transparent 30%),
     var(--background);
 }
 
@@ -95,11 +100,11 @@ body {
   width: min(28vw, 320px);
   height: min(28vw, 320px);
   border-radius: 72% 28% 68% 32% / 42% 58% 42% 58%;
-  border: 1px solid rgba(31, 155, 143, 0.08);
+  border: 1px solid rgba(31, 155, 143, 0.075);
   background: linear-gradient(
     135deg,
-    rgba(31, 155, 143, 0.055),
-    rgba(228, 184, 74, 0.045)
+    rgba(31, 155, 143, 0.048),
+    rgba(217, 179, 74, 0.04)
   );
   transform: rotate(-18deg);
   z-index: 0;
@@ -111,15 +116,19 @@ body {
 }
 
 .topbar-surface {
-  background: rgba(253, 252, 250, 0.985);
-  border-bottom: 1px solid rgba(40, 80, 60, 0.11);
+  background: rgba(255, 253, 248, 0.9);
+  border-bottom: 1px solid rgba(40, 80, 60, 0.095);
   box-shadow: var(--shadow-topbar);
+  backdrop-filter: blur(22px) saturate(1.2);
+  -webkit-backdrop-filter: blur(22px) saturate(1.2);
 }
 
 .shell-panel {
-  border: 1px solid rgba(40, 80, 60, 0.11);
-  background: rgba(255, 255, 248, 0.9);
+  border: 1px solid rgba(40, 80, 60, 0.1);
+  background: rgba(255, 254, 248, 0.88);
   box-shadow: var(--shadow-shell);
+  backdrop-filter: blur(20px) saturate(1.12);
+  -webkit-backdrop-filter: blur(20px) saturate(1.12);
 }
 
 .brand-gradient-text {

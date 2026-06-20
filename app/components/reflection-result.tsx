@@ -295,7 +295,7 @@ export function ReflectionResultCard({
     <section aria-labelledby="reflection-card-heading" className="mt-8">
       <Card
         variant="elevated"
-        className="overflow-hidden border-[rgba(31,155,143,0.12)]"
+        className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[rgba(255,254,248,0.95)] shadow-[var(--shadow-xl)]"
       >
         <div
           className="-mx-5 -mt-5 mb-5 h-1 sm:-mx-6 sm:-mt-6"
@@ -329,7 +329,7 @@ export function ReflectionResultCard({
         {isStructured && structured ? (
           <div className="mt-5 grid gap-3 sm:gap-3.5">
             {structured.emotional_validation && (
-              <div className="rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(232,246,237,0.72),rgba(255,255,248,0.92))] p-4 ring-1 ring-[rgba(31,155,143,0.08)] sm:p-5">
+              <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(232,246,237,0.74),rgba(255,254,248,0.94))] p-4 shadow-[var(--shadow-soft)] ring-1 ring-[rgba(31,155,143,0.08)] sm:p-5">
                 <p className="max-w-2xl text-[15px] leading-7 text-[var(--foreground)]">
                   {structured.emotional_validation}
                 </p>
@@ -340,7 +340,7 @@ export function ReflectionResultCard({
               labelText={labels.momentSummary}
               content={momentSummary}
             />
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+            <div className="rounded-[calc(var(--radius-lg)+4px)] border border-[var(--border)] bg-[rgba(246,242,233,0.68)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
               <div className="flex items-center gap-2">
                 <span
                   className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
@@ -377,7 +377,7 @@ export function ReflectionResultCard({
               tone="highlight"
             />
             {nextStep && (
-              <div className="rounded-[calc(var(--radius-xl)+2px)] border border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] p-4 shadow-[0_20px_55px_rgba(31,155,143,0.12)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
+              <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
@@ -405,7 +405,7 @@ export function ReflectionResultCard({
             <button
               type="button"
               onClick={() => setDetailsOpen((current) => !current)}
-              className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] transition duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.86)] px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
               aria-expanded={detailsOpen}
             >
               <span>{labels.detailsToggle}</span>
@@ -527,7 +527,7 @@ export function ReflectionResultCard({
           </div>
         )}
 
-        <div className="mt-6 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface-muted)] p-4 sm:p-5">
+        <div className="mt-6 rounded-[calc(var(--radius-xl)+6px)] border border-[var(--border)] bg-[rgba(246,242,233,0.68)] p-4 shadow-[var(--shadow-soft)] sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">

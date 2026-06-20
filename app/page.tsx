@@ -39,7 +39,7 @@ function Surface({
   return (
     <div
       className={[
-        "rounded-[2rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,248,0.78)] shadow-[0_28px_90px_rgba(26,34,32,0.075)] backdrop-blur-xl",
+        "rounded-[2.2rem] border border-[rgba(35,70,55,0.085)] bg-[rgba(255,254,248,0.80)] shadow-[var(--shadow-lg)] backdrop-blur-xl",
         className,
       ]
         .filter(Boolean)
@@ -63,11 +63,11 @@ function TransformationMockup() {
     <div className="relative">
       <div
         aria-hidden="true"
-        className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_78%_8%,rgba(228,184,74,0.18),transparent_34%),radial-gradient(circle_at_8%_78%,rgba(31,155,143,0.16),transparent_42%)] blur-3xl"
+        className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_78%_8%,rgba(217,179,74,0.20),transparent_34%),radial-gradient(circle_at_8%_78%,rgba(31,155,143,0.18),transparent_42%)] blur-3xl"
       />
-      <Surface className="relative overflow-hidden p-4 sm:p-5 lg:p-6">
+      <Surface className="relative overflow-hidden p-4 shadow-[var(--shadow-xl)] sm:p-5 lg:p-6">
         <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(31,155,143,0.22),transparent)]" />
-        <div className="rounded-[1.65rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,255,0.58)] p-4 shadow-[0_14px_44px_rgba(26,34,32,0.055)] sm:p-5">
+        <div className="rounded-[1.7rem] border border-[rgba(35,70,55,0.085)] bg-[rgba(255,255,255,0.62)] p-4 shadow-[var(--shadow-soft)] sm:p-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
               <MessageCircle aria-hidden="true" size={15} strokeWidth={1.8} />
@@ -88,7 +88,7 @@ function TransformationMockup() {
           </div>
         </div>
 
-        <div className="rounded-[1.85rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.78)] p-4 shadow-[0_18px_54px_rgba(26,34,32,0.08)] sm:p-5">
+        <div className="rounded-[1.9rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,255,0.82)] p-4 shadow-[var(--shadow-md)] sm:p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
@@ -108,7 +108,7 @@ function TransformationMockup() {
             {cardRows.map(([label, value]) => (
               <div
                 key={label}
-                className="rounded-[1.1rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(247,246,243,0.62)] p-3.5"
+                className="rounded-[1.15rem] border border-[rgba(35,70,55,0.075)] bg-[rgba(246,242,233,0.58)] p-3.5 shadow-[var(--shadow-sm)]"
               >
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
                   {label}
@@ -120,7 +120,7 @@ function TransformationMockup() {
             ))}
           </div>
 
-          <div className="mt-3 rounded-[1.25rem] border border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(230,245,243,0.92),rgba(255,248,226,0.58))] p-4">
+          <div className="mt-3 rounded-[1.35rem] border border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(230,245,239,0.94),rgba(255,248,226,0.62))] p-4 shadow-[var(--shadow-soft)]">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
               <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
               {t.reflectionCard.nextStep}
@@ -182,7 +182,7 @@ function ProductTransformation() {
               return (
                 <div
                   key={title}
-                  className="relative rounded-[1.5rem] border border-[rgba(35,70,55,0.09)] bg-[rgba(255,255,255,0.58)] p-4 shadow-[0_12px_36px_rgba(26,34,32,0.045)]"
+                  className="relative rounded-[1.65rem] border border-[rgba(35,70,55,0.085)] bg-[rgba(255,255,255,0.62)] p-4 shadow-[var(--shadow-soft)]"
                 >
                   {index < items.length - 1 && (
                     <ArrowRight
@@ -225,10 +225,14 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[3rem] border border-[rgba(35,70,55,0.09)] bg-[linear-gradient(140deg,rgba(255,255,248,0.98),rgba(237,248,244,0.66)_55%,rgba(255,249,229,0.48))] px-5 py-8 shadow-[0_38px_120px_rgba(26,34,32,0.105)] sm:px-8 sm:py-12 lg:px-10">
+      <section className="relative overflow-hidden rounded-[3.25rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(237,248,244,0.68)_55%,rgba(255,249,229,0.5))] px-5 py-8 shadow-[var(--shadow-xl)] sm:px-8 sm:py-12 lg:px-11">
         <div
           aria-hidden="true"
-          className="absolute -right-28 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.14)] blur-3xl"
+          className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.55),transparent_42%),radial-gradient(circle_at_55%_0%,rgba(255,255,255,0.55),transparent_28%)]"
+        />
+        <div
+          aria-hidden="true"
+          className="absolute -right-28 top-4 h-72 w-72 rounded-full bg-[rgba(217,179,74,0.15)] blur-3xl"
         />
         <div
           aria-hidden="true"
@@ -244,7 +248,7 @@ export default function Home() {
               className="mb-5"
             />
             <Badge variant="accent">{t.home.badge}</Badge>
-            <h1 className="mt-5 max-w-[720px] text-[2.55rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.65rem] sm:leading-[0.96]">
+            <h1 className="mt-5 max-w-[720px] text-[2.65rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.85rem] sm:leading-[0.94]">
               {t.home.headline}
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
@@ -288,7 +292,7 @@ export default function Home() {
               {t.home.heroPills.map((pill) => (
                 <span
                   key={pill}
-                  className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.64)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]"
+                  className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(255,254,248,0.68)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur"
                 >
                   {pill}
                 </span>

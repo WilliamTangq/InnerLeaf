@@ -58,10 +58,10 @@ function AdminNavLink({
       href={href}
       onClick={onClick}
       className={[
-        "flex min-h-11 items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+        "flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         active
-          ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-          : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
+          ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[inset_0_0_0_1px_rgba(31,155,143,0.13)]"
+          : "text-[var(--foreground-muted)] hover:bg-[rgba(255,254,248,0.76)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)]",
       ].join(" ")}
     >
       <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
@@ -80,7 +80,7 @@ export function AdminMetricCard({
   icon: IconType;
 }) {
   return (
-    <div className="rounded-[var(--radius-xl)] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,255,248,0.9)] p-5 shadow-[var(--shadow-md)]">
+    <div className="rounded-[calc(var(--radius-xl)+6px)] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.92)] p-5 shadow-[var(--shadow-md)]">
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
         <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
       </div>
@@ -157,7 +157,7 @@ export function AdminShell({
         onMenu={() => setSidebarOpen(true)}
         roleChip={role ? t.admin.roleLabels[role] : undefined}
       />
-      <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[260px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-7 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[266px_1fr]">
         {sidebarOpen && (
           <button
             type="button"
@@ -172,8 +172,8 @@ export function AdminShell({
             sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8rem)] lg:rounded-3xl lg:p-3">
-            <div className="mb-3 rounded-2xl border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.58))] p-4">
+          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem] lg:p-3.5">
+            <div className="mb-3 rounded-[1.5rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.6))] p-4 shadow-[var(--shadow-sm)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
                   <ShieldCheck aria-hidden="true" size={19} strokeWidth={1.8} />
@@ -181,7 +181,7 @@ export function AdminShell({
                 <button
                   type="button"
                   onClick={() => setSidebarOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] text-[var(--foreground-subtle)] lg:hidden"
+                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] lg:hidden"
                   aria-label={t.nav.menu}
                 >
                   <X aria-hidden="true" size={16} strokeWidth={1.8} />
@@ -219,7 +219,7 @@ export function AdminShell({
         </aside>
 
         <section className={["w-full pb-8", maxWidth].join(" ")}>
-          <div className="mb-6 rounded-[28px] border border-[rgba(31,92,70,0.13)] bg-[linear-gradient(135deg,rgba(250,255,240,0.9),rgba(255,255,248,0.9))] p-6 shadow-[var(--shadow-md)]">
+          <div className="mb-6 rounded-[2rem] border border-[rgba(31,92,70,0.13)] bg-[linear-gradient(135deg,rgba(250,255,240,0.92),rgba(255,254,248,0.94))] p-6 shadow-[var(--shadow-lg)]">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
                 {eyebrow || t.admin.secureManagement}
@@ -237,7 +237,7 @@ export function AdminShell({
           </div>
 
           {children}
-          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3 text-sm text-[var(--foreground-subtle)]">
+          <div className="mt-8 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(246,242,233,0.72)] px-4 py-3 text-sm text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)]">
             {t.admin.privateNote}
           </div>
         </section>

@@ -115,7 +115,7 @@ function AuthInput({
         {label}
       </span>
       <input
-        className="mt-2 w-full rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-[15px] text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+        className="mt-2 w-full rounded-[calc(var(--radius-lg)+4px)] border border-[var(--border)] bg-[rgba(255,254,248,0.92)] px-4 py-3 text-[15px] text-[var(--foreground)] shadow-[var(--shadow-sm)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
         type={type}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -138,15 +138,29 @@ function AuthShell({
 
   return (
     <PageShell maxWidth="max-w-md">
-      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-        <Leaf aria-hidden="true" size={22} strokeWidth={1.8} />
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="absolute -inset-8 rounded-[3rem] bg-[radial-gradient(circle_at_20%_0%,rgba(31,155,143,0.14),transparent_34%),radial-gradient(circle_at_92%_10%,rgba(217,179,74,0.13),transparent_36%)] blur-3xl"
+        />
+        <Card
+          variant="elevated"
+          className="relative overflow-hidden p-6 shadow-[var(--shadow-xl)] hover:translate-y-0 sm:p-7"
+        >
+          <div
+            className="-mx-6 -mt-6 mb-6 h-1 sm:-mx-7 sm:-mt-7"
+            style={{ background: "var(--brand-gradient)" }}
+            aria-hidden="true"
+          />
+          <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]">
+            <Leaf aria-hidden="true" size={22} strokeWidth={1.8} />
+          </div>
+          <PageHeader compact eyebrow={t.auth.account} title={title}>
+            {subtitle}
+          </PageHeader>
+          {children}
+        </Card>
       </div>
-      <PageHeader compact eyebrow={t.auth.account} title={title}>
-        {subtitle}
-      </PageHeader>
-      <Card variant="elevated" className="hover:translate-y-0">
-        {children}
-      </Card>
     </PageShell>
   );
 }
