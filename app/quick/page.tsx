@@ -14,6 +14,7 @@ import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Card,
+  LinkButton,
   LoadingCard,
   LoadingSpinner,
   PageHeader,
@@ -327,13 +328,30 @@ export function QuickReflectionContent() {
             autoSaved
           />
           {saved && (
-            <div className="mt-4 flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[var(--surface-muted)] p-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium text-[var(--brand-teal-deep)]">
-                {t.common.savedToHistory}
-              </p>
-              <PrimaryButton type="button" onClick={startNewReflection}>
-                {t.quick.startNew}
-              </PrimaryButton>
+            <div className="mt-4 grid gap-3">
+              <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[var(--surface-muted)] p-4 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-medium text-[var(--brand-teal-deep)]">
+                  {t.common.savedToHistory}
+                </p>
+                <PrimaryButton type="button" onClick={startNewReflection}>
+                  {t.quick.startNew}
+                </PrimaryButton>
+              </div>
+              <Card className="hover:translate-y-0">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                      {t.feedbackPrompt.title}
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {t.feedbackPrompt.body}
+                    </p>
+                  </div>
+                  <LinkButton href="/feedback" variant="secondary" size="sm">
+                    {t.feedbackPrompt.cta}
+                  </LinkButton>
+                </div>
+              </Card>
             </div>
           )}
         </>

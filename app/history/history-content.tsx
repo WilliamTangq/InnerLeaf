@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Archive, CheckCircle2, Clock3 } from "lucide-react";
 import {
+  Card,
   EmptyState,
   LinkButton,
   PageActions,
@@ -24,6 +26,9 @@ export function HistoryContent() {
   const [loaded, setLoaded] = useState(false);
   const visibleReflections = reflections.filter(isVisibleHistoryReflection);
   const latest = visibleReflections[0];
+  const checkedInCount = visibleReflections.filter(
+    (item) => item.follow_up_result
+  ).length;
 
   useEffect(() => {
     async function loadReflections() {
@@ -72,30 +77,70 @@ export function HistoryContent() {
       </PageActions>
 
       {!hasError && visibleReflections.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-3 text-sm text-[var(--foreground-muted)]">
-          <span>
-            <span className="font-medium text-[var(--foreground)]">
-              {visibleReflections.length}
-            </span>{" "}
-            {t.history.saved}
-          </span>
-          {latest && (
-            <>
-              <span aria-hidden="true" className="text-[var(--border-strong)]">
-                ·
-              </span>
-              <span>
-                {t.history.latest}{" "}
-                <time dateTime={latest.created_at}>
-                  {new Date(latest.created_at).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  })}
-                </time>
-              </span>
-            </>
-          )}
+        <div className="mb-6 grid gap-3 sm:grid-cols-3">
+          <Card className="hover:translate-y-0">
+            <div className="flex items-center gap-3">
+              <Archive
+                aria-hidden="true"
+                size={18}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              <div>
+                <p className="text-2xl font-semibold text-[var(--foreground)]">
+                  {visibleReflections.length}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                  {t.history.saved}
+                </p>
+              </div>
+            </div>
+          </Card>
+          <Card className="hover:translate-y-0">
+            <div className="flex items-center gap-3">
+              <CheckCircle2
+                aria-hidden="true"
+                size={18}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              <div>
+                <p className="text-2xl font-semibold text-[var(--foreground)]">
+                  {checkedInCount}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                  {t.history.checkedIn}
+                </p>
+              </div>
+            </div>
+          </Card>
+          <Card className="hover:translate-y-0">
+            <div className="flex items-center gap-3">
+              <Clock3
+                aria-hidden="true"
+                size={18}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              <div>
+                <p className="text-sm font-semibold text-[var(--foreground)]">
+                  {latest ? (
+                    <time dateTime={latest.created_at}>
+                      {new Date(latest.created_at).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </time>
+                  ) : (
+                    "-"
+                  )}
+                </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                  {t.history.latest}
+                </p>
+              </div>
+            </div>
+          </Card>
         </div>
       )}
 

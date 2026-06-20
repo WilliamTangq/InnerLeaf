@@ -2,12 +2,15 @@
 
 import {
   Archive,
+  LogIn,
   MessageSquare,
   PencilLine,
   Send,
   Sparkles,
   TrendingUp,
+  UserPlus,
 } from "lucide-react";
+import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
@@ -22,13 +25,15 @@ const linkIcons = [PencilLine, Sparkles, Archive, TrendingUp, Send] as const;
 
 export default function TestPage() {
   const { t } = useLanguage();
+  const { user, isAdmin } = useAuth();
   const testingLinks = [
-    [t.quick.title, "/quick"],
-    [t.guided.title, "/guided"],
-    [t.history.title, "/history"],
-    [t.summary.title, "/summary"],
+    [t.quick.title, "/dashboard/quick"],
+    [t.guided.title, "/dashboard/guided"],
+    [t.history.title, "/dashboard/history"],
+    [t.summary.title, "/dashboard/summary"],
     [t.feedback.title, "/feedback"],
   ] as const;
+  const dashboardHref = isAdmin ? "/admin" : "/dashboard";
 
   return (
     <PageShell maxWidth="max-w-5xl">
@@ -36,19 +41,45 @@ export default function TestPage() {
         {t.test.purpose}
       </PageHeader>
 
-      <StatusCard tone="neutral">{t.test.accountNote}</StatusCard>
-      <div className="mt-5 flex flex-wrap gap-3">
-        <LinkButton href="/register">{t.test.createAccount}</LinkButton>
-        <LinkButton href="/login" variant="secondary">
-          {t.test.login}
-        </LinkButton>
-        <LinkButton href="/demo" variant="ghost">
-          {t.test.viewDemo}
-        </LinkButton>
-        <LinkButton href="/feedback" variant="ghost">
-          {t.test.shareFeedback}
-        </LinkButton>
-      </div>
+      <Card variant="elevated" className="hover:translate-y-0">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <SectionLabel>{t.nav.test}</SectionLabel>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+              {user ? t.test.loggedInNote : t.test.loggedOutNote}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-subtle)]">
+              {t.test.demoNote}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {user ? (
+              <>
+                <LinkButton href={dashboardHref}>
+                  {t.test.goDashboard}
+                </LinkButton>
+                <LinkButton href="/dashboard/quick" variant="secondary">
+                  {t.test.startQuick}
+                </LinkButton>
+              </>
+            ) : (
+              <>
+                <LinkButton href="/register">
+                  <UserPlus aria-hidden="true" size={15} strokeWidth={1.8} />
+                  {t.test.createAccount}
+                </LinkButton>
+                <LinkButton href="/login" variant="secondary">
+                  <LogIn aria-hidden="true" size={15} strokeWidth={1.8} />
+                  {t.test.login}
+                </LinkButton>
+              </>
+            )}
+            <LinkButton href="/demo" variant="ghost">
+              {t.test.viewDemo}
+            </LinkButton>
+          </div>
+        </div>
+      </Card>
 
       <div className="mt-5 grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
         <Card variant="elevated">

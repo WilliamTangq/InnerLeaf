@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Footprints, Leaf } from "lucide-react";
+import { BarChart3, CheckCircle2, Footprints, Leaf, RefreshCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   Card,
@@ -24,12 +24,14 @@ type SummaryReflection = {
   next_step_type: string | null;
   next_step: string | null;
   follow_up_result: string | null;
+  follow_up_at: string | null;
 };
 
 function cleanRawLabel(value: string | null) {
   return (value ?? "")
     .replace(/^\s*\d+\.\s*/g, "")
     .replace(/^[-*•]\s*/g, "")
+    .replace(/^["“”'‘’]+|["“”'‘’]+$/g, "")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -61,6 +63,9 @@ function normalizeCategory(
         [/all.?or.?nothing/i, "All-or-nothing thinking"],
         [/self.?blame/i, "Self-blame"],
         [/comparison/i, "Comparison thinking"],
+        [/reassurance/i, "Reassurance-seeking"],
+        [/avoid/i, "Avoidance"],
+        [/over.?general/i, "Overgeneralisation"],
         [/rejection/i, "Rejection sensitivity"],
         [/low.?energy/i, "Low-energy mode"],
       ],
@@ -93,6 +98,9 @@ function normalizeCategory(
         [/全或无|非黑即白/, "非黑即白"],
         [/自责/, "自责循环"],
         [/比较/, "比较思维"],
+        [/确认|安慰/, "反复确认"],
+        [/回避|逃避/, "回避"],
+        [/概括/, "过度概括"],
         [/被拒绝|拒绝/, "拒绝敏感"],
         [/低能量/, "低能量模式"],
       ],
@@ -379,33 +387,60 @@ function SummaryNarrativeCard({
   );
 }
 
-function LegacyPatternList({
+function InsightPatternList({
   title,
+  description,
   items,
 }: {
   title: string;
+  description: string;
   items: Array<{ value: string; count: number }>;
 }) {
   if (items.length === 0) {
     return null;
   }
 
+  const maxCount = Math.max(...items.map((item) => item.count), 1);
+
   return (
     <Card className="hover:translate-y-0">
-      <h2 className="text-base font-semibold text-[var(--foreground)]">
-        {title}
-      </h2>
-      <ul className="mt-4 space-y-2">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {title}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+            {description}
+          </p>
+        </div>
+        <BarChart3
+          aria-hidden="true"
+          size={18}
+          strokeWidth={1.8}
+          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+        />
+      </div>
+      <ul className="mt-5 space-y-2">
         {items.map((item) => (
             <li
               key={item.value}
-              className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
             >
-              <span className="text-sm leading-6 text-[var(--foreground-muted)]">
-                {item.value}
-              </span>
-              <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
-                {item.count}×
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-sm font-medium leading-6 text-[var(--foreground)]">
+                  {item.value}
+                </span>
+                <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
+                  {item.count}×
+                </span>
+              </div>
+              <span className="mt-3 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
+                <span
+                  className="block h-full rounded-full bg-[var(--brand-teal)]/55"
+                  style={{
+                    width: `${Math.max(18, (item.count / maxCount) * 100)}%`,
+                  }}
+                />
               </span>
             </li>
         ))}
@@ -486,6 +521,97 @@ function HelpfulNextStepsSection({
   );
 }
 
+function CheckInSignalsSection({
+  settledTriggers,
+  repeatingTriggers,
+}: {
+  settledTriggers: Array<{ value: string; count: number }>;
+  repeatingTriggers: Array<{ value: string; count: number }>;
+}) {
+  const { t } = useLanguage();
+
+  if (settledTriggers.length === 0 && repeatingTriggers.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card className="hover:translate-y-0">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {t.summary.checkInSignals}
+          </h2>
+          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+            {t.summary.checkInSignalsDesc}
+          </p>
+        </div>
+        <RefreshCcw
+          aria-hidden="true"
+          size={18}
+          strokeWidth={1.8}
+          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+        />
+      </div>
+
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <div className="rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+            {t.summary.triggersSettled}
+          </p>
+          {settledTriggers.length === 0 ? (
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.summary.noSettledTriggers}
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {settledTriggers.map((item) => (
+                <li
+                  key={item.value}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
+                  <span className="font-medium text-[var(--foreground)]">
+                    {item.value}
+                  </span>
+                  <span className="text-xs text-[var(--foreground-subtle)]">
+                    {item.count}×
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+            {t.summary.triggersRepeating}
+          </p>
+          {repeatingTriggers.length === 0 ? (
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.summary.noRepeatingTriggers}
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {repeatingTriggers.map((item) => (
+                <li
+                  key={item.value}
+                  className="flex items-center justify-between gap-3 text-sm"
+                >
+                  <span className="font-medium text-[var(--foreground)]">
+                    {item.value}
+                  </span>
+                  <span className="text-xs text-[var(--foreground-subtle)]">
+                    {item.count}×
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export function SummaryContent() {
   const { language, t } = useLanguage();
   const { session, user, loading: authLoading } = useAuth();
@@ -543,10 +669,12 @@ export function SummaryContent() {
     reflections.map((item) => cleanRawLabel(item.next_step_type))
   );
   const nextStepCounts = new Map<string, { value: string; used: number; helped: number }>();
+  const settledTriggerValues: string[] = [];
 
   reflections.forEach((item) => {
     const type = cleanRawLabel(item.next_step_type);
     const result = cleanRawLabel(item.follow_up_result);
+    const trigger = normalizeCategory(item.trigger, language, "trigger");
 
     if (!type || !result) {
       return;
@@ -556,11 +684,16 @@ export function SummaryContent() {
     current.used += 1;
     if (result === "Helped" || result === "Somewhat") {
       current.helped += 1;
+      if (trigger) {
+        settledTriggerValues.push(trigger);
+      }
     }
     nextStepCounts.set(type, current);
   });
 
   const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
+  const settledTriggers = topPatterns(settledTriggerValues);
+  const repeatingTriggers = repeatedTriggers.filter((item) => item.count > 1);
 
   return (
     <>
@@ -595,11 +728,30 @@ export function SummaryContent() {
       )}
 
       {!hasError && loaded && user && !hasEnoughData && (
-        <EmptyState
-          title={t.summary.emptyTitle}
-          description={t.summary.moreReflectionsNeeded}
-          action={<LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>}
-        />
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+          <EmptyState
+            title={t.summary.emptyTitle}
+            description={t.summary.moreReflectionsNeeded}
+            action={<LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>}
+          />
+          <Card className="hover:translate-y-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+              {t.summary.notEnoughData}
+            </p>
+            <p className="mt-3 text-3xl font-semibold text-[var(--foreground)]">
+              {reflectionCount}/3
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.summary.emptySubtext}
+            </p>
+            <span className="mt-5 block h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+              <span
+                className="block h-full rounded-full bg-[var(--brand-teal)]/60"
+                style={{ width: `${Math.min(100, (reflectionCount / 3) * 100)}%` }}
+              />
+            </span>
+          </Card>
+        </div>
       )}
 
       {!hasError && loaded && user && hasEnoughData && (
@@ -612,28 +764,57 @@ export function SummaryContent() {
               nextStepTypes={repeatedNextStepTypes}
             />
             <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
-              <LegacyPatternList
+              <InsightPatternList
                 title={t.summary.repeatedTriggers}
+                description={t.summary.repeatedTriggersDesc}
                 items={repeatedTriggers}
               />
-              <LegacyPatternList
+              <InsightPatternList
                 title={t.summary.repeatedThoughts}
+                description={t.summary.repeatedThoughtsDesc}
                 items={repeatedThoughtPatterns}
               />
-              <LegacyPatternList
+              <InsightPatternList
                 title={t.summary.behaviouralThemes}
+                description={t.summary.behaviouralThemesDesc}
                 items={recentBehaviouralThemes}
               />
             </div>
             <HelpfulNextStepsSection items={nextSteps} />
-          </div>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <LinkButton href="/dashboard/quick">{t.summary.makeClearer}</LinkButton>
-            <LinkButton href="/dashboard/history" variant="secondary">
-              {t.summary.openHistory}
-            </LinkButton>
+            <CheckInSignalsSection
+              settledTriggers={settledTriggers}
+              repeatingTriggers={repeatingTriggers}
+            />
           </div>
         </>
+      )}
+
+      {!hasError && loaded && user && (
+        <div className="mt-8 grid gap-4">
+          <Card className="hover:translate-y-0">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                  {t.feedbackPrompt.title}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {t.feedbackPrompt.body}
+                </p>
+              </div>
+              <LinkButton href="/feedback" variant="secondary" size="sm">
+                {t.feedbackPrompt.cta}
+              </LinkButton>
+            </div>
+          </Card>
+          {hasEnoughData && (
+            <div className="flex flex-wrap gap-3">
+              <LinkButton href="/dashboard/quick">{t.summary.makeClearer}</LinkButton>
+              <LinkButton href="/dashboard/history" variant="secondary">
+                {t.summary.openHistory}
+              </LinkButton>
+            </div>
+          )}
+        </div>
       )}
     </>
   );

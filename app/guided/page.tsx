@@ -14,6 +14,7 @@ import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Badge,
   Card,
+  LinkButton,
   LoadingCard,
   LoadingSpinner,
   PageHeader,
@@ -408,6 +409,23 @@ export function GuidedReflectionContent() {
             saving={saving}
             autoSaved
           />
+          {saved && (
+            <Card className="mt-4 hover:translate-y-0">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                    {t.feedbackPrompt.title}
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {t.feedbackPrompt.body}
+                  </p>
+                </div>
+                <LinkButton href="/feedback" variant="secondary" size="sm">
+                  {t.feedbackPrompt.cta}
+                </LinkButton>
+              </div>
+            </Card>
+          )}
         </>
       )}
     </div>

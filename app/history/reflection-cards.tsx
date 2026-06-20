@@ -2,14 +2,18 @@
 
 import {
   Brain,
+  CalendarClock,
   CheckCircle2,
   Footprints,
+  Heart,
+  Lightbulb,
+  MessageCircleQuestion,
   Route,
   Send,
   Zap,
 } from "lucide-react";
-import { useState } from "react";
-import { Badge, Card } from "../components/ui";
+import { useState, type ReactNode } from "react";
+import { Badge, Card, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
@@ -82,12 +86,122 @@ function formatHistoryDate(value: string) {
   }).format(new Date(value));
 }
 
+function formatHistoryTime(value: string) {
+  return new Intl.DateTimeFormat("en-AU", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
+}
+
+function formatHistoryGroup(value: string) {
+  return new Intl.DateTimeFormat("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
 const previewIcons = {
+  Emotion: Heart,
   Trigger: Zap,
   "Thought pattern": Brain,
   "One small next step": Footprints,
   Interpretation: Route,
 } as const;
+
+function DetailMetric({
+  icon: Icon,
+  label,
+  value,
+  accent = false,
+}: {
+  icon: typeof Heart;
+  label: string;
+  value: string;
+  accent?: boolean;
+}) {
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <div
+      className={[
+        "rounded-[var(--radius-lg)] border p-3.5",
+        accent
+          ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
+          : "border-[var(--border)] bg-[var(--surface-muted)]",
+      ].join(" ")}
+    >
+      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+        <Icon
+          aria-hidden="true"
+          size={14}
+          strokeWidth={1.8}
+          className="text-[var(--brand-teal-deep)]"
+        />
+        {label}
+      </p>
+      <p className="mt-1.5 text-sm font-medium leading-6 text-[var(--foreground)]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function DetailSection({
+  icon: Icon,
+  title,
+  children,
+  accent = false,
+}: {
+  icon: typeof Heart;
+  title: string;
+  children: ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <section
+      className={[
+        "rounded-[var(--radius-xl)] border p-4",
+        accent
+          ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] ring-1 ring-[rgba(31,155,143,0.08)]"
+          : "border-[var(--border)] bg-[var(--surface-muted)]",
+      ].join(" ")}
+    >
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+        <Icon
+          aria-hidden="true"
+          size={16}
+          strokeWidth={1.8}
+          className="text-[var(--brand-teal-deep)]"
+        />
+        {title}
+      </h3>
+      <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function BulletList({ items }: { items: string[] }) {
+  return (
+    <ul className="space-y-2">
+      {items.slice(0, 3).map((item) => (
+        <li key={item} className="flex gap-2">
+          <span
+            aria-hidden="true"
+            className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]"
+          />
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function sectionTitle(title: string, labels: Labels) {
   const map: Record<string, string> = {
@@ -165,6 +279,35 @@ function formatFollowUpDate(value: string | null) {
     minute: "2-digit",
     hour12: false,
   }).format(new Date(value));
+}
+
+function parseCheckInNote(value: string | null) {
+  if (!value) {
+    return { feelNow: "", differentNow: "", legacy: "" };
+  }
+
+  try {
+    const parsed = JSON.parse(value) as {
+      feel_now?: unknown;
+      different_now?: unknown;
+    };
+
+    return {
+      feelNow: typeof parsed.feel_now === "string" ? parsed.feel_now : "",
+      differentNow:
+        typeof parsed.different_now === "string" ? parsed.different_now : "",
+      legacy: "",
+    };
+  } catch {
+    return { feelNow: "", differentNow: "", legacy: value };
+  }
+}
+
+function serializeCheckInNote(feelNow: string, differentNow: string) {
+  return JSON.stringify({
+    feel_now: feelNow.trim(),
+    different_now: differentNow.trim(),
+  });
 }
 
 function toHistoryCard(item: Reflection) {
@@ -247,14 +390,22 @@ export function isVisibleHistoryReflection(item: Reflection) {
 function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
   const { language, t } = useLanguage();
   const { session } = useAuth();
+  const initialNote = parseCheckInNote(reflection.follow_up_note);
   const [selectedResult, setSelectedResult] = useState(
     reflection.follow_up_result ?? ""
   );
-  const [note, setNote] = useState(reflection.follow_up_note ?? "");
+  const [feelNow, setFeelNow] = useState(initialNote.feelNow);
+  const [differentNow, setDifferentNow] = useState(initialNote.differentNow);
   const [savedResult, setSavedResult] = useState(
     reflection.follow_up_result ?? ""
   );
+  const [savedFeelNow, setSavedFeelNow] = useState(initialNote.feelNow);
+  const [savedDifferentNow, setSavedDifferentNow] = useState(
+    initialNote.differentNow
+  );
+  const [savedLegacyNote, setSavedLegacyNote] = useState(initialNote.legacy);
   const [savedAt, setSavedAt] = useState(reflection.follow_up_at ?? "");
+  const [showForm, setShowForm] = useState(Boolean(reflection.follow_up_result));
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "error">(
     "idle"
   );
@@ -286,7 +437,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
         body: JSON.stringify({
           id: reflection.id,
           follow_up_result: selectedResult,
-          follow_up_note: note,
+          follow_up_note: serializeCheckInNote(feelNow, differentNow),
         }),
       });
 
@@ -295,8 +446,12 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       }
 
       setSavedResult(selectedResult);
+      setSavedFeelNow(feelNow.trim());
+      setSavedDifferentNow(differentNow.trim());
+      setSavedLegacyNote("");
       setSavedAt(new Date().toISOString());
       setStatus("saved");
+      setShowForm(true);
     } catch {
       setStatus("error");
     }
@@ -326,28 +481,89 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
 
       {savedResult ? (
         <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
-          <p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
-            <CheckCircle2
-              aria-hidden="true"
-              size={16}
-              strokeWidth={1.8}
-              className="text-[var(--brand-teal-deep)]"
-            />
-            {t.history.checkInSaved} {checkInResultLabel(savedResult, t)}
-          </p>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <p className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+              <CheckCircle2
+                aria-hidden="true"
+                size={16}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              {t.history.checkInSummary}
+            </p>
+            <Badge variant="accent">{checkInResultLabel(savedResult, t)}</Badge>
+          </div>
           {savedDate && (
             <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
               {t.history.checkedInAt} {savedDate}
             </p>
           )}
-          {note.trim() && (
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              {note}
-            </p>
+          <div className="mt-3 grid gap-2">
+            {(savedFeelNow || savedLegacyNote) && (
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+                  {t.history.feelsNow}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {savedFeelNow || savedLegacyNote}
+                </p>
+              </div>
+            )}
+            {savedDifferentNow && (
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2.5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+                  {t.history.differentNow}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {savedDifferentNow}
+                </p>
+              </div>
+            )}
+          </div>
+          {status === "saved" && (
+            <div className="mt-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-2.5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                    {t.feedbackPrompt.title}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {t.feedbackPrompt.body}
+                  </p>
+                </div>
+                <LinkButton href="/feedback" variant="secondary" size="sm">
+                  {t.feedbackPrompt.cta}
+                </LinkButton>
+              </div>
+            </div>
           )}
         </div>
+      ) : !showForm ? (
+        <button
+          type="button"
+          onClick={() => setShowForm(true)}
+          className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+        >
+          <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
+          {t.history.checkInCta}
+        </button>
       ) : (
         <div className="mt-4 space-y-3">
+          <p className="text-sm font-semibold text-[var(--foreground)]">
+            {t.history.checkInCta}
+          </p>
+          <label className="block">
+            <span className="text-sm font-medium text-[var(--foreground)]">
+              {t.history.feelsNow}
+            </span>
+            <textarea
+              value={feelNow}
+              onChange={(event) => setFeelNow(event.target.value)}
+              rows={2}
+              className="mt-2 min-h-20 w-full resize-y rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+              placeholder={t.history.feelsNowPlaceholder}
+            />
+          </label>
           <p className="text-sm font-medium text-[var(--foreground)]">
             {t.history.helpedQuestion}
           </p>
@@ -374,14 +590,14 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
           </div>
           <label className="block">
             <span className="text-sm font-medium text-[var(--foreground)]">
-              {t.history.noteLabel}
+              {t.history.differentNow}
             </span>
             <textarea
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
+              value={differentNow}
+              onChange={(event) => setDifferentNow(event.target.value)}
               rows={3}
               className="mt-2 min-h-24 w-full resize-y rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--foreground-subtle)] focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
-              placeholder={t.history.notePlaceholder}
+              placeholder={t.history.differentNowPlaceholder}
             />
           </label>
           <div className="flex flex-wrap items-center gap-3">
@@ -418,6 +634,20 @@ export function ReflectionCards({
 }) {
   const { language, t } = useLanguage();
   const [openCards, setOpenCards] = useState<Set<string | number>>(new Set());
+  const groupedReflections = reflections.reduce<
+    Array<{ label: string; items: Reflection[] }>
+  >((groups, item) => {
+    const label = formatHistoryGroup(item.created_at);
+    const latest = groups.at(-1);
+
+    if (latest?.label === label) {
+      latest.items.push(item);
+    } else {
+      groups.push({ label, items: [item] });
+    }
+
+    return groups;
+  }, []);
 
   function toggleCard(id: string | number) {
     setOpenCards((current) => {
@@ -434,167 +664,316 @@ export function ReflectionCards({
   }
 
   return (
-    <div className="space-y-4">
-      {reflections.map((item) => {
-        const card = toHistoryCard(item);
-        const bodyFactor = meaningfulBodyFactor(item.body_factor);
-        const isOpen = openCards.has(item.id);
-        const collapsedPreview = [
-          ["Trigger", card.trigger],
-          ["Thought pattern", card.thoughtPattern],
-          ["One small next step", card.oneSmallNextStep],
-        ] as const;
-        const visiblePreview = collapsedPreview.filter(([, content]) =>
-          Boolean(content)
-        );
-        const headline =
-          previewLine(card.trigger) ||
-          previewLine(card.originalInput, 100) ||
-          "Reflection card";
+    <div className="space-y-8">
+      {groupedReflections.map((group) => (
+        <section key={group.label} aria-label={group.label}>
+          <div className="mb-3 flex items-center gap-3">
+            <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+              {group.label}
+            </h2>
+            <span className="h-px flex-1 bg-[var(--border)]" />
+          </div>
 
-        const fullSections = [
-          ["What came up", item.emotional_validation],
-          ["Emotion", card.mainEmotion],
-          ["Trigger", card.trigger],
-          ["Facts", card.facts.join(" ")],
-          ["Interpretation", card.interpretations.join(" ")],
-          ["Thought pattern", card.thoughtPattern],
-          ["Behaviour", item.behaviour],
-          ["Body / context", bodyFactor],
-          ["Behavioural insight", card.behaviouralInsight],
-          ["One small next step", card.oneSmallNextStep],
-          ["One next question", card.oneNextQuestion],
-        ] as const;
+          <div className="space-y-4">
+            {group.items.map((item) => {
+              const card = toHistoryCard(item);
+              const bodyFactor = meaningfulBodyFactor(item.body_factor);
+              const isOpen = openCards.has(item.id);
+              const collapsedPreview = [
+                ["Emotion", card.mainEmotion],
+                ["Trigger", card.trigger],
+                ["Thought pattern", card.thoughtPattern],
+                ["One small next step", card.oneSmallNextStep],
+              ] as const;
+              const visiblePreview = collapsedPreview.filter(([, content]) =>
+                Boolean(content)
+              );
+              const headline =
+                previewLine(card.trigger) ||
+                previewLine(card.originalInput, 100) ||
+                "Reflection card";
 
-        return (
-          <Card key={item.id} className="hover:translate-y-0">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <time
-                    dateTime={item.created_at}
-                    className="text-xs text-[var(--foreground-subtle)]"
-                  >
-                    {formatHistoryDate(item.created_at)}
-                  </time>
-                  {card.mainEmotion && (
-                    <Badge variant="accent">{card.mainEmotion}</Badge>
-                  )}
-                  {item.mode_detected && item.mode_detected !== "General" && (
-                    <Badge variant="outline">
-                      {t.reflectionCard.reflectionMode}:{" "}
-                      {translateDetectedMode(language, item.mode_detected)}
-                    </Badge>
-                  )}
-                  {card.nextStepType && (
-                    <Badge variant="accent">
-                      {translateNextStepType(language, card.nextStepType)}
-                    </Badge>
-                  )}
-                  {card.oneSmallNextStep && (
-                    <Badge variant={item.follow_up_result ? "accent" : "outline"}>
-                      {followUpLabel(item.follow_up_result, t)}
-                    </Badge>
-                  )}
-                </div>
-                <p className="mt-2 text-base font-medium leading-7 text-[var(--foreground)]">
-                  {headline}
-                </p>
-              </div>
+              const validation = previewLine(item.emotional_validation, 360);
+              const behaviour = previewLine(item.behaviour, 180);
+              const hasFactsVsInterpretation =
+                card.facts.length > 0 || card.interpretations.length > 0;
+              const hasStructuredDetail =
+                validation ||
+                card.mainEmotion ||
+                card.trigger ||
+                card.thoughtPattern ||
+                bodyFactor ||
+                behaviour ||
+                card.behaviouralInsight ||
+                hasFactsVsInterpretation ||
+                card.oneNextQuestion ||
+                card.oneSmallNextStep;
 
-              <button
-                type="button"
-                onClick={() => toggleCard(item.id)}
-                aria-expanded={isOpen}
-                className="shrink-0 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              >
-                {isOpen ? t.history.collapse : t.history.readFull}
-              </button>
-            </div>
-
-            {!isOpen && visiblePreview.length > 0 && (
-              <dl className="mt-4 grid gap-2.5 sm:grid-cols-3">
-                {visiblePreview.map(([title, content]) => {
-                  const Icon = previewIcons[title as keyof typeof previewIcons];
-                  const isQuestion = title === "One small next step";
-                  return (
-                    <div
-                      key={title}
-                      className={[
-                        "rounded-[var(--radius-lg)] border p-3",
-                        isQuestion
-                          ? "border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] sm:col-span-3"
-                          : "border-[var(--border)] bg-[var(--surface-muted)]",
-                      ].join(" ")}
-                    >
-                      <dt className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                        <Icon
-                          aria-hidden="true"
-                          size={14}
-                          strokeWidth={1.8}
-                          className="text-[var(--brand-teal-deep)]"
-                        />
-                        {sectionTitle(title, t)}
-                      </dt>
-                      <dd className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                        {content}
-                      </dd>
-                    </div>
-                  );
-                })}
-              </dl>
-            )}
-
-            {isOpen && (
-              <div className="mt-6 space-y-6 border-t border-[var(--border)] pt-6">
-                {item.user_input && (
-                  <div>
-                    <h3 className="text-sm font-medium text-[var(--foreground)]">
-                      {t.history.whatYouWrote}
-                    </h3>
-                    <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                      {card.originalInput}
-                    </p>
-                  </div>
-                )}
-                <div className="grid gap-2.5 sm:grid-cols-2">
-                  {fullSections
-                    .filter(([, content]) => Boolean(content))
-                    .map(([title, content]) => {
-                      const isQuestion =
-                        title === "One next question" ||
-                        title === "One small next step";
-                      return (
-                        <div
-                          key={title}
-                          className={[
-                            "rounded-[var(--radius-lg)] border p-3.5",
-                            isQuestion
-                              ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] sm:col-span-2"
-                              : "border-[var(--border)] bg-[var(--surface-muted)]",
-                          ].join(" ")}
+              return (
+                <Card
+                  key={item.id}
+                  className="overflow-hidden border-[rgba(40,80,60,0.14)] hover:translate-y-0"
+                >
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <time
+                          dateTime={item.created_at}
+                          className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-2.5 py-1 text-xs font-medium text-[var(--foreground-subtle)]"
+                          title={formatHistoryDate(item.created_at)}
                         >
-                          <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                            {sectionTitle(title, t)}
-                          </p>
-                          <p className="mt-1.5 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                            {content}
+                          {formatHistoryTime(item.created_at)}
+                        </time>
+                        {item.mode_detected && item.mode_detected !== "General" && (
+                          <Badge variant="outline">
+                            {translateDetectedMode(language, item.mode_detected)}
+                          </Badge>
+                        )}
+                        {card.oneSmallNextStep && (
+                          <Badge variant={item.follow_up_result ? "accent" : "outline"}>
+                            {followUpLabel(item.follow_up_result, t)}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="mt-3 text-lg font-semibold leading-7 text-[var(--foreground)]">
+                        {headline}
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => toggleCard(item.id)}
+                      aria-expanded={isOpen}
+                      className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                    >
+                      {isOpen ? t.history.collapse : t.history.readFull}
+                    </button>
+                  </div>
+
+                  {!isOpen && visiblePreview.length > 0 && (
+                    <dl className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
+                      {visiblePreview.map(([title, content]) => {
+                        const Icon = previewIcons[title as keyof typeof previewIcons];
+                        const isNextStep = title === "One small next step";
+                        return (
+                          <div
+                            key={title}
+                            className={[
+                              "rounded-[var(--radius-lg)] border p-3.5",
+                              isNextStep
+                                ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] sm:col-span-2 xl:col-span-1"
+                                : "border-[var(--border)] bg-[var(--surface-muted)]",
+                            ].join(" ")}
+                          >
+                            <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+                              <Icon
+                                aria-hidden="true"
+                                size={14}
+                                strokeWidth={1.8}
+                                className="text-[var(--brand-teal-deep)]"
+                              />
+                              {sectionTitle(title, t)}
+                            </dt>
+                            <dd className="mt-1.5 line-clamp-3 text-sm leading-6 text-[var(--foreground-muted)]">
+                              {content}
+                            </dd>
+                          </div>
+                        );
+                      })}
+                    </dl>
+                  )}
+
+                  {isOpen && (
+                    <div className="mt-6 space-y-5 border-t border-[var(--border)] pt-6">
+                      <div className="rounded-[28px] border border-[rgba(40,80,60,0.12)] bg-[linear-gradient(135deg,rgba(255,255,248,0.96),rgba(242,249,244,0.76))] p-4 shadow-[0_18px_70px_rgba(20,35,28,0.08)] sm:p-5">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                          <div className="min-w-0">
+                            <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+                              <CalendarClock
+                                aria-hidden="true"
+                                size={14}
+                                strokeWidth={1.8}
+                                className="text-[var(--brand-teal-deep)]"
+                              />
+                              {formatHistoryDate(item.created_at)}
+                            </p>
+                            <h3 className="mt-3 text-xl font-semibold leading-8 text-[var(--foreground)]">
+                              {headline}
+                            </h3>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            {item.mode_detected && item.mode_detected !== "General" && (
+                              <Badge variant="outline">
+                                {translateDetectedMode(language, item.mode_detected)}
+                              </Badge>
+                            )}
+                            {card.nextStepType && (
+                              <Badge variant="accent">
+                                {translateNextStepType(language, card.nextStepType)}
+                              </Badge>
+                            )}
+                            {card.oneSmallNextStep && (
+                              <Badge variant={item.follow_up_result ? "accent" : "outline"}>
+                                {followUpLabel(item.follow_up_result, t)}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                          <DetailMetric
+                            icon={Heart}
+                            label={sectionTitle("Emotion", t)}
+                            value={card.mainEmotion}
+                          />
+                          <DetailMetric
+                            icon={Zap}
+                            label={sectionTitle("Trigger", t)}
+                            value={card.trigger}
+                          />
+                          <DetailMetric
+                            icon={Brain}
+                            label={sectionTitle("Thought pattern", t)}
+                            value={card.thoughtPattern}
+                          />
+                          <DetailMetric
+                            icon={Footprints}
+                            label={sectionTitle("One small next step", t)}
+                            value={
+                              card.nextStepType
+                                ? translateNextStepType(language, card.nextStepType)
+                                : card.oneSmallNextStep
+                            }
+                            accent
+                          />
+                        </div>
+                      </div>
+
+                      {item.user_input && (
+                        <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+                          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                            {t.history.whatYouWrote}
+                          </h3>
+                          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                            {card.originalInput}
                           </p>
                         </div>
-                      );
-                    })}
-                </div>
-                {!fullSections.some(([, c]) => c) && item.ai_result && (
-                  <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                    {item.ai_result}
-                  </p>
-                )}
-                <NextStepCheckIn reflection={item} />
-              </div>
-            )}
-          </Card>
-        );
-      })}
+                      )}
+
+                      {validation && (
+                        <DetailSection
+                          icon={Heart}
+                          title={sectionTitle("What came up", t)}
+                          accent
+                        >
+                          <p className="whitespace-pre-wrap">{validation}</p>
+                        </DetailSection>
+                      )}
+
+                      {hasFactsVsInterpretation && (
+                        <section className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+                          <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                            <Route
+                              aria-hidden="true"
+                              size={16}
+                              strokeWidth={1.8}
+                              className="text-[var(--brand-teal-deep)]"
+                            />
+                            {sectionTitle("Facts", t)} /{" "}
+                            {sectionTitle("Interpretation", t)}
+                          </h3>
+                          <div className="mt-4 grid gap-3 md:grid-cols-2">
+                            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+                                {sectionTitle("Facts", t)}
+                              </p>
+                              <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+                                {card.facts.length > 0 ? (
+                                  <BulletList items={card.facts} />
+                                ) : (
+                                  <p>{t.reflectionCard.notIdentified}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] p-4">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
+                                {sectionTitle("Interpretation", t)}
+                              </p>
+                              <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+                                {card.interpretations.length > 0 ? (
+                                  <BulletList items={card.interpretations} />
+                                ) : (
+                                  <p>{t.reflectionCard.notIdentified}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </section>
+                      )}
+
+                      <div className="grid gap-3 lg:grid-cols-2">
+                        {card.thoughtPattern && (
+                          <DetailSection
+                            icon={Brain}
+                            title={sectionTitle("Thought pattern", t)}
+                          >
+                            <p className="whitespace-pre-wrap">{card.thoughtPattern}</p>
+                          </DetailSection>
+                        )}
+                        {card.behaviouralInsight && (
+                          <DetailSection
+                            icon={Lightbulb}
+                            title={sectionTitle("Behavioural insight", t)}
+                          >
+                            <p className="whitespace-pre-wrap">
+                              {card.behaviouralInsight}
+                            </p>
+                          </DetailSection>
+                        )}
+                        {behaviour && (
+                          <DetailSection
+                            icon={Route}
+                            title={sectionTitle("Behaviour", t)}
+                          >
+                            <p className="whitespace-pre-wrap">{behaviour}</p>
+                          </DetailSection>
+                        )}
+                        {bodyFactor && (
+                          <DetailSection
+                            icon={Zap}
+                            title={sectionTitle("Body / context", t)}
+                          >
+                            <p className="whitespace-pre-wrap">{bodyFactor}</p>
+                          </DetailSection>
+                        )}
+                      </div>
+
+                      {card.oneNextQuestion && (
+                        <DetailSection
+                          icon={MessageCircleQuestion}
+                          title={sectionTitle("One next question", t)}
+                          accent
+                        >
+                          <p className="whitespace-pre-wrap text-[var(--foreground)]">
+                            {card.oneNextQuestion}
+                          </p>
+                        </DetailSection>
+                      )}
+
+                      {!hasStructuredDetail && item.ai_result && (
+                        <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
+                          {item.ai_result}
+                        </p>
+                      )}
+                      <NextStepCheckIn reflection={item} />
+                    </div>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

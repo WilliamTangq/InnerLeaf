@@ -1,6 +1,6 @@
 "use client";
 
-import { Leaf, Send } from "lucide-react";
+import { CheckCircle2, Leaf, MessageSquareText, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
@@ -21,22 +21,22 @@ const experienceQuestions = [
   { name: "ease_of_start" },
   { name: "reflection_length" },
   { name: "clarity_help" },
+] as const;
+
+const productFitQuestions = [
   { name: "would_use_again" },
   { name: "alternative_tool" },
   { name: "saving_blocker" },
 ] as const;
 
-const openQuestions = [
-  { name: "comparison_feedback" },
-  { name: "blocker" },
-] as const;
-
-type RadioFieldName = (typeof experienceQuestions)[number]["name"];
-type TextFieldName = (typeof openQuestions)[number]["name"] | "other_thoughts";
+type RadioFieldName =
+  | (typeof experienceQuestions)[number]["name"]
+  | (typeof productFitQuestions)[number]["name"];
+type TextFieldName = "comparison_feedback" | "blocker" | "other_thoughts";
 type FeedbackValues = Record<RadioFieldName | TextFieldName, string>;
 
 const initialValues = {
-  ...experienceQuestions.reduce(
+  ...[...experienceQuestions, ...productFitQuestions].reduce(
     (values, field) => {
       values[field.name] = "";
       return values;
@@ -100,25 +100,30 @@ export default function FeedbackPage() {
   if (submitted) {
     return (
       <PageShell>
-        <div
-          className="mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-          aria-hidden="true"
-        >
-          <Leaf size={22} strokeWidth={1.8} />
-        </div>
-        <PageHeader
-          compact
-          eyebrow={t.feedback.thankYouEyebrow}
-          title={t.feedback.thankYou}
-        >
-          {t.feedback.success}
-        </PageHeader>
-        <PageActions>
-          <LinkButton href="/">{t.feedback.backHome}</LinkButton>
-          <LinkButton href="/dashboard/quick" variant="secondary">
-            {t.common.newReflection}
-          </LinkButton>
-        </PageActions>
+        <Card variant="elevated" className="text-center hover:translate-y-0 sm:text-left">
+          <div
+            className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] sm:mx-0"
+            aria-hidden="true"
+          >
+            <CheckCircle2 size={22} strokeWidth={1.8} />
+          </div>
+          <PageHeader
+            compact
+            eyebrow={t.feedback.thankYouEyebrow}
+            title={t.feedback.thankYou}
+          >
+            {t.feedback.success}
+          </PageHeader>
+          <PageActions className="mb-0 justify-center sm:justify-start">
+            <LinkButton href="/dashboard/quick">{t.common.newReflection}</LinkButton>
+            <LinkButton href="/dashboard/history" variant="secondary">
+              {t.common.viewHistory}
+            </LinkButton>
+            <LinkButton href="/" variant="ghost">
+              {t.feedback.backHome}
+            </LinkButton>
+          </PageActions>
+        </Card>
       </PageShell>
     );
   }
@@ -131,9 +136,22 @@ export default function FeedbackPage() {
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <Card className="hover:translate-y-0">
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {t.feedback.experience}
-          </h2>
+          <div className="flex items-start gap-3">
+            <Leaf
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
+              className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+            />
+            <div>
+              <h2 className="text-base font-semibold text-[var(--foreground)]">
+                {t.feedback.basics}
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+                {t.feedback.experience}
+              </p>
+            </div>
+          </div>
           <div className="mt-6 space-y-7">
             {experienceQuestions.map((group) => (
               <RadioGroupField
@@ -149,25 +167,45 @@ export default function FeedbackPage() {
         </Card>
 
         <Card className="hover:translate-y-0">
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {t.feedback.notes}
-          </h2>
-          <div className="mt-5 space-y-5">
-            {openQuestions.map((field) => (
-              <TextareaField
-                key={field.name}
-                label={t.feedback.openQuestions[field.name]}
-                className="min-h-24"
-                value={values[field.name]}
-                onChange={(event) =>
-                  updateField(field.name, event.target.value)
-                }
+          <div className="flex items-start gap-3">
+            <MessageSquareText
+              aria-hidden="true"
+              size={18}
+              strokeWidth={1.8}
+              className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+            />
+            <div>
+              <h2 className="text-base font-semibold text-[var(--foreground)]">
+                {t.feedback.productFit}
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+                {t.feedback.notes}
+              </p>
+            </div>
+          </div>
+          <div className="mt-6 space-y-7">
+            {productFitQuestions.map((group) => (
+              <RadioGroupField
+                key={group.name}
+                name={group.name}
+                label={t.feedback.questions[group.name][0]}
+                options={t.feedback.questions[group.name][1]}
+                value={values[group.name]}
+                onChange={(value) => updateField(group.name, value)}
               />
             ))}
+          </div>
+        </Card>
+
+        <Card className="hover:translate-y-0">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {t.feedback.commentsTitle}
+          </h2>
+          <div className="mt-5">
             <TextareaField
               label={t.feedback.anythingElse}
               name="other_thoughts"
-              className="min-h-24"
+              className="min-h-28"
               value={values.other_thoughts}
               onChange={(event) =>
                 updateField("other_thoughts", event.target.value)

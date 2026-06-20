@@ -194,6 +194,14 @@ export const translations = {
       ],
       safety:
         "Please do not enter information you are not comfortable storing. InnerLeaf is not crisis support, therapy, diagnosis, or medical advice.",
+      loggedInNote:
+        "You are signed in. You can start the live reflection flow now.",
+      loggedOutNote:
+        "Create an account or log in first so your test reflection stays private to you.",
+      goDashboard: "Go to Dashboard",
+      startQuick: "Start Quick Reflection",
+      demoNote:
+        "Demo uses fictional sample data. Testing uses your private account workspace.",
     },
     demo: {
       title: "InnerLeaf Demo Flow",
@@ -516,10 +524,17 @@ export const translations = {
       readFull: "View full card",
       collapse: "Hide full card",
       whatYouWrote: "What you wrote",
+      checkInCta: "Check in on this reflection",
+      checkInSummary: "Check-in summary",
+      feelsNow: "How does this feel now?",
+      feelsNowPlaceholder: "A short sentence is enough.",
       helpedQuestion: "Did this next step help?",
       helped: "Helped",
       somewhat: "Somewhat",
       didNotHelp: "Did not help",
+      differentNow: "What feels different now?",
+      differentNowPlaceholder:
+        "What changed compared with the moment you first wrote this?",
       noteLabel: "What happened after you tried it? Optional.",
       notePlaceholder: "A few words is enough.",
       saveCheckIn: "Save check-in",
@@ -539,6 +554,15 @@ export const translations = {
       behaviouralThemesDesc: "How you tend to respond",
       helpfulSteps: "Helpful next steps",
       helpfulStepsDesc: "Based on your saved check-ins",
+      checkInSignals: "Check-in signals",
+      checkInSignalsDesc:
+        "What you marked as settling or still repeating",
+      triggersSettled: "Triggers that seemed to settle",
+      triggersRepeating: "Triggers still repeating",
+      noSettledTriggers:
+        "Check in on a few cards to see what tends to settle.",
+      noRepeatingTriggers:
+        "No repeated trigger is clear from check-ins yet.",
       emptyTitle: "Not enough saved reflections yet.",
       emptyNeed: "more saved reflections needed.",
       emptyDescription:
@@ -930,6 +954,9 @@ export const translations = {
       saveError: "Feedback could not be saved.",
       experience: "Your experience",
       notes: "Optional notes",
+      basics: "Reflection flow",
+      productFit: "Product fit",
+      commentsTitle: "Open comments",
       anythingElse: "Anything else?",
       questions: {
         mode_tried: ["Which mode did you use?", ["Quick Reflection", "Guided Reflection", "Both"]],
@@ -945,6 +972,11 @@ export const translations = {
           "What worked better or worse than Notes, a friend, or a chat tool?",
         blocker: "What would stop you from coming back?",
       },
+    },
+    feedbackPrompt: {
+      title: "Help improve InnerLeaf",
+      body: "A quick note from you helps us understand what felt clear, useful, or confusing.",
+      cta: "Share feedback",
     },
   },
   zh: {
@@ -1129,6 +1161,11 @@ export const translations = {
       ],
       safety:
         "请不要输入你不愿意被保存的信息。InnerLeaf 不是危机支持、治疗、诊断或医疗建议。",
+      loggedInNote: "你已登录，可以开始真实的反思测试流程。",
+      loggedOutNote: "请先创建账号或登录，让测试反思只保存在你的私人空间里。",
+      goDashboard: "进入反思空间",
+      startQuick: "开始快速反思",
+      demoNote: "演示页面使用虚构样本数据。测试流程会进入你的私人账号空间。",
     },
     demo: {
       title: "InnerLeaf 演示流程",
@@ -1422,10 +1459,16 @@ export const translations = {
       readFull: "查看完整卡片",
       collapse: "收起完整卡片",
       whatYouWrote: "你写下的内容",
+      checkInCta: "回看这条反思",
+      checkInSummary: "回看总结",
+      feelsNow: "现在感觉有什么变化？",
+      feelsNowPlaceholder: "简单写一句就可以。",
       helpedQuestion: "这个下一步有帮助吗？",
       helped: "有帮助",
       somewhat: "有一点",
       didNotHelp: "没有帮助",
+      differentNow: "和当时相比，现在有什么不同？",
+      differentNowPlaceholder: "和第一次写下这件事时相比，有什么变化？",
       noteLabel: "尝试之后发生了什么？可选。",
       notePlaceholder: "简单写几句就可以。",
       saveCheckIn: "保存回看",
@@ -1445,6 +1488,12 @@ export const translations = {
       behaviouralThemesDesc: "你通常会如何回应",
       helpfulSteps: "有帮助的下一步",
       helpfulStepsDesc: "基于你保存的回看记录",
+      checkInSignals: "回看信号",
+      checkInSignalsDesc: "你标记为有帮助或仍反复出现的内容",
+      triggersSettled: "似乎有缓和的触发点",
+      triggersRepeating: "仍在重复的触发点",
+      noSettledTriggers: "多回看几张卡片后，就能看到哪些触发点更容易缓和。",
+      noRepeatingTriggers: "目前还没有从回看中看到清楚的重复触发点。",
       emptyTitle: "保存的反思还不够。",
       emptyNeed: "还需要更多保存的反思。",
       emptyDescription:
@@ -1797,6 +1846,9 @@ export const translations = {
       saveError: "反馈未能保存。",
       experience: "你的体验",
       notes: "可选补充",
+      basics: "反思流程",
+      productFit: "产品适合度",
+      commentsTitle: "开放反馈",
       anythingElse: "还有其他想法吗？",
       questions: {
         mode_tried: ["你尝试了哪种模式？", ["快速反思", "引导反思", "两种都试了"]],
@@ -1811,6 +1863,11 @@ export const translations = {
         comparison_feedback: "和备忘录、朋友或聊天工具相比，哪里更好或更不适合？",
         blocker: "什么会让你不想再回来使用？",
       },
+    },
+    feedbackPrompt: {
+      title: "帮助我们改进 InnerLeaf",
+      body: "简单反馈几句，就能帮助我们理解哪里清楚、有用，哪里还需要调整。",
+      cta: "分享反馈",
     },
   },
 } as const;
