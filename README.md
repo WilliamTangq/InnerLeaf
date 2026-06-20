@@ -26,18 +26,7 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 The role-routing Playwright spec verifies the privacy-critical split between the admin console and the normal user reflection workspace. It does not create or mutate Supabase Auth users automatically.
 
-Create these test accounts manually in Supabase Auth before running the live login checks:
 
-- Admin: `admin@gmail.com` / `123456` with profile role `admin`
-- Normal user: `user@test.com` / `123456` with profile role `user`
-
-Add the credentials to your local environment when you want the live login tests to run:
-
-```bash
-TEST_ADMIN_EMAIL=admin@gmail.com
-TEST_ADMIN_PASSWORD=123456
-TEST_USER_EMAIL=user@test.com
-TEST_USER_PASSWORD=123456
 ```
 
 SQL reminder for the normal user profile:
