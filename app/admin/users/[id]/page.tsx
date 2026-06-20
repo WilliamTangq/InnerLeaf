@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Trash2, X } from "lucide-react";
 import { Avatar } from "../../../components/avatar";
 import { AdminShell } from "../../../components/admin-shell";
 import { RequireAdmin } from "../../../components/route-guards";
@@ -52,6 +53,8 @@ function UserDetailContent() {
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
 
   useEffect(() => {
     async function loadUser() {
@@ -126,7 +129,7 @@ function UserDetailContent() {
   }
 
   async function deleteUser() {
-    if (!session?.access_token || !user || !window.confirm(t.admin.deleteConfirm)) {
+    if (!session?.access_token || !user) {
       return;
     }
 
@@ -193,6 +196,11 @@ function UserDetailContent() {
                 <Badge variant={user.role === "admin" ? "accent" : "outline"}>
                   {t.admin.roleLabels[user.role]}
                 </Badge>
+                {deleteDisabled && (
+                  <p className="mt-3 text-xs font-medium text-[var(--foreground-subtle)]">
+                    {t.admin.protectedUserNote}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -279,11 +287,89 @@ function UserDetailContent() {
               </p>
               <button
                 type="button"
-                onClick={() => void deleteUser()}
+                onClick={() => {
+                  setConfirmDelete(true);
+                  setDeleteConfirmation("");
+                }}
                 disabled={saving || deleteDisabled}
                 className="mt-4 rounded-lg border border-[rgba(155,55,55,0.18)] bg-[rgba(155,55,55,0.04)] px-4 py-2 text-sm font-semibold text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {t.admin.deleteUser}
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
+
+      {user && confirmDelete && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[rgba(20,35,28,0.2)] px-4 backdrop-blur-[2px]">
+          <button
+            type="button"
+            aria-label={t.admin.cancel}
+            className="absolute inset-0"
+            onClick={() => setConfirmDelete(false)}
+          />
+          <Card
+            className="relative w-full max-w-lg border-[rgba(155,55,55,0.22)] hover:translate-y-0"
+            variant="elevated"
+          >
+            <div className="flex items-start gap-4">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[rgba(155,55,55,0.2)] bg-[rgba(155,55,55,0.08)] text-[var(--error)]">
+                <Trash2 aria-hidden="true" size={20} strokeWidth={1.8} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                    {t.admin.deleteConfirmTitle}
+                  </h2>
+                  <button
+                    type="button"
+                    aria-label={t.admin.cancel}
+                    onClick={() => setConfirmDelete(false)}
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-[var(--foreground-subtle)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+                  >
+                    <X aria-hidden="true" size={16} strokeWidth={1.8} />
+                  </button>
+                </div>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {t.admin.deleteConfirmBody}
+                </p>
+                <p className="mt-2 break-all text-sm font-semibold text-[var(--foreground)]">
+                  {user.email}
+                </p>
+              </div>
+            </div>
+
+            <label className="mt-5 block">
+              <span className="text-sm font-medium text-[var(--foreground)]">
+                {t.admin.deleteConfirmInput}
+              </span>
+              <input
+                value={deleteConfirmation}
+                onChange={(event) => setDeleteConfirmation(event.target.value)}
+                className="mt-2 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none focus:border-[var(--error)] focus:ring-4 focus:ring-[rgba(155,55,55,0.12)]"
+              />
+            </label>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              >
+                {t.admin.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => void deleteUser()}
+                disabled={
+                  saving ||
+                  deleteConfirmation.trim().toLowerCase() !==
+                    (user.email ?? "").toLowerCase()
+                }
+                className="rounded-lg bg-[var(--error)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {saving ? t.feedback.sending : t.admin.deleteUser}
               </button>
             </div>
           </Card>
