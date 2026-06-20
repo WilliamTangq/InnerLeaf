@@ -172,11 +172,11 @@ export default function Home() {
     ? isAdmin
       ? t.app.openAdmin
       : t.common.goWorkspace
-    : t.common.getStarted;
+    : t.common.createAccount;
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[2.75rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.96),rgba(232,246,241,0.62)_52%,rgba(255,247,221,0.45))] px-5 py-8 shadow-[0_34px_110px_rgba(26,34,32,0.11)] sm:px-8 sm:py-12 lg:px-10">
+      <section className="relative overflow-hidden rounded-[2.75rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.97),rgba(232,246,241,0.64)_52%,rgba(255,247,221,0.46))] px-5 py-8 shadow-[0_34px_110px_rgba(26,34,32,0.11)] sm:px-8 sm:py-12 lg:px-10">
         <div
           aria-hidden="true"
           className="absolute -right-24 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.18)] blur-3xl"
@@ -186,7 +186,7 @@ export default function Home() {
           className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.13)] blur-3xl"
         />
 
-        <div className="relative grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
+        <div className="relative grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
             <BrandLogo
               size="lg"
