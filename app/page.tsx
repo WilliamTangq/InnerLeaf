@@ -238,7 +238,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section id="product" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading
           eyebrow={t.home.featuresEyebrow}
           title={t.home.featuresTitle}
@@ -267,7 +267,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section id="why-innerleaf" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.doesEyebrow} title={t.home.doesTitle} />
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {t.home.doesCards.map((item, index) => {
@@ -289,7 +289,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
         <SectionHeading eyebrow={t.home.whyEyebrow} title={t.home.whyTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
             {t.home.differenceNote}

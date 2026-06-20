@@ -14,6 +14,7 @@ export const translations = {
       startQuick: "Start quick reflection",
       startReflection: "Start reflection",
       createAccount: "Create account",
+      getStarted: "Get started",
       goWorkspace: "Go to workspace",
       tryThreeMinute: "Try a 3-minute reflection",
       tryGuided: "Try guided reflection",
@@ -58,6 +59,10 @@ export const translations = {
       history: "History",
       summary: "Summary",
       feedback: "Feedback",
+      resources: "Resources",
+      forStudents: "For Students",
+      pricing: "Pricing",
+      dashboard: "Dashboard",
       login: "Login",
       register: "Register",
       logout: "Log out",
@@ -66,6 +71,78 @@ export const translations = {
       admin: "Admin",
       menu: "Menu",
       openAccountMenu: "Open account menu",
+    },
+    publicNav: {
+      more: "More",
+      dashboardHint: "Continue to your private workspace",
+      productSections: {
+        reflect: "Reflect",
+        review: "Review",
+        followUp: "Follow up",
+      },
+      resourceSections: {
+        learn: "Learn",
+        explore: "Explore",
+        about: "About",
+      },
+      items: {
+        quick: {
+          title: "Quick Reflection",
+          description: "Write freely and let AI organise the moment.",
+        },
+        guided: {
+          title: "Guided Reflection",
+          description: "Reflect step by step with a gentle CBT-informed structure.",
+        },
+        history: {
+          title: "History",
+          description: "Save reflection cards and revisit them over time.",
+        },
+        summary: {
+          title: "Pattern Summary",
+          description: "Notice repeated triggers, thoughts, and reactions.",
+        },
+        checkIn: {
+          title: "Check-in",
+          description: "See what changed after the emotional moment passed.",
+        },
+        demo: {
+          title: "Demo",
+          description: "Explore a fictional sample flow before creating an account.",
+        },
+        how: {
+          title: "How InnerLeaf works",
+          description: "See the write, reflect, save, and review loop.",
+        },
+        faq: {
+          title: "FAQ",
+          description: "Read common questions and product boundaries.",
+        },
+        privacy: {
+          title: "Privacy & Safety",
+          description: "Understand MVP data boundaries before testing.",
+        },
+        test: {
+          title: "User Testing",
+          description: "Follow a short testing path and share what you notice.",
+        },
+        feedback: {
+          title: "Feedback",
+          description: "Tell us what felt clear, useful, or confusing.",
+        },
+        about: {
+          title: "About",
+          description: "Learn why InnerLeaf exists and what it is not.",
+        },
+        founder: {
+          title: "Founder Story",
+          description: "Read the early product point of view behind InnerLeaf.",
+        },
+        structured: {
+          title: "Why structured reflection",
+          description: "Why cards can be clearer than another open-ended chat.",
+        },
+      },
     },
     home: {
       badge: "Beta · Structured reflection, not diagnosis",
@@ -187,6 +264,62 @@ export const translations = {
       finalSubtitle:
         "No pressure to write perfectly. InnerLeaf helps organise what feels messy.",
       patternSummary: "Pattern summary",
+    },
+    students: {
+      title: "InnerLeaf for students",
+      short: "Reflection support for study pressure and emotional overload",
+      purpose:
+        "A calm way for students to turn stressful moments into structured reflection and one gentle next step.",
+      sections: [
+        [
+          "Where it can help",
+          [
+            "Study pressure that makes it hard to start.",
+            "Messages, feedback, or comparison that keep replaying.",
+            "Low-energy moments where a simple next step is more useful than a big plan.",
+          ],
+        ],
+        [
+          "How students use it",
+          [
+            "Write freely in Quick Reflection.",
+            "Use Guided Reflection when the situation needs more structure.",
+            "Save cards privately and review repeated patterns over time.",
+          ],
+        ],
+        [
+          "Clear boundaries",
+          [
+            "InnerLeaf is not therapy, diagnosis, crisis support, or medical advice.",
+            "It is designed for self-reflection and early product testing.",
+          ],
+        ],
+      ],
+    },
+    pricing: {
+      title: "Simple MVP pricing",
+      short: "Free during early testing, with future options planned",
+      purpose:
+        "InnerLeaf is currently focused on learning from early users before adding paid plans.",
+      plans: [
+        [
+          "Free",
+          "For early testers",
+          "Create an account, generate reflections, save cards, and review patterns during MVP testing.",
+        ],
+        [
+          "Future Premium",
+          "Planned",
+          "More control, deeper review tools, and improved personal workspace features may be added later.",
+        ],
+        [
+          "For Students",
+          "Future groups",
+          "Potential support for student communities, classes, or wellbeing teams without exposing private reflection content.",
+        ],
+      ],
+      note:
+        "No payment is enabled in the current MVP. InnerLeaf is collecting product feedback first.",
     },
     test: {
       title: "Test InnerLeaf",
@@ -1010,6 +1143,7 @@ export const translations = {
       startQuick: "开始快速反思",
       startReflection: "开始反思",
       createAccount: "创建账号",
+      getStarted: "开始使用",
       goWorkspace: "进入反思空间",
       tryThreeMinute: "体验 3 分钟反思",
       tryGuided: "尝试引导反思",
@@ -1050,6 +1184,10 @@ export const translations = {
       history: "历史记录",
       summary: "模式总结",
       feedback: "反馈",
+      resources: "资源",
+      forStudents: "学生使用",
+      pricing: "价格",
+      dashboard: "工作台",
       login: "登录",
       register: "注册",
       logout: "退出登录",
@@ -1058,6 +1196,78 @@ export const translations = {
       admin: "管理员",
       menu: "菜单",
       openAccountMenu: "打开账号菜单",
+    },
+    publicNav: {
+      more: "更多",
+      dashboardHint: "继续进入你的私人反思空间",
+      productSections: {
+        reflect: "反思",
+        review: "回看",
+        followUp: "跟进",
+      },
+      resourceSections: {
+        learn: "了解",
+        explore: "体验",
+        about: "关于",
+      },
+      items: {
+        quick: {
+          title: "快速反思",
+          description: "自由写下这次情绪时刻，再由 AI 帮你整理。",
+        },
+        guided: {
+          title: "引导反思",
+          description: "用温和的 CBT-informed 结构一步步整理。",
+        },
+        history: {
+          title: "历史记录",
+          description: "保存反思卡片，并在之后回看。",
+        },
+        summary: {
+          title: "模式总结",
+          description: "看见重复触发点、想法和反应。",
+        },
+        checkIn: {
+          title: "回看跟进",
+          description: "在情绪时刻过去后，看看发生了什么变化。",
+        },
+        demo: {
+          title: "演示",
+          description: "创建账号前，先查看虚构样本流程。",
+        },
+        how: {
+          title: "InnerLeaf 如何运作",
+          description: "了解书写、反思、保存和回看的流程。",
+        },
+        faq: {
+          title: "常见问题",
+          description: "查看常见问题和产品边界。",
+        },
+        privacy: {
+          title: "隐私与安全",
+          description: "测试前了解 MVP 数据边界。",
+        },
+        test: {
+          title: "用户测试",
+          description: "按短流程体验，并分享你的观察。",
+        },
+        feedback: {
+          title: "反馈",
+          description: "告诉我们哪里清楚、有用或容易困惑。",
+        },
+        about: {
+          title: "关于",
+          description: "了解 InnerLeaf 为什么存在，以及它不是什么。",
+        },
+        founder: {
+          title: "创始故事",
+          description: "了解 InnerLeaf 早期产品想法。",
+        },
+        structured: {
+          title: "为什么是结构化反思",
+          description: "为什么卡片有时比开放式聊天更清楚。",
+        },
+      },
     },
     home: {
       badge: "测试版 · 结构化反思，不做诊断",
@@ -1174,6 +1384,62 @@ export const translations = {
       finalSubtitle:
         "不需要写得完美。InnerLeaf 会帮你整理那些混乱的部分。",
       patternSummary: "模式总结",
+    },
+    students: {
+      title: "学生如何使用 InnerLeaf",
+      short: "支持学习压力和情绪过载时的自我反思",
+      purpose:
+        "帮助学生把压力时刻整理成结构化反思，并找到一个温和的下一步。",
+      sections: [
+        [
+          "适合哪些时刻",
+          [
+            "学习压力大到很难开始。",
+            "消息、反馈或比较在脑子里反复出现。",
+            "低能量时刻，比起大计划，更需要一个简单下一步。",
+          ],
+        ],
+        [
+          "可以怎样使用",
+          [
+            "用快速反思先自由写下。",
+            "当事情需要更清楚时，使用引导反思。",
+            "私密保存卡片，并在之后回看重复出现的模式。",
+          ],
+        ],
+        [
+          "清晰边界",
+          [
+            "InnerLeaf 不是治疗、诊断、危机支持或医疗建议。",
+            "它用于自我反思和早期产品测试。",
+          ],
+        ],
+      ],
+    },
+    pricing: {
+      title: "MVP 阶段价格",
+      short: "早期测试阶段免费，未来可能加入更多方案",
+      purpose:
+        "InnerLeaf 当前优先向早期用户学习，暂时不启用付费功能。",
+      plans: [
+        [
+          "免费",
+          "面向早期测试用户",
+          "创建账号、生成反思、保存卡片，并在 MVP 测试期间查看模式。",
+        ],
+        [
+          "未来高级版",
+          "计划中",
+          "未来可能加入更多控制、更深入的回看工具和个人空间功能。",
+        ],
+        [
+          "学生场景",
+          "未来群组使用",
+          "未来可能支持学生社区、课程或 wellbeing 团队，同时不公开私人反思内容。",
+        ],
+      ],
+      note:
+        "当前 MVP 未启用付款。InnerLeaf 现阶段先收集产品反馈。",
     },
     test: {
       title: "测试 InnerLeaf",

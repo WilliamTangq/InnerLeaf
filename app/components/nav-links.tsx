@@ -2,13 +2,22 @@
 
 import Link from "next/link";
 import {
+  BookOpen,
   ChevronDown,
+  ClipboardCheck,
+  FileText,
+  GraduationCap,
+  HelpCircle,
+  History as HistoryIcon,
+  Info,
+  Layers3,
   LayoutDashboard,
+  LockKeyhole,
   LogOut,
   Menu,
   MessageSquare,
+  NotebookPen,
   PenLine,
-  Shield,
   ShieldCheck,
   Sparkles,
   UserRound,
@@ -23,20 +32,8 @@ import { useAuth } from "./auth-provider";
 import { Avatar } from "./avatar";
 
 const publicDesktopLinks = [
-  { href: "/", key: "home" },
-  { href: "/demo", key: "demo" },
-  { href: "/test", key: "test" },
-  { href: "/faq", key: "faq" },
-  { href: "/privacy", key: "privacy" },
-] as const;
-
-const publicMenuLinks = [
-  { href: "/", key: "home", icon: LayoutDashboard },
-  { href: "/demo", key: "demo", icon: Sparkles },
-  { href: "/test", key: "test", icon: PenLine },
-  { href: "/faq", key: "faq", icon: MessageSquare },
-  { href: "/privacy", key: "privacy", icon: Shield },
-  { href: "/feedback", key: "feedback", icon: MessageSquare },
+  { href: "/students", key: "forStudents" },
+  { href: "/pricing", key: "pricing" },
 ] as const;
 
 type IconType = ComponentType<{
@@ -83,6 +80,104 @@ function MenuSection({
         {title}
       </p>
       <div className="space-y-1">{children}</div>
+    </div>
+  );
+}
+
+type MegaItem = {
+  title: string;
+  description: string;
+  href: string;
+  icon: IconType;
+};
+
+type MegaSection = {
+  title: string;
+  items: MegaItem[];
+};
+
+function MegaPanel({
+  sections,
+}: {
+  sections: MegaSection[];
+}) {
+  return (
+    <div className="absolute left-1/2 top-[calc(100%+12px)] z-[950] w-[min(860px,calc(100vw-48px))] -translate-x-1/2 rounded-[28px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-4 shadow-[0_28px_90px_rgba(20,35,28,0.18)]">
+      <div className="grid gap-4 lg:grid-cols-3">
+        {sections.map((section) => (
+          <div key={section.title} className="rounded-[22px] bg-[rgba(247,246,243,0.62)] p-3">
+            <p className="px-2 pb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+              {section.title}
+            </p>
+            <div className="space-y-1">
+              {section.items.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="group flex gap-3 rounded-2xl p-3 transition duration-200 hover:bg-[rgba(230,245,243,0.72)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[rgba(255,255,255,0.58)] text-[var(--brand-teal-deep)] transition group-hover:bg-[var(--surface)]">
+                      <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold leading-5 text-[var(--foreground)]">
+                        {item.title}
+                      </span>
+                      <span className="mt-1 block text-xs leading-5 text-[var(--foreground-subtle)]">
+                        {item.description}
+                      </span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MegaTrigger({
+  active,
+  label,
+  open,
+  onClick,
+  onMouseEnter,
+  sections,
+}: {
+  active: boolean;
+  label: string;
+  open: boolean;
+  onClick: () => void;
+  onMouseEnter: () => void;
+  sections: MegaSection[];
+}) {
+  return (
+    <div className="relative" onMouseEnter={onMouseEnter}>
+      <button
+        type="button"
+        aria-expanded={open}
+        onClick={onClick}
+        className={[
+          "inline-flex items-center gap-1 rounded-full px-3 py-2 text-sm font-medium whitespace-nowrap transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+          active || open
+            ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+            : "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]",
+        ].join(" ")}
+      >
+        {label}
+        <ChevronDown
+          aria-hidden="true"
+          size={14}
+          strokeWidth={1.9}
+          className={open ? "rotate-180 transition" : "transition"}
+        />
+      </button>
+      {open && <MegaPanel sections={sections} />}
     </div>
   );
 }
@@ -308,7 +403,11 @@ export function NavLinks() {
   const { t } = useLanguage();
   const { isAdmin, loading, profile, role, signOut, user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState<"product" | "resources" | null>(
+    null
+  );
   useEscapeToClose(open && !user, () => setOpen(false));
+  useEscapeToClose(megaOpen !== null, () => setMegaOpen(null));
   useEffect(() => {
     if (!open || user) {
       return;
@@ -325,11 +424,170 @@ export function NavLinks() {
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
   const avatarUrl = profile?.avatar_url || "";
   const roleText = !loading && profile && role ? t.admin.roleLabels[role] : "";
+  const defaultRoute = user ? (isAdmin ? "/admin" : "/dashboard") : "/login";
+  const privateHref = (href: string) =>
+    user ? href : `/login?next=${encodeURIComponent(href)}`;
+  const productSections: MegaSection[] = [
+    {
+      title: t.publicNav.productSections.reflect,
+      items: [
+        {
+          title: t.publicNav.items.quick.title,
+          description: t.publicNav.items.quick.description,
+          href: privateHref("/dashboard/quick"),
+          icon: PenLine,
+        },
+        {
+          title: t.publicNav.items.guided.title,
+          description: t.publicNav.items.guided.description,
+          href: privateHref("/dashboard/guided"),
+          icon: ClipboardCheck,
+        },
+      ],
+    },
+    {
+      title: t.publicNav.productSections.review,
+      items: [
+        {
+          title: t.publicNav.items.history.title,
+          description: t.publicNav.items.history.description,
+          href: privateHref("/dashboard/history"),
+          icon: HistoryIcon,
+        },
+        {
+          title: t.publicNav.items.summary.title,
+          description: t.publicNav.items.summary.description,
+          href: privateHref("/dashboard/summary"),
+          icon: Layers3,
+        },
+      ],
+    },
+    {
+      title: t.publicNav.productSections.followUp,
+      items: [
+        {
+          title: t.publicNav.items.checkIn.title,
+          description: t.publicNav.items.checkIn.description,
+          href: privateHref("/dashboard/history"),
+          icon: MessageSquare,
+        },
+        {
+          title: t.publicNav.items.demo.title,
+          description: t.publicNav.items.demo.description,
+          href: "/demo",
+          icon: Sparkles,
+        },
+      ],
+    },
+  ];
+  const resourceSections: MegaSection[] = [
+    {
+      title: t.publicNav.resourceSections.learn,
+      items: [
+        {
+          title: t.publicNav.items.how.title,
+          description: t.publicNav.items.how.description,
+          href: "/#how-it-works",
+          icon: BookOpen,
+        },
+        {
+          title: t.publicNav.items.faq.title,
+          description: t.publicNav.items.faq.description,
+          href: "/faq",
+          icon: HelpCircle,
+        },
+        {
+          title: t.publicNav.items.privacy.title,
+          description: t.publicNav.items.privacy.description,
+          href: "/privacy",
+          icon: LockKeyhole,
+        },
+      ],
+    },
+    {
+      title: t.publicNav.resourceSections.explore,
+      items: [
+        {
+          title: t.publicNav.items.demo.title,
+          description: t.publicNav.items.demo.description,
+          href: "/demo",
+          icon: Sparkles,
+        },
+        {
+          title: t.publicNav.items.test.title,
+          description: t.publicNav.items.test.description,
+          href: "/test",
+          icon: NotebookPen,
+        },
+        {
+          title: t.publicNav.items.feedback.title,
+          description: t.publicNav.items.feedback.description,
+          href: "/feedback",
+          icon: MessageSquare,
+        },
+      ],
+    },
+    {
+      title: t.publicNav.resourceSections.about,
+      items: [
+        {
+          title: t.publicNav.items.about.title,
+          description: t.publicNav.items.about.description,
+          href: "/about",
+          icon: Info,
+        },
+        {
+          title: t.publicNav.items.founder.title,
+          description: t.publicNav.items.founder.description,
+          href: "/about",
+          icon: UserRound,
+        },
+        {
+          title: t.publicNav.items.structured.title,
+          description: t.publicNav.items.structured.description,
+          href: "/#why-innerleaf",
+          icon: FileText,
+        },
+      ],
+    },
+  ];
 
   return (
-    <div className="flex max-w-full items-center gap-2">
-      {!user && (
-        <nav aria-label="Main" className="hidden items-center gap-0.5 lg:flex">
+    <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+      <nav
+        aria-label="Main"
+        onMouseLeave={() => setMegaOpen(null)}
+        className="hidden min-w-0 flex-1 items-center justify-center gap-1 lg:flex"
+      >
+        <MegaTrigger
+          label={t.nav.product}
+          active={isActive(pathname, "/dashboard/quick") || isActive(pathname, "/demo")}
+          open={megaOpen === "product"}
+          onClick={() =>
+            setMegaOpen((current) => (current === "product" ? null : "product"))
+          }
+          onMouseEnter={() => setMegaOpen("product")}
+          sections={productSections}
+        />
+        <MegaTrigger
+          label={t.nav.resources}
+          active={
+            isActive(pathname, "/faq") ||
+            isActive(pathname, "/privacy") ||
+            isActive(pathname, "/about") ||
+            isActive(pathname, "/test") ||
+            isActive(pathname, "/feedback")
+          }
+          open={megaOpen === "resources"}
+          onClick={() =>
+            setMegaOpen((current) =>
+              current === "resources" ? null : "resources"
+            )
+          }
+          onMouseEnter={() => setMegaOpen("resources")}
+          sections={resourceSections}
+        />
+        <div className="flex items-center gap-0.5">
           {publicDesktopLinks.map((link) => (
             <Link
               key={link.href}
@@ -344,13 +602,13 @@ export function NavLinks() {
               {t.nav[link.key]}
             </Link>
           ))}
-        </nav>
-      )}
+        </div>
+      </nav>
 
       {user && (
         <Link
-          href={isAdmin ? "/admin" : "/dashboard"}
-          className="hidden rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
+          href={defaultRoute}
+          className="hidden rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.72)] px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] md:inline-flex"
         >
           {isAdmin ? t.admin.overview : t.nav.workspace}
         </Link>
@@ -362,16 +620,28 @@ export function NavLinks() {
         {!user && (
           <div className="hidden items-center gap-2 sm:flex">
             <Link
+              href="/demo"
+              className="rounded-full px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            >
+              {t.nav.demo}
+            </Link>
+            <Link
               href="/login"
-              className="rounded-lg px-3 py-2 text-sm font-medium text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+              className="rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.72)] px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+            >
+              {t.nav.dashboard}
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-full px-3 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
             >
               {t.nav.login}
             </Link>
             <Link
               href="/register"
-              className="inline-flex items-center justify-center rounded-lg bg-[var(--brand-teal)] px-4 py-2 text-sm font-medium text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+              className="inline-flex items-center justify-center rounded-full bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
-              {t.common.createAccount}
+              {t.common.getStarted}
             </Link>
           </div>
         )}
@@ -446,17 +716,61 @@ export function NavLinks() {
               aria-label={t.nav.menu}
               className="fixed right-3 top-[72px] z-[9999] max-h-[calc(100vh-88px)] w-[calc(100vw-24px)] overflow-y-auto rounded-[24px] border border-[rgba(40,80,60,0.14)] bg-[rgb(255,255,248)] p-3 shadow-[0_28px_90px_rgba(20,35,28,0.20)] motion-safe:animate-[menuIn_180ms_ease-out] sm:hidden"
             >
-              <MenuSection title={t.menu.sections.product}>
-                {publicMenuLinks.map((link) => (
+              <MenuSection title={t.nav.product}>
+                {productSections.flatMap((section) =>
+                  section.items.map((item) => (
                   <CommandLink
-                    key={link.href}
-                    href={link.href}
-                    icon={link.icon}
-                    active={isActive(pathname, link.href)}
-                    label={t.nav[link.key]}
+                    key={`${section.title}-${item.title}`}
+                    href={item.href}
+                    icon={item.icon}
+                    active={isActive(pathname, item.href)}
+                    label={item.title}
+                    description={item.description}
                     onClick={() => setOpen(false)}
                   />
-                ))}
+                  ))
+                )}
+              </MenuSection>
+              <MenuSection title={t.nav.resources}>
+                {resourceSections.flatMap((section) =>
+                  section.items.map((item) => (
+                    <CommandLink
+                      key={`${section.title}-${item.title}`}
+                      href={item.href}
+                      icon={item.icon}
+                      active={isActive(pathname, item.href)}
+                      label={item.title}
+                      description={item.description}
+                      onClick={() => setOpen(false)}
+                    />
+                  ))
+                )}
+              </MenuSection>
+              <MenuSection title={t.publicNav.more}>
+                <CommandLink
+                  href="/students"
+                  icon={GraduationCap}
+                  active={isActive(pathname, "/students")}
+                  label={t.nav.forStudents}
+                  description={t.students.short}
+                  onClick={() => setOpen(false)}
+                />
+                <CommandLink
+                  href="/pricing"
+                  icon={ShieldCheck}
+                  active={isActive(pathname, "/pricing")}
+                  label={t.nav.pricing}
+                  description={t.pricing.short}
+                  onClick={() => setOpen(false)}
+                />
+                <CommandLink
+                  href="/login"
+                  icon={LayoutDashboard}
+                  active={false}
+                  label={t.nav.dashboard}
+                  description={t.publicNav.dashboardHint}
+                  onClick={() => setOpen(false)}
+                />
               </MenuSection>
               <div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3">
                 <Link
@@ -465,7 +779,7 @@ export function NavLinks() {
                   onClick={() => setOpen(false)}
                   className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[var(--brand-teal)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
                 >
-                  {t.common.createAccount}
+                  {t.common.getStarted}
                 </Link>
                 <Link
                   href="/login"
