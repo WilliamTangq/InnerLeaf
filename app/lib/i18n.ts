@@ -207,31 +207,91 @@ export const translations = {
         "Choose one gentle next step",
       ],
       howEyebrow: "How it works",
-      howTitle: "Write freely. Review clearly.",
+      howTitle: "How InnerLeaf works",
+      howIntro:
+        "A short loop for turning one overloaded moment into something easier to understand and revisit.",
+      howCards: [
+        [
+          "Write the moment",
+          "Write freely, or use a guided structure when you want more support.",
+        ],
+        [
+          "Turn it into a card",
+          "InnerLeaf separates trigger, facts, interpretation, pattern, and one next step.",
+        ],
+        [
+          "Review what repeats",
+          "History, check-ins, and summaries help you notice what returns over time.",
+        ],
+      ],
       steps: [
         ["Write freely", "No need to organise it first."],
         ["Organise the moment", "Trigger, facts, interpretation, and pattern."],
         ["Save the card", "Keep the reflection easy to revisit."],
         ["Notice patterns", "Review repeated themes over time."],
       ],
+      pathEyebrow: "Choose your path",
+      pathTitle: "Start with the amount of structure you need.",
+      pathIntro:
+        "Different moments need different levels of support. InnerLeaf keeps each path short and easy to scan.",
+      pathCards: [
+        [
+          "Quick Reflection",
+          "For when you need to get the moment out quickly.",
+        ],
+        [
+          "Guided Reflection",
+          "For when you want step-by-step structure.",
+        ],
+        [
+          "History",
+          "For revisiting saved reflection cards.",
+        ],
+        [
+          "Pattern Summary",
+          "For noticing repeated triggers and thought patterns.",
+        ],
+        [
+          "Check-in",
+          "For seeing what changed after the moment passed.",
+        ],
+      ],
       whyEyebrow: "Why InnerLeaf",
-      whyTitle: "Designed for clarity, not endless analysis.",
+      whyTitle: "More structure than a chat. Less pressure than a blank page.",
       differences: [
         [
-          "Clearer than free-form journaling",
-          "Each reflection becomes a consistent card instead of another long note.",
+          "Journaling helps you express",
+          "InnerLeaf helps organise what you wrote into a card you can review.",
         ],
         [
-          "More focused than generic AI chat",
-          "InnerLeaf keeps the output short: one trigger, one pattern, one next step.",
+          "ChatGPT gives you a conversation",
+          "InnerLeaf gives you a consistent reflection artifact, not an endless thread.",
         ],
         [
-          "Bounded and non-clinical",
-          "It supports self-reflection without diagnosis, scoring, or therapy claims.",
+          "InnerLeaf keeps the scope clear",
+          "One moment, one pattern, one gentle next step, saved for later.",
         ],
       ],
       differenceNote:
         "InnerLeaf gives you a structured reflection you can return to later.",
+      patternEyebrow: "History and summary",
+      patternTitle: "Not just one reaction. A clearer pattern over time.",
+      patternCopy:
+        "One card can help in the moment. Saved cards become more useful when you check in later and compare what keeps returning.",
+      patternCards: [
+        [
+          "Save the moment",
+          "Keep the card separate from the emotional rush that created it.",
+        ],
+        [
+          "Check in later",
+          "Notice whether the next step helped after the moment has passed.",
+        ],
+        [
+          "See repeated themes",
+          "Summary turns recent cards into gentle pattern awareness without scoring you.",
+        ],
+      ],
       demoRealCards: [
         [
           "View the demo flow",
@@ -287,7 +347,7 @@ export const translations = {
       testingEyebrow: "User testing",
       testingTitle: "Help shape InnerLeaf.",
       testingCopy:
-        "We are inviting early users to test the full loop: create an account, make one reflection, save it, then share what felt clear or unclear.",
+        "We are testing whether structured reflection helps people understand emotional reactions more clearly over time.",
       testingCta: "Join user testing",
       finalTitle: "Start with one emotional moment.",
       finalSubtitle:
@@ -1359,31 +1419,91 @@ export const translations = {
         "选择一个温和的下一步",
       ],
       howEyebrow: "如何使用",
-      howTitle: "自由写下，再清楚回看。",
+      howTitle: "InnerLeaf 如何运作",
+      howIntro:
+        "用一个短流程，把一次情绪过载的时刻整理成更容易理解、之后也能回看的内容。",
+      howCards: [
+        [
+          "写下这次时刻",
+          "可以自由写，也可以在需要时使用引导结构。",
+        ],
+        [
+          "整理成卡片",
+          "InnerLeaf 会整理触发点、事实、解读、模式和一个下一步。",
+        ],
+        [
+          "回看重复出现的部分",
+          "历史记录、回看跟进和总结会帮助你看见哪些内容反复出现。",
+        ],
+      ],
       steps: [
         ["自由写下", "不需要先整理好。"],
         ["整理情绪时刻", "触发点、事实、解读和模式。"],
         ["保存卡片", "让这次反思之后也能回看。"],
         ["看见模式", "长期看见重复出现的主题。"],
       ],
+      pathEyebrow: "选择你的路径",
+      pathTitle: "从你需要的结构程度开始。",
+      pathIntro:
+        "不同的时刻需要不同程度的支持。InnerLeaf 会让每条路径都保持简短、清楚、容易阅读。",
+      pathCards: [
+        [
+          "快速反思",
+          "适合想先把这次时刻快速写出来的时候。",
+        ],
+        [
+          "引导反思",
+          "适合想一步步整理的时候。",
+        ],
+        [
+          "历史记录",
+          "适合回看保存过的反思卡片。",
+        ],
+        [
+          "模式总结",
+          "适合看见重复触发点和思维模式。",
+        ],
+        [
+          "回看跟进",
+          "适合在情绪过去后，看看发生了什么变化。",
+        ],
+      ],
       whyEyebrow: "为什么是 InnerLeaf",
-      whyTitle: "为了清晰，而不是无休止分析。",
+      whyTitle: "比聊天更有结构，比空白页更少压力。",
       differences: [
         [
-          "比自由日记更清楚",
-          "每次反思都会整理成统一卡片，而不是又一段长笔记。",
+          "日记帮助你表达",
+          "InnerLeaf 会把写下的内容整理成之后可以回看的卡片。",
         ],
         [
-          "比通用 AI 聊天更聚焦",
-          "InnerLeaf 保持简短：一个触发点、一个模式、一个下一步。",
+          "ChatGPT 给你一段对话",
+          "InnerLeaf 给你的是统一格式的反思成果，而不是无休止聊天。",
         ],
         [
-          "有边界，非临床",
-          "它支持自我反思，不做诊断、打分或治疗承诺。",
+          "InnerLeaf 保持清晰边界",
+          "一次时刻、一个模式、一个温和下一步，并保存下来方便之后回看。",
         ],
       ],
       differenceNote:
         "InnerLeaf 给你的是一张之后可以回看的结构化反思卡片。",
+      patternEyebrow: "历史记录和总结",
+      patternTitle: "不只是一次反应，而是逐渐看清重复模式。",
+      patternCopy:
+        "一张卡片可以帮助当下更清楚。保存多张卡片后，再通过回看和对比，重复出现的部分会更容易被看见。",
+      patternCards: [
+        [
+          "保存这次时刻",
+          "把反思卡片从当时的情绪冲击中单独保存下来。",
+        ],
+        [
+          "稍后回看",
+          "在情绪过去后，看看那个下一步是否真的有帮助。",
+        ],
+        [
+          "看见重复主题",
+          "模式总结会把近期卡片整理成温和的模式观察，而不是给你打分。",
+        ],
+      ],
       demoRealCards: [
         [
           "查看演示流程",
@@ -1436,7 +1556,7 @@ export const translations = {
       testingEyebrow: "用户测试",
       testingTitle: "帮助我们完善 InnerLeaf。",
       testingCopy:
-        "我们正在邀请早期用户测试完整流程：创建账号、完成一次反思、保存卡片，然后分享哪里清楚或不清楚。",
+        "我们正在测试结构化反思是否能帮助用户更清楚地理解反复出现的情绪反应。",
       testingCta: "参与用户测试",
       finalTitle: "从一次情绪时刻开始。",
       finalSubtitle:

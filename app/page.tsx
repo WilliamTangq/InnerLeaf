@@ -12,7 +12,6 @@ import {
   MessageCircle,
   PencilLine,
   Route,
-  Scale,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -22,11 +21,10 @@ import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
 import { getDefaultRouteForRole } from "./lib/routes";
 
-const productIcons = [Scale, Brain, Feather] as const;
-const featureIcons = [PencilLine, Route, FileText, Brain] as const;
-const flowIcons = [PencilLine, Sparkles, FileText, Route] as const;
-const differenceIcons = [Feather, MessageCircle, ShieldCheck] as const;
-const conversionIcons = [Sparkles, PencilLine, ShieldCheck] as const;
+const howIcons = [PencilLine, Sparkles, FileText] as const;
+const pathIcons = [PencilLine, Route, FileText, Brain, MessageCircle] as const;
+const comparisonIcons = [Feather, MessageCircle, ShieldCheck] as const;
+const patternIcons = [FileText, MessageCircle, Brain] as const;
 const trustIcons = [ShieldCheck, FileText, Leaf] as const;
 
 function Surface({
@@ -253,54 +251,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-12 sm:mt-14">
-        <div className="grid gap-4 lg:grid-cols-3">
-          {t.home.conversionCards.map(([title, body, cta, href], index) => {
-            const Icon = conversionIcons[index];
-            const resolvedHref =
-              href === "/register" && user ? workspaceHref : href;
-            const resolvedCta =
-              href === "/register" && user ? primaryLabel : cta;
-
-            return (
-              <Surface key={title} className="p-5 sm:p-6">
-                <div className="flex items-start gap-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-                    <Icon aria-hidden="true" size={19} strokeWidth={1.8} />
-                  </span>
-                  <div>
-                    <h2 className="text-lg font-semibold tracking-tight text-[var(--foreground)]">
-                      {title}
-                    </h2>
-                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                      {body}
-                    </p>
-                    <Link
-                      href={resolvedHref}
-                      className="mt-4 inline-flex text-sm font-semibold text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
-                    >
-                      {resolvedCta}
-                    </Link>
-                  </div>
-                </div>
-              </Surface>
-            );
-          })}
-        </div>
-      </section>
-
-      <section id="product" className="mt-16 scroll-mt-24 sm:mt-20">
-        <SectionHeading
-          eyebrow={t.home.featuresEyebrow}
-          title={t.home.featuresTitle}
-        >
+      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
+        <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
-            {t.home.featuresIntro}
+            {t.home.howIntro}
           </p>
         </SectionHeading>
-        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {t.home.features.map(([title, body], index) => {
-            const Icon = featureIcons[index];
+        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          {t.home.howCards.map(([title, body], index) => {
+            const Icon = howIcons[index];
             return (
               <Surface key={title} className="p-5 sm:p-6">
                 <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
@@ -318,21 +277,28 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="what-innerleaf-does" className="mt-16 scroll-mt-24 sm:mt-20">
-        <SectionHeading eyebrow={t.home.doesEyebrow} title={t.home.doesTitle} />
-        <div className="mt-8 grid gap-4 md:grid-cols-3">
-          {t.home.doesCards.map((item, index) => {
-            const Icon = productIcons[index];
+      <section id="product" className="mt-16 scroll-mt-24 sm:mt-20">
+        <SectionHeading
+          eyebrow={t.home.pathEyebrow}
+          title={t.home.pathTitle}
+        >
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+            {t.home.pathIntro}
+          </p>
+        </SectionHeading>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {t.home.pathCards.map(([title, body], index) => {
+            const Icon = pathIcons[index];
             return (
-              <Surface key={item} className="p-5 sm:p-6">
-                <Icon
-                  aria-hidden="true"
-                  size={21}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
-                <p className="mt-5 text-base font-medium leading-7 text-[var(--foreground)]">
-                  {item}
+              <Surface key={title} className="p-5">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                  <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+                </span>
+                <h3 className="mt-4 text-base font-semibold tracking-tight text-[var(--foreground)]">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {body}
                 </p>
               </Surface>
             );
@@ -348,12 +314,9 @@ export default function Home() {
         </SectionHeading>
         <div className="mt-8 grid gap-4 lg:grid-cols-3">
           {t.home.differences.map(([title, body], index) => {
-            const Icon = differenceIcons[index];
+            const Icon = comparisonIcons[index];
             return (
-              <Surface
-                key={title}
-                className="p-5 sm:p-6"
-              >
+              <Surface key={title} className="p-5 sm:p-6">
                 <Icon
                   aria-hidden="true"
                   size={21}
@@ -372,51 +335,41 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
-        <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle} />
-        <Surface className="mx-auto mt-8 max-w-5xl p-4 sm:p-5">
-          <div className="grid gap-3 md:grid-cols-4">
-            {t.home.steps.map(([title, body], index) => {
-              const Icon = flowIcons[index];
-              return (
-                <div
-                  key={title}
-                  className="rounded-[1.25rem] bg-[rgba(247,246,243,0.68)] p-3.5"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
-                  </span>
-                  <p className="mt-3 text-sm font-semibold text-[var(--foreground)]">
-                    {title}
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
-                    {body}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </Surface>
-      </section>
-
       <section className="mt-16 sm:mt-20">
-        <Surface className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
-          <div>
-            <SectionLabel>{t.home.testingEyebrow}</SectionLabel>
-            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
-              {t.home.testingTitle}
-            </h2>
-            <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
-              {t.home.testingCopy}
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-            <LinkButton href="/test" size="lg">
-              {t.home.testingCta}
-            </LinkButton>
-            <LinkButton href="/feedback" variant="secondary" size="lg">
-              {t.nav.feedback}
-            </LinkButton>
+        <Surface className="overflow-hidden p-6 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <div>
+              <SectionLabel>{t.home.patternEyebrow}</SectionLabel>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
+                {t.home.patternTitle}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[var(--foreground-muted)]">
+                {t.home.patternCopy}
+              </p>
+            </div>
+            <div className="grid gap-3">
+              {t.home.patternCards.map(([title, body], index) => {
+                const Icon = patternIcons[index];
+                return (
+                  <div
+                    key={title}
+                    className="flex gap-4 rounded-2xl border border-[rgba(35,70,55,0.10)] bg-[rgba(247,246,243,0.68)] p-4"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                      <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                        {title}
+                      </h3>
+                      <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                        {body}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </Surface>
       </section>
@@ -453,31 +406,25 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mx-auto mb-12 mt-16 max-w-4xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.78)] p-6 text-center shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-9">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-          <Leaf aria-hidden="true" size={22} strokeWidth={1.8} />
-        </div>
-        <h2 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.4rem]">
-          {t.home.finalTitle}
-        </h2>
-        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-[var(--foreground-muted)]">
-          {t.home.finalSubtitle}
-        </p>
-        <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-          <LinkButton
-            href={primaryHref}
-            size="lg"
-            className="w-full sm:w-auto"
-          >
-            {primaryLabel}
-          </LinkButton>
-          <LinkButton
-            href="/demo"
-            variant="secondary"
-            size="lg"
-          >
-            {t.common.viewDemo}
-          </LinkButton>
+      <section className="mx-auto mb-12 mt-16 max-w-5xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,255,248,0.88),rgba(232,246,241,0.62))] p-6 shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-8">
+        <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <SectionLabel>{t.home.testingEyebrow}</SectionLabel>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
+              {t.home.testingTitle}
+            </h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+              {t.home.testingCopy}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <LinkButton href="/test" size="lg">
+              {t.home.testingCta}
+            </LinkButton>
+            <LinkButton href="/feedback" variant="secondary" size="lg">
+              {t.nav.feedback}
+            </LinkButton>
+          </div>
         </div>
       </section>
     </PageShell>
