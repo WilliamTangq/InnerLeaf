@@ -636,6 +636,7 @@ export const translations = {
     },
     app: {
       title: "Your reflection workspace",
+      workspaceBadge: "WORKSPACE",
       welcome: "Welcome back",
       fallbackName: "InnerLeaf user",
       subtitle:
@@ -1506,6 +1507,7 @@ export const translations = {
     },
     app: {
       title: "你的反思空间",
+      workspaceBadge: "工作区",
       welcome: "欢迎回来",
       fallbackName: "InnerLeaf 用户",
       subtitle: "开始一次新的反思，回看保存的卡片，或查看重复出现的模式。",

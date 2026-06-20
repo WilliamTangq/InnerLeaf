@@ -8,16 +8,13 @@ import {
   Settings,
   ShieldCheck,
   Users,
-  LogOut,
-  Menu,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar } from "./avatar";
-import { BrandLogo } from "./brand-logo";
+import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
-import { LanguageSelector, useLanguage } from "./language-provider";
+import { useLanguage } from "./language-provider";
 
 type IconType = ComponentType<{
   size?: number;
@@ -146,55 +143,20 @@ export function AdminShell({
 
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
-      <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.10)] bg-[rgba(253,252,250,0.97)]">
-        <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
-          <div className="flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] lg:hidden"
-              aria-label={t.nav.menu}
-            >
-              <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
-            </button>
-            <BrandLogo size="md" />
-            <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] sm:inline-flex">
-              {t.admin.title}
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <LanguageSelector />
-            <Link
-              href="/admin/account"
-              className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] px-2.5 py-1.5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)]"
-            >
-              <Avatar
-                avatarUrl={profile?.avatar_url ?? ""}
-                displayName={profile?.display_name}
-                email={user?.email}
-                isAdmin
-                size="sm"
-              />
-              <span className="hidden max-w-32 truncate text-sm font-semibold md:inline">
-                {profile?.display_name || user?.email || t.app.fallbackName}
-              </span>
-              {role && (
-                <span className="hidden rounded-full bg-[var(--accent-soft)] px-2 py-0.5 text-xs font-medium text-[var(--brand-teal-deep)] lg:inline-flex">
-                  {t.admin.roleLabels[role]}
-                </span>
-              )}
-            </Link>
-            <button
-              type="button"
-              onClick={() => void logOut()}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              aria-label={t.nav.logout}
-            >
-              <LogOut aria-hidden="true" size={17} strokeWidth={1.8} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        accountHref="/admin/account"
+        accountLabel={t.nav.openAccountMenu}
+        avatarUrl={profile?.avatar_url}
+        badgeLabel={t.admin.title}
+        displayName={profile?.display_name || user?.email || t.app.fallbackName}
+        email={user?.email}
+        isAdmin
+        logoutLabel={t.nav.logout}
+        menuLabel={t.nav.menu}
+        onLogout={() => void logOut()}
+        onMenu={() => setSidebarOpen(true)}
+        roleChip={role ? t.admin.roleLabels[role] : undefined}
+      />
       <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[260px_1fr]">
         {sidebarOpen && (
           <button

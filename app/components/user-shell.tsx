@@ -7,7 +7,6 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
-  Menu,
   PenLine,
   Settings,
   TrendingUp,
@@ -15,10 +14,9 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar } from "./avatar";
-import { BrandLogo } from "./brand-logo";
+import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
-import { LanguageSelector, useLanguage } from "./language-provider";
+import { useLanguage } from "./language-provider";
 import { resolveRoleAwareNextPath } from "../lib/routes";
 import { LoadingCard } from "./ui";
 
@@ -131,47 +129,18 @@ export function UserShell({
 
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
-      <header className="sticky top-0 z-[900] border-b border-[rgba(40,80,60,0.10)] bg-[rgba(253,252,250,0.97)]">
-        <div className="mx-auto flex w-full max-w-[1320px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(true)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] lg:hidden"
-              aria-label={t.nav.menu}
-            >
-              <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
-            </button>
-            <BrandLogo size="md" />
-          </div>
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <Link
-                href="/admin"
-                className="hidden rounded-lg border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-2 text-sm font-semibold text-[var(--brand-teal-deep)] transition hover:bg-[var(--surface-muted)] sm:inline-flex"
-              >
-                {t.app.openAdmin}
-              </Link>
-            )}
-            <LanguageSelector />
-            <Link
-              href={isAdmin ? "/admin/account" : "/dashboard/account"}
-              className="flex items-center gap-2 rounded-full border border-[var(--border)] bg-[rgba(255,255,248,0.78)] px-2.5 py-1.5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface-muted)]"
-            >
-              <Avatar
-                avatarUrl={profile?.avatar_url ?? ""}
-                displayName={profile?.display_name}
-                email={user?.email}
-                isAdmin={isAdmin}
-                size="sm"
-              />
-              <span className="hidden max-w-28 truncate text-sm font-semibold md:inline">
-                {displayName}
-              </span>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <AppTopbar
+        accountHref="/dashboard/account"
+        accountLabel={t.nav.openAccountMenu}
+        avatarUrl={profile?.avatar_url}
+        badgeLabel={t.app.workspaceBadge}
+        displayName={displayName}
+        email={user?.email}
+        logoutLabel={t.nav.logout}
+        menuLabel={t.nav.menu}
+        onLogout={() => void logOut()}
+        onMenu={() => setSidebarOpen(true)}
+      />
 
       <main className="mx-auto grid w-full max-w-[1320px] flex-1 gap-6 px-5 py-8 sm:px-8 lg:grid-cols-[250px_1fr]">
         {sidebarOpen && (
