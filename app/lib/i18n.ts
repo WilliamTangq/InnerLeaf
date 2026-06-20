@@ -113,22 +113,47 @@ export const translations = {
       whyEyebrow: "Why InnerLeaf",
       whyTitle: "Designed for clarity, not endless analysis.",
       differences: [
-        ["Not a mood score", ""],
-        ["Not an AI best friend", ""],
-        ["Not a therapy chatbot", ""],
-        ["Not a long journaling essay", ""],
+        [
+          "Clearer than free-form journaling",
+          "Each reflection becomes a consistent card instead of another long note.",
+        ],
+        [
+          "More focused than generic AI chat",
+          "InnerLeaf keeps the output short: one trigger, one pattern, one next step.",
+        ],
+        [
+          "Bounded and non-clinical",
+          "It supports self-reflection without diagnosis, scoring, or therapy claims.",
+        ],
       ],
       differenceNote:
         "InnerLeaf gives you a structured reflection you can return to later.",
+      demoRealCards: [
+        [
+          "View the demo flow",
+          "See fictional sample cards and the product story without creating an account.",
+          "View demo",
+          "/demo",
+        ],
+        [
+          "Use your private workspace",
+          "Create an account to start real reflections, save cards, and review your own patterns.",
+          "Create account",
+          "/register",
+        ],
+      ],
       featuresEyebrow: "Core features",
-      featuresTitle: "A small system for understanding one reaction.",
+      featuresTitle: "A private workspace for the full reflection loop.",
+      featuresIntro:
+        "Start with one moment, save the card, then come back later to see what changes or repeats.",
       features: [
-        ["Quick Reflection", "Write freely and let InnerLeaf organise the moment."],
-        ["Guided Reflection", "Use a CBT-informed structure without clinical framing."],
-        ["Facts vs Interpretation", "Separate what happened from what your mind added."],
-        ["One Small Next Step", "Leave with one practical, gentle action."],
-        ["Reflection History", "Save cards so you can review them later."],
-        ["Pattern Summary", "Notice repeated triggers and responses over time."],
+        ["Quick Reflection", "Write freely when the moment feels messy."],
+        [
+          "Guided Reflection",
+          "Use gentle prompts to separate facts, feelings, and reactions.",
+        ],
+        ["History", "Save reflection cards privately and check in later."],
+        ["Summary", "Notice repeated triggers, patterns, and helpful next steps."],
       ],
       clarityBullets: [
         "One emotional moment",
@@ -140,11 +165,9 @@ export const translations = {
       trustEyebrow: "Trust and boundaries",
       trustTitle: "Clear support without clinical claims.",
       trustCards: [
-        "Not diagnosis",
-        "Not therapy",
-        "No emotional scoring",
-        "You choose what to write",
-        "Short outputs to avoid over-analysis",
+        "Saved reflections are connected to your account.",
+        "Demo pages use fictional sample data, not real user history.",
+        "InnerLeaf is for self-reflection, not therapy, diagnosis, or medical advice.",
       ],
       useCasesEyebrow: "Use cases",
       useCasesTitle: "Built for the moments you keep replaying.",
@@ -158,7 +181,7 @@ export const translations = {
       testingEyebrow: "User testing",
       testingTitle: "Help shape InnerLeaf.",
       testingCopy:
-        "We are inviting early users to test whether InnerLeaf feels clear, useful, and worth returning to.",
+        "We are inviting early users to test the full loop: create an account, make one reflection, save it, then share what felt clear or unclear.",
       testingCta: "Join user testing",
       finalTitle: "Start with one emotional moment.",
       finalSubtitle:
@@ -1080,22 +1103,44 @@ export const translations = {
       whyEyebrow: "为什么是 InnerLeaf",
       whyTitle: "为了清晰，而不是无休止分析。",
       differences: [
-        ["不给情绪打分", ""],
-        ["不是 AI 朋友", ""],
-        ["不是治疗聊天机器人", ""],
-        ["不是长篇日记分析", ""],
+        [
+          "比自由日记更清楚",
+          "每次反思都会整理成统一卡片，而不是又一段长笔记。",
+        ],
+        [
+          "比通用 AI 聊天更聚焦",
+          "InnerLeaf 保持简短：一个触发点、一个模式、一个下一步。",
+        ],
+        [
+          "有边界，非临床",
+          "它支持自我反思，不做诊断、打分或治疗承诺。",
+        ],
       ],
       differenceNote:
         "InnerLeaf 给你的是一张之后可以回看的结构化反思卡片。",
+      demoRealCards: [
+        [
+          "查看演示流程",
+          "不用创建账号，也可以查看虚构样本卡片和产品故事。",
+          "查看演示",
+          "/demo",
+        ],
+        [
+          "使用私人反思空间",
+          "创建账号后，可以开始真实反思、保存卡片，并回看自己的模式。",
+          "创建账号",
+          "/register",
+        ],
+      ],
       featuresEyebrow: "核心功能",
-      featuresTitle: "一个用来理解单次反应的小系统。",
+      featuresTitle: "支持完整反思循环的私人空间。",
+      featuresIntro:
+        "从一次情绪时刻开始，保存卡片，之后再回看有什么变化或重复。",
       features: [
-        ["快速反思", "自由写下，再由 InnerLeaf 帮你整理。"],
-        ["引导反思", "使用 CBT 启发式结构，但不做临床化表达。"],
-        ["事实与解读", "区分发生了什么，以及你当时如何理解。"],
-        ["一个小的下一步", "以一个温和、实际的动作结束。"],
-        ["反思历史", "保存卡片，方便之后回看。"],
-        ["模式总结", "看见反复出现的触发点和反应。"],
+        ["快速反思", "当时刻很混乱时，先自由写下来。"],
+        ["引导反思", "用温和提示区分事实、感受和反应。"],
+        ["历史记录", "私密保存反思卡片，并在之后回看。"],
+        ["模式总结", "看见重复触发点、模式和有帮助的下一步。"],
       ],
       clarityBullets: [
         "一次情绪时刻",
@@ -1107,11 +1152,9 @@ export const translations = {
       trustEyebrow: "信任与边界",
       trustTitle: "清晰支持，不做临床承诺。",
       trustCards: [
-        "不做诊断",
-        "不是治疗",
-        "不给情绪打分",
-        "你选择写下什么",
-        "输出简短，避免过度分析",
+        "保存的反思会和你的账号关联。",
+        "演示页面使用虚构样本数据，不是真实用户历史。",
+        "InnerLeaf 用于自我反思，不是治疗、诊断或医疗建议。",
       ],
       useCasesEyebrow: "适用场景",
       useCasesTitle: "为那些你反复想起的时刻而设计。",
@@ -1125,7 +1168,7 @@ export const translations = {
       testingEyebrow: "用户测试",
       testingTitle: "帮助我们完善 InnerLeaf。",
       testingCopy:
-        "我们正在邀请早期用户测试 InnerLeaf 是否清晰、有用，以及是否值得再次使用。",
+        "我们正在邀请早期用户测试完整流程：创建账号、完成一次反思、保存卡片，然后分享哪里清楚或不清楚。",
       testingCta: "参与用户测试",
       finalTitle: "从一次情绪时刻开始。",
       finalSubtitle:

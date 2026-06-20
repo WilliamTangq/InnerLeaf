@@ -13,6 +13,7 @@ import {
   PencilLine,
   Route,
   Scale,
+  ShieldCheck,
   Sparkles,
 } from "lucide-react";
 import { BrandLogo } from "./components/brand-logo";
@@ -22,7 +23,9 @@ import { useLanguage } from "./components/language-provider";
 import { getDefaultRouteForRole } from "./lib/routes";
 
 const productIcons = [Scale, Brain, Feather] as const;
+const featureIcons = [PencilLine, Route, FileText, Brain] as const;
 const flowIcons = [PencilLine, Sparkles, FileText, Route] as const;
+const differenceIcons = [Feather, MessageCircle, ShieldCheck] as const;
 
 function Surface({
   children,
@@ -162,12 +165,18 @@ function SectionHeading({
 export default function Home() {
   const { t } = useLanguage();
   const { role, user } = useAuth();
-  const primaryHref = user ? getDefaultRouteForRole(role) : "/register";
-  const primaryLabel = user ? t.common.goWorkspace : t.common.createAccount;
+  const workspaceHref = user ? getDefaultRouteForRole(role) : "/register";
+  const isAdmin = role === "admin";
+  const primaryHref = user ? workspaceHref : "/register";
+  const primaryLabel = user
+    ? isAdmin
+      ? t.app.openAdmin
+      : t.common.goWorkspace
+    : t.common.createAccount;
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.92),rgba(232,246,241,0.55)_54%,rgba(255,247,221,0.42))] px-5 py-9 shadow-[0_30px_100px_rgba(26,34,32,0.10)] sm:px-8 sm:py-12 lg:px-10">
+      <section className="relative overflow-hidden rounded-[2.5rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(140deg,rgba(255,255,248,0.94),rgba(232,246,241,0.58)_52%,rgba(255,247,221,0.42))] px-5 py-8 shadow-[0_30px_100px_rgba(26,34,32,0.10)] sm:px-8 sm:py-12 lg:px-10">
         <div
           aria-hidden="true"
           className="absolute -right-24 top-4 h-72 w-72 rounded-full bg-[rgba(228,184,74,0.18)] blur-3xl"
@@ -177,50 +186,88 @@ export default function Home() {
           className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.13)] blur-3xl"
         />
 
-        <div className="relative mx-auto max-w-4xl text-center">
-          <BrandLogo
-            size="lg"
-            href={null}
-            showWordmark={false}
-            className="mb-5 justify-center"
-          />
-          <Badge variant="accent">{t.home.badge}</Badge>
-          <h1 className="mx-auto mt-5 max-w-[820px] text-[2.45rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.75rem] sm:leading-[0.98]">
-            {t.home.headline}
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
-            {t.home.subtitle}
-          </p>
-          <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <LinkButton href={primaryHref} size="lg" className="w-full sm:w-auto">
-              {primaryLabel}
-            </LinkButton>
-            <LinkButton
-              href="/demo"
-              variant="secondary"
+        <div className="relative grid gap-10 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
+          <div>
+            <BrandLogo
               size="lg"
-              className="w-full sm:w-auto"
-            >
-              {t.common.viewDemo}
-            </LinkButton>
+              href={null}
+              showWordmark={false}
+              className="mb-5"
+            />
+            <Badge variant="accent">{t.home.badge}</Badge>
+            <h1 className="mt-5 max-w-[720px] text-[2.55rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.55rem] sm:leading-[0.98]">
+              {t.home.headline}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
+              {t.home.subtitle}
+            </p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <LinkButton href={primaryHref} size="lg" className="w-full sm:w-auto">
+                {primaryLabel}
+              </LinkButton>
+              <LinkButton
+                href="/demo"
+                variant="secondary"
+                size="lg"
+                className="w-full sm:w-auto"
+              >
+                {t.common.viewDemo}
+              </LinkButton>
+            </div>
+            <div className="mt-4 flex flex-col gap-3 text-sm sm:flex-row sm:items-center">
+              <Link
+                href="/test"
+                className="font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
+              >
+                {t.common.helpTest}
+              </Link>
+              <span className="hidden h-1 w-1 rounded-full bg-[var(--border-strong)] sm:block" />
+              <Link
+                href={user ? workspaceHref : "/login"}
+                className="font-medium text-[var(--foreground-muted)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
+              >
+                {user ? primaryLabel : t.auth.loginLink}
+              </Link>
+            </div>
+            <p className="mt-5 max-w-xl text-sm leading-6 text-[var(--foreground-subtle)]">
+              {t.home.safety}
+            </p>
           </div>
-          <Link
-            href={user ? getDefaultRouteForRole(role) : "/login"}
-            className="mt-4 inline-flex text-sm font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
-          >
-            {user ? t.common.goWorkspace : t.auth.loginLink}
-          </Link>
-          <p className="mt-4 text-sm leading-6 text-[var(--foreground-subtle)]">
-            {t.home.safety}
-          </p>
-        </div>
 
-        <div className="relative mt-10 lg:mt-12">
           <TransformationMockup />
         </div>
       </section>
 
-      <section className="mt-20 sm:mt-24">
+      <section className="mt-16 sm:mt-20">
+        <SectionHeading
+          eyebrow={t.home.featuresEyebrow}
+          title={t.home.featuresTitle}
+        >
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+            {t.home.featuresIntro}
+          </p>
+        </SectionHeading>
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {t.home.features.map(([title, body], index) => {
+            const Icon = featureIcons[index];
+            return (
+              <Surface key={title} className="p-5 sm:p-6">
+                <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+                  <Icon aria-hidden="true" size={19} strokeWidth={1.8} />
+                </span>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight text-[var(--foreground)]">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {body}
+                </p>
+              </Surface>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mt-16 sm:mt-20">
         <SectionHeading eyebrow={t.home.doesEyebrow} title={t.home.doesTitle} />
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           {t.home.doesCards.map((item, index) => {
@@ -242,40 +289,57 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mt-20 sm:mt-24">
+      <section className="mt-16 sm:mt-20">
         <SectionHeading eyebrow={t.home.whyEyebrow} title={t.home.whyTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
             {t.home.differenceNote}
           </p>
         </SectionHeading>
-        <div className="mx-auto mt-7 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {t.home.differences.map(([title]) => (
-            <div
-              key={title}
-              className="rounded-full border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.68)] px-4 py-3 text-center text-sm font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
-            >
-              {title}
-            </div>
-          ))}
+        <div className="mt-8 grid gap-4 lg:grid-cols-3">
+          {t.home.differences.map(([title, body], index) => {
+            const Icon = differenceIcons[index];
+            return (
+              <Surface
+                key={title}
+                className="p-5 sm:p-6"
+              >
+                <Icon
+                  aria-hidden="true"
+                  size={21}
+                  strokeWidth={1.8}
+                  className="text-[var(--brand-teal-deep)]"
+                />
+                <h3 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)]">
+                  {title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {body}
+                </p>
+              </Surface>
+            );
+          })}
         </div>
       </section>
 
-      <section className="mt-20 sm:mt-24">
+      <section className="mt-16 sm:mt-20">
         <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle} />
         <Surface className="mx-auto mt-8 max-w-5xl p-4 sm:p-5">
           <div className="grid gap-3 md:grid-cols-4">
-            {t.home.steps.map(([title], index) => {
+            {t.home.steps.map(([title, body], index) => {
               const Icon = flowIcons[index];
               return (
                 <div
                   key={title}
-                  className="flex items-center gap-3 rounded-[1.25rem] bg-[rgba(247,246,243,0.68)] p-3.5"
+                  className="rounded-[1.25rem] bg-[rgba(247,246,243,0.68)] p-3.5"
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
                     <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                   </span>
-                  <p className="text-sm font-semibold text-[var(--foreground)]">
+                  <p className="mt-3 text-sm font-semibold text-[var(--foreground)]">
                     {title}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
+                    {body}
                   </p>
                 </div>
               );
@@ -284,7 +348,66 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mx-auto mb-12 mt-20 max-w-4xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.78)] p-6 text-center shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-24 sm:p-9">
+      <section className="mt-16 grid gap-4 sm:mt-20 lg:grid-cols-2">
+        {t.home.demoRealCards.map(([title, body, cta, href], index) => (
+          <Surface key={title} className="p-6 sm:p-7">
+            <Badge variant={index === 0 ? "outline" : "accent"}>
+              {index === 0 ? t.common.demoData : t.auth.trust}
+            </Badge>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+              {title}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+              {body}
+            </p>
+            <LinkButton
+              href={index === 0 ? href : user ? workspaceHref : href}
+              variant={index === 0 ? "secondary" : "primary"}
+              className="mt-5"
+            >
+              {index === 0 ? cta : user ? primaryLabel : cta}
+            </LinkButton>
+          </Surface>
+        ))}
+      </section>
+
+      <section className="mt-16 sm:mt-20">
+        <Surface className="grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-center">
+          <div>
+            <SectionLabel>{t.home.testingEyebrow}</SectionLabel>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.25rem] sm:leading-tight">
+              {t.home.testingTitle}
+            </h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+              {t.home.testingCopy}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
+            <LinkButton href="/test" size="lg">
+              {t.home.testingCta}
+            </LinkButton>
+            <LinkButton href="/feedback" variant="secondary" size="lg">
+              {t.nav.feedback}
+            </LinkButton>
+          </div>
+        </Surface>
+      </section>
+
+      <section className="mt-16 sm:mt-20">
+        <SectionHeading eyebrow={t.home.trustEyebrow} title={t.home.trustTitle} />
+        <div className="mx-auto mt-7 grid max-w-5xl gap-3 sm:grid-cols-3">
+          {t.home.trustCards.map((item) => (
+            <div
+              key={item}
+              className="rounded-2xl border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.68)] px-4 py-4 text-sm font-medium leading-6 text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] backdrop-blur-xl"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto mb-12 mt-16 max-w-4xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[rgba(255,255,248,0.78)] p-6 text-center shadow-[0_22px_80px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-9">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
           <Leaf aria-hidden="true" size={22} strokeWidth={1.8} />
         </div>
@@ -296,26 +419,18 @@ export default function Home() {
         </p>
         <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
           <LinkButton
-            href={user ? getDefaultRouteForRole(role) : "/register"}
+            href={primaryHref}
             size="lg"
             className="w-full sm:w-auto"
           >
-            {user
-              ? role === "admin"
-                ? t.app.openAdmin
-                : t.nav.workspace
-              : t.common.createAccount}
+            {primaryLabel}
           </LinkButton>
           <LinkButton
-            href={user ? getDefaultRouteForRole(role) : "/login"}
+            href="/demo"
             variant="secondary"
             size="lg"
           >
-            {user
-              ? role === "admin"
-                ? t.app.openAdmin
-                : t.nav.workspace
-              : t.nav.login}
+            {t.common.viewDemo}
           </LinkButton>
         </div>
       </section>
