@@ -49,6 +49,7 @@ export default function RootLayout({
           <AuthProvider>{children}</AuthProvider>
         </LanguageProvider>
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   );
