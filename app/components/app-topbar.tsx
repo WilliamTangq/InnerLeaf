@@ -35,8 +35,8 @@ export function AppTopbar({
 }) {
   return (
     <header className="app-topbar-sticky topbar-surface">
-      <div className="mx-auto flex min-h-[62px] w-full max-w-[1360px] items-center justify-between gap-2 px-3 py-2 sm:min-h-[74px] sm:gap-3 sm:px-8 sm:py-3">
-        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+      <div className="mx-auto flex min-h-[60px] w-full max-w-[1360px] items-center justify-between gap-1.5 px-2 py-2 sm:min-h-[74px] sm:gap-3 sm:px-8 sm:py-3">
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-3">
           <button
             type="button"
             onClick={onMenu}
@@ -48,7 +48,7 @@ export function AppTopbar({
           <div className="min-w-0 flex-1">
             <BrandLogo
               size="sm"
-              className="max-w-[104px] gap-2 sm:max-w-none sm:gap-3 md:[&>span:first-child]:!h-10 md:[&>span:first-child]:!w-10"
+              className="max-w-[98px] gap-2 sm:max-w-none sm:gap-3 md:[&>span:first-child]:!h-10 md:[&>span:first-child]:!w-10"
             />
           </div>
           <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:inline-flex">
@@ -56,7 +56,7 @@ export function AppTopbar({
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+        <div className="flex shrink-0 items-center gap-1 sm:gap-2">
           <LanguageSelector compact />
           <Link
             href={accountHref}

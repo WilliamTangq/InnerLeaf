@@ -83,7 +83,7 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <section className="rounded-[2rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.74))] p-5 shadow-[var(--shadow-lg)] sm:rounded-[2.35rem] sm:p-7">
+      <section className="rounded-[1.6rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.74))] p-4 shadow-[var(--shadow-lg)] sm:rounded-[2.35rem] sm:p-7">
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
@@ -128,7 +128,7 @@ export function WorkspaceContent() {
       )}
 
       <section className="mt-6 sm:mt-7">
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
           {t.app.cards.slice(0, 2).map(([title, description, cta, href], index) => {
             const Icon = icons[index];
 
@@ -137,13 +137,13 @@ export function WorkspaceContent() {
                 key={href}
                 variant="elevated"
                 className={[
-                  "group h-full overflow-hidden p-6 hover:-translate-y-1 sm:p-7",
+                  "group h-full overflow-hidden p-4 hover:-translate-y-1 sm:p-7",
                   index === 0
                     ? "border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(231,244,239,0.78))] shadow-[var(--shadow-xl)]"
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.92)]",
                 ].join(" ")}
               >
-                <div className="flex min-h-[220px] flex-col">
+                <div className="flex min-h-[176px] flex-col sm:min-h-[220px]">
                   <span
                     className={[
                       "flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
@@ -154,13 +154,13 @@ export function WorkspaceContent() {
                   >
                     <Icon aria-hidden="true" size={21} strokeWidth={1.8} />
                   </span>
-                  <h2 className="mt-5 text-xl font-semibold tracking-tight text-[var(--foreground)] sm:text-2xl">
+                  <h2 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-2xl">
                     {title}
                   </h2>
                   <p className="mt-3 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
                     {description}
                   </p>
-                  <div className="mt-auto pt-7">
+                  <div className="mt-auto pt-5 sm:pt-7">
                     <LinkButton href={href} size="md">
                       {cta}
                     </LinkButton>

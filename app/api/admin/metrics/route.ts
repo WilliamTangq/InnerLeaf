@@ -19,6 +19,12 @@ const trackedEvents = [
 
 type TrackedEventName = (typeof trackedEvents)[number];
 type EventCounts = Record<TrackedEventName, number | null>;
+type TrendPoint = {
+  label: string;
+  users: number;
+  reflections: number;
+  feedback: number;
+};
 
 async function safeCount(
   table: "profiles" | "feedback" | "reflections",
@@ -116,6 +122,69 @@ async function optionalAnalyticsEventCounts() {
   return { connected: true, counts };
 }
 
+function dateRange(days: number) {
+  return Array.from({ length: days }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (days - 1 - index));
+    const next = new Date(date);
+    next.setDate(next.getDate() + 1);
+
+    return {
+      start: date,
+      end: next,
+      label: date.toLocaleDateString("en-AU", {
+        month: "short",
+        day: "numeric",
+      }),
+    };
+  });
+}
+
+async function recordsByDay(table: "profiles" | "feedback" | "reflections") {
+  if (!supabaseAdmin) {
+    return new Map<string, number>();
+  }
+
+  const days = dateRange(7);
+  const { data, error } = await supabaseAdmin
+    .from(table)
+    .select("created_at")
+    .gte("created_at", days[0].start.toISOString());
+
+  if (error) {
+    console.error(`Supabase trend error for ${table}:`, error);
+    return new Map<string, number>();
+  }
+
+  return days.reduce((counts, day) => {
+    const count =
+      data?.filter((item) => {
+        const created = new Date(item.created_at as string);
+        return created >= day.start && created < day.end;
+      }).length ?? 0;
+
+    counts.set(day.label, count);
+    return counts;
+  }, new Map<string, number>());
+}
+
+async function activityTrend(): Promise<TrendPoint[]> {
+  const days = dateRange(7);
+  const [users, reflections, feedback] = await Promise.all([
+    recordsByDay("profiles"),
+    recordsByDay("reflections"),
+    recordsByDay("feedback"),
+  ]);
+
+  return days.map((day) => ({
+    label: day.label,
+    users: users.get(day.label) ?? 0,
+    reflections: reflections.get(day.label) ?? 0,
+    feedback: feedback.get(day.label) ?? 0,
+  }));
+}
+
 export async function GET(request: Request) {
   try {
     const admin = await requireAdmin(request);
@@ -148,6 +217,7 @@ export async function GET(request: Request) {
       positiveFeedback,
       repeatIntent,
       analytics,
+      trend,
     ] = await Promise.all([
       safeCount("profiles"),
       safeCount("profiles", sevenDaysAgo),
@@ -162,12 +232,14 @@ export async function GET(request: Request) {
       feedbackSignal("clarity_help", "Yes"),
       feedbackSignal("would_use_again", "Yes"),
       optionalAnalyticsEventCounts(),
+      activityTrend(),
     ]);
 
     return NextResponse.json({
       trackedEvents,
       eventCounts: analytics.counts,
       analyticsConnected: analytics.connected,
+      activityTrend: trend,
       databaseMetrics: {
         totalUsers,
         usersLast7Days,

@@ -52,7 +52,14 @@ export function AppMobileDrawer({
         role="dialog"
         aria-modal="true"
         aria-label={label}
-        className="absolute inset-y-3 left-3 z-[1] w-[min(342px,calc(100vw-24px))] motion-safe:animate-[drawerSheetIn_220ms_cubic-bezier(.2,.8,.2,1)]"
+        className="absolute z-[1] motion-safe:animate-[drawerSheetIn_220ms_cubic-bezier(.2,.8,.2,1)]"
+        style={{
+          top: "max(0.75rem, env(safe-area-inset-top))",
+          bottom: "max(0.75rem, env(safe-area-inset-bottom))",
+          left: "max(0.75rem, env(safe-area-inset-left))",
+          width:
+            "min(342px, calc(100vw - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right)))",
+        }}
       >
         {children}
       </div>

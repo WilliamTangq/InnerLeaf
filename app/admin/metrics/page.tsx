@@ -45,6 +45,12 @@ type MetricsResponse = {
   trackedEvents: EventName[];
   eventCounts: Record<EventName, number | null> | null;
   analyticsConnected: boolean;
+  activityTrend: Array<{
+    label: string;
+    users: number;
+    reflections: number;
+    feedback: number;
+  }>;
   databaseMetrics: {
     totalUsers: number;
     usersLast7Days: number;
@@ -105,6 +111,65 @@ function MetricRow({
       <span className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-3 py-1 text-sm font-semibold text-[var(--brand-teal-deep)]">
         {value}
       </span>
+    </div>
+  );
+}
+
+function valueLabel(value: number | null) {
+  return value === null ? "Pending" : value.toLocaleString();
+}
+
+function ActivityTrendChart({
+  data,
+}: {
+  data: MetricsResponse["activityTrend"];
+}) {
+  const max = Math.max(
+    ...data.flatMap((item) => [item.users, item.reflections, item.feedback]),
+    1
+  );
+
+  return (
+    <div className="rounded-[1.4rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.48),rgba(255,254,248,0.86))] p-4">
+      <div className="flex h-40 items-end gap-2">
+        {data.map((item) => (
+          <div key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
+            <div className="flex h-28 w-full items-end justify-center gap-1">
+              {[
+                ["users", item.users, "bg-[rgba(31,155,143,0.72)]"],
+                ["reflections", item.reflections, "bg-[rgba(217,179,74,0.72)]"],
+                ["feedback", item.feedback, "bg-[rgba(80,97,90,0.46)]"],
+              ].map(([key, value, className]) => (
+                <span
+                  key={key}
+                  title={`${key}: ${value}`}
+                  className={`w-2.5 rounded-full ${className}`}
+                  style={{
+                    height: `${Math.max(8, ((value as number) / max) * 100)}%`,
+                  }}
+                />
+              ))}
+            </div>
+            <span className="truncate text-[10px] font-medium text-[var(--foreground-subtle)]">
+              {item.label}
+            </span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--foreground-subtle)]">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[rgba(31,155,143,0.72)]" />
+          Users
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[rgba(217,179,74,0.72)]" />
+          Saves
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-[rgba(80,97,90,0.46)]" />
+          Feedback
+        </span>
+      </div>
     </div>
   );
 }
@@ -172,6 +237,58 @@ function FounderMetricsContent() {
     ? Math.max(db.usersLast7Days, db.reflectionsLast7Days, db.feedbackLast7Days, 1)
     : 1;
   const savedModeMax = db ? Math.max(db.quickSaved, db.guidedSaved, 1) : 1;
+  const startedQuick = valueFor("quick_reflection_started");
+  const startedGuided = valueFor("guided_reflection_started");
+  const startedTotal =
+    startedQuick !== null || startedGuided !== null
+      ? (startedQuick ?? 0) + (startedGuided ?? 0)
+      : null;
+  const generated = valueFor("reflection_generated");
+  const saved = valueFor("reflection_saved");
+  const funnelBlocks = [
+    {
+      label: "Landing → Create account",
+      value: rate(valueFor("hero_create_account_clicked"), valueFor("landing_page_viewed")),
+      from: valueFor("landing_page_viewed"),
+      to: valueFor("hero_create_account_clicked"),
+    },
+    {
+      label: "Create account → Register",
+      value: rate(valueFor("register_completed"), valueFor("hero_create_account_clicked")),
+      from: valueFor("hero_create_account_clicked"),
+      to: valueFor("register_completed"),
+    },
+    {
+      label: "Register → First reflection",
+      value: rate(generated, valueFor("register_completed")),
+      from: valueFor("register_completed"),
+      to: generated,
+    },
+    {
+      label: "Generated → Saved",
+      value: rate(saved, generated),
+      from: generated,
+      to: saved,
+    },
+    {
+      label: "Saved → Summary",
+      value: rate(valueFor("summary_viewed"), saved),
+      from: saved,
+      to: valueFor("summary_viewed"),
+    },
+    {
+      label: "Saved → Check-in",
+      value: rate(valueFor("check_in_completed"), saved),
+      from: saved,
+      to: valueFor("check_in_completed"),
+    },
+    {
+      label: "Saved → Feedback",
+      value: rate(valueFor("feedback_submitted"), saved),
+      from: saved,
+      to: valueFor("feedback_submitted"),
+    },
+  ];
 
   return (
     <AdminShell
@@ -189,7 +306,7 @@ function FounderMetricsContent() {
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
             {coreStats.map(({ label, value, icon }) => (
               <AdminMetricCard
                 key={label}
@@ -200,73 +317,66 @@ function FounderMetricsContent() {
             ))}
           </div>
 
+          <Card className="mt-6 hover:translate-y-0">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <SectionLabel>{t.admin.eventCoverage}</SectionLabel>
+                <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
+                  Funnel overview
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+                  Core event counts from the privacy-safe analytics layer. Private reflection content is never shown here.
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-teal-deep)]">
+                {metrics.analyticsConnected ? "Analytics connected" : "DB fallback active"}
+              </span>
+            </div>
+            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+              {metrics.trackedEvents.map((event) => {
+                const value = valueFor(event);
+                return (
+                  <div
+                    key={event}
+                    className="rounded-[1.15rem] border border-[var(--border)] bg-[rgba(246,242,233,0.58)] px-3 py-3"
+                  >
+                    <p className="text-lg font-semibold leading-none text-[var(--foreground)]">
+                      {valueLabel(value)}
+                    </p>
+                    <p className="mt-2 text-[11px] font-medium leading-4 text-[var(--foreground-subtle)]">
+                      {eventLabels[event]}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
           <div className="mt-6 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
             <Card className="hover:translate-y-0">
               <SectionLabel>{t.admin.funnelRates}</SectionLabel>
-              <div className="mt-4 grid gap-3">
-                <MetricRow
-                  label="Landing → create account"
-                  value={rate(
-                    valueFor("hero_create_account_clicked"),
-                    valueFor("landing_page_viewed")
-                  )}
-                  hint="Needs analytics export for exact landing views."
-                />
-                <MetricRow
-                  label="Create account → register"
-                  value={rate(
-                    valueFor("register_completed"),
-                    valueFor("hero_create_account_clicked")
-                  )}
-                  hint="Shows signup intent quality."
-                />
-                <MetricRow
-                  label="Register → first reflection"
-                  value={rate(valueFor("reflection_generated"), valueFor("register_completed"))}
-                  hint="Approximated until per-user event joins are available."
-                />
-                <MetricRow
-                  label="Generated → saved"
-                  value={rate(valueFor("reflection_saved"), valueFor("reflection_generated"))}
-                  hint="Auto-save means this should usually stay high."
-                />
-                <MetricRow
-                  label="Save → summary"
-                  value={rate(valueFor("summary_viewed"), valueFor("reflection_saved"))}
-                  hint="Early retention signal."
-                />
-                <MetricRow
-                  label="Save → check-in"
-                  value={rate(valueFor("check_in_completed"), valueFor("reflection_saved"))}
-                  hint="Later reflection loop signal."
-                />
-                <MetricRow
-                  label="Save → feedback"
-                  value={rate(valueFor("feedback_submitted"), valueFor("reflection_saved"))}
-                  hint="Tester response signal."
-                />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {funnelBlocks.map((item) => (
+                  <MetricRow
+                    key={item.label}
+                    label={item.label}
+                    value={item.value}
+                    hint={`${valueLabel(item.from)} → ${valueLabel(item.to)}`}
+                  />
+                ))}
               </div>
             </Card>
 
             <Card className="hover:translate-y-0">
-              <SectionLabel>{t.admin.eventCoverage}</SectionLabel>
-              <div className="mt-4 grid gap-2">
-                {metrics.trackedEvents.map((event) => {
-                  const value = valueFor(event);
-                  return (
-                    <div
-                      key={event}
-                      className="flex items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(246,242,233,0.58)] px-3 py-2"
-                    >
-                      <span className="text-sm font-medium text-[var(--foreground)]">
-                        {eventLabels[event]}
-                      </span>
-                      <span className="text-sm text-[var(--foreground-muted)]">
-                        {value === null ? "Pending" : value}
-                      </span>
-                    </div>
-                  );
-                })}
+              <SectionLabel>{t.admin.overview}</SectionLabel>
+              <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
+                Last 7 days activity
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                Aggregate trend only: users, saved reflections, and feedback submissions.
+              </p>
+              <div className="mt-4">
+                <ActivityTrendChart data={metrics.activityTrend} />
               </div>
             </Card>
           </div>
@@ -287,6 +397,13 @@ function FounderMetricsContent() {
                 {db?.guidedSaved ?? 0}.
               </p>
               <div className="mt-4 grid gap-2">
+                {startedTotal !== null && (
+                  <MiniBar
+                    label="Started reflections"
+                    value={startedTotal}
+                    max={Math.max(startedTotal, saved ?? 0, 1)}
+                  />
+                )}
                 <MiniBar
                   label={t.nav.quick}
                   value={db?.quickSaved ?? 0}

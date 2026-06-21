@@ -131,6 +131,13 @@ body {
   background: rgba(255, 253, 248, 0.975);
 }
 
+@media (max-width: 639px) {
+  .app-topbar-sticky > div {
+    padding-left: max(0.5rem, env(safe-area-inset-left));
+    padding-right: max(0.5rem, env(safe-area-inset-right));
+  }
+}
+
 .shell-panel {
   border: 1px solid rgba(40, 80, 60, 0.1);
   background: rgba(255, 254, 248, 0.88);
