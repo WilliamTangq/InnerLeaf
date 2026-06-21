@@ -8,6 +8,7 @@ import { useLanguage } from "../components/language-provider";
 import { trackEvent } from "../lib/analytics";
 import {
   Card,
+  IconFrame,
   LinkButton,
   PageActions,
   PageHeader,
@@ -109,12 +110,16 @@ export default function FeedbackPage() {
   if (submitted) {
     return (
       <PageShell>
-        <Card variant="elevated" className="text-center hover:translate-y-0 sm:text-left">
+        <Card variant="elevated" className="relative overflow-hidden text-center hover:translate-y-0 sm:text-left">
           <div
-            className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] sm:mx-0"
+            className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-[radial-gradient(circle,rgba(31,155,143,0.16),transparent_66%)]"
+            aria-hidden="true"
+          />
+          <div
+            className="mx-auto mb-5 sm:mx-0"
             aria-hidden="true"
           >
-            <CheckCircle2 size={22} strokeWidth={1.8} />
+            <IconFrame icon={CheckCircle2} size="lg" />
           </div>
           <PageHeader
             compact

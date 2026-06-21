@@ -83,14 +83,14 @@ export function AdminMetricCard({
   icon: IconType;
 }) {
   return (
-    <div className="rounded-[calc(var(--radius-xl)+6px)] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.92)] p-5 shadow-[var(--shadow-md)]">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-        <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
+    <div className="rounded-[1.35rem] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.92)] p-3.5 shadow-[var(--shadow-md)] sm:rounded-[calc(var(--radius-xl)+6px)] sm:p-5">
+      <div className="mb-3 flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] sm:mb-4 sm:h-10 sm:w-10 sm:rounded-2xl">
+        <Icon aria-hidden="true" size={16} strokeWidth={1.8} />
       </div>
-      <p className="text-2xl font-semibold text-[var(--foreground)]">
+      <p className="text-xl font-semibold leading-none text-[var(--foreground)] sm:text-2xl">
         {value}
       </p>
-      <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+      <p className="mt-1 text-xs leading-5 text-[var(--foreground-muted)] sm:text-sm sm:leading-6">
         {label}
       </p>
     </div>
@@ -176,11 +176,13 @@ export function AdminShell({
         )}
         <aside
           className={[
-            "fixed inset-y-0 left-0 z-[9999] w-[min(340px,calc(100vw-40px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start",
-            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+            "fixed inset-y-3 left-3 z-[9999] w-[min(344px,calc(100vw-24px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start lg:animate-none",
+            sidebarOpen
+              ? "translate-x-0 motion-safe:animate-[mobileSheetIn_180ms_ease-out]"
+              : "-translate-x-[calc(100%+1rem)] lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem] lg:p-3.5">
+          <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem]">
             <div className="mb-3 rounded-[1.5rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.6))] p-4 shadow-[var(--shadow-sm)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
@@ -210,7 +212,7 @@ export function AdminShell({
 
             <nav
               aria-label={t.admin.consoleTitle}
-              className="flex flex-col gap-1.5"
+              className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5"
             >
               {adminLinks.map((link) => (
                 <AdminNavLink
@@ -227,7 +229,7 @@ export function AdminShell({
         </aside>
 
         <section className={["w-full pb-8", maxWidth].join(" ")}>
-          <div className="mb-6 rounded-[2rem] border border-[rgba(31,92,70,0.13)] bg-[linear-gradient(135deg,rgba(250,255,240,0.92),rgba(255,254,248,0.94))] p-6 shadow-[var(--shadow-lg)]">
+          <div className="mb-5 rounded-[1.6rem] border border-[rgba(31,92,70,0.13)] bg-[linear-gradient(135deg,rgba(250,255,240,0.92),rgba(255,254,248,0.94))] p-4 shadow-[var(--shadow-lg)] sm:mb-6 sm:rounded-[2rem] sm:p-6">
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
                 {eyebrow || t.admin.secureManagement}
@@ -236,10 +238,10 @@ export function AdminShell({
                 {t.admin.title}
               </span>
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2rem]">
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2rem]">
               {title}
             </h1>
-            <p className="mt-3 max-w-3xl text-base leading-7 text-[var(--foreground-muted)]">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--foreground-muted)] sm:mt-3 sm:text-base sm:leading-7">
               {purpose}
             </p>
           </div>

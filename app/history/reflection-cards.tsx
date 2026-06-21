@@ -13,7 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
-import { Badge, Card, LinkButton } from "../components/ui";
+import { Badge, Card, IconFrame, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
@@ -467,17 +467,18 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
   }
 
   return (
-    <div className="rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] p-4 ring-1 ring-[rgba(31,155,143,0.08)]">
-      <div className="flex flex-wrap items-center gap-2">
-        <Footprints
-          aria-hidden="true"
-          size={16}
-          strokeWidth={1.8}
-          className="text-[var(--brand-teal-deep)]"
-        />
-        <h3 className="text-sm font-semibold text-[var(--foreground)]">
-          {t.reflectionCard.nextStep}
-        </h3>
+    <div className="relative overflow-hidden rounded-[var(--radius-xl)] border border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] p-4 ring-1 ring-[rgba(31,155,143,0.08)]">
+      <div
+        className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.20),transparent_66%)]"
+        aria-hidden="true"
+      />
+      <div className="relative flex flex-wrap items-center gap-2">
+        <IconFrame icon={Footprints} size="sm" />
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+            {t.reflectionCard.nextStep}
+          </h3>
+        </div>
         {nextStepType && (
           <Badge variant="accent">
             {translateNextStepType(language, nextStepType)}
@@ -489,7 +490,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       </p>
 
       {savedResult ? (
-        <div className="mt-4 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] px-4 py-3">
+        <div className="mt-4 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.72))] px-4 py-3 shadow-[var(--shadow-sm)]">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <p className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
               <CheckCircle2
@@ -640,7 +641,8 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
               {status === "saving" ? t.history.savingCheckIn : t.history.saveCheckIn}
             </button>
             {status === "saved" && (
-              <p className="text-sm text-[var(--brand-teal-deep)]">
+              <p className="inline-flex items-center gap-2 rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.78)] px-3 py-1.5 text-sm font-medium text-[var(--brand-teal-deep)]">
+                <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
                 {t.history.checkInSaved}
               </p>
             )}

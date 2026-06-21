@@ -18,7 +18,13 @@ import { AdminMetricCard, AdminShell } from "../../components/admin-shell";
 import { useAuth } from "../../components/auth-provider";
 import { RequireAdmin } from "../../components/route-guards";
 import { useLanguage } from "../../components/language-provider";
-import { Card, SectionLabel, StatusCard } from "../../components/ui";
+import {
+  Card,
+  MiniBar,
+  MiniSparkline,
+  SectionLabel,
+  StatusCard,
+} from "../../components/ui";
 
 type EventName =
   | "landing_page_viewed"
@@ -162,6 +168,10 @@ function FounderMetricsContent() {
         { label: "Guided saved", value: db.guidedSaved, icon: BarChart3 },
       ]
     : [];
+  const activityMax = db
+    ? Math.max(db.usersLast7Days, db.reflectionsLast7Days, db.feedbackLast7Days, 1)
+    : 1;
+  const savedModeMax = db ? Math.max(db.quickSaved, db.guidedSaved, 1) : 1;
 
   return (
     <AdminShell
@@ -276,6 +286,18 @@ function FounderMetricsContent() {
                 Quick saved: {db?.quickSaved ?? 0}. Guided saved:{" "}
                 {db?.guidedSaved ?? 0}.
               </p>
+              <div className="mt-4 grid gap-2">
+                <MiniBar
+                  label={t.nav.quick}
+                  value={db?.quickSaved ?? 0}
+                  max={savedModeMax}
+                />
+                <MiniBar
+                  label={t.nav.guided}
+                  value={db?.guidedSaved ?? 0}
+                  max={savedModeMax}
+                />
+              </div>
             </Card>
             <Card className="hover:translate-y-0">
               <CheckCircle2
@@ -291,6 +313,18 @@ function FounderMetricsContent() {
                 {db?.positiveFeedback ?? 0} users said clarity helped.{" "}
                 {db?.repeatIntent ?? 0} said they would use it again.
               </p>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <MiniBar
+                  label={t.feedback.questions.clarity_help[0]}
+                  value={db?.positiveFeedback ?? 0}
+                  max={Math.max(db?.totalFeedback ?? 0, 1)}
+                />
+                <MiniBar
+                  label={t.feedback.questions.would_use_again[0]}
+                  value={db?.repeatIntent ?? 0}
+                  max={Math.max(db?.totalFeedback ?? 0, 1)}
+                />
+              </div>
             </Card>
             <Card className="hover:translate-y-0">
               <ShieldCheck
@@ -306,8 +340,39 @@ function FounderMetricsContent() {
                 This page shows counts and rates only. It does not expose private
                 reflection text, AI output, or check-in notes.
               </p>
+              <div className="mt-4">
+                <MiniSparkline
+                  values={[
+                    db?.usersLast7Days ?? 0,
+                    db?.reflectionsLast7Days ?? 0,
+                    db?.feedbackLast7Days ?? 0,
+                  ]}
+                  label={t.admin.overview}
+                />
+              </div>
             </Card>
           </div>
+
+          <Card className="mt-6 hover:translate-y-0">
+            <SectionLabel>{t.admin.overview}</SectionLabel>
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              <MiniBar
+                label={t.admin.users7d}
+                value={db?.usersLast7Days ?? 0}
+                max={activityMax}
+              />
+              <MiniBar
+                label={t.admin.reflections7d}
+                value={db?.reflectionsLast7Days ?? 0}
+                max={activityMax}
+              />
+              <MiniBar
+                label={t.admin.feedback7d}
+                value={db?.feedbackLast7Days ?? 0}
+                max={activityMax}
+              />
+            </div>
+          </Card>
         </>
       )}
     </AdminShell>

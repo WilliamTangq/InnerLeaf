@@ -16,6 +16,7 @@ import { useLanguage } from "../components/language-provider";
 import {
   Badge,
   Card,
+  IconFrame,
   LinkButton,
   PageHeader,
   PageShell,
@@ -167,12 +168,7 @@ export default function DemoPage() {
             const Icon = flowIcons[index];
             return (
               <Card key={title} className="h-full hover:translate-y-0">
-                <Icon
-                  aria-hidden="true"
-                  size={19}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
+                <IconFrame icon={Icon} size="sm" tone={index % 2 ? "gold" : "sage"} />
                 <h2 className="mt-4 text-sm font-semibold leading-6 text-[var(--foreground)]">
                   {title}
                 </h2>

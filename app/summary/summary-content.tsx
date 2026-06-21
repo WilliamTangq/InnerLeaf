@@ -5,7 +5,10 @@ import { useEffect, useState } from "react";
 import {
   Card,
   EmptyState,
+  IconFrame,
   LinkButton,
+  MiniBar,
+  MiniSparkline,
   PageActions,
   PageHeader,
   StatusCard,
@@ -148,6 +151,24 @@ function topPatterns(values: string[]) {
     .map(([value, count]) => ({ value, count }))
     .sort((first, second) => second.count - first.count || first.value.localeCompare(second.value))
     .slice(0, 3);
+}
+
+function recentActivityTrend(reflections: SummaryReflection[]) {
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (6 - index));
+    return date;
+  });
+
+  return days.map((day) => {
+    const next = new Date(day);
+    next.setDate(next.getDate() + 1);
+    return reflections.filter((item) => {
+      const created = new Date(item.created_at);
+      return created >= day && created < next;
+    }).length;
+  });
 }
 
 function joinReadable(items: string[], language: "en" | "zh") {
@@ -301,11 +322,17 @@ function SummaryNarrativeCard({
   repeatedThoughtPatterns,
   behaviouralThemes,
   nextStepTypes,
+  reflectionCount,
+  checkInCount,
+  trendValues,
 }: {
   repeatedTriggers: Array<{ value: string; count: number }>;
   repeatedThoughtPatterns: Array<{ value: string; count: number }>;
   behaviouralThemes: Array<{ value: string; count: number }>;
   nextStepTypes: Array<{ value: string; count: number }>;
+  reflectionCount: number;
+  checkInCount: number;
+  trendValues: number[];
 }) {
   const { language, t } = useLanguage();
   const topTrigger = repeatedTriggers[0]?.value || "";
@@ -352,38 +379,76 @@ function SummaryNarrativeCard({
 
   return (
     <Card variant="elevated" className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
+      <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
         <div>
-          <h2 className="text-lg font-semibold text-[var(--foreground)]">
-            {t.summary.narrativeTitle}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            {t.summary.narrativeDesc}
-          </p>
-        </div>
-        <Leaf
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
-      </div>
-
-      <dl className="mt-5 grid gap-2.5">
-        {rows.map(([label, text]) => (
-          <div
-            key={label}
-            className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
-          >
-            <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-              {label}
-            </dt>
-            <dd className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-              {text}
-            </dd>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                {t.summary.narrativeTitle}
+              </h2>
+              <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+                {t.summary.narrativeDesc}
+              </p>
+            </div>
+            <IconFrame icon={Leaf} size="md" />
           </div>
-        ))}
-      </dl>
+          <dl className="grid gap-2.5">
+            {rows.map(([label, text]) => (
+              <div
+                key={label}
+                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+              >
+                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+                  {label}
+                </dt>
+                <dd className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                  {text}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div className="rounded-[1.5rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.58),rgba(255,254,248,0.82))] p-4">
+          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+            {t.common.insights}
+          </h2>
+          <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+            {t.summary.purpose}
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
+              <p className="text-2xl font-semibold text-[var(--foreground)]">
+                {reflectionCount}
+              </p>
+              <p className="text-xs font-medium text-[var(--foreground-subtle)]">
+                {t.history.saved}
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
+              <p className="text-2xl font-semibold text-[var(--foreground)]">
+                {checkInCount}
+              </p>
+              <p className="text-xs font-medium text-[var(--foreground-subtle)]">
+                {t.history.checkedIn}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4">
+            <MiniSparkline values={trendValues} label={t.summary.title} />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {repeatedTriggers.slice(0, 3).map((item) => (
+              <span
+                key={item.value}
+                className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.72)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]"
+              >
+                {item.value}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
     </Card>
   );
 }
@@ -414,12 +479,7 @@ function InsightPatternList({
             {description}
           </p>
         </div>
-        <BarChart3
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
+        <IconFrame icon={BarChart3} size="sm" />
       </div>
       <ul className="mt-5 space-y-2">
         {items.map((item) => (
@@ -435,14 +495,14 @@ function InsightPatternList({
                   {item.count}×
                 </span>
               </div>
-              <span className="mt-3 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
-                <span
-                  className="block h-full rounded-full bg-[var(--brand-teal)]/55"
-                  style={{
-                    width: `${Math.max(18, (item.count / maxCount) * 100)}%`,
-                  }}
+              <div className="mt-3">
+                <MiniBar
+                  label={item.value}
+                  value={item.count}
+                  max={maxCount}
+                  detail={`${item.count}×`}
                 />
-              </span>
+              </div>
             </li>
         ))}
       </ul>
@@ -705,6 +765,8 @@ export function SummaryContent() {
   const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
   const settledTriggers = topPatterns(settledTriggerValues);
   const repeatingTriggers = repeatedTriggers.filter((item) => item.count > 1);
+  const trendValues = recentActivityTrend(reflections);
+  const checkInCount = reflections.filter((item) => item.follow_up_result).length;
 
   return (
     <>
@@ -723,6 +785,7 @@ export function SummaryContent() {
 
       {!hasError && loaded && !user && (
         <EmptyState
+          icon={BarChart3}
           title={t.summary.authTitle}
           description={t.summary.authBody}
           action={
@@ -741,6 +804,7 @@ export function SummaryContent() {
       {!hasError && loaded && user && !hasEnoughData && (
         <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <EmptyState
+            icon={BarChart3}
             title={t.summary.emptyTitle}
             description={t.summary.moreReflectionsNeeded}
             action={<LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>}
@@ -773,6 +837,9 @@ export function SummaryContent() {
               repeatedThoughtPatterns={repeatedThoughtPatterns}
               behaviouralThemes={recentBehaviouralThemes}
               nextStepTypes={repeatedNextStepTypes}
+              reflectionCount={reflectionCount}
+              checkInCount={checkInCount}
+              trendValues={trendValues}
             />
             <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
               <InsightPatternList

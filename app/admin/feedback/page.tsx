@@ -12,7 +12,14 @@ import { AdminShell } from "../../components/admin-shell";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
-import { Badge, Card, SectionLabel, StatusCard } from "../../components/ui";
+import {
+  Badge,
+  Card,
+  IconFrame,
+  MiniBar,
+  SectionLabel,
+  StatusCard,
+} from "../../components/ui";
 
 type FeedbackItem = {
   id: string | number;
@@ -248,30 +255,67 @@ function AdminFeedbackContent() {
 
       <div className="mb-5 grid gap-3 md:grid-cols-3">
         <Card className="hover:translate-y-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
-            {t.admin.totalFeedback}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
-            {feedback.length}
-          </p>
+          <div className="flex items-center gap-3">
+            <IconFrame icon={Inbox} size="sm" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+                {t.admin.totalFeedback}
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">
+                {feedback.length}
+              </p>
+            </div>
+          </div>
         </Card>
         <Card className="hover:translate-y-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
-            {t.admin.unreviewed}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
-            {unreviewedCount}
-          </p>
+          <div className="flex items-center gap-3">
+            <IconFrame icon={MessageSquareText} size="sm" tone="gold" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+                {t.admin.unreviewed}
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">
+                {unreviewedCount}
+              </p>
+            </div>
+          </div>
         </Card>
         <Card className="hover:translate-y-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
-            {t.admin.wouldUse}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
-            {wouldUseCount}
-          </p>
+          <div className="flex items-center gap-3">
+            <IconFrame icon={CheckCircle2} size="sm" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+                {t.admin.wouldUse}
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-[var(--foreground)]">
+                {wouldUseCount}
+              </p>
+            </div>
+          </div>
         </Card>
       </div>
+
+      {feedback.length > 0 && (
+        <Card className="mb-5 hover:translate-y-0">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <MiniBar
+              label={t.admin.reviewed}
+              value={reviewedCount}
+              max={feedback.length}
+            />
+            <MiniBar
+              label={t.admin.unreviewed}
+              value={unreviewedCount}
+              max={feedback.length}
+            />
+            <MiniBar
+              label={t.admin.wouldUse}
+              value={wouldUseCount}
+              max={feedback.length}
+            />
+          </div>
+        </Card>
+      )}
 
       <Card className="mb-5 hover:translate-y-0">
         <div className="grid gap-3 xl:grid-cols-[1fr_180px_180px_180px]">

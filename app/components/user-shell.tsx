@@ -160,11 +160,13 @@ export function UserShell({
         )}
         <aside
           className={[
-            "fixed inset-y-0 left-0 z-[9999] w-[min(330px,calc(100vw-40px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start",
-            sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+            "fixed inset-y-3 left-3 z-[9999] w-[min(342px,calc(100vw-24px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start lg:animate-none",
+            sidebarOpen
+              ? "translate-x-0 motion-safe:animate-[mobileSheetIn_180ms_ease-out]"
+              : "-translate-x-[calc(100%+1rem)] lg:translate-x-0",
           ].join(" ")}
         >
-          <div className="shell-panel h-full overflow-y-auto border-r p-4 lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2.15rem] lg:p-3.5">
+          <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2.15rem]">
             <div className="mb-4 rounded-[1.65rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.68))] p-4 shadow-[var(--shadow-soft)]">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-3">
@@ -197,7 +199,7 @@ export function UserShell({
             </div>
             <nav
               aria-label={t.app.title}
-              className="flex flex-col gap-2"
+              className="flex flex-1 flex-col gap-2 overflow-y-auto pr-0.5"
             >
               {userLinks.map((link) => (
                 <UserNavLink

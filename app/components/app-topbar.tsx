@@ -35,28 +35,33 @@ export function AppTopbar({
 }) {
   return (
     <header className="app-topbar-sticky topbar-surface">
-      <div className="mx-auto flex min-h-[74px] w-full max-w-[1360px] items-center justify-between gap-3 px-5 py-3 sm:px-8">
-        <div className="flex min-w-0 items-center gap-3">
+      <div className="mx-auto flex min-h-[62px] w-full max-w-[1360px] items-center justify-between gap-2 px-3 py-2 sm:min-h-[74px] sm:gap-3 sm:px-8 sm:py-3">
+        <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           <button
             type="button"
             onClick={onMenu}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] lg:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] sm:h-10 sm:w-10 lg:hidden"
             aria-label={menuLabel}
           >
             <Menu aria-hidden="true" size={18} strokeWidth={1.8} />
           </button>
-          <BrandLogo size="md" />
+          <div className="min-w-0 flex-1">
+            <BrandLogo
+              size="sm"
+              className="max-w-[126px] gap-2 sm:max-w-none sm:gap-3 md:[&>span:first-child]:!h-10 md:[&>span:first-child]:!w-10"
+            />
+          </div>
           <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:inline-flex">
             {badgeLabel}
           </span>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <LanguageSelector />
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <LanguageSelector compact />
           <Link
             href={accountHref}
             aria-label={accountLabel}
-            className="flex min-h-10 items-center gap-2 rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] px-2.5 py-1.5 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] p-1 shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)] sm:h-auto sm:w-auto sm:min-h-10 sm:gap-2 sm:px-2.5 sm:py-1.5"
           >
             <Avatar
               avatarUrl={avatarUrl ?? ""}
@@ -77,10 +82,10 @@ export function AppTopbar({
           <button
             type="button"
             onClick={onLogout}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.92)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.82)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)] sm:h-10 sm:w-10"
             aria-label={logoutLabel}
           >
-            <LogOut aria-hidden="true" size={17} strokeWidth={1.8} />
+            <LogOut aria-hidden="true" size={15} strokeWidth={1.8} />
           </button>
         </div>
       </div>

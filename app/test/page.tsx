@@ -15,6 +15,7 @@ import { AnalyticsPageView } from "../components/analytics-tracker";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
+  IconFrame,
   LinkButton,
   PageHeader,
   PageShell,
@@ -92,7 +93,7 @@ export default function TestPage() {
                 key={step}
                 className="flex gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-sm font-medium text-[var(--brand-teal-deep)]">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-sm font-semibold text-[var(--brand-teal-deep)]">
                   {index + 1}
                 </span>
                 <p className="text-sm leading-6 text-[var(--foreground-muted)]">
@@ -128,12 +129,7 @@ export default function TestPage() {
             const Icon = linkIcons[index];
             return (
               <Card key={href} className="p-4 sm:p-5">
-                <Icon
-                  aria-hidden="true"
-                  size={18}
-                  strokeWidth={1.8}
-                  className="text-[var(--brand-teal-deep)]"
-                />
+                <IconFrame icon={Icon} size="sm" tone={index % 2 ? "gold" : "sage"} />
                 <h2 className="mt-3 text-sm font-semibold text-[var(--foreground)]">
                   {label}
                 </h2>

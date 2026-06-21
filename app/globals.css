@@ -178,6 +178,17 @@ body {
   }
 }
 
+@keyframes mobileSheetIn {
+  from {
+    opacity: 0;
+    transform: translateX(-0.75rem) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

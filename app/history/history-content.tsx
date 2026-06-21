@@ -5,6 +5,7 @@ import { Archive, CheckCircle2, Clock3 } from "lucide-react";
 import {
   Card,
   EmptyState,
+  IconFrame,
   LinkButton,
   PageActions,
   PageHeader,
@@ -91,12 +92,7 @@ export function HistoryContent() {
         <div className="mb-6 grid gap-3 sm:grid-cols-3">
           <Card className="hover:translate-y-0">
             <div className="flex items-center gap-3">
-              <Archive
-                aria-hidden="true"
-                size={18}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
+              <IconFrame icon={Archive} size="sm" />
               <div>
                 <p className="text-2xl font-semibold text-[var(--foreground)]">
                   {visibleReflections.length}
@@ -109,12 +105,7 @@ export function HistoryContent() {
           </Card>
           <Card className="hover:translate-y-0">
             <div className="flex items-center gap-3">
-              <CheckCircle2
-                aria-hidden="true"
-                size={18}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
+              <IconFrame icon={CheckCircle2} size="sm" />
               <div>
                 <p className="text-2xl font-semibold text-[var(--foreground)]">
                   {checkedInCount}
@@ -127,12 +118,7 @@ export function HistoryContent() {
           </Card>
           <Card className="hover:translate-y-0">
             <div className="flex items-center gap-3">
-              <Clock3
-                aria-hidden="true"
-                size={18}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
+              <IconFrame icon={Clock3} size="sm" tone="gold" />
               <div>
                 <p className="text-sm font-semibold text-[var(--foreground)]">
                   {latest ? (
@@ -159,6 +145,7 @@ export function HistoryContent() {
 
       {!hasError && loaded && !user && (
         <EmptyState
+          icon={Archive}
           title={t.history.authTitle}
           description={t.history.authBody}
           action={
@@ -177,6 +164,7 @@ export function HistoryContent() {
       {!hasError && loaded && user && visibleReflections.length === 0 && (
         <div className="space-y-4">
           <EmptyState
+            icon={Archive}
             title={t.history.emptyTitle}
             description={t.history.emptyDescription}
             action={

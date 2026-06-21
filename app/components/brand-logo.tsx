@@ -80,7 +80,7 @@ export function BrandLogo({
   }, []);
 
   const content = (
-    <span className={`inline-flex items-center gap-3 ${className}`}>
+    <span className={`inline-flex min-w-0 items-center gap-3 ${className}`}>
       <span
         className="relative shrink-0 overflow-hidden rounded-[22%] bg-cover bg-center shadow-[var(--shadow-md)] ring-1 ring-black/5"
         style={{
@@ -91,8 +91,8 @@ export function BrandLogo({
         aria-hidden="true"
       />
       {showWordmark && (
-        <span className="flex flex-col leading-none">
-          <span className="text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
+        <span className="flex min-w-0 flex-col leading-none">
+          <span className="truncate text-[15px] font-semibold tracking-tight text-[var(--foreground)]">
             {settings.app_name}
           </span>
           <span className="mt-0.5 hidden text-[11px] font-medium text-[var(--foreground-subtle)] sm:block">

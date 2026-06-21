@@ -66,12 +66,15 @@ export function useLanguage() {
   return value;
 }
 
-export function LanguageSelector() {
+export function LanguageSelector({ compact = false }: { compact?: boolean }) {
   const { language, setLanguage } = useLanguage();
 
   return (
     <div
-      className="inline-flex shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface)] p-1"
+      className={[
+        "inline-flex shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface)]",
+        compact ? "p-0.5" : "p-1",
+      ].join(" ")}
       aria-label="Language"
     >
       {languages.map((item) => {
@@ -84,7 +87,8 @@ export function LanguageSelector() {
             onClick={() => setLanguage(item.value)}
             aria-pressed={active}
             className={[
-              "rounded-full px-3 py-1.5 text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+              "rounded-full text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+              compact ? "px-2 py-1" : "px-3 py-1.5",
               active
                 ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
                 : "text-[var(--foreground-subtle)] hover:text-[var(--foreground)]",

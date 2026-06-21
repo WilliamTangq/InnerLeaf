@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type {
   ButtonHTMLAttributes,
+  ComponentType,
   MouseEventHandler,
   ReactNode,
   TextareaHTMLAttributes,
@@ -14,6 +15,129 @@ import { useAuth } from "./auth-provider";
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+type VisualIcon = ComponentType<{
+  size?: number;
+  strokeWidth?: number;
+  className?: string;
+  "aria-hidden"?: boolean | "true" | "false";
+}>;
+
+export function IconFrame({
+  icon: Icon,
+  tone = "sage",
+  size = "md",
+}: {
+  icon: VisualIcon;
+  tone?: "sage" | "gold" | "neutral";
+  size?: "sm" | "md" | "lg";
+}) {
+  return (
+    <span
+      className={cx(
+        "inline-flex shrink-0 items-center justify-center border shadow-[var(--shadow-sm)]",
+        size === "sm" && "h-8 w-8 rounded-xl",
+        size === "md" && "h-10 w-10 rounded-2xl",
+        size === "lg" && "h-12 w-12 rounded-[1.15rem]",
+        tone === "sage" &&
+          "border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]",
+        tone === "gold" &&
+          "border-[rgba(177,154,70,0.22)] bg-[rgba(245,231,189,0.48)] text-[rgb(128,100,31)]",
+        tone === "neutral" &&
+          "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground-muted)]"
+      )}
+    >
+      <Icon
+        aria-hidden="true"
+        size={size === "sm" ? 15 : size === "lg" ? 21 : 18}
+        strokeWidth={1.8}
+      />
+    </span>
+  );
+}
+
+export function MiniBar({
+  label,
+  value,
+  max,
+  detail,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  detail?: string;
+}) {
+  const width = max > 0 ? Math.max(8, Math.min(100, (value / max) * 100)) : 0;
+
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.72)] px-3 py-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <span className="truncate text-sm font-medium text-[var(--foreground)]">
+          {label}
+        </span>
+        <span className="shrink-0 text-xs font-semibold text-[var(--foreground-subtle)]">
+          {detail ?? value}
+        </span>
+      </div>
+      <span className="mt-2 block h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+        <span
+          className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))]"
+          style={{ width: `${width}%` }}
+        />
+      </span>
+    </div>
+  );
+}
+
+export function MiniSparkline({
+  values,
+  label,
+}: {
+  values: number[];
+  label: string;
+}) {
+  const width = 180;
+  const height = 54;
+  const safeValues = values.length > 1 ? values : [0, values[0] ?? 0];
+  const max = Math.max(...safeValues, 1);
+  const points = safeValues
+    .map((value, index) => {
+      const x = (index / (safeValues.length - 1)) * width;
+      const y = height - (value / max) * (height - 10) - 5;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <div
+      className="overflow-hidden rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.58),rgba(255,254,248,0.84))] px-3 py-2"
+      aria-label={label}
+    >
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        className="h-14 w-full"
+        role="img"
+        aria-label={label}
+      >
+        <polyline
+          points={points}
+          fill="none"
+          stroke="rgba(17,111,104,0.72)"
+          strokeWidth="4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <polyline
+          points={`0,${height - 4} ${width},${height - 4}`}
+          fill="none"
+          stroke="rgba(40,80,60,0.10)"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </div>
+  );
 }
 
 export function TopNav() {
@@ -391,15 +515,25 @@ export function EmptyState({
   title,
   description,
   action,
+  icon,
 }: {
   title: string;
   description: string;
   action?: ReactNode;
+  icon?: VisualIcon;
 }) {
   return (
-    <Card className="brand-panel text-center sm:text-left">
+    <Card className="brand-panel relative overflow-hidden text-center sm:text-left">
+      <div
+        className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.16),transparent_64%)]"
+        aria-hidden="true"
+      />
       <div className="mx-auto mb-5 sm:mx-0">
-        <BrandLogo size="lg" href={null} showWordmark={false} />
+        {icon ? (
+          <IconFrame icon={icon} size="lg" tone="sage" />
+        ) : (
+          <BrandLogo size="lg" href={null} showWordmark={false} />
+        )}
       </div>
       <h2 className="text-lg font-semibold text-[var(--foreground)]">{title}</h2>
       <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">

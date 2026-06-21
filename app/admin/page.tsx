@@ -7,7 +7,7 @@ import { AdminMetricCard, AdminShell } from "../components/admin-shell";
 import { RequireAdmin } from "../components/route-guards";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { Card, StatusCard } from "../components/ui";
+import { Card, MiniBar, StatusCard } from "../components/ui";
 
 type Overview = {
   totalUsers: number;
@@ -71,13 +71,21 @@ function AdminOverviewContent() {
         { label: t.admin.feedback7d, value: overview.feedbackLast7Days, icon: Inbox },
       ]
     : [];
+  const activityMax = overview
+    ? Math.max(
+        overview.usersLast7Days,
+        overview.reflectionsLast7Days,
+        overview.feedbackLast7Days,
+        1
+      )
+    : 1;
 
   return (
     <AdminShell title={t.admin.overview} purpose={t.admin.overviewPurpose}>
       {error && <StatusCard tone="error">{error}</StatusCard>}
 
       {overview && (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           {stats.map(({ label, value, icon }) => (
             <AdminMetricCard
               key={label}
@@ -87,6 +95,38 @@ function AdminOverviewContent() {
             />
           ))}
         </div>
+      )}
+
+      {overview && (
+        <Card className="mt-5 hover:translate-y-0">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="text-base font-semibold text-[var(--foreground)]">
+                {t.admin.overview}
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+                {t.admin.overviewPurpose}
+              </p>
+            </div>
+            <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-3 lg:max-w-2xl">
+              <MiniBar
+                label={t.admin.users7d}
+                value={overview.usersLast7Days}
+                max={activityMax}
+              />
+              <MiniBar
+                label={t.admin.reflections7d}
+                value={overview.reflectionsLast7Days}
+                max={activityMax}
+              />
+              <MiniBar
+                label={t.admin.feedback7d}
+                value={overview.feedbackLast7Days}
+                max={activityMax}
+              />
+            </div>
+          </div>
+        </Card>
       )}
 
       <div className="mt-6 grid gap-3 lg:grid-cols-4">

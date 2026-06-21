@@ -1,8 +1,11 @@
 "use client";
 
+import { Leaf, Sparkles, Users } from "lucide-react";
 import { AnalyticsPageView } from "../components/analytics-tracker";
-import { Card, LinkButton, PageHeader, PageShell } from "../components/ui";
+import { Card, IconFrame, LinkButton, PageHeader, PageShell } from "../components/ui";
 import { useLanguage } from "../components/language-provider";
+
+const pricingIcons = [Leaf, Sparkles, Users] as const;
 
 export default function PricingPage() {
   const { t } = useLanguage();
@@ -15,8 +18,12 @@ export default function PricingPage() {
       </PageHeader>
 
       <div className="grid gap-4 md:grid-cols-3">
-        {t.pricing.plans.map(([name, label, body]) => (
+        {t.pricing.plans.map(([name, label, body], index) => {
+          const Icon = pricingIcons[index % pricingIcons.length];
+
+          return (
           <Card key={name} className="hover:translate-y-0">
+            <IconFrame icon={Icon} size="md" tone={index === 1 ? "gold" : "sage"} />
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
               {label}
             </p>
@@ -27,7 +34,8 @@ export default function PricingPage() {
               {body}
             </p>
           </Card>
-        ))}
+        );
+        })}
       </div>
 
       <Card className="mt-6 hover:translate-y-0" variant="muted">
