@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { AppMobileDrawer } from "./app-mobile-drawer";
 import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
@@ -72,6 +73,88 @@ function UserNavLink({
   );
 }
 
+function UserSidebarContent({
+  onClose,
+  onLogout,
+  pathname,
+  role,
+  t,
+}: {
+  onClose: () => void;
+  onLogout: () => void;
+  pathname: string;
+  role: "user" | "admin" | "tester" | null;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  return (
+    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2.15rem]">
+      <div className="mb-4 rounded-[1.65rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.68))] p-4 shadow-[var(--shadow-soft)]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
+              <Leaf aria-hidden="true" size={18} strokeWidth={1.8} />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-[var(--foreground)]">
+                {t.app.title}
+              </p>
+              {role && (
+                <span className="mt-1 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.76)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--brand-teal-deep)]">
+                  {t.admin.roleLabels[role]}
+                </span>
+              )}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] lg:hidden"
+            aria-label={t.nav.menu}
+          >
+            <X aria-hidden="true" size={16} strokeWidth={1.8} />
+          </button>
+        </div>
+        <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
+          {t.app.privacy}
+        </p>
+      </div>
+      <nav
+        aria-label={t.app.title}
+        className="flex flex-1 flex-col gap-2 overflow-y-auto pr-0.5"
+      >
+        {userLinks.map((link) => (
+          <UserNavLink
+            key={link.href}
+            href={link.href}
+            icon={link.icon}
+            label={
+              link.key === "account"
+                ? t.account.settings
+                : t.nav[link.key]
+            }
+            active={isActive(pathname, link.href)}
+            onClick={() => {
+              onClose();
+              if (link.href === pathname && link.href === "/dashboard/quick") {
+                window.dispatchEvent(new Event("innerleaf:new-quick-reflection"));
+              }
+            }}
+          />
+        ))}
+        <div className="min-w-px border-l border-[var(--border)] lg:my-3 lg:border-l-0 lg:border-t" />
+        <button
+          type="button"
+          onClick={onLogout}
+          className="flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[rgba(255,254,248,0.76)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+        >
+          <LogOut aria-hidden="true" size={17} strokeWidth={1.8} />
+          <span>{t.nav.logout}</span>
+        </button>
+      </nav>
+    </div>
+  );
+}
+
 export function UserShell({
   children,
   maxWidth = "max-w-5xl",
@@ -104,28 +187,6 @@ export function UserShell({
     }
   }, [isAdmin, pathname, router]);
 
-  useEffect(() => {
-    if (!sidebarOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSidebarOpen(false);
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [sidebarOpen]);
-
   if (isAdmin) {
     return (
       <div className="page-glow min-h-screen px-5 py-10 text-[var(--foreground)] sm:px-8">
@@ -148,91 +209,29 @@ export function UserShell({
         onLogout={() => void logOut()}
         onMenu={() => setSidebarOpen(true)}
       />
+      <AppMobileDrawer
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        label={t.nav.menu}
+      >
+        <UserSidebarContent
+          onClose={() => setSidebarOpen(false)}
+          onLogout={() => void logOut()}
+          pathname={pathname}
+          role={role}
+          t={t}
+        />
+      </AppMobileDrawer>
 
       <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-8 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[268px_1fr]">
-        {sidebarOpen && (
-          <button
-            type="button"
-            aria-label={t.nav.menu}
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)] lg:hidden"
+        <aside className="hidden lg:sticky lg:top-24 lg:z-[10] lg:block lg:self-start">
+          <UserSidebarContent
+            onClose={() => setSidebarOpen(false)}
+            onLogout={() => void logOut()}
+            pathname={pathname}
+            role={role}
+            t={t}
           />
-        )}
-        <aside
-          className={[
-            "fixed inset-y-3 left-3 z-[9999] w-[min(342px,calc(100vw-24px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start lg:animate-none",
-            sidebarOpen
-              ? "translate-x-0 motion-safe:animate-[mobileSheetIn_180ms_ease-out]"
-              : "-translate-x-[calc(100%+1rem)] lg:translate-x-0",
-          ].join(" ")}
-        >
-          <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2.15rem]">
-            <div className="mb-4 rounded-[1.65rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.68))] p-4 shadow-[var(--shadow-soft)]">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
-                    <Leaf aria-hidden="true" size={18} strokeWidth={1.8} />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--foreground)]">
-                      {t.app.title}
-                    </p>
-                    {role && (
-                      <span className="mt-1 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.76)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--brand-teal-deep)]">
-                        {t.admin.roleLabels[role]}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] lg:hidden"
-                  aria-label={t.nav.menu}
-                >
-                  <X aria-hidden="true" size={16} strokeWidth={1.8} />
-                </button>
-              </div>
-              <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
-                {t.app.privacy}
-              </p>
-            </div>
-            <nav
-              aria-label={t.app.title}
-              className="flex flex-1 flex-col gap-2 overflow-y-auto pr-0.5"
-            >
-              {userLinks.map((link) => (
-                <UserNavLink
-                  key={link.href}
-                  href={link.href}
-                  icon={link.icon}
-                  label={
-                    link.key === "account"
-                      ? t.account.settings
-                      : t.nav[link.key]
-                  }
-                  active={isActive(pathname, link.href)}
-                  onClick={() => {
-                    setSidebarOpen(false);
-                    if (link.href === pathname && link.href === "/dashboard/quick") {
-                      window.dispatchEvent(
-                        new Event("innerleaf:new-quick-reflection")
-                      );
-                    }
-                  }}
-                />
-              ))}
-              <div className="min-w-px border-l border-[var(--border)] lg:my-3 lg:border-l-0 lg:border-t" />
-              <button
-                type="button"
-                onClick={() => void logOut()}
-                className="flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2 text-left text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 hover:bg-[rgba(255,254,248,0.76)] hover:text-[var(--foreground)] hover:shadow-[var(--shadow-sm)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              >
-                <LogOut aria-hidden="true" size={17} strokeWidth={1.8} />
-                <span>{t.nav.logout}</span>
-              </button>
-            </nav>
-          </div>
         </aside>
 
         <section className={["w-full pb-8", maxWidth].join(" ")}>{children}</section>

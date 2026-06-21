@@ -11,8 +11,9 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { AppMobileDrawer } from "./app-mobile-drawer";
 import { AppTopbar } from "./app-topbar";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
@@ -73,6 +74,65 @@ function AdminNavLink({
   );
 }
 
+function AdminSidebarContent({
+  onClose,
+  pathname,
+  role,
+  t,
+}: {
+  onClose: () => void;
+  pathname: string;
+  role: "user" | "admin" | "tester" | null;
+  t: ReturnType<typeof useLanguage>["t"];
+}) {
+  return (
+    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem]">
+      <div className="mb-3 rounded-[1.5rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.6))] p-4 shadow-[var(--shadow-sm)]">
+        <div className="flex items-start justify-between gap-3">
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+            <ShieldCheck aria-hidden="true" size={19} strokeWidth={1.8} />
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] lg:hidden"
+            aria-label={t.nav.menu}
+          >
+            <X aria-hidden="true" size={16} strokeWidth={1.8} />
+          </button>
+        </div>
+        <p className="text-sm font-semibold text-[var(--foreground)]">
+          {t.admin.consoleTitle}
+        </p>
+        <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
+          {t.admin.superHostBody}
+        </p>
+        {role && (
+          <span className="mt-3 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+            {t.admin.roleLabels[role]}
+          </span>
+        )}
+      </div>
+
+      <nav
+        aria-label={t.admin.consoleTitle}
+        className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5"
+      >
+        {adminLinks.map((link) => (
+          <AdminNavLink
+            key={link.href}
+            href={link.href}
+            icon={link.icon}
+            label={t.admin[link.key]}
+            active={isActive(pathname, link.href)}
+            onClick={onClose}
+          />
+        ))}
+      </nav>
+    </div>
+  );
+}
+
 export function AdminMetricCard({
   label,
   value,
@@ -127,28 +187,6 @@ export function AdminShell({
     router.refresh();
   }
 
-  useEffect(() => {
-    if (!sidebarOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setSidebarOpen(false);
-      }
-    }
-
-    document.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [sidebarOpen]);
-
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
       <AppTopbar
@@ -165,67 +203,26 @@ export function AdminShell({
         onMenu={() => setSidebarOpen(true)}
         roleChip={role ? t.admin.roleLabels[role] : undefined}
       />
+      <AppMobileDrawer
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        label={t.nav.menu}
+      >
+        <AdminSidebarContent
+          onClose={() => setSidebarOpen(false)}
+          pathname={pathname}
+          role={role}
+          t={t}
+        />
+      </AppMobileDrawer>
       <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-7 px-5 py-6 sm:px-8 sm:py-8 lg:grid-cols-[266px_1fr]">
-        {sidebarOpen && (
-          <button
-            type="button"
-            aria-label={t.nav.menu}
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 z-[9998] bg-[rgba(20,35,28,0.30)] lg:hidden"
+        <aside className="hidden lg:sticky lg:top-24 lg:z-[10] lg:block lg:self-start">
+          <AdminSidebarContent
+            onClose={() => setSidebarOpen(false)}
+            pathname={pathname}
+            role={role}
+            t={t}
           />
-        )}
-        <aside
-          className={[
-            "fixed inset-y-3 left-3 z-[9999] w-[min(344px,calc(100vw-24px))] transition duration-200 lg:sticky lg:inset-y-auto lg:left-auto lg:top-24 lg:z-[10] lg:w-auto lg:self-start lg:animate-none",
-            sidebarOpen
-              ? "translate-x-0 motion-safe:animate-[mobileSheetIn_180ms_ease-out]"
-              : "-translate-x-[calc(100%+1rem)] lg:translate-x-0",
-          ].join(" ")}
-        >
-          <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[2rem] p-3.5 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[2rem]">
-            <div className="mb-3 rounded-[1.5rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.6))] p-4 shadow-[var(--shadow-sm)]">
-              <div className="flex items-start justify-between gap-3">
-                <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
-                  <ShieldCheck aria-hidden="true" size={19} strokeWidth={1.8} />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(false)}
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-subtle)] shadow-[var(--shadow-sm)] lg:hidden"
-                  aria-label={t.nav.menu}
-                >
-                  <X aria-hidden="true" size={16} strokeWidth={1.8} />
-                </button>
-              </div>
-              <p className="text-sm font-semibold text-[var(--foreground)]">
-                {t.admin.consoleTitle}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
-                {t.admin.superHostBody}
-              </p>
-              {role && (
-                <span className="mt-3 inline-flex rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                  {t.admin.roleLabels[role]}
-                </span>
-              )}
-            </div>
-
-            <nav
-              aria-label={t.admin.consoleTitle}
-              className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5"
-            >
-              {adminLinks.map((link) => (
-                <AdminNavLink
-                  key={link.href}
-                  href={link.href}
-                  icon={link.icon}
-                  label={t.admin[link.key]}
-                  active={isActive(pathname, link.href)}
-                  onClick={() => setSidebarOpen(false)}
-                />
-              ))}
-            </nav>
-          </div>
         </aside>
 
         <section className={["w-full pb-8", maxWidth].join(" ")}>

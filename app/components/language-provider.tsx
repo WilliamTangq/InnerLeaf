@@ -88,7 +88,7 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
             aria-pressed={active}
             className={[
               "rounded-full text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-              compact ? "px-2 py-1" : "px-3 py-1.5",
+              compact ? "px-1.5 py-1 text-[11px] sm:px-2 sm:text-xs" : "px-3 py-1.5",
               active
                 ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
                 : "text-[var(--foreground-subtle)] hover:text-[var(--foreground)]",

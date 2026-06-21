@@ -48,7 +48,7 @@ export function AppTopbar({
           <div className="min-w-0 flex-1">
             <BrandLogo
               size="sm"
-              className="max-w-[126px] gap-2 sm:max-w-none sm:gap-3 md:[&>span:first-child]:!h-10 md:[&>span:first-child]:!w-10"
+              className="max-w-[104px] gap-2 sm:max-w-none sm:gap-3 md:[&>span:first-child]:!h-10 md:[&>span:first-child]:!w-10"
             />
           </div>
           <span className="hidden rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)] shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:inline-flex">
