@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import {
   Inbox,
+  LineChart,
   LayoutDashboard,
   Settings,
   ShieldCheck,
@@ -26,6 +27,7 @@ type IconType = ComponentType<{
 
 const adminLinks = [
   { href: "/admin", key: "overview", icon: LayoutDashboard },
+  { href: "/admin/metrics", key: "metrics", icon: LineChart },
   { href: "/admin/users", key: "users", icon: Users },
   { href: "/admin/feedback", key: "feedback", icon: Inbox },
   { href: "/admin/system", key: "system", icon: Settings },

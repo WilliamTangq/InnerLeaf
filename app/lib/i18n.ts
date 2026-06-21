@@ -1018,6 +1018,14 @@ export const translations = {
     admin: {
       title: "Admin",
       overview: "Overview",
+      metrics: "Metrics",
+      metricsTitle: "Founder Metrics",
+      metricsPurpose:
+        "Monitor early testing signals and funnel health without opening private reflection content.",
+      metricsExportNote:
+        "Vercel Analytics events are instrumented. Exact event counts require an analytics export table or provider API connection; database-backed counts are shown now.",
+      funnelRates: "Funnel rates",
+      eventCoverage: "Event coverage",
       users: "Users",
       feedback: "Feedback inbox",
       system: "System",
@@ -2172,6 +2180,13 @@ export const translations = {
     admin: {
       title: "管理员",
       overview: "管理概览",
+      metrics: "指标",
+      metricsTitle: "Founder Metrics",
+      metricsPurpose: "查看早期测试信号和转化漏斗，不打开私人反思内容。",
+      metricsExportNote:
+        "Vercel Analytics 事件已经埋点。精确事件数量需要连接分析导出表或 provider API；当前先展示数据库可计算的数量。",
+      funnelRates: "漏斗转化率",
+      eventCoverage: "事件覆盖",
       users: "用户管理",
       feedback: "反馈收件箱",
       system: "系统状态",

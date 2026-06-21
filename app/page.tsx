@@ -239,7 +239,7 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="max-w-[1200px]">
-      <section className="relative overflow-hidden rounded-[3.25rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(237,248,244,0.68)_55%,rgba(255,249,229,0.5))] px-5 py-8 shadow-[var(--shadow-xl)] sm:px-8 sm:py-12 lg:px-11">
+      <section className="relative overflow-hidden rounded-[2.35rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(237,248,244,0.68)_55%,rgba(255,249,229,0.5))] px-5 py-7 shadow-[var(--shadow-xl)] sm:rounded-[3.25rem] sm:px-8 sm:py-11 lg:px-11">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.55),transparent_42%),radial-gradient(circle_at_55%_0%,rgba(255,255,255,0.55),transparent_28%)]"
@@ -262,13 +262,13 @@ export default function Home() {
               className="mb-5"
             />
             <Badge variant="accent">{t.home.badge}</Badge>
-            <h1 className="mt-5 max-w-[720px] text-[2.65rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[4.85rem] sm:leading-[0.94]">
+            <h1 className="mt-4 max-w-[720px] text-[2.25rem] font-semibold leading-[1.02] tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-[4.55rem] sm:leading-[0.95] lg:text-[4.85rem]">
               {t.home.headline}
             </h1>
-            <p className="mt-5 max-w-2xl text-base leading-7 text-[var(--foreground-muted)] sm:text-lg sm:leading-8">
+            <p className="mt-4 max-w-2xl text-[15px] leading-7 text-[var(--foreground-muted)] sm:mt-5 sm:text-lg sm:leading-8">
               {t.home.subtitle}
             </p>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-6 flex flex-col gap-2.5 sm:mt-7 sm:flex-row sm:gap-3">
               <LinkButton
                 href={primaryHref}
                 size="lg"
@@ -333,7 +333,7 @@ export default function Home() {
 
       <ProductTransformation />
 
-      <section id="how-it-works" className="mt-16 scroll-mt-24 sm:mt-20">
+      <section id="how-it-works" className="mt-14 scroll-mt-24 sm:mt-[4.5rem] lg:mt-20">
         <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle}>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
             {t.home.howIntro}
@@ -366,7 +366,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="product" className="mt-16 scroll-mt-24 sm:mt-20">
+      <section id="product" className="mt-14 scroll-mt-24 sm:mt-[4.5rem] lg:mt-20">
         <SectionHeading
           eyebrow={t.home.pathEyebrow}
           title={t.home.pathTitle}
@@ -401,7 +401,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="why-innerleaf" className="mt-16 scroll-mt-24 sm:mt-20">
+      <section id="why-innerleaf" className="mt-14 scroll-mt-24 sm:mt-[4.5rem] lg:mt-20">
         <Surface className="overflow-hidden p-6 sm:p-8 lg:p-10">
           <div className="grid gap-9 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
             <div>
@@ -440,7 +440,7 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section className="mt-14 sm:mt-[4.5rem] lg:mt-20">
         <Surface className="overflow-hidden p-6 sm:p-8 lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <div>
@@ -479,7 +479,7 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mt-16 sm:mt-20">
+      <section className="mt-14 sm:mt-[4.5rem] lg:mt-20">
         <Surface className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,255,248,0.82),rgba(232,246,241,0.56))] p-6 sm:p-8 lg:p-10">
           <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
             <div>
@@ -511,7 +511,7 @@ export default function Home() {
         </Surface>
       </section>
 
-      <section className="mx-auto mb-12 mt-16 max-w-5xl rounded-[2.35rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,255,248,0.92),rgba(232,246,241,0.66))] p-6 shadow-[0_24px_88px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:p-8">
+      <section className="mx-auto mb-12 mt-14 max-w-5xl rounded-[2rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,255,248,0.92),rgba(232,246,241,0.66))] p-5 shadow-[0_24px_88px_rgba(26,34,32,0.09)] backdrop-blur-xl sm:mb-16 sm:mt-20 sm:rounded-[2.35rem] sm:p-8">
         <div className="grid gap-6 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
             <SectionLabel>{t.home.testingEyebrow}</SectionLabel>

@@ -235,9 +235,9 @@ export function PrimaryButton({
       className={cx(
         "btn-brand inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px disabled:cursor-not-allowed",
         "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-        size === "sm" && "px-4 py-2 text-sm",
-        size === "md" && "px-5 py-2.5 text-sm",
-        size === "lg" && "px-6 py-3.5 text-[15px]",
+        size === "sm" && "px-3.5 py-1.5 text-sm",
+        size === "md" && "px-[1.125rem] py-2.5 text-sm",
+        size === "lg" && "px-5 py-3 text-[15px]",
         className
       )}
       {...props}
@@ -267,9 +267,9 @@ export function LinkButton({
       className={cx(
         "inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
         className,
-        size === "sm" && "px-4 py-2 text-sm",
-        size === "md" && "px-5 py-2.5 text-sm",
-        size === "lg" && "px-6 py-3.5 text-[15px]",
+        size === "sm" && "px-3.5 py-1.5 text-sm",
+        size === "md" && "px-[1.125rem] py-2.5 text-sm",
+        size === "lg" && "px-5 py-3 text-[15px]",
         variant === "primary" && "btn-brand text-white",
         variant === "secondary" &&
           "border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.86)] text-[var(--foreground)] shadow-[var(--shadow-sm)] hover:border-[var(--border-strong)] hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)]",

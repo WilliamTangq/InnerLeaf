@@ -83,7 +83,7 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <section className="rounded-[2.35rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.74))] p-6 shadow-[var(--shadow-lg)] sm:p-7">
+      <section className="rounded-[2rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.74))] p-5 shadow-[var(--shadow-lg)] sm:rounded-[2.35rem] sm:p-7">
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
@@ -127,7 +127,7 @@ export function WorkspaceContent() {
         </Card>
       )}
 
-      <section className="mt-7">
+      <section className="mt-6 sm:mt-7">
         <div className="grid gap-4 lg:grid-cols-2">
           {t.app.cards.slice(0, 2).map(([title, description, cta, href], index) => {
             const Icon = icons[index];
@@ -154,7 +154,7 @@ export function WorkspaceContent() {
                   >
                     <Icon aria-hidden="true" size={21} strokeWidth={1.8} />
                   </span>
-                  <h2 className="mt-5 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
+                  <h2 className="mt-5 text-xl font-semibold tracking-tight text-[var(--foreground)] sm:text-2xl">
                     {title}
                   </h2>
                   <p className="mt-3 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
@@ -172,7 +172,7 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <section className="mt-5">
+      <section className="mt-4 sm:mt-5">
         <div className="grid gap-4 md:grid-cols-2">
           {t.app.cards.slice(2).map(([title, description, cta, href], index) => {
             const originalIndex = index + 2;
@@ -211,7 +211,7 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <div className="mt-7 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <Card variant="muted" className="hover:translate-y-0">
           <SectionLabel>{t.app.recent}</SectionLabel>
           {recent ? (
