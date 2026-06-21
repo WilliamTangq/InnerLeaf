@@ -11,6 +11,8 @@ const routes = [
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
+  { path: "/students", heading: "InnerLeaf for students" },
+  { path: "/pricing", heading: "Simple MVP pricing" },
   { path: "/login", heading: "Log in to InnerLeaf" },
   { path: "/register", heading: "Create your InnerLeaf account" },
   { path: "/reset-password", heading: "Reset your password" },
@@ -28,6 +30,7 @@ const protectedRoutes = [
   "/admin/users",
   "/admin/feedback",
   "/admin/system",
+  "/admin/metrics",
 ] as const;
 
 const compatibilityRoutes = {
