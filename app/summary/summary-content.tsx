@@ -363,12 +363,9 @@ function HelpfulCheckInBlock({
                     <span className="text-sm font-semibold text-[var(--foreground)]">
                       {localizedCanonicalLabel(item.value, language)}
                     </span>
-                    <span className="text-xs text-[var(--foreground-subtle)]">
-                      {item.used}×
-                    </span>
                   </div>
-                  <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
-                    {t.summary.markedHelpful} {item.helped} {t.summary.times}
+                  <p className="mt-1.5 text-xs text-[var(--foreground-subtle)]">
+                    {t.summary.seenInReflections.replace("{count}", String(item.used))}
                   </p>
                 </div>
               ))}
@@ -389,9 +386,12 @@ function HelpfulCheckInBlock({
               {checkInSignals.map((item) => (
                 <span
                   key={item.value}
-                  className="rounded-full border border-[rgba(31,155,143,0.17)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+                  className="rounded-2xl border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.76)] px-3 py-2 text-xs font-semibold text-[var(--brand-teal-deep)]"
                 >
-                  {item.value} · {item.count}×
+                  {item.value}
+                  <span className="mt-1 block font-medium text-[var(--foreground-subtle)]">
+                    {t.summary.seenInCheckIns.replace("{count}", String(item.count))}
+                  </span>
                 </span>
               ))}
             </div>
@@ -426,8 +426,8 @@ function ActivityRhythmBlock({
         : "Save a few reflection cards to see your recent rhythm here."
       : recentTotal >= 3
         ? language === "zh"
-          ? "这周已经有几个情绪时刻可以回看。"
-          : "You have a few moments from this week to compare."
+          ? "你已经有足够的最近记录，可以开始看见节奏。"
+          : "You have enough recent entries to start noticing rhythm."
         : language === "zh"
           ? "再保存几张卡片后，节奏会更清楚。"
           : "A few more saved cards will make the rhythm clearer.";
@@ -438,7 +438,7 @@ function ActivityRhythmBlock({
       title={t.summary.rhythmTitle}
       description={t.summary.rhythmDesc}
     >
-      <div className="mt-5 rounded-[22px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3.5">
+      <div className="mt-4 rounded-[20px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3">
         {recentTotal === 0 ? (
           <LowDataState icon={LineChartIcon}>{caption}</LowDataState>
         ) : (
@@ -448,7 +448,7 @@ function ActivityRhythmBlock({
 
               return (
                 <div key={`${dayLabels[index]}-${index}`} className="flex flex-col items-center gap-2">
-                  <div className="flex h-16 w-full items-end justify-center rounded-full bg-[rgba(40,80,60,0.06)] px-1.5 py-1.5">
+                  <div className="flex h-12 w-full items-end justify-center rounded-full bg-[rgba(40,80,60,0.055)] px-1.5 py-1.5">
                     <span
                       className={[
                         "block w-full max-w-5 rounded-full transition-all",
@@ -460,7 +460,7 @@ function ActivityRhythmBlock({
                       aria-label={`${dayLabels[index]}: ${value}`}
                     />
                   </div>
-                  <span className="text-[10px] font-semibold uppercase text-[var(--foreground-subtle)]">
+                  <span className="text-[10px] font-medium uppercase text-[var(--foreground-subtle)] opacity-80">
                     {dayLabels[index]}
                   </span>
                 </div>
@@ -471,7 +471,7 @@ function ActivityRhythmBlock({
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
         <span className="rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--brand-teal-deep)]">
-          {recentTotal} {language === "zh" ? "近 7 天" : "last 7 days"}
+          {t.summary.recentEntries.replace("{count}", String(recentTotal))}
         </span>
         <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
           {checkInCount} {t.history.checkedIn}
@@ -503,8 +503,8 @@ function SummaryHeroBlock({
   const headline =
     repeatedTriggers[0] && repeatedThoughtPatterns[0]
       ? language === "zh"
-        ? `你最近的反思，最常回到“${topTrigger}”和“${topThought}”。`
-        : `Your recent reflections most often return to ${topTrigger} and ${topThought}.`
+        ? `最近最常出现的是：${topTrigger}与${topThought}。`
+        : `${topTrigger} and ${topThought} show up most often lately.`
       : language === "zh"
         ? "你最近的反思，正在慢慢形成可以回看的线索。"
         : "Your recent reflections are starting to form a pattern you can return to.";
@@ -525,7 +525,7 @@ function SummaryHeroBlock({
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
             {t.summary.narrativeTitle}
           </p>
-          <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-[1.9rem]">
+          <h2 className="mt-3 max-w-2xl text-[1.55rem] font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-[1.75rem]">
             {headline}
           </h2>
           <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
@@ -550,13 +550,16 @@ function SummaryHeroBlock({
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
             {t.summary.atAGlance}
           </p>
-          <div className="mt-3 space-y-2.5">
+          <div className="mt-3 grid grid-cols-2 gap-2">
             {glanceItems.map(([label, value]) => (
-              <div key={label} className="flex items-start justify-between gap-3">
-                <span className="text-xs font-medium text-[var(--foreground-subtle)]">
+              <div
+                key={label}
+                className="rounded-[0.95rem] border border-[rgba(40,80,60,0.07)] bg-[rgba(255,254,248,0.58)] px-3 py-2"
+              >
+                <span className="block text-[11px] font-medium text-[var(--foreground-subtle)]">
                   {label}
                 </span>
-                <span className="max-w-[9.5rem] text-right text-sm font-semibold leading-5 text-[var(--foreground)]">
+                <span className="mt-1 block line-clamp-2 text-sm font-semibold leading-5 text-[var(--foreground)]">
                   {value}
                 </span>
               </div>
@@ -858,44 +861,12 @@ export function SummaryContent() {
           </div>
         </>
       )}
-      {!hasError && loaded && user && (
-        <div className="mt-8 grid gap-4">
-          <Card className="hover:translate-y-0">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                  {t.feedbackPrompt.title}
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                  {t.feedbackPrompt.body}
-                </p>
-              </div>
-              <LinkButton
-                href="/feedback"
-                variant="secondary"
-                size="sm"
-                onClick={() =>
-                  trackEvent("feedback_prompt_clicked", {
-                    locale: language,
-                    authenticated_state: Boolean(user),
-                    role_bucket: role ?? "user",
-                    source: "summary",
-                    has_enough_data: hasEnoughData,
-                  })
-                }
-              >
-                {t.feedbackPrompt.cta}
-              </LinkButton>
-            </div>
-          </Card>
-          {hasEnoughData && (
-            <div className="flex flex-wrap gap-3">
-              <LinkButton href="/dashboard/quick">{t.summary.makeClearer}</LinkButton>
-              <LinkButton href="/dashboard/history" variant="secondary">
-                {t.summary.openHistory}
-              </LinkButton>
-            </div>
-          )}
+      {!hasError && loaded && user && hasEnoughData && (
+        <div className="mt-7 flex flex-wrap gap-3">
+          <LinkButton href="/dashboard/quick">{t.summary.createAnother}</LinkButton>
+          <LinkButton href="/dashboard/history" variant="secondary">
+            {t.summary.openHistory}
+          </LinkButton>
         </div>
       )}
     </>
