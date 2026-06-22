@@ -28,6 +28,9 @@ export type AnalyticsEventName =
   | "summary_viewed"
   | "check_in_opened"
   | "check_in_completed"
+  | "calm_page_viewed"
+  | "breathing_started"
+  | "breathing_completed"
   | "feedback_prompt_clicked"
   | "feedback_submitted";
 
