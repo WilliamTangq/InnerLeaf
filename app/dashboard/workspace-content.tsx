@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   TrendingUp,
 } from "lucide-react";
+import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
@@ -16,6 +17,7 @@ import {
   PageHeader,
   SectionLabel,
 } from "../components/ui";
+import { trackEvent } from "../lib/analytics";
 
 const icons = [PencilLine, Footprints, Archive, TrendingUp] as const;
 
@@ -37,6 +39,111 @@ function formatDate(value: string | null) {
     day: "numeric",
     year: "numeric",
   });
+}
+
+const moodStorageKey = "innerleaf:mood-checkin";
+
+type MoodOption = readonly [string, string, string, string, string, string];
+
+function MoodCheckInCard() {
+  const { language, t } = useLanguage();
+  const [selectedMood, setSelectedMood] = useState(() => {
+    if (typeof window === "undefined") {
+      return "";
+    }
+
+    try {
+      return window.localStorage.getItem(moodStorageKey) ?? "";
+    } catch {
+      return "";
+    }
+  });
+  const selectedOption = t.app.moodCheckIn.options.find(
+    ([id]) => id === selectedMood
+  );
+
+  function chooseMood(option: MoodOption) {
+    const [id] = option;
+    setSelectedMood(id);
+
+    try {
+      window.localStorage.setItem(moodStorageKey, id);
+    } catch {
+      // Mood check-in is local-only and should never block the dashboard.
+    }
+
+    trackEvent("mood_checkin_selected", {
+      mood: id,
+      locale: language,
+    });
+  }
+
+  return (
+    <Card
+      className="mt-4 overflow-hidden rounded-[1.35rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.92),rgba(232,246,241,0.56),rgba(255,248,226,0.24))] p-4 shadow-[var(--shadow-soft)] hover:translate-y-0 sm:mt-5 sm:p-5"
+    >
+      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div>
+          <SectionLabel>{t.common.reflect}</SectionLabel>
+          <h2 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
+            {t.app.moodCheckIn.title}
+          </h2>
+          <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.app.moodCheckIn.subtitle}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {t.app.moodCheckIn.options.map((option) => {
+            const [id, marker, label] = option;
+            const active = selectedMood === id;
+
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => chooseMood(option)}
+                aria-pressed={active}
+                className={[
+                  "inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                  active
+                    ? "border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(31,155,143,0.16),rgba(217,179,74,0.16))] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+                    : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.68)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.2)] hover:bg-[rgba(255,254,248,0.86)] hover:text-[var(--foreground)]",
+                ].join(" ")}
+              >
+                <span aria-hidden="true" className="text-base leading-none">
+                  {marker}
+                </span>
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {selectedOption && (
+        <motion.div
+          key={selectedOption[0]}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.22, ease: "easeOut" }}
+          className="mt-4 flex flex-col gap-3 rounded-[1.15rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] p-3.5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+            {selectedOption[3]}
+          </p>
+          <LinkButton
+            href={selectedOption[5]}
+            variant="secondary"
+            size="sm"
+            className="w-full shrink-0 sm:w-auto"
+          >
+            {selectedOption[4]}
+          </LinkButton>
+        </motion.div>
+      )}
+    </Card>
+  );
 }
 
 export function WorkspaceContent() {
@@ -126,6 +233,8 @@ export function WorkspaceContent() {
           </div>
         </Card>
       )}
+
+      <MoodCheckInCard />
 
       <section className="mt-4 sm:mt-5">
         <div className="grid gap-3 lg:grid-cols-2">

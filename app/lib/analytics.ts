@@ -32,6 +32,7 @@ export type AnalyticsEventName =
   | "calm_page_viewed"
   | "breathing_started"
   | "breathing_completed"
+  | "mood_checkin_selected"
   | "feedback_prompt_clicked"
   | "feedback_submitted";
 
