@@ -80,15 +80,14 @@ function MoodCheckInCard() {
 
   return (
     <Card
-      className="mt-4 overflow-hidden rounded-[1.35rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.92),rgba(232,246,241,0.56),rgba(255,248,226,0.24))] p-4 shadow-[var(--shadow-soft)] hover:translate-y-0 sm:mt-5 sm:p-5"
+      className="mt-3 overflow-hidden rounded-[1.25rem] border-[rgba(31,155,143,0.11)] bg-[linear-gradient(135deg,rgba(255,254,248,0.88),rgba(232,246,241,0.42),rgba(255,248,226,0.18))] p-3.5 shadow-[var(--shadow-sm)] hover:translate-y-0 sm:mt-4 sm:p-4"
     >
-      <div className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+      <div className="grid gap-3 lg:grid-cols-[0.55fr_1.45fr] lg:items-center">
         <div>
-          <SectionLabel>{t.common.reflect}</SectionLabel>
-          <h2 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
             {t.app.moodCheckIn.title}
           </h2>
-          <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+          <p className="mt-1 text-xs leading-5 text-[var(--foreground-subtle)]">
             {t.app.moodCheckIn.subtitle}
           </p>
         </div>
@@ -105,7 +104,7 @@ function MoodCheckInCard() {
                 onClick={() => chooseMood(option)}
                 aria-pressed={active}
                 className={[
-                  "inline-flex min-h-10 items-center gap-2 rounded-full border px-3 py-2 text-sm font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                  "inline-flex min-h-9 items-center gap-1.5 rounded-full border px-2.5 py-1.5 text-xs font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
                   active
                     ? "border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(31,155,143,0.16),rgba(217,179,74,0.16))] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.68)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.2)] hover:bg-[rgba(255,254,248,0.86)] hover:text-[var(--foreground)]",
@@ -127,9 +126,9 @@ function MoodCheckInCard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.22, ease: "easeOut" }}
-          className="mt-4 flex flex-col gap-3 rounded-[1.15rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] p-3.5 sm:flex-row sm:items-center sm:justify-between"
+          className="mt-3 flex flex-col gap-3 rounded-[1rem] border border-[rgba(31,155,143,0.1)] bg-[rgba(255,254,248,0.58)] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
         >
-          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+          <p className="text-sm leading-5 text-[var(--foreground-muted)]">
             {selectedOption[3]}
           </p>
           <LinkButton
@@ -252,7 +251,7 @@ export function WorkspaceContent() {
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.92)]",
                 ].join(" ")}
               >
-                <div className="flex min-h-[152px] flex-col sm:min-h-[172px]">
+                <div className="flex min-h-[142px] flex-col sm:min-h-[156px]">
                   <span
                     className={[
                       "flex h-10 w-10 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
@@ -368,10 +367,6 @@ export function WorkspaceContent() {
           </LinkButton>
         </Card>
       </div>
-
-      <p className="mt-6 text-sm text-[var(--foreground-subtle)]">
-        {user?.email || profile?.email}
-      </p>
     </>
   );
 }

@@ -713,9 +713,6 @@ function EmotionalWeatherCard({
             <span className="rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]">
               {reflectionCount} {t.history.saved}
             </span>
-            <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
-              {weatherType.replace(/_/g, " ")}
-            </span>
           </div>
         </div>
         <LinkButton

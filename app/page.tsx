@@ -212,7 +212,7 @@ function ProductTransformation() {
               viewport={{ once: true, margin: "-80px" }}
               transition={{ duration: 0.45, delay: index * 0.06, ease: "easeOut" }}
               className={[
-                "group relative flex min-h-[340px] flex-col overflow-hidden rounded-[1.65rem] border bg-[rgba(255,254,248,0.80)] p-5 shadow-[var(--shadow-md)] backdrop-blur-xl transition duration-300 lg:min-h-[360px]",
+                "group relative flex min-h-[300px] flex-col overflow-hidden rounded-[1.65rem] border bg-[rgba(255,254,248,0.80)] p-5 shadow-[var(--shadow-md)] backdrop-blur-xl transition duration-300 lg:min-h-[318px]",
                 "hover:-translate-y-0.5 hover:shadow-[0_22px_68px_rgba(38,56,48,0.11)]",
                 index === 1
                   ? "border-[rgba(31,155,143,0.16)] shadow-[0_28px_86px_rgba(31,80,70,0.13)]"
@@ -248,7 +248,7 @@ function ProductTransformation() {
               <h3 className="mt-4 text-base font-semibold tracking-tight text-[var(--foreground)]">
                 {title}
               </h3>
-              <p className="mt-2 max-w-[92%] text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-2 max-w-[92%] text-sm leading-5 text-[var(--foreground-muted)]">
                 {body}
               </p>
 
@@ -259,7 +259,7 @@ function ProductTransformation() {
                       <span className="h-1.5 w-1.5 rounded-full bg-[rgba(31,155,143,0.42)]" />
                       {t.home.storyFreeWrite}
                     </div>
-                    <p className="min-h-[4.75rem] rounded-[1.15rem] bg-[rgba(246,242,233,0.58)] p-3.5 text-sm leading-6 text-[var(--foreground-subtle)]">
+                    <p className="min-h-[3.9rem] rounded-[1.15rem] bg-[rgba(246,242,233,0.58)] p-3.5 text-sm leading-5 text-[var(--foreground-subtle)]">
                       “{t.home.storyInput}”
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">

@@ -152,11 +152,10 @@ export const translations = {
         "InnerLeaf helps you break down one intense moment into trigger, facts, interpretation, thought pattern, and one small next step.",
       safety: "Private self-reflection space. Not therapy or medical advice.",
       ctaHint:
-        "Start with an account when you want to save. Use the demo first if you only want to explore.",
+        "Create an account for the live flow, or view the demo first.",
       heroPills: [
         "Fictional demo data",
         "Private saved history",
-        "Short reflection cards",
       ],
       boundary:
         "You stay in control. InnerLeaf does not diagnose, score, or judge your emotions.",
@@ -179,7 +178,7 @@ export const translations = {
       storySteps: [
         [
           "Write the moment",
-          "Write freely or start with a guided reflection. You do not need the perfect words to begin.",
+          "Write freely or use a guided structure.",
           "What happened?",
           "What did you feel?",
           "Quick Reflection or Guided Reflection",
@@ -193,7 +192,7 @@ export const translations = {
         ],
         [
           "Revisit what returns",
-          "Save the card, check in later, and notice repeated patterns over time.",
+          "Save, check in later, and notice patterns.",
           "History",
           "Summary",
           "History, Summary, and Check-in",
@@ -617,7 +616,7 @@ export const translations = {
     privacy: {
       title: "Privacy & Safety Principles",
       purpose:
-        "InnerLeaf is currently an MVP prototype using email/password authentication. Please do not enter names, addresses, medical information, or anything you would not want stored. We are testing the structured reflection experience, not collecting clinical data.",
+        "InnerLeaf is an MVP using email/password accounts. Avoid names, addresses, medical information, or anything you would not want stored.",
       sections: [
         [
           "Where is my reflection stored?",
@@ -668,9 +667,8 @@ export const translations = {
     },
     quick: {
       title: "Quick Reflection",
-      purpose:
-        "Write freely about one emotional moment. InnerLeaf will help organise it.",
-      moodPrompt: "Start with the feeling closest to this moment.",
+      purpose: "Write one emotional moment. InnerLeaf organises it.",
+      moodPrompt: "What feels closest?",
       moodOptions: [
         {
           id: "anxious",
@@ -719,8 +717,7 @@ export const translations = {
     },
     guided: {
       title: "Step-by-step reflection",
-      purpose:
-        "Use a gentle structure to separate what happened, what you felt, what you assumed, and how you reacted.",
+      purpose: "Separate what happened, what you felt, and how you reacted.",
       boundary:
         "Inspired by CBT-style thought records. InnerLeaf is self-reflection, not therapy.",
       quickLink: "Use quick reflection",
@@ -831,7 +828,7 @@ export const translations = {
     },
     history: {
       title: "Reflection History",
-      purpose: "Review saved cards and check in on what helped.",
+      purpose: "Review saved cards and check in later.",
       saved: "saved",
       latest: "Latest",
       emptyTitle: "No saved reflections yet.",
@@ -870,7 +867,7 @@ export const translations = {
     },
     summary: {
       title: "Your recent patterns",
-      purpose: "Based on your saved reflection cards.",
+      purpose: "Patterns from your saved cards.",
       createAnother: "Create another reflection",
       repeatedTriggers: "Repeated triggers",
       repeatedTriggersDesc: "What tends to set off strong reactions",
@@ -1009,30 +1006,29 @@ export const translations = {
       workspaceBadge: "WORKSPACE",
       welcome: "Welcome back",
       fallbackName: "InnerLeaf user",
-      subtitle:
-        "Start a new reflection, review your saved cards, or notice repeated patterns.",
+      subtitle: "Reflect, save, and revisit patterns.",
       cards: [
         [
           "Quick Reflection",
-          "Write freely and let InnerLeaf organise the moment.",
+          "Write freely. Get a clear card.",
           "Start quick reflection",
           "/dashboard/quick",
         ],
         [
           "Step-by-step Reflection",
-          "Use a gentle structure to separate facts, thoughts, emotions, and reactions.",
+          "Use structure when writing feels hard.",
           "Start guided reflection",
           "/dashboard/guided",
         ],
         [
           "Reflection History",
-          "Review saved cards and check in on what helped.",
+          "Return to saved cards and check-ins.",
           "View history",
           "/dashboard/history",
         ],
         [
           "Pattern Summary",
-          "See repeated triggers, thought patterns, and helpful next steps.",
+          "Notice repeated triggers and next steps.",
           "View summary",
           "/dashboard/summary",
         ],
@@ -1048,7 +1044,7 @@ export const translations = {
       privacy: "Your saved reflections are connected to your account.",
       moodCheckIn: {
         title: "How are you feeling right now?",
-        subtitle: "You can start with a small check-in.",
+        subtitle: "A quick check-in before reflection.",
         options: [
           [
             "calm",
@@ -1373,8 +1369,7 @@ export const translations = {
       eyebrow: "Help us improve",
       thankYouEyebrow: "Thank you",
       title: "Share feedback",
-      purpose:
-        "Help us understand whether InnerLeaf feels clear, useful, and worth returning to.",
+      purpose: "Help us learn what felt clear, useful, or confusing.",
       thankYou: "Feedback received",
       success: "Thank you. Your feedback helps shape InnerLeaf.",
       backHome: "Back to home",
@@ -1382,8 +1377,8 @@ export const translations = {
       sending: "Sending feedback...",
       error: "Something went wrong while saving feedback.",
       saveError: "Feedback could not be saved.",
-      experience: "Your experience",
-      notes: "Optional notes",
+      experience: "Quick signals",
+      notes: "Product fit",
       basics: "Reflection flow",
       productFit: "Product fit",
       commentsTitle: "Open comments",
@@ -1551,11 +1546,10 @@ export const translations = {
         "InnerLeaf 帮你把一次强烈的情绪时刻拆解成触发点、事实、解读、思维模式，以及一个小的下一步。",
       safety: "私人自我反思空间。不是治疗，也不提供医疗建议。",
       ctaHint:
-        "想保存时再创建账号。只是想先了解产品，可以先查看演示。",
+        "创建账号进入真实流程，或先查看演示。",
       heroPills: [
         "虚构演示数据",
         "私人保存历史",
-        "简短反思卡片",
       ],
       boundary: "你始终保有主动权。InnerLeaf 不诊断、不打分，也不评判你的情绪。",
       heroMessy: "我一直在想，为什么对方这么晚才回复。",
@@ -1577,7 +1571,7 @@ export const translations = {
       storySteps: [
         [
           "写下这次时刻",
-          "可以自由写下，也可以从引导反思开始。不需要一开始就表达得很完美。",
+          "自由写下，或使用引导结构。",
           "发生了什么？",
           "你感受到什么？",
           "快速反思或引导反思",
@@ -1591,7 +1585,7 @@ export const translations = {
         ],
         [
           "回看重复出现的部分",
-          "保存卡片，稍后回看，并观察长期重复出现的模式。",
+          "保存、稍后回看，并看见模式。",
           "历史",
           "总结",
           "历史记录、模式总结和回看",
@@ -2004,7 +1998,7 @@ export const translations = {
     privacy: {
       title: "隐私与安全原则",
       purpose:
-        "InnerLeaf 当前是 MVP 测试版本，使用邮箱和密码登录。请不要输入真实姓名、地址、医疗信息，或任何你不希望被保存的内容。我们正在测试结构化反思体验，而不是收集临床数据。",
+        "InnerLeaf 当前是 MVP，使用邮箱和密码登录。请避免输入真实姓名、地址、医疗信息，或任何你不希望被保存的内容。",
       sections: [
         [
           "我的反思会保存在哪里？",
@@ -2055,8 +2049,8 @@ export const translations = {
     },
     quick: {
       title: "快速反思",
-      purpose: "直接写下一次让你情绪波动的时刻。InnerLeaf 会帮你整理清楚。",
-      moodPrompt: "先选择最接近此刻的感受。",
+      purpose: "写下一次情绪时刻。InnerLeaf 会帮你整理。",
+      moodPrompt: "此刻更接近哪种感受？",
       moodOptions: [
         {
           id: "anxious",
@@ -2100,7 +2094,7 @@ export const translations = {
     },
     guided: {
       title: "一步步反思",
-      purpose: "用温和的结构整理发生了什么、你的感受、你的解读，以及你的反应。",
+      purpose: "整理发生了什么、你的感受和反应。",
       boundary: "结构参考 CBT-style thought record。InnerLeaf 是自我反思，不是治疗。",
       quickLink: "使用快速反思",
       progress: "步骤",
@@ -2194,7 +2188,7 @@ export const translations = {
     },
     history: {
       title: "反思历史",
-      purpose: "回看保存过的反思卡片，并记录哪些下一步对你有帮助。",
+      purpose: "回看保存的卡片，并稍后回看。",
       saved: "已保存",
       latest: "最近",
       emptyTitle: "还没有保存的反思记录。",
@@ -2358,12 +2352,12 @@ export const translations = {
       workspaceBadge: "工作区",
       welcome: "欢迎回来",
       fallbackName: "InnerLeaf 用户",
-      subtitle: "开始一次新的反思，回看保存的卡片，或查看重复出现的模式。",
+      subtitle: "反思、保存，并回看模式。",
       cards: [
-        ["快速反思", "自由写下这次情绪时刻，InnerLeaf 会帮你整理。", "开始快速反思", "/dashboard/quick"],
-        ["一步步反思", "用温和结构区分事实、想法、情绪和反应。", "开始引导反思", "/dashboard/guided"],
-        ["反思历史", "回看保存的卡片，并记录哪些下一步有帮助。", "查看历史记录", "/dashboard/history"],
-        ["模式总结", "查看重复触发点、思维模式和有帮助的下一步。", "查看模式总结", "/dashboard/summary"],
+        ["快速反思", "自由写下，整理成清晰卡片。", "开始快速反思", "/dashboard/quick"],
+        ["一步步反思", "写不出来时，用结构慢慢整理。", "开始引导反思", "/dashboard/guided"],
+        ["反思历史", "回看保存的卡片和回看记录。", "查看历史记录", "/dashboard/history"],
+        ["模式总结", "看见重复触发点和下一步。", "查看模式总结", "/dashboard/summary"],
       ],
       recent: "最近的反思",
       noRecent: "还没有保存的反思记录。",
@@ -2376,7 +2370,7 @@ export const translations = {
       privacy: "你保存的反思会和你的账号关联。",
       moodCheckIn: {
         title: "你现在感觉怎么样？",
-        subtitle: "你可以先从一个小小的情绪打卡开始。",
+        subtitle: "反思前，先轻轻确认一下。",
         options: [
           [
             "calm",
@@ -2687,7 +2681,7 @@ export const translations = {
       eyebrow: "帮助我们改进",
       thankYouEyebrow: "谢谢你",
       title: "分享反馈",
-      purpose: "帮助我们了解 InnerLeaf 是否清晰、有用，以及是否值得再次使用。",
+      purpose: "帮助我们了解哪里清晰、有用或困惑。",
       thankYou: "已收到反馈",
       success: "谢谢你。你的反馈会帮助我们继续完善 InnerLeaf。",
       backHome: "返回首页",
@@ -2695,8 +2689,8 @@ export const translations = {
       sending: "正在发送反馈...",
       error: "保存反馈时出现问题。",
       saveError: "反馈未能保存。",
-      experience: "你的体验",
-      notes: "可选补充",
+      experience: "快速信号",
+      notes: "产品适合度",
       basics: "反思流程",
       productFit: "产品适合度",
       commentsTitle: "开放反馈",

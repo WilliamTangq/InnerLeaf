@@ -350,7 +350,7 @@ export function QuickReflectionContent() {
           onChange={(event) => setInput(event.target.value)}
         />
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 hidden flex-wrap gap-2 sm:flex">
           {t.quick.chips.map((chip) => (
             <span
               key={chip}
