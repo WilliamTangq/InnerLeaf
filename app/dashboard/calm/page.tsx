@@ -2,7 +2,7 @@
 
 import { Pause, Play, RotateCcw, Sparkles, Waves } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Card,
   IconFrame,
@@ -111,12 +111,17 @@ function BreathingCircle({
 export default function CalmPage() {
   const { language, t } = useLanguage();
   const [duration, setDuration] = useState(60);
-  const [remaining, setRemaining] = useState(60);
   const [elapsedMs, setElapsedMs] = useState(0);
   const [active, setActive] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const runStartedAtRef = useRef<number | null>(null);
+  const accumulatedElapsedRef = useRef(0);
+  const completedRef = useRef(false);
+  const startedRef = useRef(false);
+  const durationMs = duration * 1000;
+  const remaining = Math.max(0, Math.ceil((durationMs - elapsedMs) / 1000));
   const phase = useMemo(() => phaseFromElapsed(elapsedMs), [elapsedMs]);
-  const progress = Math.max(0, Math.min(100, ((duration - remaining) / duration) * 100));
+  const progress = Math.max(0, Math.min(100, (elapsedMs / durationMs) * 100));
   const phaseLabel = t.calm[phase.key as PhaseKey];
 
   useEffect(() => {
@@ -131,64 +136,95 @@ export default function CalmPage() {
       return;
     }
 
-    const startedAt = Date.now();
-    const startRemaining = remaining;
-    const startElapsedMs = elapsedMs;
-    let hasCompleted = false;
+    let animationFrameId = 0;
+    runStartedAtRef.current = performance.now();
 
-    const intervalId = window.setInterval(() => {
-      const passedMs = Date.now() - startedAt;
-      const nextRemaining = Math.max(
-        0,
-        startRemaining - Math.floor(passedMs / 1000)
+    function tick(now: number) {
+      const runStartedAt = runStartedAtRef.current ?? now;
+      const nextElapsed = Math.min(
+        durationMs,
+        accumulatedElapsedRef.current + (now - runStartedAt)
       );
 
-      setRemaining(nextRemaining);
-      setElapsedMs(startElapsedMs + passedMs);
+      setElapsedMs(nextElapsed);
 
-      if (nextRemaining <= 0 && !hasCompleted) {
-        hasCompleted = true;
-        window.clearInterval(intervalId);
+      if (nextElapsed >= durationMs) {
+        accumulatedElapsedRef.current = durationMs;
+        runStartedAtRef.current = null;
         setActive(false);
         setCompleted(true);
-        incrementCalmActions();
-        trackEvent("breathing_completed", {
-          locale: language,
-          duration,
-          completed: true,
-        });
-      }
-    }, 250);
 
-    return () => window.clearInterval(intervalId);
-  }, [active, duration, elapsedMs, language, remaining]);
+        if (!completedRef.current) {
+          completedRef.current = true;
+          incrementCalmActions();
+          trackEvent("breathing_completed", {
+            locale: language,
+            duration,
+            completed: true,
+          });
+        }
+
+        return;
+      }
+
+      animationFrameId = window.requestAnimationFrame(tick);
+    }
+
+    animationFrameId = window.requestAnimationFrame(tick);
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+
+      if (runStartedAtRef.current !== null) {
+        accumulatedElapsedRef.current = Math.min(
+          durationMs,
+          accumulatedElapsedRef.current +
+            (performance.now() - runStartedAtRef.current)
+        );
+        runStartedAtRef.current = null;
+      }
+    };
+  }, [active, duration, durationMs, language]);
 
   function chooseDuration(nextDuration: number) {
+    accumulatedElapsedRef.current = 0;
+    runStartedAtRef.current = null;
+    completedRef.current = false;
+    startedRef.current = false;
     setDuration(nextDuration);
-    setRemaining(nextDuration);
     setElapsedMs(0);
     setCompleted(false);
     setActive(false);
   }
 
   function startBreathing() {
-    if (remaining <= 0) {
-      setRemaining(duration);
+    if (elapsedMs >= durationMs || completed) {
+      accumulatedElapsedRef.current = 0;
+      runStartedAtRef.current = null;
+      completedRef.current = false;
+      startedRef.current = false;
       setElapsedMs(0);
       setCompleted(false);
     }
 
     setActive(true);
-    trackEvent("breathing_started", {
-      locale: language,
-      duration,
-    });
+
+    if (!startedRef.current) {
+      startedRef.current = true;
+      trackEvent("breathing_started", {
+        locale: language,
+        duration,
+      });
+    }
   }
 
   function resetBreathing() {
+    accumulatedElapsedRef.current = 0;
+    runStartedAtRef.current = null;
+    completedRef.current = false;
+    startedRef.current = false;
     setActive(false);
     setCompleted(false);
-    setRemaining(duration);
     setElapsedMs(0);
   }
 
@@ -282,10 +318,19 @@ export default function CalmPage() {
               </div>
               <span className="mt-4 block h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
                 <span
-                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))] transition-[width] duration-300"
+                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))] transition-[width] duration-200"
                   style={{ width: `${progress}%` }}
                 />
               </span>
+              <p className="mt-2 text-xs font-medium text-[var(--foreground-subtle)]">
+                {active
+                  ? phaseLabel
+                  : completed
+                    ? t.calm.complete
+                    : remaining === duration
+                      ? t.calm.start
+                      : t.calm.pause}
+              </p>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row">
