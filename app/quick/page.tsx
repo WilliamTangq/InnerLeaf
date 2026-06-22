@@ -16,7 +16,6 @@ import { trackEvent } from "../lib/analytics";
 import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
   Card,
-  LinkButton,
   LoadingCard,
   LoadingSpinner,
   PageHeader,
@@ -35,6 +34,7 @@ export function QuickReflectionContent() {
     useState<StructuredReflectionResult>(null);
   const [warning, setWarning] = useState("");
   const [error, setError] = useState("");
+  const [selectedMood, setSelectedMood] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -42,6 +42,9 @@ export function QuickReflectionContent() {
 
   const draftKey = user?.id ? `innerleaf:quick:${user.id}` : "";
   const textareaId = "quick-reflection-input";
+  const selectedMoodOption = t.quick.moodOptions.find(
+    (option) => option.id === selectedMood
+  );
 
   useEffect(() => {
     if (!draftKey) {
@@ -58,6 +61,7 @@ export function QuickReflectionContent() {
             result?: string;
             structured?: StructuredReflectionResult;
             saved?: boolean;
+            selectedMood?: string;
           })
         : null;
 
@@ -75,11 +79,13 @@ export function QuickReflectionContent() {
           setResult("");
           setStructured(null);
           setSaved(false);
+          setSelectedMood("");
         } else {
           setInput(draft?.input ?? "");
           setResult(draft?.result ?? "");
           setStructured(draft?.structured ?? null);
           setSaved(false);
+          setSelectedMood(draft?.selectedMood ?? "");
         }
         setDraftLoaded(true);
       });
@@ -118,10 +124,11 @@ export function QuickReflectionContent() {
         input,
         result,
         structured,
+        selectedMood,
         saved: false,
       })
     );
-  }, [draftKey, draftLoaded, input, result, saved, structured]);
+  }, [draftKey, draftLoaded, input, result, saved, selectedMood, structured]);
 
   const startNewReflection = useCallback(() => {
     setInput("");
@@ -129,6 +136,7 @@ export function QuickReflectionContent() {
     setStructured(null);
     setWarning("");
     setError("");
+    setSelectedMood("");
     setLoading(false);
     setSaving(false);
     setSaved(false);
@@ -239,6 +247,7 @@ export function QuickReflectionContent() {
         role_bucket: role ?? "user",
         mode: "quick",
         reflection_language: reflectionLanguage,
+        selected_mood: selectedMood || "none",
       });
       const response = await fetch("/api/reflect", {
         method: "POST",
@@ -251,6 +260,7 @@ export function QuickReflectionContent() {
           mode: "quick",
           language,
           reflectionLanguage,
+          selectedMood: selectedMood || null,
         }),
       });
 
@@ -277,6 +287,7 @@ export function QuickReflectionContent() {
         role_bucket: role ?? "user",
         mode: "quick",
         reflection_language: reflectionLanguage,
+        selected_mood: selectedMood || "none",
         structured: Boolean(nextStructured),
       });
       void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
@@ -297,12 +308,44 @@ export function QuickReflectionContent() {
         variant="elevated"
         className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.54))] hover:translate-y-0"
       >
+        <div className="mb-5 rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.64)] p-3.5 shadow-[var(--shadow-sm)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+            {t.quick.moodPrompt}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {t.quick.moodOptions.map((mood) => {
+              const isSelected = selectedMood === mood.id;
+
+              return (
+                <button
+                  key={mood.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedMood((current) =>
+                      current === mood.id ? "" : mood.id
+                    )
+                  }
+                  aria-pressed={isSelected}
+                  className={[
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                    isSelected
+                      ? "border-[rgba(31,155,143,0.3)] bg-[linear-gradient(135deg,rgba(31,155,143,0.16),rgba(217,179,74,0.16))] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+                      : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.22)] hover:text-[var(--foreground)]",
+                  ].join(" ")}
+                >
+                  {mood.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <TextareaField
           id={textareaId}
           label={t.quick.label}
-          helper={t.quick.helper}
+          helper={selectedMoodOption?.prompt ?? t.quick.helper}
           className="min-h-48 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-52"
-          placeholder={t.quick.placeholder}
+          placeholder={selectedMoodOption?.prompt ?? t.quick.placeholder}
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
@@ -362,44 +405,17 @@ export function QuickReflectionContent() {
             result={result}
             structured={structured}
             showActions={saved}
-            statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+            statusText={
+              saved
+                ? t.common.savedToReflectionHistory
+                : t.reflectionCard.generatedOnly
+            }
             saved={saved}
             saving={saving}
             autoSaved
             mode="quick"
             onReflectAgain={startNewReflection}
           />
-          {saved && (
-            <div className="mt-4 grid gap-3">
-              <Card className="hover:translate-y-0">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                      {t.feedbackPrompt.title}
-                    </h2>
-                    <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                      {t.feedbackPrompt.body}
-                    </p>
-                  </div>
-                  <LinkButton
-                    href="/feedback"
-                    variant="secondary"
-                    size="sm"
-                    onClick={() =>
-                      trackEvent("feedback_prompt_clicked", {
-                        locale: language,
-                        authenticated_state: true,
-                        role_bucket: role ?? "user",
-                        mode: "quick",
-                      })
-                    }
-                  >
-                    {t.feedbackPrompt.cta}
-                  </LinkButton>
-                </div>
-              </Card>
-            </div>
-          )}
         </>
       )}
     </div>

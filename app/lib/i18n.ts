@@ -42,6 +42,7 @@ export const translations = {
       loginToSave: "Log in to save this reflection to your history.",
       loginToStart: "Please log in to start a reflection.",
       savedToHistory: "Saved to your history.",
+      savedToReflectionHistory: "Saved to your reflection history.",
       saveToHistory: "Save to history",
       savingReflection: "Saving...",
     },
@@ -669,6 +670,39 @@ export const translations = {
       title: "Quick Reflection",
       purpose:
         "Write freely about one emotional moment. InnerLeaf will help organise it.",
+      moodPrompt: "Start with the feeling closest to this moment.",
+      moodOptions: [
+        {
+          id: "anxious",
+          label: "Anxious",
+          prompt: "What is your mind repeating right now?",
+        },
+        {
+          id: "sad",
+          label: "Sad",
+          prompt: "What felt heavy today?",
+        },
+        {
+          id: "angry",
+          label: "Angry",
+          prompt: "What felt unfair or frustrating?",
+        },
+        {
+          id: "confused",
+          label: "Confused",
+          prompt: "What feels unclear right now?",
+        },
+        {
+          id: "tired",
+          label: "Tired",
+          prompt: "What has been taking your energy?",
+        },
+        {
+          id: "hopeful",
+          label: "Hopeful",
+          prompt: "What small sign of hope did you notice?",
+        },
+      ],
       chips: [
         "What happened?",
         "What did you feel?",
@@ -1311,6 +1345,7 @@ export const translations = {
       loginToSave: "登录后可以把这条反思保存到历史记录。",
       loginToStart: "请先登录再开始反思。",
       savedToHistory: "已保存到你的历史记录。",
+      savedToReflectionHistory: "已保存到你的反思记录中。",
       saveToHistory: "保存到历史记录",
       savingReflection: "正在保存...",
     },
@@ -1925,6 +1960,39 @@ export const translations = {
     quick: {
       title: "快速反思",
       purpose: "直接写下一次让你情绪波动的时刻。InnerLeaf 会帮你整理清楚。",
+      moodPrompt: "先选择最接近此刻的感受。",
+      moodOptions: [
+        {
+          id: "anxious",
+          label: "焦虑",
+          prompt: "现在你的脑海里一直重复着什么？",
+        },
+        {
+          id: "sad",
+          label: "难过",
+          prompt: "今天哪件事让你觉得沉重？",
+        },
+        {
+          id: "angry",
+          label: "生气",
+          prompt: "什么事情让你觉得不公平或受挫？",
+        },
+        {
+          id: "confused",
+          label: "混乱",
+          prompt: "现在让你感到不清楚的是什么？",
+        },
+        {
+          id: "tired",
+          label: "疲惫",
+          prompt: "最近什么事情一直在消耗你的能量？",
+        },
+        {
+          id: "hopeful",
+          label: "有希望",
+          prompt: "你注意到了一点什么小小的希望？",
+        },
+      ],
       chips: ["发生了什么？", "你感受到什么？", "你当时怎么理解？", "你后来做了什么？"],
       label: "发生了什么？",
       helper: "几句真实的话就够了。",
