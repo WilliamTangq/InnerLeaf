@@ -4,12 +4,14 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Trash2, X } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar } from "../../../components/avatar";
 import { AdminShell } from "../../../components/admin-shell";
 import { RequireAdmin } from "../../../components/route-guards";
 import { useAuth } from "../../../components/auth-provider";
 import { useLanguage } from "../../../components/language-provider";
 import { Badge, Card, PrimaryButton, StatusCard } from "../../../components/ui";
+import { adminUserEditSchema } from "../../../lib/validation";
 
 type AdminUser = {
   id: string;
@@ -93,6 +95,10 @@ function UserDetailContent() {
     setMessage("");
 
     try {
+      const parsed = adminUserEditSchema.parse({
+        display_name: displayName,
+        role,
+      });
       const response = await fetch(`/api/admin/users/${user.id}`, {
         method: "PATCH",
         headers: {
@@ -100,8 +106,8 @@ function UserDetailContent() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          display_name: displayName,
-          role,
+          display_name: parsed.display_name ?? "",
+          role: parsed.role,
           avatar_url: removeAvatar ? "" : user.avatar_url ?? "",
           avatar_path: removeAvatar ? "" : user.avatar_path ?? "",
         }),
@@ -114,13 +120,14 @@ function UserDetailContent() {
 
       setUser({
         ...user,
-        display_name: displayName,
-        role,
+        display_name: parsed.display_name ?? "",
+        role: parsed.role,
         avatar_url: removeAvatar ? null : user.avatar_url,
         avatar_path: removeAvatar ? null : user.avatar_path,
       });
       setRemoveAvatar(false);
       setMessage(t.admin.userUpdated);
+      toast.success(t.admin.userUpdated);
     } catch {
       setError(t.admin.unavailable);
     } finally {
@@ -150,6 +157,7 @@ function UserDetailContent() {
 
       router.push("/admin/users");
       router.refresh();
+      toast.success(t.admin.deleteSuccess);
     } catch {
       setError(t.admin.deleteError);
       setSaving(false);

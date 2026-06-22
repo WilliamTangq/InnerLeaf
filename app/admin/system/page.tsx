@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { AdminShell } from "../../components/admin-shell";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
 import { Card, PrimaryButton, StatusCard } from "../../components/ui";
+import { siteSettingsSchema } from "../../lib/validation";
 
 type SystemStatus = {
   supabaseConfigured: boolean;
@@ -80,13 +82,14 @@ function SystemContent() {
     setSettingsError("");
 
     try {
+      const parsed = siteSettingsSchema.parse(siteSettings);
       const response = await fetch("/api/admin/site-settings", {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify(siteSettings),
+        body: JSON.stringify(parsed),
       });
       const data = await response.json();
 
@@ -100,6 +103,7 @@ function SystemContent() {
         logo_url: data.logo_url || "/logo.png",
       });
       setSettingsMessage(t.admin.siteSettingsSaved);
+      toast.success(t.admin.siteSettingsSaved);
     } catch {
       setSettingsError(t.admin.siteSettingsUnavailable);
     } finally {

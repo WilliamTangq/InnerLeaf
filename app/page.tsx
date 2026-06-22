@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useMemo } from "react";
+import { motion } from "motion/react";
 import {
   ArrowRight,
   Brain,
@@ -189,7 +190,7 @@ function ProductTransformation() {
   const { t } = useLanguage();
 
   return (
-    <section className="mx-auto max-w-[1240px] py-14 sm:py-20 lg:py-24">
+    <section className="mx-auto max-w-[1240px] py-12 sm:py-16 lg:py-20">
       <div className="mx-auto max-w-[42rem] text-center">
         <SectionLabel>{t.home.transformationEyebrow}</SectionLabel>
         <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight">
@@ -200,16 +201,22 @@ function ProductTransformation() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-5 lg:grid-cols-3 lg:gap-6 xl:gap-7">
+      <div className="mt-8 grid gap-4 lg:grid-cols-3 lg:gap-5 xl:gap-6">
         {t.home.storySteps.map(([title, body, , , footer], index) => {
           const Icon = transformationIcons[index];
           return (
-            <Surface
+            <motion.div
               key={title}
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.45, delay: index * 0.06, ease: "easeOut" }}
               className={[
-                "group relative flex min-h-[380px] flex-col overflow-hidden rounded-[1.8rem] p-5 transition duration-300 sm:p-6 lg:min-h-[400px]",
-                "hover:-translate-y-0.5 hover:shadow-[0_26px_82px_rgba(38,56,48,0.12)]",
-                index === 1 ? "border-[rgba(31,155,143,0.16)] shadow-[0_28px_86px_rgba(31,80,70,0.13)]" : "",
+                "group relative flex min-h-[340px] flex-col overflow-hidden rounded-[1.65rem] border bg-[rgba(255,254,248,0.80)] p-5 shadow-[var(--shadow-md)] backdrop-blur-xl transition duration-300 lg:min-h-[360px]",
+                "hover:-translate-y-0.5 hover:shadow-[0_22px_68px_rgba(38,56,48,0.11)]",
+                index === 1
+                  ? "border-[rgba(31,155,143,0.16)] shadow-[0_28px_86px_rgba(31,80,70,0.13)]"
+                  : "border-[rgba(35,70,55,0.085)]",
               ].join(" ")}
             >
               <div
@@ -238,10 +245,10 @@ function ProductTransformation() {
                 </span>
               </div>
 
-              <h3 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)]">
+              <h3 className="mt-4 text-base font-semibold tracking-tight text-[var(--foreground)]">
                 {title}
               </h3>
-              <p className="mt-2 max-w-[88%] text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-2 max-w-[92%] text-sm leading-6 text-[var(--foreground-muted)]">
                 {body}
               </p>
 
@@ -349,7 +356,7 @@ function ProductTransformation() {
                   {footer}
                 </span>
               </div>
-            </Surface>
+            </motion.div>
           );
         })}
       </div>
@@ -383,7 +390,7 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="max-w-[1320px]">
-      <section className="relative overflow-hidden rounded-[2.35rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(238,248,244,0.62)_58%,rgba(255,249,229,0.45))] px-5 py-7 shadow-[var(--shadow-xl)] sm:rounded-[3.25rem] sm:px-8 sm:py-10 lg:px-12 lg:py-12 xl:px-14">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(238,248,244,0.60)_58%,rgba(255,249,229,0.38))] px-5 py-7 shadow-[var(--shadow-lg)] sm:rounded-[2.65rem] sm:px-8 sm:py-9 lg:px-11 lg:py-11 xl:px-12">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.55),transparent_42%),radial-gradient(circle_at_55%_0%,rgba(255,255,255,0.55),transparent_28%)]"
@@ -397,7 +404,7 @@ export default function Home() {
           className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.11)] blur-3xl"
         />
 
-        <div className="relative grid gap-10 lg:grid-cols-12 lg:items-center xl:gap-12">
+        <div className="relative grid gap-9 lg:grid-cols-12 lg:items-center xl:gap-11">
           <div className="max-w-[34rem] lg:col-span-5">
             <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--foreground-muted)]">
               <BrandLogo size="sm" href={null} showWordmark={false} />
@@ -406,7 +413,7 @@ export default function Home() {
             <div className="mt-4">
               <Badge variant="accent">{t.home.badge}</Badge>
             </div>
-            <h1 className="mt-5 max-w-[500px] text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-[var(--foreground)] sm:text-[2.9rem] sm:leading-[1.03] lg:text-[3.05rem] xl:text-[3.2rem]">
+            <h1 className="mt-5 max-w-[500px] text-[2.2rem] font-semibold leading-[1.06] tracking-tight text-[var(--foreground)] sm:text-[2.75rem] sm:leading-[1.04] lg:text-[2.95rem] xl:text-[3.08rem]">
               {t.home.headline}
             </h1>
             <p className="mt-4 max-w-[30rem] text-[15px] leading-7 text-[var(--foreground-muted)] sm:text-base sm:leading-7">

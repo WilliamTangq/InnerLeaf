@@ -4,6 +4,7 @@ import Link from "next/link";
 import { HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -191,6 +192,7 @@ export function QuickReflectionContent() {
 
       setSaved(true);
       setWarning("");
+      toast.success(t.common.savedToHistory);
       trackEvent("reflection_saved", {
         locale: language,
         authenticated_state: true,
@@ -281,21 +283,24 @@ export function QuickReflectionContent() {
         {t.quick.purpose}
       </PageHeader>
 
-      <Card className="hover:translate-y-0">
+      <Card
+        variant="elevated"
+        className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.54))] hover:translate-y-0"
+      >
         <TextareaField
           label={t.quick.label}
           helper={t.quick.helper}
-          className="min-h-52 sm:min-h-56"
+          className="min-h-48 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-52"
           placeholder={t.quick.placeholder}
           value={input}
           onChange={(event) => setInput(event.target.value)}
         />
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2">
           {t.quick.chips.map((chip) => (
             <span
               key={chip}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(31,155,143,0.14)] bg-[var(--surface-muted)] px-2.5 py-1 text-xs text-[var(--foreground-muted)]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(31,155,143,0.13)] bg-[rgba(255,254,248,0.72)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground-muted)]"
             >
               <HelpCircle
                 aria-hidden="true"
@@ -308,7 +313,7 @@ export function QuickReflectionContent() {
           ))}
         </div>
 
-        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-[var(--foreground-subtle)]">
             {t.quick.guidedLinkLead}{" "}
             <Link
@@ -353,7 +358,7 @@ export function QuickReflectionContent() {
           />
           {saved && (
             <div className="mt-4 grid gap-3">
-              <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[var(--surface-muted)] p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(135deg,rgba(231,244,239,0.7),rgba(255,254,248,0.86))] p-3.5 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-sm font-medium text-[var(--brand-teal-deep)]">
                   {t.common.savedToHistory}
                 </p>

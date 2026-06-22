@@ -26,52 +26,52 @@ export function InfoPage({
         {purpose}
       </PageHeader>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3 md:grid-cols-2">
         {sections.map(([heading, content], index) => {
           const Icon = infoIcons[index % infoIcons.length];
 
           return (
-          <Card
-            key={heading}
-            className="relative overflow-hidden hover:translate-y-0"
-          >
-            <div
-              className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(31,155,143,0.10),transparent_66%)]"
-              aria-hidden="true"
-            />
-            <div className="relative flex items-start gap-4">
-              <IconFrame icon={Icon} size="sm" tone={index % 2 ? "gold" : "sage"} />
-              <div className="min-w-0 flex-1">
-                <SectionLabel>{heading}</SectionLabel>
-            {Array.isArray(content) ? (
-              <ul className="mt-4 grid gap-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {content.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <CheckCircle2
-                      aria-hidden="true"
-                      size={15}
-                      strokeWidth={1.8}
-                      className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
-                    />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-sm leading-7 text-[var(--foreground-muted)]">
-                {content}
-              </p>
-            )}
+            <Card
+              key={heading}
+              className="relative min-h-[180px] overflow-hidden hover:translate-y-0"
+            >
+              <div
+                className="pointer-events-none absolute -right-12 -top-12 h-28 w-28 rounded-full bg-[radial-gradient(circle,rgba(31,155,143,0.09),transparent_66%)]"
+                aria-hidden="true"
+              />
+              <div className="relative flex items-start gap-3.5">
+                <IconFrame icon={Icon} size="sm" tone={index % 2 ? "gold" : "sage"} />
+                <div className="min-w-0 flex-1">
+                  <SectionLabel>{heading}</SectionLabel>
+                  {Array.isArray(content) ? (
+                    <ul className="mt-3 grid gap-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {content.map((item) => (
+                        <li key={item} className="flex gap-2">
+                          <CheckCircle2
+                            aria-hidden="true"
+                            size={14}
+                            strokeWidth={1.8}
+                            className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {content}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </Card>
-        );
+            </Card>
+          );
         })}
       </div>
 
       <Card
         variant="muted"
-        className="mt-6 flex flex-col gap-4 hover:translate-y-0 sm:flex-row sm:items-center sm:justify-between"
+        className="mt-5 flex flex-col gap-4 hover:translate-y-0 sm:flex-row sm:items-center sm:justify-between"
       >
         <p className="max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
           {t.common.footer}

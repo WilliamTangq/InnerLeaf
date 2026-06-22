@@ -87,8 +87,8 @@ function UserSidebarContent({
   t: ReturnType<typeof useLanguage>["t"];
 }) {
   return (
-    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[1.7rem] p-3 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[1.85rem]">
-      <div className="mb-3 rounded-[1.35rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.58))] p-3.5 shadow-[var(--shadow-soft)]">
+    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[1.55rem] p-2.5 lg:max-h-none lg:min-h-[calc(100vh-8.25rem)] lg:rounded-[1.7rem]">
+      <div className="mb-2.5 rounded-[1.2rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.54))] p-3 shadow-[var(--shadow-sm)]">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
@@ -120,7 +120,7 @@ function UserSidebarContent({
       </div>
       <nav
         aria-label={t.app.title}
-        className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5"
+        className="flex flex-1 flex-col gap-1 overflow-y-auto pr-0.5"
       >
         {userLinks.map((link) => (
           <UserNavLink
@@ -141,7 +141,7 @@ function UserSidebarContent({
             }}
           />
         ))}
-        <div className="min-w-px border-l border-[var(--border)] lg:my-3 lg:border-l-0 lg:border-t" />
+        <div className="min-w-px border-l border-[var(--border)] lg:my-2.5 lg:border-l-0 lg:border-t" />
         <button
           type="button"
           onClick={onLogout}
@@ -223,7 +223,7 @@ export function UserShell({
         />
       </AppMobileDrawer>
 
-      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-6 px-5 py-5 sm:px-8 sm:py-7 lg:grid-cols-[252px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-5 px-4 py-4 sm:px-7 sm:py-6 lg:grid-cols-[244px_1fr]">
         <aside className="hidden lg:sticky lg:top-24 lg:z-[10] lg:block lg:self-start">
           <UserSidebarContent
             onClose={() => setSidebarOpen(false)}

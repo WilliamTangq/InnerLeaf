@@ -2,10 +2,12 @@
 
 import { CheckCircle2, Leaf, MessageSquareText, Send } from "lucide-react";
 import { useState, type FormEvent } from "react";
+import { toast } from "sonner";
 import { AnalyticsPageView } from "../components/analytics-tracker";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { trackEvent } from "../lib/analytics";
+import { feedbackSchema } from "../lib/validation";
 import {
   Card,
   IconFrame,
@@ -72,6 +74,14 @@ export default function FeedbackPage() {
     setError("");
     setSubmitted(false);
 
+    const parsed = feedbackSchema.safeParse(values);
+
+    if (!parsed.success) {
+      setError(t.feedback.error);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/feedback", {
         method: "POST",
@@ -81,7 +91,7 @@ export default function FeedbackPage() {
             ? { Authorization: `Bearer ${session.access_token}` }
             : {}),
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify(parsed.data),
       });
 
       const data = await response.json();
@@ -93,12 +103,15 @@ export default function FeedbackPage() {
 
       setSubmitted(true);
       setValues(initialValues);
+      toast.success(t.feedback.thankYou, {
+        description: t.feedback.success,
+      });
       trackEvent("feedback_submitted", {
         locale: language,
         authenticated_state: Boolean(session),
         role_bucket: role ?? "logged_out",
-        mode: values.mode_tried || "unspecified",
-        has_comments: Boolean(values.other_thoughts.trim()),
+        mode: parsed.data.mode_tried || "unspecified",
+        has_comments: Boolean(parsed.data.other_thoughts?.trim()),
       });
     } catch {
       setError(t.feedback.error);
@@ -167,7 +180,7 @@ export default function FeedbackPage() {
               </p>
             </div>
           </div>
-          <div className="mt-6 space-y-7">
+          <div className="mt-5 space-y-5">
             {experienceQuestions.map((group) => (
               <RadioGroupField
                 key={group.name}
@@ -198,7 +211,7 @@ export default function FeedbackPage() {
               </p>
             </div>
           </div>
-          <div className="mt-6 space-y-7">
+          <div className="mt-5 space-y-5">
             {productFitQuestions.map((group) => (
               <RadioGroupField
                 key={group.name}

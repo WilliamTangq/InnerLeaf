@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -290,6 +291,7 @@ export function GuidedReflectionContent() {
 
       setSaved(true);
       setWarning("");
+      toast.success(t.common.savedToHistory);
       trackEvent("reflection_saved", {
         locale: language,
         authenticated_state: true,
@@ -311,7 +313,7 @@ export function GuidedReflectionContent() {
         {t.guided.purpose}
       </PageHeader>
 
-      <div className="-mt-2 mb-6 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
+      <div className="-mt-2 mb-5 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
         <p>{t.guided.boundary}</p>
         <Link
           href="/dashboard/quick"
@@ -322,7 +324,7 @@ export function GuidedReflectionContent() {
       </div>
 
       <div
-        className="mb-4 flex items-center justify-between gap-3"
+        className="mb-3 flex items-center justify-between gap-3"
         role="tablist"
         aria-label="Reflection steps"
       >
@@ -341,7 +343,7 @@ export function GuidedReflectionContent() {
                 id={`guided-tab-${field.id}`}
                 onClick={() => setActiveStep(index)}
                 className={[
-                  "shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                  "shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
                   isActive
                     ? "btn-brand text-white shadow-none"
                     : isFilled
@@ -361,7 +363,10 @@ export function GuidedReflectionContent() {
         </span>
       </div>
 
-      <Card className="hover:translate-y-0">
+      <Card
+        variant="elevated"
+        className="border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(246,242,233,0.56))] hover:translate-y-0"
+      >
         <div
           role="tabpanel"
           id={`guided-panel-${activeField.id}`}
@@ -374,11 +379,11 @@ export function GuidedReflectionContent() {
           <TextareaField
             label={t.guided.fields[activeField.id][0]}
             helper={t.guided.fields[activeField.id][1]}
-            className="mt-3 min-h-40 sm:min-h-44"
+            className="mt-3 min-h-36 bg-[rgba(255,254,248,0.96)] sm:min-h-40"
             value={values[activeField.id]}
             onChange={(event) => updateField(activeField.id, event.target.value)}
           />
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-2.5">
             {activeStep > 0 && (
               <button
                 type="button"
@@ -400,7 +405,7 @@ export function GuidedReflectionContent() {
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-3 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-end">
+        <div className="mt-6 flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-end">
           {loading ? (
             <LoadingSpinner label={t.common.loadingGuided} />
           ) : (

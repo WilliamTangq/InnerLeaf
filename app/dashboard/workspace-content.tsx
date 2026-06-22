@@ -83,7 +83,7 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <section className="rounded-[1.45rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.68))] p-4 shadow-[var(--shadow-md)] sm:rounded-[2rem] sm:p-5">
+      <section className="rounded-[1.35rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(238,249,244,0.62))] p-4 shadow-[var(--shadow-soft)] sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
@@ -127,7 +127,7 @@ export function WorkspaceContent() {
         </Card>
       )}
 
-      <section className="mt-5 sm:mt-6">
+      <section className="mt-4 sm:mt-5">
         <div className="grid gap-3 lg:grid-cols-2">
           {t.app.cards.slice(0, 2).map(([title, description, cta, href], index) => {
             const Icon = icons[index];
@@ -139,11 +139,11 @@ export function WorkspaceContent() {
                 className={[
                   "group h-full overflow-hidden p-4 hover:-translate-y-0.5 sm:p-5",
                   index === 0
-                    ? "border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(231,244,239,0.78))] shadow-[var(--shadow-xl)]"
+                    ? "border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(231,244,239,0.78))] shadow-[var(--shadow-lg)]"
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.92)]",
                 ].join(" ")}
               >
-                <div className="flex min-h-[160px] flex-col sm:min-h-[184px]">
+                <div className="flex min-h-[152px] flex-col sm:min-h-[172px]">
                   <span
                     className={[
                       "flex h-10 w-10 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
@@ -157,7 +157,7 @@ export function WorkspaceContent() {
                   <h2 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
                     {title}
                   </h2>
-                  <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
+                  <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)] line-clamp-2">
                     {description}
                   </p>
                   <div className="mt-auto pt-4">
@@ -172,7 +172,7 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <section className="mt-3 sm:mt-4">
+      <section className="mt-3">
         <div className="grid gap-3 md:grid-cols-2">
           {t.app.cards.slice(2).map(([title, description, cta, href], index) => {
             const originalIndex = index + 2;
@@ -182,14 +182,14 @@ export function WorkspaceContent() {
               <Card
                 key={href}
                 variant="default"
-                className="h-full bg-[rgba(255,254,248,0.82)]"
+                className="h-full bg-[rgba(255,254,248,0.78)] hover:translate-y-0"
               >
                 <div className="flex items-start gap-4">
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(231,244,239,0.78)] text-[var(--brand-teal-deep)]">
                     <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                   </span>
                   <div>
-                    <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                    <h2 className="text-base font-semibold text-[var(--foreground)]">
                       {title}
                     </h2>
                     <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -211,7 +211,7 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <div className="mt-5 grid gap-3 lg:grid-cols-2">
+      <div className="mt-4 grid gap-3 lg:grid-cols-2">
         <Card variant="muted" className="hover:translate-y-0">
           <SectionLabel>{t.app.recent}</SectionLabel>
           {recent ? (

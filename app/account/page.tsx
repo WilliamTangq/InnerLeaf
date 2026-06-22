@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { AdminShell } from "../components/admin-shell";
 import { Avatar } from "../components/avatar";
@@ -16,6 +17,7 @@ import {
   PrimaryButton,
   StatusCard,
 } from "../components/ui";
+import { passwordUpdateSchema, profileSchema } from "../lib/validation";
 
 const avatarTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const maxAvatarSize = 2 * 1024 * 1024;
@@ -74,17 +76,18 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
     setProfileStatus("saving");
 
     try {
+      const parsed = profileSchema.parse({
+        display_name: displayName,
+        avatar_url: avatarUrl,
+        avatar_path: avatarPath,
+      });
       const response = await fetch("/api/account/update-profile", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          display_name: displayName,
-          avatar_url: avatarUrl,
-          avatar_path: avatarPath,
-        }),
+        body: JSON.stringify(parsed),
       });
 
       if (!response.ok) {
@@ -93,6 +96,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
 
       await refreshProfile();
       setProfileStatus("saved");
+      toast.success(t.account.profileUpdated);
     } catch {
       setProfileStatus("error");
     }
@@ -124,6 +128,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
     setAvatarUrl(nextUrl);
     setAvatarPath(nextPath);
     await refreshProfile();
+    toast.success(t.account.avatarUpdated);
     return true;
   }
 
@@ -223,14 +228,17 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
     event.preventDefault();
     setPasswordError("");
 
-    if (newPassword !== confirmPassword) {
-      setPasswordError(t.auth.passwordsMismatch);
-      setPasswordStatus("error");
-      return;
-    }
+    const parsed = passwordUpdateSchema.safeParse({
+      password: newPassword,
+      confirm: confirmPassword,
+    });
 
-    if (newPassword.length < 6) {
-      setPasswordError(t.auth.passwordLength);
+    if (!parsed.success) {
+      setPasswordError(
+        parsed.error.issues[0]?.path[0] === "confirm"
+          ? t.auth.passwordsMismatch
+          : t.auth.passwordLength
+      );
       setPasswordStatus("error");
       return;
     }
@@ -255,6 +263,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
     setNewPassword("");
     setConfirmPassword("");
     setPasswordStatus("saved");
+    toast.success(t.account.passwordUpdated);
   }
 
   async function logOut() {
@@ -271,9 +280,9 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
         </PageHeader>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
         <Card variant="elevated" className="hover:translate-y-0">
-          <form onSubmit={updateProfile} className="space-y-5">
+          <form onSubmit={updateProfile} className="space-y-4">
             <div className="flex items-start gap-4">
               <Avatar
                 avatarUrl={avatarUrl}
@@ -284,23 +293,23 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
                 size="2xl"
               />
               <div>
-                <h2 className="text-lg font-semibold text-[var(--foreground)]">
+                <h2 className="text-base font-semibold text-[var(--foreground)]">
                   {t.account.profile}
                 </h2>
-                <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--foreground-muted)]">
                   {t.account.privacy}
                 </p>
               </div>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(246,242,233,0.58)] p-3.5">
               <p className="text-sm font-medium text-[var(--foreground)]">
                 {t.account.avatar}
               </p>
               <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
                 {t.account.avatarHint}
               </p>
-              <div className="mt-4 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -356,7 +365,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
               />
             </label>
 
-            <dl className="grid gap-3 sm:grid-cols-2">
+            <dl className="grid gap-2.5 sm:grid-cols-2">
               <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3">
                 <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
                   {t.account.email}
@@ -398,10 +407,10 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
           </form>
         </Card>
 
-        <div className="space-y-5">
+        <div className="space-y-4">
           <Card className="hover:translate-y-0">
             <form onSubmit={updatePassword} className="space-y-4">
-              <h2 className="text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="text-base font-semibold text-[var(--foreground)]">
                 {t.account.password}
               </h2>
               <label className="block">
@@ -439,7 +448,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
           </Card>
 
           <Card className="hover:translate-y-0">
-            <h2 className="text-lg font-semibold text-[var(--foreground)]">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">
               {t.account.logout}
             </h2>
             <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -452,7 +461,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
           {isAdmin && (
             <Card className="border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] hover:translate-y-0">
               <Badge variant="accent">{t.auth.admin}</Badge>
-              <h2 className="mt-3 text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
                 {t.account.adminAccount}
               </h2>
               <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">

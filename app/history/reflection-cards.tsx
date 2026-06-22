@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { Badge, Card, IconFrame, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
@@ -453,6 +454,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
       setSavedAt(new Date().toISOString());
       setStatus("saved");
       setShowForm(true);
+      toast.success(t.history.checkInSaved);
       trackEvent("check_in_completed", {
         locale: language,
         authenticated_state: Boolean(session),

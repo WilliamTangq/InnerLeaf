@@ -12,12 +12,14 @@ import {
   UsersRound,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { AdminShell } from "../../components/admin-shell";
 import { Avatar } from "../../components/avatar";
 import { RequireAdmin } from "../../components/route-guards";
 import { useAuth } from "../../components/auth-provider";
 import { useLanguage } from "../../components/language-provider";
 import { Card, SectionLabel, StatusCard } from "../../components/ui";
+import { adminUserEditSchema } from "../../lib/validation";
 
 type AdminUser = {
   id: string;
@@ -198,6 +200,10 @@ function AdminUsersContent() {
 
     try {
       const current = users.find((item) => item.id === userId);
+      const parsed = adminUserEditSchema.parse({
+        role: updates.role ?? current?.role ?? "user",
+        display_name: updates.display_name ?? current?.display_name ?? "",
+      });
       const response = await fetch(`/api/admin/users/${userId}`, {
         method: "PATCH",
         headers: {
@@ -205,8 +211,8 @@ function AdminUsersContent() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          role: updates.role ?? current?.role ?? "user",
-          display_name: updates.display_name ?? current?.display_name ?? "",
+          role: parsed.role,
+          display_name: parsed.display_name ?? "",
           avatar_url:
             "avatar_url" in updates
               ? updates.avatar_url
@@ -229,6 +235,7 @@ function AdminUsersContent() {
         )
       );
       setMessage(t.admin.userUpdated);
+      toast.success(t.admin.userUpdated);
     } catch {
       setError(t.admin.unavailable);
     } finally {
@@ -292,6 +299,7 @@ function AdminUsersContent() {
       setDeleteTarget(null);
       setDeleteConfirmation("");
       setMessage(t.admin.deleteSuccess);
+      toast.success(t.admin.deleteSuccess);
     } catch {
       setError(t.admin.deleteError);
     } finally {

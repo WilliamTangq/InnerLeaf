@@ -12,6 +12,13 @@ import { BrandLogo } from "./brand-logo";
 import { NavLinks } from "./nav-links";
 import { useLanguage } from "./language-provider";
 import { useAuth } from "./auth-provider";
+import {
+  badgeVariants,
+  buttonVariants,
+  ShadButton,
+  ShadCard,
+} from "./ui/primitives";
+import { cn } from "../lib/utils";
 
 function cx(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
@@ -242,7 +249,7 @@ export function PageShell({
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
       <TopNav />
-      <main className={cx("mx-auto w-full flex-1 px-5 py-9 sm:px-8 sm:py-12", maxWidth)}>
+      <main className={cx("mx-auto w-full flex-1 px-5 py-8 sm:px-8 sm:py-11", maxWidth)}>
         {children}
       </main>
       <Footer />
@@ -264,15 +271,15 @@ export function PageHeader({
   return (
     <section className={compact ? "mb-6" : "mb-8"}>
       {eyebrow && (
-        <p className="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
+        <p className="mb-2.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
           {eyebrow}
         </p>
       )}
-      <h1 className="text-3xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight">
+      <h1 className="max-w-3xl text-[1.85rem] font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.05rem] sm:leading-tight">
         {title}
       </h1>
       {children && (
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] sm:text-[15px] sm:leading-7">
+        <p className="mt-2.5 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
           {children}
         </p>
       )}
@@ -288,7 +295,7 @@ export function PageActions({
   className?: string;
 }) {
   return (
-    <div className={cx("mb-6 flex flex-wrap items-center gap-2.5", className)}>
+    <div className={cx("mb-5 flex flex-wrap items-center gap-2.5", className)}>
       {children}
     </div>
   );
@@ -304,20 +311,9 @@ export function Card({
   variant?: "default" | "muted" | "elevated";
 }) {
   return (
-    <div
-      className={cx(
-        "rounded-[calc(var(--radius-xl)+6px)] border p-4 sm:p-5",
-        variant === "default" &&
-          "border-[rgba(40,80,60,0.095)] bg-[rgba(255,254,248,0.9)] shadow-[var(--shadow-md)] transition duration-200",
-        variant === "muted" &&
-          "border-[rgba(40,80,60,0.075)] bg-[rgba(246,242,233,0.68)]",
-        variant === "elevated" &&
-          "border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.94)] shadow-[var(--shadow-lg)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.22)]",
-        className
-      )}
-    >
+    <ShadCard variant={variant} className={className}>
       {children}
-    </div>
+    </ShadCard>
   );
 }
 
@@ -330,15 +326,7 @@ export function Badge({
 }) {
   return (
     <span
-      className={cx(
-        "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
-        variant === "neutral" &&
-          "bg-[var(--surface-muted)] text-[var(--foreground-muted)]",
-        variant === "accent" &&
-          "border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]",
-        variant === "outline" &&
-          "border border-[var(--border)] text-[var(--foreground-muted)]"
-      )}
+      className={badgeVariants({ variant })}
     >
       {children}
     </span>
@@ -353,15 +341,10 @@ export function PrimaryButton({
   size?: "sm" | "md" | "lg";
 }) {
   return (
-    <button
-      className={cx(
-        "btn-brand inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px disabled:cursor-not-allowed",
-        "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-        size === "sm" && "px-3.5 py-1.5 text-sm",
-        size === "md" && "px-[1.125rem] py-2.5 text-sm",
-        size === "lg" && "px-5 py-3 text-[15px]",
-        className
-      )}
+    <ShadButton
+      className={className}
+      size={size}
+      variant="primary"
       {...props}
     />
   );
@@ -386,18 +369,7 @@ export function LinkButton({
     <Link
       href={href}
       onClick={onClick}
-      className={cx(
-        "inline-flex items-center justify-center rounded-full font-semibold transition duration-200 active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-        className,
-        size === "sm" && "px-3.5 py-1.5 text-sm",
-        size === "md" && "px-[1.125rem] py-2.5 text-sm",
-        size === "lg" && "px-5 py-3 text-[15px]",
-        variant === "primary" && "btn-brand text-white",
-        variant === "secondary" &&
-          "border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.86)] text-[var(--foreground)] shadow-[var(--shadow-sm)] hover:border-[var(--border-strong)] hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)]",
-        variant === "ghost" &&
-          "text-[var(--foreground-muted)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
-      )}
+      className={cn(buttonVariants({ variant, size }), className)}
     >
       {children}
     </Link>
@@ -493,7 +465,7 @@ export function StatusCard({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-lg)] border px-4 py-3 text-sm leading-6 shadow-[var(--shadow-sm)]",
+        "rounded-[var(--radius-lg)] border px-3.5 py-2.5 text-sm leading-6 shadow-[var(--shadow-sm)]",
         tone === "neutral" &&
           "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground-muted)]",
         tone === "warning" &&
@@ -521,23 +493,23 @@ export function EmptyState({
   icon?: VisualIcon;
 }) {
   return (
-    <Card className="brand-panel relative overflow-hidden text-center sm:text-left">
+    <Card className="brand-panel relative overflow-hidden text-center hover:translate-y-0 sm:text-left">
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.16),transparent_64%)]"
         aria-hidden="true"
       />
-      <div className="mx-auto mb-5 sm:mx-0">
+      <div className="mx-auto mb-4 sm:mx-0">
         {icon ? (
           <IconFrame icon={icon} size="lg" tone="sage" />
         ) : (
           <BrandLogo size="lg" href={null} showWordmark={false} />
         )}
       </div>
-      <h2 className="text-lg font-semibold text-[var(--foreground)]">{title}</h2>
+      <h2 className="text-base font-semibold text-[var(--foreground)]">{title}</h2>
       <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
         {description}
       </p>
-      {action && <div className="mt-6">{action}</div>}
+      {action && <div className="mt-5">{action}</div>}
     </Card>
   );
 }
@@ -550,7 +522,7 @@ export function StatChip({
   value: string;
 }) {
   return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)]">
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.82)] shadow-[var(--shadow-sm)]">
       <div className="h-0.5" style={{ background: "var(--brand-gradient)" }} />
       <div className="px-4 py-3">
         <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">

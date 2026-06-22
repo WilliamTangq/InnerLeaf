@@ -7,7 +7,6 @@ import {
   EmptyState,
   IconFrame,
   LinkButton,
-  MiniBar,
   MiniSparkline,
   PageActions,
   PageHeader,
@@ -378,8 +377,11 @@ function SummaryNarrativeCard({
   ];
 
   return (
-    <Card variant="elevated" className="hover:translate-y-0">
-      <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
+    <Card
+      variant="elevated"
+      className="border-[rgba(31,155,143,0.15)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(238,249,244,0.58))] hover:translate-y-0"
+    >
+      <div className="grid gap-4 lg:grid-cols-[1fr_248px]">
         <div>
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
@@ -392,16 +394,16 @@ function SummaryNarrativeCard({
             </div>
             <IconFrame icon={Leaf} size="md" />
           </div>
-          <dl className="grid gap-2">
+          <dl className="grid gap-2 md:grid-cols-2">
             {rows.map(([label, text]) => (
               <div
                 key={label}
-                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3.5 py-2.5"
+                className="rounded-[var(--radius-lg)] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.62)] px-3.5 py-2.5"
               >
                 <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
                   {label}
                 </dt>
-                <dd className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                <dd className="mt-1 line-clamp-3 text-sm leading-6 text-[var(--foreground-muted)]">
                   {text}
                 </dd>
               </div>
@@ -409,7 +411,7 @@ function SummaryNarrativeCard({
           </dl>
         </div>
 
-        <div className="rounded-[1.35rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.54),rgba(255,254,248,0.82))] p-4">
+        <div className="rounded-[1.25rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.54),rgba(255,254,248,0.82))] p-3.5">
           <h2 className="text-base font-semibold text-[var(--foreground)]">
             {t.common.insights}
           </h2>
@@ -481,11 +483,11 @@ function InsightPatternList({
         </div>
         <IconFrame icon={BarChart3} size="sm" />
       </div>
-      <ul className="mt-4 space-y-2">
+      <ul className="mt-3 space-y-2">
         {items.map((item) => (
             <li
               key={item.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3.5 py-2.5"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.62)] px-3.5 py-2.5"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-medium leading-6 text-[var(--foreground)]">
@@ -495,14 +497,12 @@ function InsightPatternList({
                   {item.count}×
                 </span>
               </div>
-              <div className="mt-2.5">
-                <MiniBar
-                  label={item.value}
-                  value={item.count}
-                  max={maxCount}
-                  detail={`${item.count}×`}
+              <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-muted)]">
+                <span
+                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))]"
+                  style={{ width: `${Math.max(12, (item.count / maxCount) * 100)}%` }}
                 />
-              </div>
+              </span>
             </li>
         ))}
       </ul>

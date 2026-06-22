@@ -13,6 +13,13 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+} from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { AdminMetricCard, AdminShell } from "../../components/admin-shell";
 import { useAuth } from "../../components/auth-provider";
@@ -124,37 +131,32 @@ function ActivityTrendChart({
 }: {
   data: MetricsResponse["activityTrend"];
 }) {
-  const max = Math.max(
-    ...data.flatMap((item) => [item.users, item.reflections, item.feedback]),
-    1
-  );
-
   return (
     <div className="rounded-[1.25rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.42),rgba(255,254,248,0.84))] p-3.5">
-      <div className="flex h-32 items-end gap-2">
-        {data.map((item) => (
-          <div key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-            <div className="flex h-24 w-full items-end justify-center gap-1">
-              {[
-                ["users", item.users, "bg-[rgba(31,155,143,0.72)]"],
-                ["reflections", item.reflections, "bg-[rgba(217,179,74,0.72)]"],
-                ["feedback", item.feedback, "bg-[rgba(80,97,90,0.46)]"],
-              ].map(([key, value, className]) => (
-                <span
-                  key={key}
-                  title={`${key}: ${value}`}
-                  className={`w-2.5 rounded-full ${className}`}
-                  style={{
-                    height: `${Math.max(8, ((value as number) / max) * 100)}%`,
-                  }}
-                />
-              ))}
-            </div>
-            <span className="truncate text-[10px] font-medium text-[var(--foreground-subtle)]">
-              {item.label}
-            </span>
-          </div>
-        ))}
+      <div className="h-32">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} barGap={3} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
+            <XAxis
+              dataKey="label"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "rgba(80,97,90,0.72)", fontSize: 10 }}
+            />
+            <Tooltip
+              cursor={{ fill: "rgba(31,155,143,0.06)" }}
+              contentStyle={{
+                borderRadius: 14,
+                border: "1px solid rgba(40,80,60,0.12)",
+                background: "rgb(255,254,248)",
+                boxShadow: "0 16px 48px rgba(20,35,28,0.12)",
+                fontSize: 12,
+              }}
+            />
+            <Bar dataKey="users" fill="rgba(31,155,143,0.72)" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="reflections" fill="rgba(217,179,74,0.72)" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="feedback" fill="rgba(80,97,90,0.46)" radius={[6, 6, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
       <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--foreground-subtle)]">
         <span className="inline-flex items-center gap-1.5">

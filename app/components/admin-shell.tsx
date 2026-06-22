@@ -86,8 +86,8 @@ function AdminSidebarContent({
   t: ReturnType<typeof useLanguage>["t"];
 }) {
   return (
-    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[1.7rem] p-3 lg:max-h-none lg:min-h-[calc(100vh-8.5rem)] lg:rounded-[1.85rem]">
-      <div className="mb-3 rounded-[1.3rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.54))] p-3.5 shadow-[var(--shadow-sm)]">
+    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[1.55rem] p-2.5 lg:max-h-none lg:min-h-[calc(100vh-8.25rem)] lg:rounded-[1.7rem]">
+      <div className="mb-2.5 rounded-[1.2rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.54))] p-3 shadow-[var(--shadow-sm)]">
         <div className="flex items-start justify-between gap-3">
           <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
             <ShieldCheck aria-hidden="true" size={17} strokeWidth={1.8} />
@@ -116,7 +116,7 @@ function AdminSidebarContent({
 
       <nav
         aria-label={t.admin.consoleTitle}
-        className="flex flex-1 flex-col gap-1.5 overflow-y-auto pr-0.5"
+        className="flex flex-1 flex-col gap-1 overflow-y-auto pr-0.5"
       >
         {adminLinks.map((link) => (
           <AdminNavLink
@@ -143,7 +143,7 @@ export function AdminMetricCard({
   icon: IconType;
 }) {
   return (
-    <div className="rounded-[1.15rem] border border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.9)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
+    <div className="rounded-[1.05rem] border border-[rgba(40,80,60,0.085)] bg-[rgba(255,254,248,0.88)] p-3 shadow-[var(--shadow-sm)] sm:p-3.5">
       <div className="mb-2.5 flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
         <Icon aria-hidden="true" size={15} strokeWidth={1.8} />
       </div>
@@ -215,7 +215,7 @@ export function AdminShell({
           t={t}
         />
       </AppMobileDrawer>
-      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-6 px-5 py-5 sm:px-8 sm:py-7 lg:grid-cols-[252px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-5 px-4 py-4 sm:px-7 sm:py-6 lg:grid-cols-[244px_1fr]">
         <aside className="hidden lg:sticky lg:top-24 lg:z-[10] lg:block lg:self-start">
           <AdminSidebarContent
             onClose={() => setSidebarOpen(false)}
@@ -226,7 +226,7 @@ export function AdminShell({
         </aside>
 
         <section className={["w-full pb-8", maxWidth].join(" ")}>
-          <div className="mb-4 rounded-[1.45rem] border border-[rgba(31,92,70,0.12)] bg-[linear-gradient(135deg,rgba(250,255,240,0.88),rgba(255,254,248,0.92))] p-4 shadow-[var(--shadow-md)] sm:mb-5 sm:rounded-[1.75rem] sm:p-5">
+          <div className="mb-4 rounded-[1.3rem] border border-[rgba(31,92,70,0.11)] bg-[linear-gradient(135deg,rgba(250,255,240,0.84),rgba(255,254,248,0.92))] p-4 shadow-[var(--shadow-soft)] sm:mb-5">
             <div className="mb-2.5 flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
                 {eyebrow || t.admin.secureManagement}
@@ -235,7 +235,7 @@ export function AdminShell({
                 {t.admin.title}
               </span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.8rem]">
+            <h1 className="text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[1.7rem]">
               {title}
             </h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--foreground-muted)]">

@@ -4,10 +4,17 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Leaf } from "lucide-react";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { toast } from "sonner";
 import { useLanguage } from "./language-provider";
 import { supabaseBrowser } from "../lib/supabase-client";
 import { normalizeRole, resolveRoleAwareNextPath } from "../lib/routes";
 import { trackEvent } from "../lib/analytics";
+import {
+  loginSchema,
+  passwordUpdateSchema,
+  registerSchema,
+  resetEmailSchema,
+} from "../lib/validation";
 import { Card, PageHeader, PageShell, PrimaryButton, StatusCard } from "./ui";
 
 function nextPath(value: string | null) {
@@ -59,10 +66,6 @@ async function roleAwareRedirect(next: string | null): Promise<string> {
   return resolveRoleAwareNextPath(next, normalizeRole(await roleForCurrentSession()));
 }
 
-function emailLooksValid(value: string) {
-  return /\S+@\S+\.\S+/.test(value);
-}
-
 function isRateLimitError(error: unknown) {
   if (!error || typeof error !== "object") {
     return false;
@@ -77,6 +80,21 @@ function isRateLimitError(error: unknown) {
     text.includes("rate_limit") ||
     text.includes("over_email_send_rate_limit")
   );
+}
+
+function authValidationMessage(
+  field: PropertyKey | undefined,
+  t: ReturnType<typeof useLanguage>["t"]
+) {
+  if (field === "email") {
+    return t.auth.validEmail;
+  }
+
+  if (field === "confirm") {
+    return t.auth.passwordsMismatch;
+  }
+
+  return t.auth.passwordLength;
 }
 
 function useCooldown() {
@@ -200,13 +218,10 @@ export function LoginForm() {
       role_bucket: "logged_out",
     });
 
-    if (!emailLooksValid(email)) {
-      setError(t.auth.validEmail);
-      return;
-    }
+    const parsed = loginSchema.safeParse({ email, password });
 
-    if (password.length < 6) {
-      setError(t.auth.passwordLength);
+    if (!parsed.success) {
+      setError(authValidationMessage(parsed.error.issues[0]?.path[0], t));
       return;
     }
 
@@ -233,6 +248,9 @@ export function LoginForm() {
       locale: language,
       authenticated_state: true,
       role_bucket: nextRole,
+    });
+    toast.success(t.auth.loginButton, {
+      description: t.auth.loginSubtitle,
     });
     router.push(resolveRoleAwareNextPath(next, normalizeRole(nextRole)));
     router.refresh();
@@ -311,18 +329,10 @@ export function RegisterForm() {
       role_bucket: "logged_out",
     });
 
-    if (!emailLooksValid(email)) {
-      setError(t.auth.validEmail);
-      return;
-    }
+    const parsed = registerSchema.safeParse({ email, password, confirm });
 
-    if (password.length < 6) {
-      setError(t.auth.passwordLength);
-      return;
-    }
-
-    if (password !== confirm) {
-      setError(t.auth.passwordsMismatch);
+    if (!parsed.success) {
+      setError(authValidationMessage(parsed.error.issues[0]?.path[0], t));
       return;
     }
 
@@ -358,6 +368,9 @@ export function RegisterForm() {
         role_bucket: nextRole,
         email_confirmation_required: false,
       });
+      toast.success(t.auth.registerButton, {
+        description: t.auth.registerSubtitle,
+      });
       router.push(resolveRoleAwareNextPath(next, normalizeRole(nextRole)));
       router.refresh();
       return;
@@ -370,6 +383,7 @@ export function RegisterForm() {
       email_confirmation_required: true,
     });
     setMessage(t.auth.checkEmail);
+    toast.success(t.auth.checkEmail);
   }
 
   return (
@@ -462,7 +476,9 @@ export function ResetPasswordForm() {
     setError("");
     setMessage("");
 
-    if (!emailLooksValid(email)) {
+    const parsed = resetEmailSchema.safeParse({ email });
+
+    if (!parsed.success) {
       setError(t.auth.validEmail);
       return;
     }
@@ -491,6 +507,7 @@ export function ResetPasswordForm() {
     }
 
     setMessage(t.auth.resetSent);
+    toast.success(t.auth.resetSent);
   }
 
   async function updatePassword(event: FormEvent<HTMLFormElement>) {
@@ -498,13 +515,10 @@ export function ResetPasswordForm() {
     setError("");
     setMessage("");
 
-    if (password.length < 6) {
-      setError(t.auth.passwordLength);
-      return;
-    }
+    const parsed = passwordUpdateSchema.safeParse({ password, confirm });
 
-    if (password !== confirm) {
-      setError(t.auth.passwordsMismatch);
+    if (!parsed.success) {
+      setError(authValidationMessage(parsed.error.issues[0]?.path[0], t));
       return;
     }
 
@@ -526,6 +540,7 @@ export function ResetPasswordForm() {
     }
 
     setMessage(t.auth.passwordUpdated);
+    toast.success(t.auth.passwordUpdated);
   }
 
   return (
