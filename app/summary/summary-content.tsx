@@ -1,7 +1,25 @@
 "use client";
 
-import { BarChart3, CheckCircle2, Footprints, Leaf, RefreshCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  BarChart3,
+  Footprints,
+  Leaf,
+  LineChart as LineChartIcon,
+  RefreshCcw,
+} from "lucide-react";
+import { motion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import {
   Card,
   EmptyState,
@@ -41,6 +59,13 @@ type SummaryReflection = {
   follow_up_at: string | null;
 };
 
+type SummaryItem = {
+  value: string;
+  count: number;
+};
+
+type SummaryIcon = typeof BarChart3;
+
 function topPatterns(values: string[]) {
   const counts = new Map<string, number>();
 
@@ -70,6 +95,321 @@ function recentActivityTrend(reflections: SummaryReflection[]) {
       return created >= day && created < next;
     }).length;
   });
+}
+
+function MotionBlock({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function QuietTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ value?: number }>;
+  label?: string;
+}) {
+  if (!active || !payload?.length) {
+    return null;
+  }
+
+  return (
+    <div className="rounded-xl border border-[var(--border)] bg-[rgba(255,254,248,0.96)] px-3 py-2 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-soft)]">
+      {label}: {payload[0]?.value ?? 0}×
+    </div>
+  );
+}
+
+function SummaryBlockShell({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: SummaryIcon;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <Card className="h-full rounded-[28px] border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.9)] shadow-[0_18px_55px_rgba(20,35,28,0.055)] hover:-translate-y-0.5">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {title}
+          </h2>
+          <p className="mt-1 max-w-md text-sm leading-6 text-[var(--foreground-subtle)]">
+            {description}
+          </p>
+        </div>
+        <IconFrame icon={icon} size="sm" />
+      </div>
+      {children}
+    </Card>
+  );
+}
+
+function LowDataState({
+  icon,
+  children,
+}: {
+  icon: SummaryIcon;
+  children: ReactNode;
+}) {
+  return (
+    <div className="mt-5 rounded-[22px] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(231,244,239,0.52),rgba(255,254,248,0.82))] p-4">
+      <div className="flex gap-3">
+        <IconFrame icon={icon} size="sm" />
+        <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+          {children}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RankedChartBlock({
+  icon,
+  title,
+  description,
+  items,
+  lowDataText,
+}: {
+  icon: SummaryIcon;
+  title: string;
+  description: string;
+  items: SummaryItem[];
+  lowDataText: string;
+}) {
+  const maxCount = Math.max(...items.map((item) => item.count), 1);
+  const chartData = items.slice(0, 5).map((item) => ({
+    name: item.value,
+    count: item.count,
+  }));
+
+  return (
+    <SummaryBlockShell icon={icon} title={title} description={description}>
+      {chartData.length === 0 ? (
+        <LowDataState icon={icon}>{lowDataText}</LowDataState>
+      ) : (
+        <div className="mt-5">
+          <div className="h-[150px] overflow-hidden rounded-[22px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.58)] p-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                layout="vertical"
+                margin={{ top: 4, right: 8, bottom: 4, left: 0 }}
+              >
+                <XAxis type="number" hide domain={[0, maxCount]} />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  width={132}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "rgba(45,61,52,0.62)" }}
+                />
+                <Tooltip content={<QuietTooltip />} cursor={{ fill: "rgba(31,155,143,0.045)" }} />
+                <Bar
+                  dataKey="count"
+                  radius={[0, 9, 9, 0]}
+                  fill="rgba(31,155,143,0.58)"
+                  animationDuration={650}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {chartData.map((item, index) => (
+              <span
+                key={item.name}
+                className="rounded-full border border-[rgba(31,155,143,0.15)] bg-[rgba(255,254,248,0.74)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]"
+              >
+                #{index + 1} {item.name} · {item.count}×
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </SummaryBlockShell>
+  );
+}
+
+function HelpfulCheckInBlock({
+  nextSteps,
+  checkInSignals,
+  checkInCount,
+}: {
+  nextSteps: Array<{ value: string; used: number; helped: number }>;
+  checkInSignals: SummaryItem[];
+  checkInCount: number;
+}) {
+  const { language, t } = useLanguage();
+
+  return (
+    <SummaryBlockShell
+      icon={Footprints}
+      title={t.summary.helpfulSteps}
+      description={t.summary.helpfulStepsDesc}
+    >
+      <div className="mt-5 grid gap-3 md:grid-cols-2">
+        <div className="rounded-[22px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3.5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+            {t.summary.helpfulSteps}
+          </p>
+          {nextSteps.length === 0 ? (
+            <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.summary.checkInEmpty}
+            </p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              {nextSteps.map((item) => (
+                <div
+                  key={item.value}
+                  className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.72)] px-3 py-2"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-sm font-semibold text-[var(--foreground)]">
+                      {localizedCanonicalLabel(item.value, language)}
+                    </span>
+                    <span className="text-xs text-[var(--foreground-subtle)]">
+                      {item.used}×
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
+                    {t.summary.markedHelpful} {item.helped} {t.summary.times}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-[22px] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.54),rgba(255,254,248,0.78))] p-3.5">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+            {t.summary.checkInSignals}
+          </p>
+          {checkInCount === 0 ? (
+            <LowDataState icon={RefreshCcw}>
+              {t.summary.checkInEmpty}
+            </LowDataState>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {checkInSignals.map((item) => (
+                <span
+                  key={item.value}
+                  className="rounded-full border border-[rgba(31,155,143,0.17)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+                >
+                  {item.value} · {item.count}×
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </SummaryBlockShell>
+  );
+}
+
+function ActivityRhythmBlock({
+  trendValues,
+  reflectionCount,
+  checkInCount,
+}: {
+  trendValues: number[];
+  reflectionCount: number;
+  checkInCount: number;
+}) {
+  const { language, t } = useLanguage();
+  const recentTotal = trendValues.reduce((sum, value) => sum + value, 0);
+  const data = trendValues.map((value, index) => ({
+    day: `${index + 1}`,
+    value,
+  }));
+  const caption =
+    recentTotal === 0
+      ? language === "zh"
+        ? "保存几张反思卡片后，这里会显示你的近期节奏。"
+        : "Save a few reflection cards to see your recent rhythm here."
+      : recentTotal >= 3
+        ? language === "zh"
+          ? "这周已经有几个情绪时刻可以回看。"
+          : "You have a few moments from this week to compare."
+        : language === "zh"
+          ? "再保存几张卡片后，节奏会更清楚。"
+          : "A few more saved cards will make the rhythm clearer.";
+
+  return (
+    <SummaryBlockShell
+      icon={LineChartIcon}
+      title={language === "zh" ? "近期反思节奏" : "Recent reflection rhythm"}
+      description={
+        language === "zh"
+          ? "轻量显示最近保存反思的节奏。"
+          : "A quiet view of how often reflection has been happening recently."
+      }
+    >
+      <div className="mt-5 rounded-[22px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3">
+        {recentTotal === 0 ? (
+          <LowDataState icon={LineChartIcon}>{caption}</LowDataState>
+        ) : (
+          <div className="h-[126px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data} margin={{ top: 12, right: 8, bottom: 4, left: 8 }}>
+                <CartesianGrid
+                  vertical={false}
+                  stroke="rgba(40,80,60,0.08)"
+                  strokeDasharray="3 5"
+                />
+                <XAxis dataKey="day" hide />
+                <YAxis hide domain={[0, "dataMax + 1"]} />
+                <Tooltip content={<QuietTooltip />} cursor={{ stroke: "rgba(31,155,143,0.12)" }} />
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="rgba(17,111,104,0.72)"
+                  strokeWidth={3}
+                  dot={{ r: 3, fill: "rgba(17,111,104,0.72)", strokeWidth: 0 }}
+                  activeDot={{ r: 4, fill: "rgba(17,111,104,0.9)", strokeWidth: 0 }}
+                  animationDuration={650}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        )}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <span className="rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--brand-teal-deep)]">
+          {recentTotal} {language === "zh" ? "近 7 天" : "last 7 days"}
+        </span>
+        <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
+          {reflectionCount} {t.history.saved}
+        </span>
+        <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
+          {checkInCount} {t.history.checkedIn}
+        </span>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+        {caption}
+      </p>
+    </SummaryBlockShell>
+  );
 }
 
 function SummaryNarrativeCard({
@@ -201,243 +541,6 @@ function SummaryNarrativeCard({
   );
 }
 
-function InsightPatternList({
-  title,
-  description,
-  items,
-}: {
-  title: string;
-  description: string;
-  items: Array<{ value: string; count: number }>;
-}) {
-  if (items.length === 0) {
-    return null;
-  }
-
-  const maxCount = Math.max(...items.map((item) => item.count), 1);
-
-  return (
-    <Card className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {title}
-          </h2>
-          <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--foreground-subtle)]">
-            {description}
-          </p>
-        </div>
-        <IconFrame icon={BarChart3} size="sm" />
-      </div>
-      <ul className="mt-3 space-y-2">
-        {items.map((item) => (
-            <li
-              key={item.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.62)] px-3.5 py-2.5"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-sm font-medium leading-6 text-[var(--foreground)]">
-                  {item.value}
-                </span>
-                <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
-                  {item.count}×
-                </span>
-              </div>
-              <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[var(--surface-muted)]">
-                <span
-                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))]"
-                  style={{ width: `${Math.max(12, (item.count / maxCount) * 100)}%` }}
-                />
-              </span>
-            </li>
-        ))}
-      </ul>
-    </Card>
-  );
-}
-
-function HelpfulNextStepsSection({
-  items,
-}: {
-  items: Array<{ value: string; used: number; helped: number }>;
-}) {
-  const { language, t } = useLanguage();
-  const maxUsed = Math.max(...items.map((item) => item.used), 1);
-
-  return (
-    <Card className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {t.summary.helpfulSteps}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            {t.summary.helpfulStepsDesc}
-          </p>
-        </div>
-        <Footprints
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
-      </div>
-
-      {items.length === 0 ? (
-        <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
-          {t.summary.checkInEmpty}
-        </p>
-      ) : (
-        <ol className="mt-5 space-y-2">
-          {items.map((item) => (
-            <li
-              key={item.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <span className="flex min-w-0 items-start gap-2 text-sm font-medium leading-6 text-[var(--foreground)]">
-                  <CheckCircle2
-                    aria-hidden="true"
-                    size={15}
-                    strokeWidth={1.8}
-                    className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
-                  />
-                  {localizedCanonicalLabel(item.value, language)}
-                </span>
-                <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
-                  {item.used}×
-                </span>
-              </div>
-              <p className="mt-1 text-sm text-[var(--foreground-muted)]">
-                {t.summary.used} {item.used} {t.summary.times} ·{" "}
-                {t.summary.markedHelpful} {item.helped} {t.summary.times}
-              </p>
-              <span className="mt-3 block h-2 overflow-hidden rounded-full bg-[var(--surface)]">
-                <span
-                  className="block h-full rounded-full bg-[var(--brand-teal)]/55"
-                  style={{
-                    width: `${Math.max(16, (item.used / maxUsed) * 100)}%`,
-                  }}
-                />
-              </span>
-            </li>
-          ))}
-        </ol>
-      )}
-    </Card>
-  );
-}
-
-function CheckInSignalsSection({
-  checkInSignals,
-  settledTriggers,
-  repeatingTriggers,
-}: {
-  checkInSignals: Array<{ value: string; count: number }>;
-  settledTriggers: Array<{ value: string; count: number }>;
-  repeatingTriggers: Array<{ value: string; count: number }>;
-}) {
-  const { t } = useLanguage();
-
-  if (
-    checkInSignals.length === 0 &&
-    settledTriggers.length === 0 &&
-    repeatingTriggers.length === 0
-  ) {
-    return null;
-  }
-
-  return (
-    <Card className="hover:translate-y-0">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {t.summary.checkInSignals}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
-            {t.summary.checkInSignalsDesc}
-          </p>
-        </div>
-        <RefreshCcw
-          aria-hidden="true"
-          size={18}
-          strokeWidth={1.8}
-          className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-        />
-      </div>
-
-      {checkInSignals.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {checkInSignals.map((item) => (
-            <span
-              key={item.value}
-              className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
-            >
-              {item.value} · {item.count}×
-            </span>
-          ))}
-        </div>
-      )}
-
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        <div className="rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-            {t.summary.triggersSettled}
-          </p>
-          {settledTriggers.length === 0 ? (
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              {t.summary.noSettledTriggers}
-            </p>
-          ) : (
-            <ul className="mt-3 space-y-2">
-              {settledTriggers.map((item) => (
-                <li
-                  key={item.value}
-                  className="flex items-center justify-between gap-3 text-sm"
-                >
-                  <span className="font-medium text-[var(--foreground)]">
-                    {item.value}
-                  </span>
-                  <span className="text-xs text-[var(--foreground-subtle)]">
-                    {item.count}×
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3">
-          <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-            {t.summary.triggersRepeating}
-          </p>
-          {repeatingTriggers.length === 0 ? (
-            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-              {t.summary.noRepeatingTriggers}
-            </p>
-          ) : (
-            <ul className="mt-3 space-y-2">
-              {repeatingTriggers.map((item) => (
-                <li
-                  key={item.value}
-                  className="flex items-center justify-between gap-3 text-sm"
-                >
-                  <span className="font-medium text-[var(--foreground)]">
-                    {item.value}
-                  </span>
-                  <span className="text-xs text-[var(--foreground-subtle)]">
-                    {item.count}×
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
 export function SummaryContent() {
   const { language, t } = useLanguage();
   const { role, session, user, loading: authLoading } = useAuth();
@@ -540,8 +643,6 @@ export function SummaryContent() {
   });
 
   const nextSteps = Array.from(nextStepCounts.values()).slice(0, 3);
-  const settledTriggers = topPatterns(settledTriggerValues);
-  const repeatingTriggers = repeatedTriggers.filter((item) => item.count > 1);
   const trendValues = recentActivityTrend(reflections);
   const checkInCount = reflections.filter((item) => item.follow_up_result).length;
 
@@ -609,42 +710,54 @@ export function SummaryContent() {
       {!hasError && loaded && user && hasEnoughData && (
         <>
           <div className="grid gap-4 lg:gap-5">
-            <SummaryNarrativeCard
-              repeatedTriggers={repeatedTriggers}
-              repeatedThoughtPatterns={repeatedThoughtPatterns}
-              nextStepTypes={repeatedNextStepTypes}
-              checkInSignals={repeatedCheckInSignals}
-              reflectionCount={reflectionCount}
-              checkInCount={checkInCount}
-              trendValues={trendValues}
-            />
-            <div className="grid gap-4 lg:grid-cols-3 lg:gap-5">
-              <InsightPatternList
-                title={t.summary.repeatedTriggers}
-                description={t.summary.repeatedTriggersDesc}
-                items={repeatedTriggers}
+            <MotionBlock>
+              <SummaryNarrativeCard
+                repeatedTriggers={repeatedTriggers}
+                repeatedThoughtPatterns={repeatedThoughtPatterns}
+                nextStepTypes={repeatedNextStepTypes}
+                checkInSignals={repeatedCheckInSignals}
+                reflectionCount={reflectionCount}
+                checkInCount={checkInCount}
+                trendValues={trendValues}
               />
-              <InsightPatternList
-                title={t.summary.repeatedThoughts}
-                description={t.summary.repeatedThoughtsDesc}
-                items={repeatedThoughtPatterns}
-              />
-              <InsightPatternList
-                title={t.summary.helpfulSteps}
-                description={t.summary.helpfulStepsDesc}
-                items={repeatedNextStepTypes}
-              />
+            </MotionBlock>
+            <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
+              <MotionBlock>
+                <RankedChartBlock
+                  icon={BarChart3}
+                  title={t.summary.repeatedTriggers}
+                  description={t.summary.repeatedTriggersDesc}
+                  items={repeatedTriggers}
+                  lowDataText={t.summary.moreReflectionsNeeded}
+                />
+              </MotionBlock>
+              <MotionBlock>
+                <RankedChartBlock
+                  icon={Leaf}
+                  title={t.summary.repeatedThoughts}
+                  description={t.summary.repeatedThoughtsDesc}
+                  items={repeatedThoughtPatterns}
+                  lowDataText={t.summary.moreReflectionsNeeded}
+                />
+              </MotionBlock>
+              <MotionBlock>
+                <HelpfulCheckInBlock
+                  nextSteps={nextSteps}
+                  checkInSignals={repeatedCheckInSignals}
+                  checkInCount={checkInCount}
+                />
+              </MotionBlock>
+              <MotionBlock>
+                <ActivityRhythmBlock
+                  trendValues={trendValues}
+                  reflectionCount={reflectionCount}
+                  checkInCount={checkInCount}
+                />
+              </MotionBlock>
             </div>
-            <HelpfulNextStepsSection items={nextSteps} />
-            <CheckInSignalsSection
-              checkInSignals={repeatedCheckInSignals}
-              settledTriggers={settledTriggers}
-              repeatingTriggers={repeatingTriggers}
-            />
           </div>
         </>
       )}
-
       {!hasError && loaded && user && (
         <div className="mt-8 grid gap-4">
           <Card className="hover:translate-y-0">
