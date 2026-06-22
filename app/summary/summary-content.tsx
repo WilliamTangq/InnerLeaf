@@ -75,6 +75,7 @@ function recentActivityTrend(reflections: SummaryReflection[]) {
 function SummaryNarrativeCard({
   repeatedTriggers,
   repeatedThoughtPatterns,
+  nextStepTypes,
   checkInSignals,
   reflectionCount,
   checkInCount,
@@ -82,19 +83,32 @@ function SummaryNarrativeCard({
 }: {
   repeatedTriggers: Array<{ value: string; count: number }>;
   repeatedThoughtPatterns: Array<{ value: string; count: number }>;
+  nextStepTypes: Array<{ value: string; count: number }>;
   checkInSignals: Array<{ value: string; count: number }>;
   reflectionCount: number;
   checkInCount: number;
   trendValues: number[];
 }) {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const topTrigger = repeatedTriggers[0]?.value || "";
   const topThought = repeatedThoughtPatterns[0]?.value || "";
+  const topStepType = nextStepTypes[0]?.value || "";
   const currentSignal =
     checkInSignals.find((item) => item.value !== "Not checked in" && item.value !== "尚未回看")
       ?.value ||
     checkInSignals[0]?.value ||
     t.summary.checkInEmpty;
+  const keyInsight = topTrigger
+    ? language === "zh"
+      ? `最近最常出现的触发点是 ${topTrigger}。`
+      : `Your most repeated trigger lately has been ${topTrigger}.`
+    : t.summary.noRepeatedTrigger;
+  const patternInsight = topThought
+    ? language === "zh"
+      ? `${topThought} 出现得比其他思维模式更频繁。`
+      : `${topThought} appears more often than other thought patterns.`
+    : t.summary.noRepeatedThought;
+  const supportChips = [topTrigger, topThought, topStepType, currentSignal].filter(Boolean);
   const metrics = [
     [t.history.saved, String(reflectionCount)],
     [t.summary.repeatedTrigger, topTrigger || t.summary.noRepeatedTrigger],
@@ -111,6 +125,9 @@ function SummaryNarrativeCard({
         <div>
           <div className="mb-3 flex items-start justify-between gap-3">
             <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+                {t.summary.title}
+              </p>
               <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 {t.summary.narrativeTitle}
               </h2>
@@ -120,21 +137,24 @@ function SummaryNarrativeCard({
             </div>
             <IconFrame icon={Leaf} size="md" />
           </div>
-          <dl className="grid gap-2 sm:grid-cols-2">
-            {metrics.map(([label, text]) => (
-              <div
-                key={label}
-                className="rounded-[var(--radius-lg)] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.62)] px-3.5 py-2.5"
-              >
-                <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-                  {label}
-                </dt>
-                <dd className="mt-1 line-clamp-2 text-sm font-semibold leading-6 text-[var(--foreground)]">
-                  {text}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <div className="mt-5 rounded-[24px] border border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.62)] p-4">
+            <p className="text-xl font-semibold leading-8 text-[var(--foreground)]">
+              {keyInsight}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {patternInsight}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {supportChips.map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+                >
+                  {chip}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="rounded-[1.25rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.54),rgba(255,254,248,0.82))] p-3.5">
@@ -145,25 +165,25 @@ function SummaryNarrativeCard({
             {t.summary.purpose}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
-              <p className="text-xl font-semibold text-[var(--foreground)]">
-                {reflectionCount}
-              </p>
-              <p className="text-xs font-medium text-[var(--foreground-subtle)]">
-                {t.history.saved}
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
-              <p className="text-xl font-semibold text-[var(--foreground)]">
-                {checkInCount}
-              </p>
-              <p className="text-xs font-medium text-[var(--foreground-subtle)]">
-                {t.history.checkedIn}
-              </p>
-            </div>
+            {metrics.map(([label, value]) => (
+              <div
+                key={label}
+                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2"
+              >
+                <p className="line-clamp-2 text-sm font-semibold leading-5 text-[var(--foreground)]">
+                  {value}
+                </p>
+                <p className="mt-1 text-xs font-medium text-[var(--foreground-subtle)]">
+                  {label}
+                </p>
+              </div>
+            ))}
           </div>
           <div className="mt-4">
             <MiniSparkline values={trendValues} label={t.summary.title} />
+            <p className="mt-2 text-xs font-medium text-[var(--foreground-subtle)]">
+              {checkInCount} {t.history.checkedIn}
+            </p>
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             {repeatedTriggers.slice(0, 3).map((item) => (
@@ -592,6 +612,7 @@ export function SummaryContent() {
             <SummaryNarrativeCard
               repeatedTriggers={repeatedTriggers}
               repeatedThoughtPatterns={repeatedThoughtPatterns}
+              nextStepTypes={repeatedNextStepTypes}
               checkInSignals={repeatedCheckInSignals}
               reflectionCount={reflectionCount}
               checkInCount={checkInCount}

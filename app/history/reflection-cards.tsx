@@ -4,9 +4,11 @@ import {
   Brain,
   CalendarClock,
   CheckCircle2,
+  Clock3,
+  FileText,
   Footprints,
   Heart,
-  Lightbulb,
+  MessageCircle,
   MessageCircleQuestion,
   Route,
   Send,
@@ -92,14 +94,6 @@ function formatHistoryDate(value: string) {
   }).format(new Date(value));
 }
 
-function formatHistoryTime(value: string) {
-  return new Intl.DateTimeFormat("en-AU", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(new Date(value));
-}
-
 function formatHistoryGroup(value: string) {
   return new Intl.DateTimeFormat("en-AU", {
     weekday: "short",
@@ -109,47 +103,7 @@ function formatHistoryGroup(value: string) {
   }).format(new Date(value));
 }
 
-function DetailMetric({
-  icon: Icon,
-  label,
-  value,
-  accent = false,
-}: {
-  icon: typeof Heart;
-  label: string;
-  value: string;
-  accent?: boolean;
-}) {
-  if (!value) {
-    return null;
-  }
-
-  return (
-    <div
-      className={[
-        "rounded-[var(--radius-lg)] border p-3.5",
-        accent
-          ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)]"
-          : "border-[var(--border)] bg-[var(--surface-muted)]",
-      ].join(" ")}
-    >
-      <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-        <Icon
-          aria-hidden="true"
-          size={14}
-          strokeWidth={1.8}
-          className="text-[var(--brand-teal-deep)]"
-        />
-        {label}
-      </p>
-      <p className="mt-1.5 text-sm font-medium leading-6 text-[var(--foreground)]">
-        {value}
-      </p>
-    </div>
-  );
-}
-
-function DetailSection({
+function CanonicalDetailSection({
   icon: Icon,
   title,
   children,
@@ -163,22 +117,19 @@ function DetailSection({
   return (
     <section
       className={[
-        "rounded-[var(--radius-xl)] border p-4",
+        "rounded-[22px] border p-4 sm:p-5",
         accent
-          ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] ring-1 ring-[rgba(31,155,143,0.08)]"
-          : "border-[var(--border)] bg-[var(--surface-muted)]",
+          ? "border-[rgba(31,155,143,0.22)] bg-[linear-gradient(135deg,rgba(231,244,239,0.72),rgba(255,254,248,0.9))] ring-1 ring-[rgba(31,155,143,0.08)]"
+          : "border-[rgba(40,80,60,0.095)] bg-[rgba(255,254,248,0.72)]",
       ].join(" ")}
     >
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-        <Icon
-          aria-hidden="true"
-          size={16}
-          strokeWidth={1.8}
-          className="text-[var(--brand-teal-deep)]"
-        />
-        {title}
-      </h3>
-      <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+      <div className="flex items-center gap-2.5">
+        <IconFrame icon={Icon} size="sm" />
+        <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+          {title}
+        </h3>
+      </div>
+      <div className="mt-3 max-w-3xl text-sm leading-6 text-[var(--foreground-muted)]">
         {children}
       </div>
     </section>
@@ -233,29 +184,6 @@ function previewLine(value: string | null, max = 140) {
   }
 
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
-}
-
-function meaningfulBodyFactor(value: string | null) {
-  const text = previewLine(value);
-
-  if (!text) {
-    return null;
-  }
-
-  const lower = text.toLowerCase();
-  const neutralPhrases = [
-    "not mentioned",
-    "not clearly identified",
-    "no clear body",
-    "no body",
-    "not identified",
-    "未提到",
-    "没有明显",
-    "尚未清楚",
-    "未明确",
-  ];
-
-  return neutralPhrases.some((phrase) => lower.includes(phrase)) ? null : text;
 }
 
 function formatFollowUpDate(value: string | null) {
@@ -713,10 +641,9 @@ export function ReflectionCards({
             <span className="h-px flex-1 bg-[var(--border)]" />
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3">
             {group.items.map((item) => {
               const card = toHistoryCard(item);
-              const bodyFactor = meaningfulBodyFactor(item.body_factor);
               const isOpen = openCards.has(item.id);
               const headline =
                 previewLine(item.emotional_validation, 150) ||
@@ -725,7 +652,6 @@ export function ReflectionCards({
                 "Reflection card";
 
               const validation = previewLine(item.emotional_validation, 360);
-              const behaviour = previewLine(item.behaviour, 180);
               const hasFactsVsInterpretation =
                 card.facts.length > 0 || card.interpretations.length > 0;
               const hasStructuredDetail =
@@ -733,8 +659,6 @@ export function ReflectionCards({
                 card.mainEmotion ||
                 card.trigger ||
                 card.thoughtPattern ||
-                bodyFactor ||
-                behaviour ||
                 card.behaviouralInsight ||
                 hasFactsVsInterpretation ||
                 card.oneNextQuestion ||
@@ -743,29 +667,46 @@ export function ReflectionCards({
               return (
                 <Card
                   key={item.id}
-                  className="overflow-hidden border-[rgba(40,80,60,0.14)] hover:translate-y-0"
+                  className={[
+                    "overflow-hidden rounded-[28px] border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.88)] shadow-[0_18px_55px_rgba(20,35,28,0.055)] transition duration-200",
+                    isOpen
+                      ? "hover:translate-y-0"
+                      : "hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.18)] hover:shadow-[0_24px_70px_rgba(20,35,28,0.075)]",
+                  ].join(" ")}
                 >
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleCard(item.id)}
+                    aria-expanded={isOpen}
+                    className="block w-full rounded-[inherit] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-start justify-between gap-3">
                         <time
                           dateTime={item.created_at}
-                          className="rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-2.5 py-1 text-xs font-medium text-[var(--foreground-subtle)]"
+                          className="flex flex-wrap items-center gap-1.5 text-xs font-medium text-[var(--foreground-subtle)]"
                           title={formatHistoryDate(item.created_at)}
                         >
-                          {formatHistoryTime(item.created_at)}
+                          <Clock3
+                            aria-hidden="true"
+                            size={13}
+                            strokeWidth={1.8}
+                            className="text-[var(--brand-teal-deep)]/70"
+                          />
+                          <span>{formatHistoryDate(item.created_at)}</span>
                         </time>
-                        {item.mode_detected && item.mode_detected !== "General" && (
-                          <Badge variant="outline">
-                            {translateDetectedMode(language, item.mode_detected)}
-                          </Badge>
-                        )}
                         {card.modeLabel && (
-                          <Badge variant="outline">
+                          <span className="shrink-0 rounded-full border border-[rgba(40,80,60,0.11)] bg-[rgba(246,242,233,0.66)] px-2.5 py-1 text-xs font-semibold text-[var(--foreground-muted)]">
                             {card.modeLabel === "guided" ? t.nav.guided : t.nav.quick}
-                          </Badge>
+                          </span>
                         )}
-                        {card.moodChip && <Badge variant="accent">{card.moodChip}</Badge>}
+                      </div>
+
+                      <p className="line-clamp-2 text-base font-semibold leading-6 text-[var(--foreground)] sm:line-clamp-1">
+                        {headline}
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
                         {card.normalizedTrigger && (
                           <Badge variant="accent">
                             {localizedCanonicalLabel(card.normalizedTrigger, language)}
@@ -789,28 +730,22 @@ export function ReflectionCards({
                         )}
                         {item.follow_up_result && (
                           <Badge variant="accent">
-                            {followUpLabel(item.follow_up_result, t)}
+                            {localizedCanonicalLabel(
+                              card.normalizedCheckInSignal,
+                              language
+                            )}
                           </Badge>
                         )}
                       </div>
-                      <p className="mt-3 text-lg font-semibold leading-7 text-[var(--foreground)]">
-                        {headline}
-                      </p>
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={() => toggleCard(item.id)}
-                      aria-expanded={isOpen}
-                      className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-                    >
+                    <span className="mt-3 inline-flex text-xs font-semibold text-[var(--brand-teal-deep)]">
                       {isOpen ? t.history.collapse : t.history.readFull}
-                    </button>
-                  </div>
+                    </span>
+                  </button>
 
                   {isOpen && (
-                    <div className="mt-6 space-y-5 border-t border-[var(--border)] pt-6">
-                      <div className="rounded-[28px] border border-[rgba(40,80,60,0.12)] bg-[linear-gradient(135deg,rgba(255,255,248,0.96),rgba(242,249,244,0.76))] p-4 shadow-[0_18px_70px_rgba(20,35,28,0.08)] sm:p-5">
+                    <div className="mt-5 space-y-4 border-t border-[rgba(40,80,60,0.09)] pt-5">
+                      <div className="rounded-[28px] border border-[rgba(40,80,60,0.105)] bg-[linear-gradient(135deg,rgba(255,255,248,0.96),rgba(242,249,244,0.76))] p-4 shadow-[0_18px_70px_rgba(20,35,28,0.08)] sm:p-5">
                         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                           <div className="min-w-0">
                             <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
@@ -848,139 +783,98 @@ export function ReflectionCards({
                           </div>
                         </div>
 
-                        <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                          <DetailMetric
-                            icon={Heart}
-                            label={sectionTitle("Emotion", t)}
-                            value={card.mainEmotion}
-                          />
-                          <DetailMetric
-                            icon={Zap}
-                            label={sectionTitle("Trigger", t)}
-                            value={card.trigger}
-                          />
-                          <DetailMetric
-                            icon={Brain}
-                            label={sectionTitle("Thought pattern", t)}
-                            value={card.thoughtPattern}
-                          />
-                          <DetailMetric
-                            icon={Footprints}
-                            label={sectionTitle("One small next step", t)}
-                            value={
-                              card.normalizedNextStepType
-                                ? localizedCanonicalLabel(
-                                    card.normalizedNextStepType,
-                                    language
-                                  )
-                                : card.oneSmallNextStep
-                            }
-                            accent
-                          />
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {card.moodChip && <Badge variant="accent">{card.moodChip}</Badge>}
+                          {card.normalizedTrigger && (
+                            <Badge variant="accent">
+                              {localizedCanonicalLabel(card.normalizedTrigger, language)}
+                            </Badge>
+                          )}
+                          {card.normalizedThoughtPattern && (
+                            <Badge variant="outline">
+                              {localizedCanonicalLabel(
+                                card.normalizedThoughtPattern,
+                                language
+                              )}
+                            </Badge>
+                          )}
+                          {card.normalizedNextStepType && (
+                            <Badge variant="outline">
+                              {localizedCanonicalLabel(
+                                card.normalizedNextStepType,
+                                language
+                              )}
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
-                      {item.user_input && (
-                        <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
-                          <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                            {t.history.whatYouWrote}
-                          </h3>
-                          <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-[var(--foreground-muted)]">
-                            {card.originalInput}
-                          </p>
-                        </div>
-                      )}
-
                       {validation && (
-                        <DetailSection
+                        <CanonicalDetailSection
                           icon={Heart}
                           title={sectionTitle("What came up", t)}
                           accent
                         >
                           <p className="whitespace-pre-wrap">{validation}</p>
-                        </DetailSection>
+                        </CanonicalDetailSection>
+                      )}
+
+                      {card.trigger && (
+                        <CanonicalDetailSection
+                          icon={Zap}
+                          title={sectionTitle("Trigger", t)}
+                        >
+                          <p className="whitespace-pre-wrap">{card.trigger}</p>
+                        </CanonicalDetailSection>
                       )}
 
                       {hasFactsVsInterpretation && (
-                        <section className="rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
-                          <h3 className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-                            <Route
-                              aria-hidden="true"
-                              size={16}
-                              strokeWidth={1.8}
-                              className="text-[var(--brand-teal-deep)]"
-                            />
-                            {sectionTitle("Facts", t)} /{" "}
-                            {sectionTitle("Interpretation", t)}
-                          </h3>
-                          <div className="mt-4 grid gap-3 md:grid-cols-2">
-                            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface)] p-4">
-                              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-                                {sectionTitle("Facts", t)}
-                              </p>
-                              <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
-                                {card.facts.length > 0 ? (
-                                  <BulletList items={card.facts} />
-                                ) : (
-                                  <p>{t.reflectionCard.notIdentified}</p>
-                                )}
-                              </div>
-                            </div>
-                            <div className="rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] p-4">
-                              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-                                {sectionTitle("Interpretation", t)}
-                              </p>
-                              <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
-                                {card.interpretations.length > 0 ? (
-                                  <BulletList items={card.interpretations} />
-                                ) : (
-                                  <p>{t.reflectionCard.notIdentified}</p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </section>
+                        <div className="grid gap-4 md:grid-cols-2">
+                          <CanonicalDetailSection
+                            icon={FileText}
+                            title={sectionTitle("Facts", t)}
+                          >
+                            {card.facts.length > 0 ? (
+                              <BulletList items={card.facts} />
+                            ) : (
+                              <p>{t.reflectionCard.notIdentified}</p>
+                            )}
+                          </CanonicalDetailSection>
+                          <CanonicalDetailSection
+                            icon={MessageCircle}
+                            title={sectionTitle("Interpretation", t)}
+                          >
+                            {card.interpretations.length > 0 ? (
+                              <BulletList items={card.interpretations} />
+                            ) : (
+                              <p>{t.reflectionCard.notIdentified}</p>
+                            )}
+                          </CanonicalDetailSection>
+                        </div>
                       )}
 
-                      <div className="grid gap-3 lg:grid-cols-2">
-                        {card.thoughtPattern && (
-                          <DetailSection
-                            icon={Brain}
-                            title={sectionTitle("Thought pattern", t)}
-                          >
-                            <p className="whitespace-pre-wrap">{card.thoughtPattern}</p>
-                          </DetailSection>
-                        )}
-                        {card.behaviouralInsight && (
-                          <DetailSection
-                            icon={Lightbulb}
-                            title={sectionTitle("Behavioural insight", t)}
-                          >
-                            <p className="whitespace-pre-wrap">
-                              {card.behaviouralInsight}
-                            </p>
-                          </DetailSection>
-                        )}
-                        {behaviour && (
-                          <DetailSection
-                            icon={Route}
-                            title={sectionTitle("Behaviour", t)}
-                          >
-                            <p className="whitespace-pre-wrap">{behaviour}</p>
-                          </DetailSection>
-                        )}
-                        {bodyFactor && (
-                          <DetailSection
-                            icon={Zap}
-                            title={sectionTitle("Body / context", t)}
-                          >
-                            <p className="whitespace-pre-wrap">{bodyFactor}</p>
-                          </DetailSection>
-                        )}
-                      </div>
+                      {card.thoughtPattern && (
+                        <CanonicalDetailSection
+                          icon={Brain}
+                          title={sectionTitle("Thought pattern", t)}
+                        >
+                          <p className="whitespace-pre-wrap">{card.thoughtPattern}</p>
+                        </CanonicalDetailSection>
+                      )}
+
+                      {card.behaviouralInsight && (
+                        <CanonicalDetailSection
+                          icon={Route}
+                          title={sectionTitle("Behavioural insight", t)}
+                        >
+                          <p className="whitespace-pre-wrap">
+                            {card.behaviouralInsight}
+                          </p>
+                        </CanonicalDetailSection>
+                      )}
 
                       {card.oneNextQuestion && (
-                        <DetailSection
+                        <CanonicalDetailSection
                           icon={MessageCircleQuestion}
                           title={sectionTitle("One next question", t)}
                           accent
@@ -988,7 +882,7 @@ export function ReflectionCards({
                           <p className="whitespace-pre-wrap text-[var(--foreground)]">
                             {card.oneNextQuestion}
                           </p>
-                        </DetailSection>
+                        </CanonicalDetailSection>
                       )}
 
                       {!hasStructuredDetail && item.ai_result && (
