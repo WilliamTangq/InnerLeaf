@@ -41,6 +41,7 @@ export function QuickReflectionContent() {
   const [draftLoaded, setDraftLoaded] = useState(false);
 
   const draftKey = user?.id ? `innerleaf:quick:${user.id}` : "";
+  const textareaId = "quick-reflection-input";
 
   useEffect(() => {
     if (!draftKey) {
@@ -135,6 +136,14 @@ export function QuickReflectionContent() {
     if (draftKey) {
       window.localStorage.removeItem(draftKey);
     }
+
+    requestAnimationFrame(() => {
+      const textarea = document.getElementById(
+        textareaId
+      ) as HTMLTextAreaElement | null;
+      textarea?.scrollIntoView({ behavior: "smooth", block: "center" });
+      textarea?.focus();
+    });
   }, [draftKey]);
 
   useEffect(() => {
@@ -289,6 +298,7 @@ export function QuickReflectionContent() {
         className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.54))] hover:translate-y-0"
       >
         <TextareaField
+          id={textareaId}
           label={t.quick.label}
           helper={t.quick.helper}
           className="min-h-48 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-52"
@@ -357,17 +367,10 @@ export function QuickReflectionContent() {
             saving={saving}
             autoSaved
             mode="quick"
+            onReflectAgain={startNewReflection}
           />
           {saved && (
             <div className="mt-4 grid gap-3">
-              <div className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(135deg,rgba(231,244,239,0.7),rgba(255,254,248,0.86))] p-3.5 shadow-[var(--shadow-sm)] sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-sm font-medium text-[var(--brand-teal-deep)]">
-                  {t.common.savedToHistory}
-                </p>
-                <PrimaryButton type="button" onClick={startNewReflection}>
-                  {t.quick.startNew}
-                </PrimaryButton>
-              </div>
               <Card className="hover:translate-y-0">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>

@@ -20,6 +20,7 @@ import { translateDetectedMode } from "../lib/i18n";
 import {
   createCanonicalReflectionCard,
   localizedCanonicalLabel,
+  shouldDisplayNormalizedChip,
   type ReflectionMode,
 } from "../lib/reflection-card";
 
@@ -197,6 +198,7 @@ export function ReflectionResultCard({
   saved = false,
   saving = false,
   onSave,
+  onReflectAgain,
   autoSaved = false,
   mode = "quick",
 }: {
@@ -207,6 +209,7 @@ export function ReflectionResultCard({
   saved?: boolean;
   saving?: boolean;
   onSave?: () => void;
+  onReflectAgain?: () => void;
   autoSaved?: boolean;
   mode?: ReflectionMode;
 }) {
@@ -436,7 +439,7 @@ export function ReflectionResultCard({
                   <h3 className="text-base font-semibold text-[var(--foreground)]">
                     {labels.nextStep}
                   </h3>
-                  {nextStepType && (
+                  {nextStepType && shouldDisplayNormalizedChip(nextStepType) && (
                     <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
                       {localizedCanonicalLabel(nextStepType, language)}
                     </span>
@@ -521,14 +524,26 @@ export function ReflectionResultCard({
               </PrimaryButton>
             )}
           </div>
-          <LinkButton
-            href="/dashboard/quick"
-            variant="secondary"
-            size="md"
-            className="mt-3 w-full sm:w-auto"
-          >
-            {labels.reflectAgain}
-          </LinkButton>
+          {!showActions &&
+            (onReflectAgain ? (
+              <PrimaryButton
+                type="button"
+                size="md"
+                onClick={onReflectAgain}
+                className="mt-3 w-full sm:w-auto"
+              >
+                {labels.reflectAgain}
+              </PrimaryButton>
+            ) : (
+              <LinkButton
+                href="/dashboard/quick"
+                variant="secondary"
+                size="md"
+                className="mt-3 w-full sm:w-auto"
+              >
+                {labels.reflectAgain}
+              </LinkButton>
+            ))}
           <div className="mt-4 flex flex-wrap gap-2">
             {[
               ["helped", labels.helpful],
@@ -562,9 +577,15 @@ export function ReflectionResultCard({
 
         {showActions && (
           <PageActions className="mb-0 mt-8 border-t border-[var(--border)] pt-6">
-            <LinkButton href="/dashboard/quick" size="sm">
-              {labels.newReflection}
-            </LinkButton>
+            {onReflectAgain ? (
+              <PrimaryButton type="button" size="sm" onClick={onReflectAgain}>
+                {labels.reflectAgain}
+              </PrimaryButton>
+            ) : (
+              <LinkButton href="/dashboard/quick" size="sm">
+                {labels.newReflection}
+              </LinkButton>
+            )}
             <LinkButton href="/dashboard/history" variant="secondary" size="sm">
               {t.common.viewHistory}
             </LinkButton>

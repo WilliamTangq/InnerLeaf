@@ -36,6 +36,7 @@ import { trackEvent } from "../lib/analytics";
 import {
   canonicalFromSavedReflection,
   localizedCanonicalLabel,
+  shouldDisplayNormalizedChip,
 } from "../lib/reflection-card";
 
 type SummaryReflection = {
@@ -77,6 +78,25 @@ function topPatterns(values: string[]) {
     .map(([value, count]) => ({ value, count }))
     .sort((first, second) => second.count - first.count || first.value.localeCompare(second.value))
     .slice(0, 3);
+}
+
+function meaningfulTopPatterns(values: string[], language: "en" | "zh") {
+  return topPatterns(values.filter(shouldDisplayNormalizedChip)).map((item) => ({
+    ...item,
+    value: localizedCanonicalLabel(item.value, language),
+  }));
+}
+
+function meaningfulCheckInPatterns(values: string[], language: "en" | "zh") {
+  return topPatterns(
+    values.filter(
+      (value) =>
+        value !== "not_checked_in" && shouldDisplayNormalizedChip(value)
+    )
+  ).map((item) => ({
+    ...item,
+    value: localizedCanonicalLabel(item.value, language),
+  }));
 }
 
 function recentActivityTrend(reflections: SummaryReflection[]) {
@@ -305,7 +325,7 @@ function HelpfulCheckInBlock({
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
             {t.summary.checkInSignals}
           </p>
-          {checkInCount === 0 ? (
+          {checkInCount === 0 || checkInSignals.length === 0 ? (
             <LowDataState icon={RefreshCcw}>
               {t.summary.checkInEmpty}
             </LowDataState>
@@ -433,16 +453,16 @@ function SummaryNarrativeCard({
   const topTrigger = repeatedTriggers[0]?.value || "";
   const topThought = repeatedThoughtPatterns[0]?.value || "";
   const topStepType = nextStepTypes[0]?.value || "";
-  const currentSignal =
-    checkInSignals.find((item) => item.value !== "Not checked in" && item.value !== "尚未回看")
-      ?.value ||
-    checkInSignals[0]?.value ||
-    t.summary.checkInEmpty;
+  const currentSignal = checkInSignals[0]?.value || t.summary.checkInEmpty;
+  const emergingFallback =
+    language === "zh"
+      ? "一些早期模式正在慢慢浮现。"
+      : "A few early patterns are starting to form.";
   const keyInsight = topTrigger
     ? language === "zh"
       ? `最近最常出现的触发点是 ${topTrigger}。`
       : `Your most repeated trigger lately has been ${topTrigger}.`
-    : t.summary.noRepeatedTrigger;
+    : emergingFallback;
   const patternInsight = topThought
     ? language === "zh"
       ? `${topThought} 出现得比其他思维模式更频繁。`
@@ -594,40 +614,30 @@ export function SummaryContent() {
   const reflectionCount = reflections.length;
   const hasEnoughData = reflectionCount >= 3;
   const canonicalCards = reflections.map(canonicalFromSavedReflection);
-  const repeatedTriggers = topPatterns(
-    canonicalCards.map((item) => item.normalizedTrigger)
-  ).map((item) => ({
-    ...item,
-    value: localizedCanonicalLabel(item.value, language),
-  }));
-  const repeatedThoughtPatterns = topPatterns(
-    canonicalCards.map((item) => item.normalizedThoughtPattern)
-  ).map((item) => ({
-    ...item,
-    value: localizedCanonicalLabel(item.value, language),
-  }));
-  const repeatedNextStepTypes = topPatterns(
-    canonicalCards.map((item) => item.normalizedNextStepType)
-  ).map((item) => ({
-    ...item,
-    value: localizedCanonicalLabel(item.value, language),
-  }));
-  const repeatedCheckInSignals = topPatterns(
-    canonicalCards.map((item) => item.normalizedCheckInSignal)
-  ).map((item) => ({
-    ...item,
-    value: localizedCanonicalLabel(item.value, language),
-  }));
+  const repeatedTriggers = meaningfulTopPatterns(
+    canonicalCards.map((item) => item.normalizedTrigger),
+    language
+  );
+  const repeatedThoughtPatterns = meaningfulTopPatterns(
+    canonicalCards.map((item) => item.normalizedThoughtPattern),
+    language
+  );
+  const repeatedNextStepTypes = meaningfulTopPatterns(
+    canonicalCards.map((item) => item.normalizedNextStepType),
+    language
+  );
+  const repeatedCheckInSignals = meaningfulCheckInPatterns(
+    canonicalCards.map((item) => item.normalizedCheckInSignal),
+    language
+  );
   const nextStepCounts = new Map<string, { value: string; used: number; helped: number }>();
-  const settledTriggerValues: string[] = [];
 
   reflections.forEach((item) => {
     const canonical = canonicalFromSavedReflection(item);
     const type = canonical.normalizedNextStepType;
     const result = canonical.normalizedCheckInSignal;
-    const trigger = canonical.normalizedTrigger;
 
-    if (!type || !result) {
+    if (!shouldDisplayNormalizedChip(type) || !result) {
       return;
     }
 
@@ -635,9 +645,6 @@ export function SummaryContent() {
     current.used += 1;
     if (result === "felt_lighter_later" || result === "mostly_resolved") {
       current.helped += 1;
-      if (trigger) {
-        settledTriggerValues.push(localizedCanonicalLabel(trigger, language));
-      }
     }
     nextStepCounts.set(type, current);
   });

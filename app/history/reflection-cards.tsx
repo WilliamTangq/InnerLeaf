@@ -23,7 +23,9 @@ import { translateDetectedMode } from "../lib/i18n";
 import { trackEvent } from "../lib/analytics";
 import {
   canonicalFromSavedReflection,
+  isWeakFallbackValue,
   localizedCanonicalLabel,
+  shouldDisplayNormalizedChip,
 } from "../lib/reflection-card";
 import type { Reflection } from "./page";
 
@@ -274,6 +276,71 @@ function toHistoryCard(item: Reflection) {
   };
 }
 
+type HistoryChip = {
+  key: string;
+  value: string;
+  variant: "accent" | "outline";
+};
+
+function primaryHistoryChips(card: ReturnType<typeof toHistoryCard>) {
+  const rawChips: HistoryChip[] = [
+    {
+      key: "trigger",
+      value: card.normalizedTrigger,
+      variant: "accent",
+    },
+    {
+      key: "pattern",
+      value: card.normalizedThoughtPattern,
+      variant: "outline",
+    },
+    {
+      key: "step",
+      value: card.normalizedNextStepType,
+      variant: "outline",
+    },
+  ];
+  const meaningful = rawChips.filter((chip) =>
+    shouldDisplayNormalizedChip(chip.value)
+  );
+
+  if (meaningful.length > 0) {
+    return meaningful.slice(0, 2);
+  }
+
+  const fallback = rawChips.find((chip) => isWeakFallbackValue(chip.value));
+
+  return fallback ? [{ ...fallback, variant: "outline" as const }] : [];
+}
+
+function detailHistoryChips(card: ReturnType<typeof toHistoryCard>) {
+  return [
+    {
+      key: "trigger",
+      value: card.normalizedTrigger,
+      variant: "accent" as const,
+    },
+    {
+      key: "pattern",
+      value: card.normalizedThoughtPattern,
+      variant: "outline" as const,
+    },
+    {
+      key: "step",
+      value: card.normalizedNextStepType,
+      variant: "outline" as const,
+    },
+  ]
+    .filter((chip) => shouldDisplayNormalizedChip(chip.value))
+    .slice(0, 3);
+}
+
+function checkInChipValue(card: ReturnType<typeof toHistoryCard>) {
+  return card.normalizedCheckInSignal !== "not_checked_in"
+    ? card.normalizedCheckInSignal
+    : "";
+}
+
 export function isVisibleHistoryReflection(item: Reflection) {
   const card = toHistoryCard(item);
   const input = card.originalInput.toLowerCase();
@@ -406,7 +473,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
             {t.reflectionCard.nextStep}
           </h3>
         </div>
-        {nextStepType && (
+        {shouldDisplayNormalizedChip(nextStepType) && (
           <Badge variant="accent">
             {localizedCanonicalLabel(nextStepType, language)}
           </Badge>
@@ -645,6 +712,9 @@ export function ReflectionCards({
             {group.items.map((item) => {
               const card = toHistoryCard(item);
               const isOpen = openCards.has(item.id);
+              const previewChips = primaryHistoryChips(card);
+              const expandedChips = detailHistoryChips(card);
+              const checkedInSignal = checkInChipValue(card);
               const headline =
                 previewLine(item.emotional_validation, 150) ||
                 previewLine(card.shortTitle, 100) ||
@@ -707,33 +777,14 @@ export function ReflectionCards({
                       </p>
 
                       <div className="flex flex-wrap gap-2">
-                        {card.normalizedTrigger && (
+                        {previewChips.map((chip) => (
+                          <Badge key={chip.key} variant={chip.variant}>
+                            {localizedCanonicalLabel(chip.value, language)}
+                          </Badge>
+                        ))}
+                        {item.follow_up_result && checkedInSignal && (
                           <Badge variant="accent">
-                            {localizedCanonicalLabel(card.normalizedTrigger, language)}
-                          </Badge>
-                        )}
-                        {card.normalizedThoughtPattern && (
-                          <Badge variant="outline">
-                            {localizedCanonicalLabel(
-                              card.normalizedThoughtPattern,
-                              language
-                            )}
-                          </Badge>
-                        )}
-                        {card.normalizedNextStepType && (
-                          <Badge variant="outline">
-                            {localizedCanonicalLabel(
-                              card.normalizedNextStepType,
-                              language
-                            )}
-                          </Badge>
-                        )}
-                        {item.follow_up_result && (
-                          <Badge variant="accent">
-                            {localizedCanonicalLabel(
-                              card.normalizedCheckInSignal,
-                              language
-                            )}
+                            {localizedCanonicalLabel(checkedInSignal, language)}
                           </Badge>
                         )}
                       </div>
@@ -767,7 +818,7 @@ export function ReflectionCards({
                                 {translateDetectedMode(language, item.mode_detected)}
                               </Badge>
                             )}
-                            {card.normalizedNextStepType && (
+                            {shouldDisplayNormalizedChip(card.normalizedNextStepType) && (
                               <Badge variant="accent">
                                 {localizedCanonicalLabel(
                                   card.normalizedNextStepType,
@@ -785,27 +836,11 @@ export function ReflectionCards({
 
                         <div className="mt-4 flex flex-wrap gap-2">
                           {card.moodChip && <Badge variant="accent">{card.moodChip}</Badge>}
-                          {card.normalizedTrigger && (
-                            <Badge variant="accent">
-                              {localizedCanonicalLabel(card.normalizedTrigger, language)}
+                          {expandedChips.map((chip) => (
+                            <Badge key={chip.key} variant={chip.variant}>
+                              {localizedCanonicalLabel(chip.value, language)}
                             </Badge>
-                          )}
-                          {card.normalizedThoughtPattern && (
-                            <Badge variant="outline">
-                              {localizedCanonicalLabel(
-                                card.normalizedThoughtPattern,
-                                language
-                              )}
-                            </Badge>
-                          )}
-                          {card.normalizedNextStepType && (
-                            <Badge variant="outline">
-                              {localizedCanonicalLabel(
-                                card.normalizedNextStepType,
-                                language
-                              )}
-                            </Badge>
-                          )}
+                          ))}
                         </div>
                       </div>
 

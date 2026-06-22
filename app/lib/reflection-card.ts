@@ -138,6 +138,22 @@ function clean(value: unknown) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
 }
 
+export function isWeakFallbackValue(value?: string | null) {
+  const normalized = clean(value).toLowerCase();
+
+  return (
+    !normalized ||
+    normalized === "other" ||
+    normalized === "其他" ||
+    normalized === "still emerging" ||
+    normalized === "暂未清晰归类"
+  );
+}
+
+export function shouldDisplayNormalizedChip(value?: string | null) {
+  return !isWeakFallbackValue(value);
+}
+
 function cleanList(value: unknown) {
   if (Array.isArray(value)) {
     return value
@@ -509,7 +525,7 @@ export function localizedCanonicalLabel(
     "social media checking": "Social media checking",
     fear_of_rejection: "Fear of rejection",
     "fear of rejection": "Fear of rejection",
-    other: "Other",
+    other: "Still emerging",
     mind_reading: "Mind reading",
     "mind reading": "Mind reading",
     catastrophising: "Catastrophising",
@@ -573,7 +589,7 @@ export function localizedCanonicalLabel(
     "social media checking": "社交媒体查看",
     fear_of_rejection: "害怕被拒绝",
     "fear of rejection": "害怕被拒绝",
-    other: "其他",
+    other: "暂未清晰归类",
     mind_reading: "读心式推断",
     "mind reading": "读心式推断",
     catastrophising: "灾难化推断",

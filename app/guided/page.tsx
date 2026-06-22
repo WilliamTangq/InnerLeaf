@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
   ReflectionResultCard,
@@ -63,6 +63,7 @@ export function GuidedReflectionContent() {
   const hasInput = filledCount > 0;
   const activeField = fields[activeStep];
   const draftKey = user?.id ? `innerleaf:guided:${user.id}` : "";
+  const textareaId = `guided-reflection-${activeField.id}`;
 
   useEffect(() => {
     if (!draftKey) {
@@ -172,6 +173,31 @@ export function GuidedReflectionContent() {
       [field]: value,
     }));
   }
+
+  const startNewReflection = useCallback(() => {
+    setValues({ ...initialValues });
+    setActiveStep(0);
+    setResult("");
+    setStructured(null);
+    setWarning("");
+    setError("");
+    setLoading(false);
+    setSaving(false);
+    setSaved(false);
+    setGeneratedInput("");
+
+    if (draftKey) {
+      window.localStorage.removeItem(draftKey);
+    }
+
+    requestAnimationFrame(() => {
+      const textarea = document.getElementById(
+        "guided-reflection-situation"
+      ) as HTMLTextAreaElement | null;
+      textarea?.scrollIntoView({ behavior: "smooth", block: "center" });
+      textarea?.focus();
+    });
+  }, [draftKey]);
 
   async function handleReflect() {
     if (!session?.access_token) {
@@ -378,6 +404,7 @@ export function GuidedReflectionContent() {
             {activeStep + 1} {t.guided.of} {fields.length}
           </p>
           <TextareaField
+            id={textareaId}
             label={t.guided.fields[activeField.id][0]}
             helper={t.guided.fields[activeField.id][1]}
             className="mt-3 min-h-36 bg-[rgba(255,254,248,0.96)] sm:min-h-40"
@@ -440,6 +467,7 @@ export function GuidedReflectionContent() {
             saving={saving}
             autoSaved
             mode="guided"
+            onReflectAgain={startNewReflection}
           />
           {saved && (
             <Card className="mt-4 hover:translate-y-0">
