@@ -276,11 +276,6 @@ export function ReflectionResultCard({
     };
   }, [session?.access_token, structured]);
 
-  const momentSummary =
-    structured?.moment_summary ||
-    (structured?.trigger
-      ? labels.momentSummaryFallback.replace("{trigger}", structured.trigger)
-      : "");
   const gentleObservation = (() => {
     if (!structured) {
       return "";
@@ -342,53 +337,17 @@ export function ReflectionResultCard({
 
         {isStructured && structured ? (
           <div className="mt-5 grid gap-3 sm:gap-3.5">
-            {structured.emotional_validation && (
+            {canonical?.emotionalValidation && (
               <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(232,246,237,0.74),rgba(255,254,248,0.94))] p-4 shadow-[var(--shadow-soft)] ring-1 ring-[rgba(31,155,143,0.08)] sm:p-5">
                 <p className="max-w-2xl text-[15px] leading-7 text-[var(--foreground)]">
-                  {structured.emotional_validation}
+                  {canonical.emotionalValidation}
                 </p>
               </div>
             )}
             <ReflectionSection
-              label="Captured clearly"
-              labelText={labels.momentSummary}
-              content={momentSummary}
-            />
-            <div className="rounded-[calc(var(--radius-lg)+4px)] border border-[var(--border)] bg-[rgba(246,242,233,0.68)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
-              <div className="flex items-center gap-2">
-                <span
-                  className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]"
-                  aria-hidden="true"
-                >
-                  <Heart size={15} strokeWidth={1.8} />
-                </span>
-                <h3 className="text-sm font-medium text-[var(--foreground)]">
-                  {labels.emotionSnapshot}
-                </h3>
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {structured.emotion && (
-                  <span className="rounded-full border border-[rgba(31,155,143,0.22)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium text-[var(--brand-teal-deep)]">
-                    {labels.mainEmotion}: {structured.emotion}
-                  </span>
-                )}
-                {structured.secondary_emotion && (
-                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-sm font-medium text-[var(--foreground-muted)]">
-                    {labels.secondaryEmotion}: {structured.secondary_emotion}
-                  </span>
-                )}
-              </div>
-            </div>
-            <ReflectionSection
               label="Trigger"
               labelText={labels.trigger}
-              content={shortenWords(structured.trigger, 25)}
-            />
-            <ReflectionSection
-              label="Still unclear"
-              labelText={labels.safetyNote}
-              content={structured.safety_note}
-              tone="highlight"
+              content={shortenWords(canonical?.triggerLabel, 25)}
             />
             <div className="grid gap-3">
                 <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
@@ -459,6 +418,12 @@ export function ReflectionResultCard({
                   content={gentleObservation}
                 />
               </div>
+            <ReflectionSection
+              label="One next question"
+              labelText={labels.nextQuestion}
+              content={canonical?.nextQuestion}
+              tone="highlight"
+            />
             {nextStep && (
               <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
                 <div className="flex flex-wrap items-center gap-2">
@@ -486,9 +451,9 @@ export function ReflectionResultCard({
               </div>
             )}
             <ReflectionSection
-              label="One next question"
-              labelText={labels.nextQuestion}
-              content={structured.next_question}
+              label="Still unclear"
+              labelText={labels.safetyNote}
+              content={structured.safety_note}
               tone="highlight"
             />
           </div>
