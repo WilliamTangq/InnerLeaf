@@ -279,7 +279,8 @@ export function GuidedReflectionContent() {
           result: nextResult,
           structured: nextStructured,
           mode: "guided",
-          language: nextLanguage,
+          language,
+          reflectionLanguage: nextLanguage,
         }),
       });
       const data = await response.json();
@@ -438,6 +439,7 @@ export function GuidedReflectionContent() {
             saved={saved}
             saving={saving}
             autoSaved
+            mode="guided"
           />
           {saved && (
             <Card className="mt-4 hover:translate-y-0">

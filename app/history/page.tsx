@@ -20,6 +20,14 @@ export type Reflection = {
   next_step: string | null;
   next_step_type: string | null;
   mode_detected: string | null;
+  ui_language: string | null;
+  reflection_language: string | null;
+  short_title: string | null;
+  mood_chip: string | null;
+  normalized_trigger: string | null;
+  normalized_thought_pattern: string | null;
+  normalized_next_step_type: string | null;
+  normalized_check_in_signal: string | null;
   follow_up_result: string | null;
   follow_up_note: string | null;
   follow_up_at: string | null;

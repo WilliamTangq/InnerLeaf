@@ -180,7 +180,8 @@ export function QuickReflectionContent() {
           result: nextResult,
           structured: nextStructured,
           mode: "quick",
-          language: nextLanguage,
+          language,
+          reflectionLanguage: nextLanguage,
         }),
       });
       const data = await response.json();
@@ -355,6 +356,7 @@ export function QuickReflectionContent() {
             saved={saved}
             saving={saving}
             autoSaved
+            mode="quick"
           />
           {saved && (
             <div className="mt-4 grid gap-3">

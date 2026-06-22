@@ -15,7 +15,10 @@ import {
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { trackEvent } from "../lib/analytics";
-import { translateNextStepType } from "../lib/i18n";
+import {
+  canonicalFromSavedReflection,
+  localizedCanonicalLabel,
+} from "../lib/reflection-card";
 
 type SummaryReflection = {
   id: string | number;
@@ -26,118 +29,17 @@ type SummaryReflection = {
   behaviour: string | null;
   next_step_type: string | null;
   next_step: string | null;
+  ui_language?: string | null;
+  reflection_language?: string | null;
+  short_title?: string | null;
+  mood_chip?: string | null;
+  normalized_trigger?: string | null;
+  normalized_thought_pattern?: string | null;
+  normalized_next_step_type?: string | null;
+  normalized_check_in_signal?: string | null;
   follow_up_result: string | null;
   follow_up_at: string | null;
 };
-
-function cleanRawLabel(value: string | null) {
-  return (value ?? "")
-    .replace(/^\s*\d+\.\s*/g, "")
-    .replace(/^[-*•]\s*/g, "")
-    .replace(/^["“”'‘’]+|["“”'‘’]+$/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function normalizeCategory(
-  value: string | null,
-  language: "en" | "zh",
-  type: "trigger" | "thought" | "behaviour"
-) {
-  const text = cleanRawLabel(value);
-  const lower = text.toLowerCase();
-
-  if (
-    !text ||
-    lower === "unspecified" ||
-    lower === "not clearly identified" ||
-    lower === "not identified"
-  ) {
-    return "";
-  }
-
-  const maps = {
-    en: {
-      thought: [
-        [/emotional reasoning/i, "Emotional reasoning"],
-        [/mind.?reading/i, "Mind reading"],
-        [/catastroph/i, "Catastrophising"],
-        [/personal/i, "Personalisation"],
-        [/all.?or.?nothing/i, "All-or-nothing thinking"],
-        [/self.?blame/i, "Self-blame"],
-        [/comparison/i, "Comparison thinking"],
-        [/reassurance/i, "Reassurance-seeking"],
-        [/avoid/i, "Avoidance"],
-        [/over.?general/i, "Overgeneralisation"],
-        [/rejection/i, "Rejection sensitivity"],
-        [/low.?energy/i, "Low-energy mode"],
-      ],
-      trigger: [
-        [/delayed reply|late reply|reply/i, "Delayed reply"],
-        [/criticism|comment/i, "Criticism"],
-        [/work|fatigue|shift/i, "Work fatigue"],
-        [/study|exam|assignment/i, "Study pressure"],
-        [/comparison|social/i, "Social comparison"],
-        [/product testing|curiosity/i, "Product testing"],
-        [/pain|period|headache|discomfort/i, "Physical discomfort"],
-      ],
-      behaviour: [
-        [/check|checking/i, "Checking behaviour"],
-        [/avoid|delay|procrastinat/i, "Avoidance"],
-        [/reassurance/i, "Reassurance-seeking"],
-        [/message|text|reply/i, "Emotional messaging"],
-        [/soothe|breath|rest|water|shower|heat/i, "Self-soothing"],
-        [/clarif|fact/i, "Clarifying facts"],
-        [/shutdown|shut down|freeze/i, "Shutdown"],
-        [/delay|wait/i, "Delaying action"],
-      ],
-    },
-    zh: {
-      thought: [
-        [/情绪化推理/, "情绪化推理"],
-        [/读心/, "读心式解读"],
-        [/灾难化/, "灾难化想法"],
-        [/个人化/, "个人化解读"],
-        [/全或无|非黑即白/, "非黑即白"],
-        [/自责/, "自责循环"],
-        [/比较/, "比较思维"],
-        [/确认|安慰/, "反复确认"],
-        [/回避|逃避/, "回避"],
-        [/概括/, "过度概括"],
-        [/被拒绝|拒绝/, "拒绝敏感"],
-        [/低能量/, "低能量模式"],
-      ],
-      trigger: [
-        [/回复|消息/, "回复延迟"],
-        [/批评|评论/, "批评"],
-        [/工作|疲劳|班/, "工作疲劳"],
-        [/学习|考试|作业/, "学习压力"],
-        [/比较|社交/, "社交比较"],
-        [/测试|好奇/, "产品测试"],
-        [/疼|痛|不舒服|经期|头痛/, "身体不适"],
-      ],
-      behaviour: [
-        [/查看|检查|刷/, "反复查看"],
-        [/回避|拖延|逃避/, "回避"],
-        [/确认|安慰/, "寻求确认"],
-        [/消息|回复|发送/, "情绪化发送消息"],
-        [/稳定|呼吸|休息|热水|洗澡|热敷/, "稳定自己"],
-        [/事实|澄清/, "澄清事实"],
-        [/停摆|关机|动不了/, "停摆"],
-        [/等待|延迟/, "延迟行动"],
-      ],
-    },
-  } as const;
-
-  for (const [pattern, label] of maps[language][type]) {
-    if (pattern.test(text)) {
-      return label;
-    }
-  }
-
-  const max = language === "zh" ? 12 : 36;
-  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
-}
 
 function topPatterns(values: string[]) {
   const counts = new Map<string, number>();
@@ -556,7 +458,7 @@ function HelpfulNextStepsSection({
                     strokeWidth={1.8}
                     className="mt-1 shrink-0 text-[var(--brand-teal-deep)]"
                   />
-                  {translateNextStepType(language, item.value)}
+                  {localizedCanonicalLabel(item.value, language)}
                 </span>
                 <span className="shrink-0 text-xs text-[var(--foreground-subtle)]">
                   {item.used}×
@@ -725,27 +627,34 @@ export function SummaryContent() {
 
   const reflectionCount = reflections.length;
   const hasEnoughData = reflectionCount >= 3;
+  const canonicalCards = reflections.map(canonicalFromSavedReflection);
   const repeatedTriggers = topPatterns(
-    reflections.map((item) => normalizeCategory(item.trigger, language, "trigger"))
-  );
+    canonicalCards.map((item) => item.normalizedTrigger)
+  ).map((item) => ({
+    ...item,
+    value: localizedCanonicalLabel(item.value, language),
+  }));
   const repeatedThoughtPatterns = topPatterns(
-    reflections.map((item) =>
-      normalizeCategory(item.thought_pattern, language, "thought")
-    )
-  );
-  const recentBehaviouralThemes = topPatterns(
-    reflections.map((item) => normalizeCategory(item.behaviour, language, "behaviour"))
-  );
+    canonicalCards.map((item) => item.normalizedThoughtPattern)
+  ).map((item) => ({
+    ...item,
+    value: localizedCanonicalLabel(item.value, language),
+  }));
   const repeatedNextStepTypes = topPatterns(
-    reflections.map((item) => cleanRawLabel(item.next_step_type))
-  );
+    canonicalCards.map((item) => item.normalizedNextStepType)
+  ).map((item) => ({
+    ...item,
+    value: localizedCanonicalLabel(item.value, language),
+  }));
+  const recentBehaviouralThemes = repeatedNextStepTypes;
   const nextStepCounts = new Map<string, { value: string; used: number; helped: number }>();
   const settledTriggerValues: string[] = [];
 
   reflections.forEach((item) => {
-    const type = cleanRawLabel(item.next_step_type);
-    const result = cleanRawLabel(item.follow_up_result);
-    const trigger = normalizeCategory(item.trigger, language, "trigger");
+    const canonical = canonicalFromSavedReflection(item);
+    const type = canonical.normalizedNextStepType;
+    const result = canonical.normalizedCheckInSignal;
+    const trigger = canonical.normalizedTrigger;
 
     if (!type || !result) {
       return;
@@ -753,10 +662,10 @@ export function SummaryContent() {
 
     const current = nextStepCounts.get(type) ?? { value: type, used: 0, helped: 0 };
     current.used += 1;
-    if (result === "Helped" || result === "Somewhat") {
+    if (result === "felt_lighter_later" || result === "mostly_resolved") {
       current.helped += 1;
       if (trigger) {
-        settledTriggerValues.push(trigger);
+        settledTriggerValues.push(localizedCanonicalLabel(trigger, language));
       }
     }
     nextStepCounts.set(type, current);

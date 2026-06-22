@@ -1,7 +1,6 @@
 import {
   Brain,
   CheckCircle2,
-  ChevronDown,
   Footprints,
   Heart,
   HelpCircle,
@@ -17,7 +16,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, LinkButton, PageActions, PrimaryButton, SectionLabel } from "./ui";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
-import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
+import { translateDetectedMode } from "../lib/i18n";
+import {
+  createCanonicalReflectionCard,
+  localizedCanonicalLabel,
+  type ReflectionMode,
+} from "../lib/reflection-card";
 
 export type StructuredReflectionResult = {
   emotional_validation?: string;
@@ -194,6 +198,7 @@ export function ReflectionResultCard({
   saving = false,
   onSave,
   autoSaved = false,
+  mode = "quick",
 }: {
   result: string;
   structured?: StructuredReflectionResult;
@@ -203,22 +208,31 @@ export function ReflectionResultCard({
   saving?: boolean;
   onSave?: () => void;
   autoSaved?: boolean;
+  mode?: ReflectionMode;
 }) {
   const { language, t } = useLanguage();
   const { session } = useAuth();
   const [history, setHistory] = useState<SavedReflectionSignal[]>([]);
   const [checkInState, setCheckInState] = useState("");
-  const [detailsOpen, setDetailsOpen] = useState(false);
   const sections = structured
     ? null
     : parseSections(result);
-  const nextStep = structured?.next_step?.trim();
-  const nextStepType = structured?.next_step_type?.trim();
-  const modeDetected = structured?.mode_detected?.trim();
+  const canonical = structured
+    ? createCanonicalReflectionCard({
+        structured,
+        result,
+        mode,
+        uiLanguage: language,
+        reflectionLanguage: language,
+      })
+    : null;
+  const nextStep = canonical?.nextStep;
+  const nextStepType = canonical?.normalizedNextStepType;
+  const modeDetected = canonical?.modeDetected;
   const isStructured = Boolean(structured);
   const labels = t.reflectionCard;
-  const factItems = compactItems(structured?.facts);
-  const interpretationItems = compactItems(structured?.interpretation);
+  const factItems = compactItems(canonical?.factsSummary);
+  const interpretationItems = compactItems(canonical?.interpretationSummary);
   const repeatedPatternCount = useMemo(
     () => countMatching(history, "thought_pattern", structured?.thought_pattern),
     [history, structured?.thought_pattern]
@@ -376,51 +390,7 @@ export function ReflectionResultCard({
               content={structured.safety_note}
               tone="highlight"
             />
-            {nextStep && (
-              <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
-                    aria-hidden="true"
-                  >
-                    <Footprints size={17} strokeWidth={1.9} />
-                  </span>
-                  <h3 className="text-base font-semibold text-[var(--foreground)]">
-                    {labels.nextStep}
-                  </h3>
-                  {nextStepType && (
-                    <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                      {translateNextStepType(language, nextStepType)}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-                  {nextStep}
-                </p>
-                <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
-                  {labels.nextStepHint}
-                </p>
-              </div>
-            )}
-            <button
-              type="button"
-              onClick={() => setDetailsOpen((current) => !current)}
-            className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.86)] px-4 py-3 text-left text-sm font-medium text-[var(--foreground)] shadow-[var(--shadow-sm)] transition duration-200 hover:border-[var(--border-strong)] hover:bg-[var(--surface)] hover:shadow-[var(--shadow-soft)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              aria-expanded={detailsOpen}
-            >
-              <span>{labels.detailsToggle}</span>
-              <ChevronDown
-                size={16}
-                strokeWidth={1.8}
-                aria-hidden="true"
-                className={[
-                  "shrink-0 text-[var(--foreground-subtle)] transition duration-200",
-                  detailsOpen ? "rotate-180" : "",
-                ].join(" ")}
-              />
-            </button>
-            {detailsOpen && (
-              <div className="grid gap-3">
+            <div className="grid gap-3">
                 <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
                   <div className="flex items-center gap-2">
                     <span
@@ -472,8 +442,8 @@ export function ReflectionResultCard({
                   label="Thought pattern"
                   labelText={labels.mainThoughtPattern}
                   content={[
-                    structured.thought_pattern,
-                    structured.thought_pattern_explanation,
+                    canonical?.thoughtPatternLabel,
+                    canonical?.thoughtPatternExplanation,
                   ]
                     .filter(Boolean)
                     .join("\n")}
@@ -481,13 +451,38 @@ export function ReflectionResultCard({
                 <ReflectionSection
                   label="Behavioural insight"
                   labelText={labels.behaviouralInsight}
-                  content={structured.behavioural_insight}
+                  content={canonical?.behaviouralInsight}
                 />
                 <ReflectionSection
                   label="Body / context"
                   labelText={labels.gentleObservation}
                   content={gentleObservation}
                 />
+              </div>
+            {nextStep && (
+              <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+                    aria-hidden="true"
+                  >
+                    <Footprints size={17} strokeWidth={1.9} />
+                  </span>
+                  <h3 className="text-base font-semibold text-[var(--foreground)]">
+                    {labels.nextStep}
+                  </h3>
+                  {nextStepType && (
+                    <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+                      {localizedCanonicalLabel(nextStepType, language)}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
+                  {nextStep}
+                </p>
+                <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
+                  {labels.nextStepHint}
+                </p>
               </div>
             )}
             <ReflectionSection

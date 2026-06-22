@@ -17,8 +17,12 @@ import { toast } from "sonner";
 import { Badge, Card, IconFrame, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
-import { translateDetectedMode, translateNextStepType } from "../lib/i18n";
+import { translateDetectedMode } from "../lib/i18n";
 import { trackEvent } from "../lib/analytics";
+import {
+  canonicalFromSavedReflection,
+  localizedCanonicalLabel,
+} from "../lib/reflection-card";
 import type { Reflection } from "./page";
 
 function extractSection(aiResult: string | null, section: string) {
@@ -104,14 +108,6 @@ function formatHistoryGroup(value: string) {
     year: "numeric",
   }).format(new Date(value));
 }
-
-const previewIcons = {
-  Emotion: Heart,
-  Trigger: Zap,
-  "Thought pattern": Brain,
-  "One small next step": Footprints,
-  Interpretation: Route,
-} as const;
 
 function DetailMetric({
   icon: Icon,
@@ -223,13 +219,6 @@ function sectionTitle(title: string, labels: Labels) {
   return map[title] || title;
 }
 
-function storedItems(value: string | null) {
-  return (value ?? "")
-    .split("\n")
-    .map((item) => item.replace(/^[-•]\s*/, "").trim())
-    .filter(Boolean);
-}
-
 function previewLine(value: string | null, max = 140) {
   const text = (value ?? "").replace(/\s+/g, " ").trim();
   const lower = text.toLowerCase();
@@ -313,15 +302,16 @@ function serializeCheckInNote(feelNow: string, differentNow: string) {
 }
 
 function toHistoryCard(item: Reflection) {
+  const canonical = canonicalFromSavedReflection(item);
   const extractedLabels = cardLabels(item.ai_result);
   const originalInput = previewLine(item.user_input, 800) || "";
-  const trigger = previewLine(item.trigger) || extractedLabels.trigger || "";
+  const trigger = previewLine(canonical.triggerLabel) || extractedLabels.trigger || "";
   const thoughtPattern =
-    previewLine(item.thought_pattern) || extractedLabels.thoughtPattern || "";
+    previewLine(canonical.thoughtPatternLabel) || extractedLabels.thoughtPattern || "";
   const oneNextQuestion =
-    previewLine(item.next_question) || extractedLabels.nextQuestion || "";
+    previewLine(canonical.nextQuestion) || extractedLabels.nextQuestion || "";
   const oneSmallNextStep =
-    previewLine(item.next_step) ||
+    previewLine(canonical.nextStep) ||
     extractSection(item.ai_result, "One Small Next Step") ||
     "";
 
@@ -329,13 +319,19 @@ function toHistoryCard(item: Reflection) {
     id: item.id,
     createdAt: item.created_at,
     originalInput,
-    mainEmotion: previewLine(item.emotion, 80) || "",
-    secondaryEmotion: "",
+    mainEmotion: previewLine(canonical.mainEmotion, 80) || "",
+    secondaryEmotion: previewLine(canonical.secondaryEmotion, 80) || "",
+    shortTitle: previewLine(canonical.shortTitle, 100) || "",
+    moodChip: previewLine(canonical.moodChip, 60) || "",
     trigger,
-    facts: storedItems(item.facts),
-    interpretations: storedItems(item.interpretation),
+    normalizedTrigger: canonical.normalizedTrigger,
+    normalizedThoughtPattern: canonical.normalizedThoughtPattern,
+    normalizedNextStepType: canonical.normalizedNextStepType,
+    normalizedCheckInSignal: canonical.normalizedCheckInSignal,
+    facts: canonical.factsSummary,
+    interpretations: canonical.interpretationSummary,
     thoughtPattern,
-    behaviouralInsight: previewLine(item.behavioural_insight, 280) || "",
+    behaviouralInsight: previewLine(canonical.behaviouralInsight, 280) || "",
     oneSmallNextStep,
     oneNextQuestion,
     userFeedback: {
@@ -343,9 +339,9 @@ function toHistoryCard(item: Reflection) {
       note: item.follow_up_note,
     },
     checkInStatus: item.follow_up_result ? "checked_in" : "not_checked_in",
-    nextStepType: previewLine(item.next_step_type, 60) || "",
-    modeLabel: item.mode,
-    modeDetected: item.mode_detected,
+    nextStepType: previewLine(canonical.nextStepType, 60) || "",
+    modeLabel: canonical.mode,
+    modeDetected: canonical.modeDetected,
     raw: item,
   };
 }
@@ -412,8 +408,9 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
     "idle"
   );
 
+  const canonical = canonicalFromSavedReflection(reflection);
   const nextStep = previewLine(reflection.next_step, 220);
-  const nextStepType = previewLine(reflection.next_step_type, 60);
+  const nextStepType = canonical.normalizedNextStepType;
   const savedDate = formatFollowUpDate(savedAt);
 
   if (!nextStep) {
@@ -483,7 +480,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
         </div>
         {nextStepType && (
           <Badge variant="accent">
-            {translateNextStepType(language, nextStepType)}
+            {localizedCanonicalLabel(nextStepType, language)}
           </Badge>
         )}
       </div>
@@ -721,17 +718,9 @@ export function ReflectionCards({
               const card = toHistoryCard(item);
               const bodyFactor = meaningfulBodyFactor(item.body_factor);
               const isOpen = openCards.has(item.id);
-              const collapsedPreview = [
-                ["Emotion", card.mainEmotion],
-                ["Trigger", card.trigger],
-                ["Thought pattern", card.thoughtPattern],
-                ["One small next step", card.oneSmallNextStep],
-              ] as const;
-              const visiblePreview = collapsedPreview.filter(([, content]) =>
-                Boolean(content)
-              );
               const headline =
-                previewLine(card.trigger) ||
+                previewLine(item.emotional_validation, 150) ||
+                previewLine(card.shortTitle, 100) ||
                 previewLine(card.originalInput, 100) ||
                 "Reflection card";
 
@@ -771,8 +760,35 @@ export function ReflectionCards({
                             {translateDetectedMode(language, item.mode_detected)}
                           </Badge>
                         )}
-                        {card.oneSmallNextStep && (
-                          <Badge variant={item.follow_up_result ? "accent" : "outline"}>
+                        {card.modeLabel && (
+                          <Badge variant="outline">
+                            {card.modeLabel === "guided" ? t.nav.guided : t.nav.quick}
+                          </Badge>
+                        )}
+                        {card.moodChip && <Badge variant="accent">{card.moodChip}</Badge>}
+                        {card.normalizedTrigger && (
+                          <Badge variant="accent">
+                            {localizedCanonicalLabel(card.normalizedTrigger, language)}
+                          </Badge>
+                        )}
+                        {card.normalizedThoughtPattern && (
+                          <Badge variant="outline">
+                            {localizedCanonicalLabel(
+                              card.normalizedThoughtPattern,
+                              language
+                            )}
+                          </Badge>
+                        )}
+                        {card.normalizedNextStepType && (
+                          <Badge variant="outline">
+                            {localizedCanonicalLabel(
+                              card.normalizedNextStepType,
+                              language
+                            )}
+                          </Badge>
+                        )}
+                        {item.follow_up_result && (
+                          <Badge variant="accent">
                             {followUpLabel(item.follow_up_result, t)}
                           </Badge>
                         )}
@@ -791,39 +807,6 @@ export function ReflectionCards({
                       {isOpen ? t.history.collapse : t.history.readFull}
                     </button>
                   </div>
-
-                  {!isOpen && visiblePreview.length > 0 && (
-                    <dl className="mt-5 grid gap-2.5 sm:grid-cols-2 xl:grid-cols-4">
-                      {visiblePreview.map(([title, content]) => {
-                        const Icon = previewIcons[title as keyof typeof previewIcons];
-                        const isNextStep = title === "One small next step";
-                        return (
-                          <div
-                            key={title}
-                            className={[
-                              "rounded-[var(--radius-lg)] border p-3.5",
-                              isNextStep
-                                ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] sm:col-span-2 xl:col-span-1"
-                                : "border-[var(--border)] bg-[var(--surface-muted)]",
-                            ].join(" ")}
-                          >
-                            <dt className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-[var(--foreground-subtle)]">
-                              <Icon
-                                aria-hidden="true"
-                                size={14}
-                                strokeWidth={1.8}
-                                className="text-[var(--brand-teal-deep)]"
-                              />
-                              {sectionTitle(title, t)}
-                            </dt>
-                            <dd className="mt-1.5 line-clamp-3 text-sm leading-6 text-[var(--foreground-muted)]">
-                              {content}
-                            </dd>
-                          </div>
-                        );
-                      })}
-                    </dl>
-                  )}
 
                   {isOpen && (
                     <div className="mt-6 space-y-5 border-t border-[var(--border)] pt-6">
@@ -849,13 +832,16 @@ export function ReflectionCards({
                                 {translateDetectedMode(language, item.mode_detected)}
                               </Badge>
                             )}
-                            {card.nextStepType && (
+                            {card.normalizedNextStepType && (
                               <Badge variant="accent">
-                                {translateNextStepType(language, card.nextStepType)}
+                                {localizedCanonicalLabel(
+                                  card.normalizedNextStepType,
+                                  language
+                                )}
                               </Badge>
                             )}
-                            {card.oneSmallNextStep && (
-                              <Badge variant={item.follow_up_result ? "accent" : "outline"}>
+                            {item.follow_up_result && (
+                              <Badge variant="accent">
                                 {followUpLabel(item.follow_up_result, t)}
                               </Badge>
                             )}
@@ -882,8 +868,11 @@ export function ReflectionCards({
                             icon={Footprints}
                             label={sectionTitle("One small next step", t)}
                             value={
-                              card.nextStepType
-                                ? translateNextStepType(language, card.nextStepType)
+                              card.normalizedNextStepType
+                                ? localizedCanonicalLabel(
+                                    card.normalizedNextStepType,
+                                    language
+                                  )
                                 : card.oneSmallNextStep
                             }
                             accent
