@@ -404,11 +404,9 @@ function HelpfulCheckInBlock({
 
 function ActivityRhythmBlock({
   trendValues,
-  reflectionCount,
   checkInCount,
 }: {
   trendValues: number[];
-  reflectionCount: number;
   checkInCount: number;
 }) {
   const { language, t } = useLanguage();
@@ -476,9 +474,6 @@ function ActivityRhythmBlock({
           {recentTotal} {language === "zh" ? "近 7 天" : "last 7 days"}
         </span>
         <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
-          {reflectionCount} {t.history.saved}
-        </span>
-        <span className="rounded-full border border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]">
           {checkInCount} {t.history.checkedIn}
         </span>
       </div>
@@ -489,12 +484,94 @@ function ActivityRhythmBlock({
   );
 }
 
-function EmotionalWeatherCard({
-  weatherType,
+function SummaryHeroBlock({
+  repeatedTriggers,
+  repeatedThoughtPatterns,
+  checkInSignals,
   reflectionCount,
 }: {
-  weatherType: WeatherType;
+  repeatedTriggers: SummaryItem[];
+  repeatedThoughtPatterns: SummaryItem[];
+  checkInSignals: SummaryItem[];
   reflectionCount: number;
+}) {
+  const { language, t } = useLanguage();
+  const topTrigger = repeatedTriggers[0]?.value || t.summary.noRepeatedTrigger;
+  const topThought =
+    repeatedThoughtPatterns[0]?.value || t.summary.noRepeatedThought;
+  const topSignal = checkInSignals[0]?.value || t.summary.checkInEmpty;
+  const headline =
+    repeatedTriggers[0] && repeatedThoughtPatterns[0]
+      ? language === "zh"
+        ? `你最近的反思，最常回到“${topTrigger}”和“${topThought}”。`
+        : `Your recent reflections most often return to ${topTrigger} and ${topThought}.`
+      : language === "zh"
+        ? "你最近的反思，正在慢慢形成可以回看的线索。"
+        : "Your recent reflections are starting to form a pattern you can return to.";
+  const glanceItems = [
+    [t.history.saved, String(reflectionCount)],
+    [t.summary.repeatedTrigger, topTrigger],
+    [t.summary.repeatedThoughtPattern, topThought],
+    [t.summary.checkInSignals, topSignal],
+  ] as const;
+
+  return (
+    <Card
+      variant="elevated"
+      className="overflow-hidden border-[rgba(31,155,143,0.15)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.58),rgba(255,248,226,0.24))] p-5 shadow-[0_22px_70px_rgba(20,35,28,0.07)] hover:translate-y-0 sm:p-6"
+    >
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-center">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+            {t.summary.narrativeTitle}
+          </p>
+          <h2 className="mt-3 max-w-2xl text-2xl font-semibold leading-tight tracking-tight text-[var(--foreground)] sm:text-[1.9rem]">
+            {headline}
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.summary.heroSupport}
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[topTrigger, topThought, topSignal]
+              .filter(Boolean)
+              .slice(0, 3)
+              .map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-[rgba(31,155,143,0.15)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+                >
+                  {item}
+                </span>
+              ))}
+          </div>
+        </div>
+
+        <div className="rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] p-3.5 shadow-[var(--shadow-sm)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+            {t.summary.atAGlance}
+          </p>
+          <div className="mt-3 space-y-2.5">
+            {glanceItems.map(([label, value]) => (
+              <div key={label} className="flex items-start justify-between gap-3">
+                <span className="text-xs font-medium text-[var(--foreground-subtle)]">
+                  {label}
+                </span>
+                <span className="max-w-[9.5rem] text-right text-sm font-semibold leading-5 text-[var(--foreground)]">
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function EmotionalWeatherCard({
+  weatherType,
+}: {
+  weatherType: WeatherType;
 }) {
   const { t } = useLanguage();
   const WeatherIcon = weatherIcons[weatherType];
@@ -516,17 +593,17 @@ function EmotionalWeatherCard({
 
   return (
     <Card
-      className="relative overflow-hidden rounded-[30px] border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(232,246,241,0.62),rgba(255,248,226,0.38))] p-5 shadow-[0_20px_70px_rgba(20,35,28,0.07)] hover:translate-y-0 sm:p-6"
+      className="relative overflow-hidden rounded-[26px] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.94),rgba(232,246,241,0.52),rgba(255,248,226,0.24))] p-4 shadow-[0_16px_48px_rgba(20,35,28,0.055)] hover:translate-y-0 sm:p-5"
     >
       <div
         className="pointer-events-none absolute -right-12 -top-14 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.2),transparent_66%)]"
         aria-hidden="true"
       />
-      <div className="relative grid gap-5 md:grid-cols-[auto_1fr_auto] md:items-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-[1.55rem] border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.72)] shadow-[var(--shadow-soft)]">
+      <div className="relative grid gap-4 md:grid-cols-[auto_1fr_auto] md:items-center">
+        <div className="flex h-14 w-14 items-center justify-center rounded-[1.15rem] border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] shadow-[var(--shadow-sm)]">
           <WeatherIcon
             aria-hidden="true"
-            size={34}
+            size={25}
             strokeWidth={1.55}
             className="text-[var(--brand-teal-deep)]"
           />
@@ -535,17 +612,12 @@ function EmotionalWeatherCard({
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
             {t.summary.emotionalWeatherTitle}
           </p>
-          <h2 className="mt-2 text-xl font-semibold leading-8 text-[var(--foreground)]">
+          <h2 className="mt-1.5 text-lg font-semibold leading-7 text-[var(--foreground)]">
             {t.summary.weather[weatherType]}
           </h2>
-          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
+          <p className="mt-1.5 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
             {t.summary.emotionalWeatherSubtitle}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]">
-              {reflectionCount} {t.history.saved}
-            </span>
-          </div>
         </div>
         <LinkButton
           href={action.href}
@@ -704,7 +776,6 @@ export function SummaryContent() {
           <MotionBlock>
             <EmotionalWeatherCard
               weatherType={emotionalWeatherType}
-              reflectionCount={reflectionCount}
             />
           </MotionBlock>
           <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -739,9 +810,16 @@ export function SummaryContent() {
         <>
           <div className="grid gap-4 lg:gap-5">
             <MotionBlock>
+              <SummaryHeroBlock
+                repeatedTriggers={repeatedTriggers}
+                repeatedThoughtPatterns={repeatedThoughtPatterns}
+                checkInSignals={repeatedCheckInSignals}
+                reflectionCount={reflectionCount}
+              />
+            </MotionBlock>
+            <MotionBlock>
               <EmotionalWeatherCard
                 weatherType={emotionalWeatherType}
-                reflectionCount={reflectionCount}
               />
             </MotionBlock>
             <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
@@ -773,7 +851,6 @@ export function SummaryContent() {
               <MotionBlock>
                 <ActivityRhythmBlock
                   trendValues={trendValues}
-                  reflectionCount={reflectionCount}
                   checkInCount={checkInCount}
                 />
               </MotionBlock>

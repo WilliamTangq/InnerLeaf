@@ -934,6 +934,9 @@ export const translations = {
       },
       narrativeTitle: "Recent reflection read",
       narrativeDesc: "A gentle read of what has appeared in your saved cards.",
+      heroSupport:
+        "These patterns become clearer as you save and check in on more cards.",
+      atAGlance: "At a glance",
       recentEmotionalTheme: "Recent Emotional Theme",
       recentEmotionalThemeText:
         "Recently, your reflections seem to involve {triggers} more than other triggers.",
@@ -2306,6 +2309,8 @@ export const translations = {
       },
       narrativeTitle: "最近反思解读",
       narrativeDesc: "基于你保存的卡片，温和整理最近出现的内容。",
+      heroSupport: "随着你保存并回看更多卡片，这些模式会慢慢变清晰。",
+      atAGlance: "快速看一眼",
       recentEmotionalTheme: "最近情绪主题",
       recentEmotionalThemeText:
         "最近，你的反思似乎更多围绕{triggers}。",
