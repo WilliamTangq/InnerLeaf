@@ -903,6 +903,26 @@ export const translations = {
       authBody: "Pattern Summary is based on your saved reflection cards.",
       notEnoughData: "Not enough structured data yet.",
       checkInEmpty: "Check in on a few next steps to see what tends to help.",
+      emotionalWeatherTitle: "This week’s emotional weather",
+      emotionalWeatherSubtitle:
+        "A gentle read of the emotional tone across your recent reflections.",
+      weather: {
+        no_data: "Your emotional weather will appear after a few reflections.",
+        cloudy_pressure:
+          "Cloudy with pressure, but you are starting to notice the pattern.",
+        mostly_clear: "Mostly clear, with signs of steadier ground.",
+        mixed_weather:
+          "Mixed weather. Some heavy moments, some gentle progress.",
+        recurring_storm:
+          "A few patterns still feel active, but they are becoming more visible.",
+        steady_growth:
+          "There are signs of steadier growth in how you are responding.",
+      },
+      weatherActions: {
+        breathing: "Try a breathing break",
+        reflection: "Write one gentle reflection",
+        pattern: "Review one repeated pattern",
+      },
       narrativeTitle: "Recent reflection read",
       narrativeDesc: "A gentle read of what has appeared in your saved cards.",
       recentEmotionalTheme: "Recent Emotional Theme",
@@ -2185,6 +2205,21 @@ export const translations = {
       authBody: "模式总结会基于你保存的反思卡片生成。",
       notEnoughData: "还没有足够的结构化内容。",
       checkInEmpty: "回看几次下一步后，就能看到哪些做法更常被你标记为有帮助。",
+      emotionalWeatherTitle: "这周的情绪天气",
+      emotionalWeatherSubtitle: "温柔地看看你最近几次反思里的整体情绪气候。",
+      weather: {
+        no_data: "完成几次反思后，这里会显示你的情绪天气。",
+        cloudy_pressure: "有些阴云和压力，但你已经开始看见自己的模式。",
+        mostly_clear: "整体较清朗，也能感受到更稳定的状态。",
+        mixed_weather: "天气有些多变。有沉重的时刻，也有慢慢前进的迹象。",
+        recurring_storm: "有些模式还在反复出现，但你已经越来越能看见它们。",
+        steady_growth: "你最近的回应方式里，已经能看到更稳定的成长迹象。",
+      },
+      weatherActions: {
+        breathing: "试一次呼吸练习",
+        reflection: "写一次温柔反思",
+        pattern: "回看一个重复模式",
+      },
       narrativeTitle: "最近反思解读",
       narrativeDesc: "基于你保存的卡片，温和整理最近出现的内容。",
       recentEmotionalTheme: "最近情绪主题",

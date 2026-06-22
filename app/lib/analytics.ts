@@ -26,6 +26,7 @@ export type AnalyticsEventName =
   | "history_viewed"
   | "reflection_detail_opened"
   | "summary_viewed"
+  | "emotional_weather_viewed"
   | "check_in_opened"
   | "check_in_completed"
   | "calm_page_viewed"
