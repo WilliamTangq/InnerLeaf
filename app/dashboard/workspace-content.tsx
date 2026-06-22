@@ -83,8 +83,8 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <section className="rounded-[1.6rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.74))] p-4 shadow-[var(--shadow-lg)] sm:rounded-[2.35rem] sm:p-7">
-        <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+      <section className="rounded-[1.45rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(238,249,244,0.68))] p-4 shadow-[var(--shadow-md)] sm:rounded-[2rem] sm:p-5">
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
               {t.app.subtitle}
@@ -93,7 +93,7 @@ export function WorkspaceContent() {
               {t.app.welcome}, {name}
             </p>
           </div>
-          <div className="flex w-fit items-center gap-2 rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.78)] px-3 py-2 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]">
+          <div className="flex w-fit items-center gap-2 rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]">
             <ShieldCheck
               aria-hidden="true"
               size={14}
@@ -127,8 +127,8 @@ export function WorkspaceContent() {
         </Card>
       )}
 
-      <section className="mt-6 sm:mt-7">
-        <div className="grid gap-3 lg:grid-cols-2 lg:gap-4">
+      <section className="mt-5 sm:mt-6">
+        <div className="grid gap-3 lg:grid-cols-2">
           {t.app.cards.slice(0, 2).map(([title, description, cta, href], index) => {
             const Icon = icons[index];
 
@@ -137,30 +137,30 @@ export function WorkspaceContent() {
                 key={href}
                 variant="elevated"
                 className={[
-                  "group h-full overflow-hidden p-4 hover:-translate-y-1 sm:p-7",
+                  "group h-full overflow-hidden p-4 hover:-translate-y-0.5 sm:p-5",
                   index === 0
                     ? "border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(231,244,239,0.78))] shadow-[var(--shadow-xl)]"
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.92)]",
                 ].join(" ")}
               >
-                <div className="flex min-h-[176px] flex-col sm:min-h-[220px]">
+                <div className="flex min-h-[160px] flex-col sm:min-h-[184px]">
                   <span
                     className={[
-                      "flex h-12 w-12 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
+                      "flex h-10 w-10 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
                       index === 0
                         ? "border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
                         : "border-[rgba(40,80,60,0.1)] bg-[rgba(246,242,233,0.68)] text-[var(--foreground-muted)]",
                     ].join(" ")}
                   >
-                    <Icon aria-hidden="true" size={21} strokeWidth={1.8} />
+                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
                   </span>
-                  <h2 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:mt-5 sm:text-2xl">
+                  <h2 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
                     {title}
                   </h2>
-                  <p className="mt-3 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
+                  <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
                     {description}
                   </p>
-                  <div className="mt-auto pt-5 sm:pt-7">
+                  <div className="mt-auto pt-4">
                     <LinkButton href={href} size="md">
                       {cta}
                     </LinkButton>
@@ -172,8 +172,8 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <section className="mt-4 sm:mt-5">
-        <div className="grid gap-4 md:grid-cols-2">
+      <section className="mt-3 sm:mt-4">
+        <div className="grid gap-3 md:grid-cols-2">
           {t.app.cards.slice(2).map(([title, description, cta, href], index) => {
             const originalIndex = index + 2;
             const Icon = icons[originalIndex];
@@ -192,7 +192,7 @@ export function WorkspaceContent() {
                     <h2 className="text-lg font-semibold text-[var(--foreground)]">
                       {title}
                     </h2>
-                    <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                    <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-[var(--foreground-muted)]">
                       {description}
                     </p>
                     <LinkButton
@@ -211,7 +211,7 @@ export function WorkspaceContent() {
         </div>
       </section>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">
         <Card variant="muted" className="hover:translate-y-0">
           <SectionLabel>{t.app.recent}</SectionLabel>
           {recent ? (

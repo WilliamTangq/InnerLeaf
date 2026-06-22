@@ -272,7 +272,7 @@ export function PageHeader({
         {title}
       </h1>
       {children && (
-        <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)] sm:text-[15px] sm:leading-7">
           {children}
         </p>
       )}
@@ -288,9 +288,7 @@ export function PageActions({
   className?: string;
 }) {
   return (
-    <div
-      className={cx("mb-8 flex flex-wrap items-center gap-3", className)}
-    >
+    <div className={cx("mb-6 flex flex-wrap items-center gap-2.5", className)}>
       {children}
     </div>
   );
@@ -308,7 +306,7 @@ export function Card({
   return (
     <div
       className={cx(
-        "rounded-[calc(var(--radius-xl)+6px)] border p-5 sm:p-6",
+        "rounded-[calc(var(--radius-xl)+6px)] border p-4 sm:p-5",
         variant === "default" &&
           "border-[rgba(40,80,60,0.095)] bg-[rgba(255,254,248,0.9)] shadow-[var(--shadow-md)] transition duration-200",
         variant === "muted" &&

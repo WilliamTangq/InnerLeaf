@@ -88,13 +88,20 @@ export function LanguageSelector({ compact = false }: { compact?: boolean }) {
             aria-pressed={active}
             className={[
               "rounded-full text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-              compact ? "px-1 py-1 text-[11px] sm:px-2 sm:text-xs" : "px-3 py-1.5",
+              compact ? "min-w-8 px-1.5 py-1 text-[11px] sm:min-w-0 sm:px-2 sm:text-xs" : "px-3 py-1.5",
               active
                 ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
                 : "text-[var(--foreground-subtle)] hover:text-[var(--foreground)]",
             ].join(" ")}
           >
-            {item.label}
+            {compact ? (
+              <>
+                <span className="sm:hidden">{item.shortLabel}</span>
+                <span className="hidden sm:inline">{item.label}</span>
+              </>
+            ) : (
+              item.label
+            )}
           </button>
         );
       })}

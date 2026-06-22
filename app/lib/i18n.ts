@@ -1,8 +1,8 @@
 export type Language = "en" | "zh";
 
-export const languages: Array<{ value: Language; label: string }> = [
-  { value: "en", label: "English" },
-  { value: "zh", label: "中文" },
+export const languages: Array<{ value: Language; label: string; shortLabel: string }> = [
+  { value: "en", label: "English", shortLabel: "EN" },
+  { value: "zh", label: "中文", shortLabel: "中文" },
 ];
 
 export const translations = {

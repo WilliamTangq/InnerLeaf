@@ -130,11 +130,11 @@ function ActivityTrendChart({
   );
 
   return (
-    <div className="rounded-[1.4rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.48),rgba(255,254,248,0.86))] p-4">
-      <div className="flex h-40 items-end gap-2">
+    <div className="rounded-[1.25rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.42),rgba(255,254,248,0.84))] p-3.5">
+      <div className="flex h-32 items-end gap-2">
         {data.map((item) => (
           <div key={item.label} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-            <div className="flex h-28 w-full items-end justify-center gap-1">
+            <div className="flex h-24 w-full items-end justify-center gap-1">
               {[
                 ["users", item.users, "bg-[rgba(31,155,143,0.72)]"],
                 ["reflections", item.reflections, "bg-[rgba(217,179,74,0.72)]"],
@@ -306,7 +306,7 @@ function FounderMetricsContent() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
             {coreStats.map(({ label, value, icon }) => (
               <AdminMetricCard
                 key={label}
@@ -317,14 +317,14 @@ function FounderMetricsContent() {
             ))}
           </div>
 
-          <Card className="mt-6 hover:translate-y-0">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <Card className="mt-4 hover:translate-y-0">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <SectionLabel>{t.admin.eventCoverage}</SectionLabel>
-                <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
+                <h2 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
                   Funnel overview
                 </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+                <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
                   Core event counts from the privacy-safe analytics layer. Private reflection content is never shown here.
                 </p>
               </div>
@@ -332,13 +332,13 @@ function FounderMetricsContent() {
                 {metrics.analyticsConnected ? "Analytics connected" : "DB fallback active"}
               </span>
             </div>
-            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-6">
               {metrics.trackedEvents.map((event) => {
                 const value = valueFor(event);
                 return (
                   <div
                     key={event}
-                    className="rounded-[1.15rem] border border-[var(--border)] bg-[rgba(246,242,233,0.58)] px-3 py-3"
+                    className="rounded-[1rem] border border-[var(--border)] bg-[rgba(246,242,233,0.58)] px-3 py-2.5"
                   >
                     <p className="text-lg font-semibold leading-none text-[var(--foreground)]">
                       {valueLabel(value)}
@@ -352,10 +352,10 @@ function FounderMetricsContent() {
             </div>
           </Card>
 
-          <div className="mt-6 grid gap-5 xl:grid-cols-[1.05fr_0.95fr]">
+          <div className="mt-4 grid gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <Card className="hover:translate-y-0">
               <SectionLabel>{t.admin.funnelRates}</SectionLabel>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
                 {funnelBlocks.map((item) => (
                   <MetricRow
                     key={item.label}
@@ -369,10 +369,10 @@ function FounderMetricsContent() {
 
             <Card className="hover:translate-y-0">
               <SectionLabel>{t.admin.overview}</SectionLabel>
-              <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
+              <h2 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
                 Last 7 days activity
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                 Aggregate trend only: users, saved reflections, and feedback submissions.
               </p>
               <div className="mt-4">
@@ -381,7 +381,7 @@ function FounderMetricsContent() {
             </Card>
           </div>
 
-          <div className="mt-6 grid gap-5 lg:grid-cols-3">
+          <div className="mt-4 grid gap-4 lg:grid-cols-3">
             <Card className="hover:translate-y-0">
               <LineChart
                 aria-hidden="true"
@@ -389,10 +389,10 @@ function FounderMetricsContent() {
                 strokeWidth={1.8}
                 className="text-[var(--brand-teal-deep)]"
               />
-              <h2 className="mt-4 text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
                 Quick vs guided
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                 Quick saved: {db?.quickSaved ?? 0}. Guided saved:{" "}
                 {db?.guidedSaved ?? 0}.
               </p>
@@ -423,10 +423,10 @@ function FounderMetricsContent() {
                 strokeWidth={1.8}
                 className="text-[var(--brand-teal-deep)]"
               />
-              <h2 className="mt-4 text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
                 Feedback quality
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                 {db?.positiveFeedback ?? 0} users said clarity helped.{" "}
                 {db?.repeatIntent ?? 0} said they would use it again.
               </p>
@@ -450,10 +450,10 @@ function FounderMetricsContent() {
                 strokeWidth={1.8}
                 className="text-[var(--brand-teal-deep)]"
               />
-              <h2 className="mt-4 text-lg font-semibold text-[var(--foreground)]">
+              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
                 Privacy boundary
               </h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
                 This page shows counts and rates only. It does not expose private
                 reflection text, AI output, or check-in notes.
               </p>
@@ -470,7 +470,7 @@ function FounderMetricsContent() {
             </Card>
           </div>
 
-          <Card className="mt-6 hover:translate-y-0">
+          <Card className="mt-4 hover:translate-y-0">
             <SectionLabel>{t.admin.overview}</SectionLabel>
             <div className="mt-4 grid gap-2 sm:grid-cols-3">
               <MiniBar

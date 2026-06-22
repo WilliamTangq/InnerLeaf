@@ -190,12 +190,12 @@ function ProductTransformation() {
 
   return (
     <section className="mx-auto max-w-[1240px] py-14 sm:py-20 lg:py-24">
-      <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto max-w-[42rem] text-center">
         <SectionLabel>{t.home.transformationEyebrow}</SectionLabel>
-        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.35rem] sm:leading-tight">
+        <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight">
           {t.home.transformationTitle}
         </h2>
-        <p className="mx-auto mt-3 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
+        <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--foreground-muted)] sm:text-[15px] sm:leading-7">
           {t.home.transformationCopy}
         </p>
       </div>
@@ -207,7 +207,7 @@ function ProductTransformation() {
             <Surface
               key={title}
               className={[
-                "group relative flex min-h-[410px] flex-col overflow-hidden rounded-[2rem] p-5 transition duration-300 sm:p-7 lg:min-h-[430px]",
+                "group relative flex min-h-[380px] flex-col overflow-hidden rounded-[1.8rem] p-5 transition duration-300 sm:p-6 lg:min-h-[400px]",
                 "hover:-translate-y-0.5 hover:shadow-[0_26px_82px_rgba(38,56,48,0.12)]",
                 index === 1 ? "border-[rgba(31,155,143,0.16)] shadow-[0_28px_86px_rgba(31,80,70,0.13)]" : "",
               ].join(" ")}
@@ -238,21 +238,21 @@ function ProductTransformation() {
                 </span>
               </div>
 
-              <h3 className="mt-5 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
+              <h3 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)]">
                 {title}
               </h3>
-              <p className="mt-2 max-w-[86%] text-sm leading-6 text-[var(--foreground-muted)]">
+              <p className="mt-2 max-w-[88%] text-sm leading-6 text-[var(--foreground-muted)]">
                 {body}
               </p>
 
-              <div className="mt-5 rounded-[1.5rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(255,255,255,0.60)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+              <div className="mt-4 rounded-[1.35rem] border border-[rgba(35,70,55,0.08)] bg-[rgba(255,255,255,0.60)] p-4 shadow-[var(--shadow-sm)]">
                 {index === 0 && (
                   <div>
                     <div className="mb-3 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
                       <span className="h-1.5 w-1.5 rounded-full bg-[rgba(31,155,143,0.42)]" />
                       {t.home.storyFreeWrite}
                     </div>
-                    <p className="min-h-[5.5rem] rounded-[1.25rem] bg-[rgba(246,242,233,0.58)] p-4 text-sm leading-6 text-[var(--foreground-subtle)]">
+                    <p className="min-h-[4.75rem] rounded-[1.15rem] bg-[rgba(246,242,233,0.58)] p-3.5 text-sm leading-6 text-[var(--foreground-subtle)]">
                       “{t.home.storyInput}”
                     </p>
                     <div className="mt-3 flex flex-wrap gap-2">
@@ -272,7 +272,7 @@ function ProductTransformation() {
                     <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
                       {t.home.storyMomentToStructure}
                     </div>
-                    <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                       {[
                         [t.reflectionCard.trigger, t.home.previewTrigger],
                         [t.reflectionCard.facts, t.home.previewFacts],
@@ -281,7 +281,7 @@ function ProductTransformation() {
                       ].map(([label, value]) => (
                         <div
                           key={label}
-                          className="rounded-2xl border border-[rgba(35,70,55,0.06)] bg-[rgba(246,242,233,0.54)] p-3.5"
+                          className="rounded-[1rem] border border-[rgba(35,70,55,0.06)] bg-[rgba(246,242,233,0.54)] p-3"
                         >
                           <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
                             {label}
@@ -292,7 +292,7 @@ function ProductTransformation() {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3 rounded-2xl border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(135deg,rgba(230,245,239,0.74),rgba(255,248,226,0.44))] p-3.5">
+                    <div className="mt-3 rounded-[1rem] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(135deg,rgba(230,245,239,0.74),rgba(255,248,226,0.44))] p-3">
                       <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
                         <CheckCircle2 aria-hidden="true" size={13} strokeWidth={1.8} />
                         {t.reflectionCard.nextStep}
@@ -406,10 +406,10 @@ export default function Home() {
             <div className="mt-4">
               <Badge variant="accent">{t.home.badge}</Badge>
             </div>
-            <h1 className="mt-5 max-w-[520px] text-[2.35rem] font-semibold leading-[1.04] tracking-tight text-[var(--foreground)] sm:text-[3.05rem] sm:leading-[1.02] lg:text-[3.2rem] xl:text-[3.4rem]">
+            <h1 className="mt-5 max-w-[500px] text-[2.25rem] font-semibold leading-[1.05] tracking-tight text-[var(--foreground)] sm:text-[2.9rem] sm:leading-[1.03] lg:text-[3.05rem] xl:text-[3.2rem]">
               {t.home.headline}
             </h1>
-            <p className="mt-4 max-w-[31rem] text-[15px] leading-7 text-[var(--foreground-muted)] sm:text-[1.05rem] sm:leading-8">
+            <p className="mt-4 max-w-[30rem] text-[15px] leading-7 text-[var(--foreground-muted)] sm:text-base sm:leading-7">
               {t.home.subtitle}
             </p>
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">

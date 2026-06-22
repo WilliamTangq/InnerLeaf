@@ -379,24 +379,24 @@ function SummaryNarrativeCard({
 
   return (
     <Card variant="elevated" className="hover:translate-y-0">
-      <div className="grid gap-5 lg:grid-cols-[1fr_280px]">
+      <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
         <div>
-          <div className="mb-4 flex items-start justify-between gap-3">
+          <div className="mb-3 flex items-start justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-[var(--foreground)]">
                 {t.summary.narrativeTitle}
               </h2>
-              <p className="mt-1 text-sm text-[var(--foreground-subtle)]">
+              <p className="mt-1 line-clamp-2 text-sm text-[var(--foreground-subtle)]">
                 {t.summary.narrativeDesc}
               </p>
             </div>
             <IconFrame icon={Leaf} size="md" />
           </div>
-          <dl className="grid gap-2.5">
+          <dl className="grid gap-2">
             {rows.map(([label, text]) => (
               <div
                 key={label}
-                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+                className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3.5 py-2.5"
               >
                 <dt className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
                   {label}
@@ -409,16 +409,16 @@ function SummaryNarrativeCard({
           </dl>
         </div>
 
-        <div className="rounded-[1.5rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.58),rgba(255,254,248,0.82))] p-4">
-          <h2 className="text-lg font-semibold text-[var(--foreground)]">
+        <div className="rounded-[1.35rem] border border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(231,244,239,0.54),rgba(255,254,248,0.82))] p-4">
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
             {t.common.insights}
           </h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+          <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--foreground-subtle)]">
             {t.summary.purpose}
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
-              <p className="text-2xl font-semibold text-[var(--foreground)]">
+              <p className="text-xl font-semibold text-[var(--foreground)]">
                 {reflectionCount}
               </p>
               <p className="text-xs font-medium text-[var(--foreground-subtle)]">
@@ -426,7 +426,7 @@ function SummaryNarrativeCard({
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.76)] px-3 py-2">
-              <p className="text-2xl font-semibold text-[var(--foreground)]">
+              <p className="text-xl font-semibold text-[var(--foreground)]">
                 {checkInCount}
               </p>
               <p className="text-xs font-medium text-[var(--foreground-subtle)]">
@@ -475,17 +475,17 @@ function InsightPatternList({
           <h2 className="text-base font-semibold text-[var(--foreground)]">
             {title}
           </h2>
-          <p className="mt-1 text-sm leading-6 text-[var(--foreground-subtle)]">
+          <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--foreground-subtle)]">
             {description}
           </p>
         </div>
         <IconFrame icon={BarChart3} size="sm" />
       </div>
-      <ul className="mt-5 space-y-2">
+      <ul className="mt-4 space-y-2">
         {items.map((item) => (
             <li
               key={item.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-4 py-3"
+              className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] px-3.5 py-2.5"
             >
               <div className="flex items-center justify-between gap-3">
                 <span className="text-sm font-medium leading-6 text-[var(--foreground)]">
@@ -495,7 +495,7 @@ function InsightPatternList({
                   {item.count}×
                 </span>
               </div>
-              <div className="mt-3">
+              <div className="mt-2.5">
                 <MiniBar
                   label={item.value}
                   value={item.count}

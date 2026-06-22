@@ -81,7 +81,7 @@ export function HistoryContent() {
         {t.history.purpose}
       </PageHeader>
 
-      <PageActions className="mb-6">
+      <PageActions className="mb-5">
         <LinkButton href="/dashboard/quick">{t.common.startQuick}</LinkButton>
         <LinkButton href="/dashboard/summary" variant="secondary">
           {t.common.viewPatterns}
@@ -89,12 +89,12 @@ export function HistoryContent() {
       </PageActions>
 
       {!hasError && visibleReflections.length > 0 && (
-        <div className="mb-6 grid gap-3 sm:grid-cols-3">
-          <Card className="hover:translate-y-0">
+        <div className="mb-5 grid gap-3 sm:grid-cols-3">
+          <Card className="py-3.5 hover:translate-y-0">
             <div className="flex items-center gap-3">
               <IconFrame icon={Archive} size="sm" />
               <div>
-                <p className="text-2xl font-semibold text-[var(--foreground)]">
+                <p className="text-xl font-semibold text-[var(--foreground)]">
                   {visibleReflections.length}
                 </p>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
@@ -103,11 +103,11 @@ export function HistoryContent() {
               </div>
             </div>
           </Card>
-          <Card className="hover:translate-y-0">
+          <Card className="py-3.5 hover:translate-y-0">
             <div className="flex items-center gap-3">
               <IconFrame icon={CheckCircle2} size="sm" />
               <div>
-                <p className="text-2xl font-semibold text-[var(--foreground)]">
+                <p className="text-xl font-semibold text-[var(--foreground)]">
                   {checkedInCount}
                 </p>
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
@@ -116,7 +116,7 @@ export function HistoryContent() {
               </div>
             </div>
           </Card>
-          <Card className="hover:translate-y-0">
+          <Card className="py-3.5 hover:translate-y-0">
             <div className="flex items-center gap-3">
               <IconFrame icon={Clock3} size="sm" tone="gold" />
               <div>
