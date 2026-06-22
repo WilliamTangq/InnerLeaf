@@ -33,6 +33,7 @@ export type AnalyticsEventName =
   | "breathing_started"
   | "breathing_completed"
   | "mood_checkin_selected"
+  | "micro_action_clicked"
   | "feedback_prompt_clicked"
   | "feedback_submitted";
 

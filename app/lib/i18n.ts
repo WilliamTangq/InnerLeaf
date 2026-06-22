@@ -1096,6 +1096,22 @@ export const translations = {
           ],
         ],
       },
+      microActions: {
+        title: "Need support now?",
+        subtitle: "One gentle step is enough.",
+        actions: {
+          calm: "Calm down",
+          reflect: "Reflect now",
+          encouragement: "I need encouragement",
+          nextStep: "Small next step",
+        },
+        encouragement:
+          "You do not have to solve everything today. One gentle step is enough.",
+        nextStep:
+          "Drink some water, take three slow breaths, then write one sentence about what you feel.",
+        encouragementCta: "Start a gentle reflection",
+        nextStepCta: "Try a breathing break",
+      },
     },
     calm: {
       title: "Take a gentle breathing break",
@@ -2421,6 +2437,22 @@ export const translations = {
             "/dashboard/quick",
           ],
         ],
+      },
+      microActions: {
+        title: "现在需要一点支持吗？",
+        subtitle: "先做一个温柔的小动作就够了。",
+        actions: {
+          calm: "让我平静下来",
+          reflect: "开始反思",
+          encouragement: "我需要一点鼓励",
+          nextStep: "给我一个小行动",
+        },
+        encouragement:
+          "你不需要今天解决所有事情。先走一小步就已经很好了。",
+        nextStep:
+          "喝一口水，慢慢呼吸三次，然后写下一句话描述你的感受。",
+        encouragementCta: "开始一次温柔的反思",
+        nextStepCta: "做一个呼吸练习",
       },
     },
     calm: {

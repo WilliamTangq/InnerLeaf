@@ -2,10 +2,12 @@
 
 import {
   Archive,
+  Heart,
   Footprints,
   PencilLine,
   ShieldCheck,
   TrendingUp,
+  Wind,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -20,6 +22,7 @@ import {
 import { trackEvent } from "../lib/analytics";
 
 const icons = [PencilLine, Footprints, Archive, TrendingUp] as const;
+const microActionIcons = [Wind, PencilLine, Heart, Footprints] as const;
 
 type RecentReflection = {
   id: string;
@@ -145,6 +148,154 @@ function MoodCheckInCard() {
   );
 }
 
+function MicroActionRow() {
+  const { language, t } = useLanguage();
+  const [activeSupport, setActiveSupport] = useState<
+    "encouragement" | "nextStep" | null
+  >(null);
+  const actions = [
+    {
+      id: "calm",
+      label: t.app.microActions.actions.calm,
+      href: "/dashboard/calm",
+    },
+    {
+      id: "reflect",
+      label: t.app.microActions.actions.reflect,
+      href: "/dashboard/quick",
+    },
+    {
+      id: "encouragement",
+      label: t.app.microActions.actions.encouragement,
+    },
+    {
+      id: "nextStep",
+      label: t.app.microActions.actions.nextStep,
+    },
+  ] as const;
+  const supportCopy =
+    activeSupport === "encouragement"
+      ? t.app.microActions.encouragement
+      : activeSupport === "nextStep"
+        ? t.app.microActions.nextStep
+        : "";
+  const supportCta =
+    activeSupport === "encouragement"
+      ? {
+          href: "/dashboard/quick",
+          label: t.app.microActions.encouragementCta,
+        }
+      : activeSupport === "nextStep"
+        ? {
+            href: "/dashboard/calm",
+            label: t.app.microActions.nextStepCta,
+          }
+        : null;
+
+  function trackMicroAction(action: string) {
+    trackEvent("micro_action_clicked", {
+      action,
+      locale: language,
+    });
+  }
+
+  return (
+    <section className="mt-3 rounded-[1.15rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.62)] p-3 shadow-[var(--shadow-sm)] sm:mt-4 sm:p-3.5">
+      <div className="mb-2.5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-sm font-semibold text-[var(--foreground)]">
+            {t.app.microActions.title}
+          </h2>
+          <p className="mt-0.5 text-xs text-[var(--foreground-subtle)]">
+            {t.app.microActions.subtitle}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+        {actions.map((action, index) => {
+          const Icon = microActionIcons[index];
+          const isActive = activeSupport === action.id;
+          const className = [
+            "group inline-flex min-h-11 items-center gap-2 rounded-[0.95rem] border px-3 py-2 text-left text-xs font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+            isActive
+              ? "border-[rgba(31,155,143,0.24)] bg-[rgba(230,245,239,0.76)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
+              : "border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.74)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.18)] hover:bg-[rgba(255,254,248,0.92)] hover:text-[var(--foreground)]",
+          ].join(" ");
+
+          if ("href" in action) {
+            return (
+              <LinkButton
+                key={action.id}
+                href={action.href}
+                variant="ghost"
+                size="sm"
+                className={className}
+                onClick={() => trackMicroAction(action.id)}
+              >
+                <Icon
+                  aria-hidden="true"
+                  size={15}
+                  strokeWidth={1.8}
+                  className="shrink-0 text-[var(--brand-teal-deep)]"
+                />
+                {action.label}
+              </LinkButton>
+            );
+          }
+
+          return (
+            <button
+              key={action.id}
+              type="button"
+              onClick={() => {
+                const next =
+                  activeSupport === action.id
+                    ? null
+                    : (action.id as "encouragement" | "nextStep");
+                setActiveSupport(next);
+                trackMicroAction(action.id);
+              }}
+              aria-pressed={isActive}
+              className={className}
+            >
+              <Icon
+                aria-hidden="true"
+                size={15}
+                strokeWidth={1.8}
+                className="shrink-0 text-[var(--brand-teal-deep)]"
+              />
+              {action.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeSupport && supportCta && (
+        <motion.div
+          key={activeSupport}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="mt-2.5 flex flex-col gap-2 rounded-[1rem] border border-[rgba(31,155,143,0.11)] bg-[linear-gradient(135deg,rgba(255,254,248,0.78),rgba(232,246,241,0.48))] px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between"
+        >
+          <p className="text-sm leading-5 text-[var(--foreground-muted)]">
+            {supportCopy}
+          </p>
+          <LinkButton
+            href={supportCta.href}
+            variant="ghost"
+            size="sm"
+            className="w-full shrink-0 sm:w-auto"
+          >
+            {supportCta.label}
+          </LinkButton>
+        </motion.div>
+      )}
+    </section>
+  );
+}
+
 export function WorkspaceContent() {
   const { t } = useLanguage();
   const { isAdmin, profile, session, user } = useAuth();
@@ -234,6 +385,8 @@ export function WorkspaceContent() {
       )}
 
       <MoodCheckInCard />
+
+      <MicroActionRow />
 
       <section className="mt-4 sm:mt-5">
         <div className="grid gap-3 lg:grid-cols-2">
