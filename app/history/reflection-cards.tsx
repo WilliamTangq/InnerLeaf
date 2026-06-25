@@ -12,6 +12,7 @@ import {
   MessageCircleQuestion,
   Route,
   Send,
+  Sparkles as SparklesIcon,
   Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -23,19 +24,63 @@ import { translateDetectedMode } from "../lib/i18n";
 import { trackEvent } from "../lib/analytics";
 import {
   canonicalFromSavedReflection,
-  isWeakFallbackValue,
   localizedCanonicalLabel,
   shouldDisplayNormalizedChip,
 } from "../lib/reflection-card";
 import type { Reflection } from "./page";
+
+const PROMPT2_SECTION_HEADINGS = [
+  "Emotional Source",
+  "这次情绪的来源",
+  "Name the Demon",
+  "这次情绪的名字",
+  "Emotion Labels",
+  "情绪标签",
+  "Facts vs Imagination",
+  "Facts vs Interpretation",
+  "事实与想象",
+  "事实 vs 想象",
+  "事实与解读",
+  "Unmet Need",
+  "真正未被满足的需求",
+  "One Small Next Step",
+  "一个小行动",
+  "Open Hypotheses",
+  "仍需验证的几种可能",
+  "Thought Pattern",
+  "主要思维模式",
+  "What Your Mind Might Be Protecting",
+  "大脑正在保护什么",
+  "Behavioural Pull",
+  "你可能会被拉向的行为",
+  "What to Observe Next",
+  "接下来观察什么",
+  "Save Card Preview",
+  "保存卡片预览",
+  "Safety Note",
+  "安全提示",
+  "Emotional Validation",
+  "Emotion",
+  "Emotion Pattern",
+  "Trigger",
+  "Behaviour",
+  "Behavioural Insight",
+  "Reflection Question",
+  "One Next Question",
+] as const;
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 function extractSection(aiResult: string | null, section: string) {
   if (!aiResult) {
     return "";
   }
 
+  const headings = PROMPT2_SECTION_HEADINGS.map(escapeRegExp).join("|");
   const pattern = new RegExp(
-    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${section}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:Emotional Validation|Emotion|Emotion Pattern|Trigger|Facts vs Interpretation|Thought Pattern|Behaviour|Behavioural Insight|Reflection Question|One Next Question|One Small Next Step)\\s*\\n|$)`,
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${escapeRegExp(section)}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:${headings})\\s*\\n|$)`,
     "i"
   );
   const match = aiResult.match(pattern);
@@ -44,8 +89,65 @@ function extractSection(aiResult: string | null, section: string) {
     ?.split("\n")
     .map((line) => line.replace(/^[-*]\s*/, "").trim())
     .filter(Boolean)
-    .join(" ")
+    .join("\n")
     .trim() ?? "";
+}
+
+function extractFirstSection(aiResult: string | null, sections: string[]) {
+  for (const section of sections) {
+    const value = extractSection(aiResult, section);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function cleanSectionList(value: string, max = 3) {
+  return value
+    .split("\n")
+    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean)
+    .filter((line) => !/^(facts|imagination|事实|想象)\s*[:：]?$/i.test(line))
+    .slice(0, max);
+}
+
+function extractLabeledList(
+  block: string,
+  labelPattern: RegExp,
+  stopPattern: RegExp,
+  max = 2
+) {
+  const lines = block.split("\n");
+  const startIndex = lines.findIndex((line) => labelPattern.test(line.trim()));
+
+  if (startIndex === -1) {
+    return [];
+  }
+
+  const items: string[] = [];
+
+  for (const line of lines.slice(startIndex + 1)) {
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      continue;
+    }
+
+    if (stopPattern.test(trimmed)) {
+      break;
+    }
+
+    const cleaned = trimmed.replace(/^[-*]\s*/, "").trim();
+
+    if (cleaned) {
+      items.push(cleaned);
+    }
+  }
+
+  return items.slice(0, max);
 }
 
 function extractNextQuestion(aiResult: string | null) {
@@ -188,6 +290,80 @@ function previewLine(value: string | null, max = 140) {
   return text.length > max ? `${text.slice(0, max - 1)}…` : text;
 }
 
+function parsePrompt2Details(item: Reflection) {
+  const factsBlock = extractFirstSection(item.ai_result, [
+    "Facts vs Imagination",
+    "事实与想象",
+    "事实 vs 想象",
+  ]);
+  const previewBlock = extractFirstSection(item.ai_result, [
+    "Save Card Preview",
+    "保存卡片预览",
+  ]);
+
+  return {
+    emotionalSource: extractFirstSection(item.ai_result, [
+      "Emotional Source",
+      "这次情绪的来源",
+    ]),
+    demonNames: cleanSectionList(
+      extractFirstSection(item.ai_result, ["Name the Demon", "这次情绪的名字"]),
+      2
+    ),
+    emotionLabels: cleanSectionList(
+      extractFirstSection(item.ai_result, ["Emotion Labels", "情绪标签"]),
+      3
+    ),
+    facts: extractLabeledList(
+      factsBlock,
+      /^(facts|事实)\s*[:：]?$/i,
+      /^(imagination|想象)\s*[:：]?$/i,
+      2
+    ),
+    imaginations: extractLabeledList(
+      factsBlock,
+      /^(imagination|想象)\s*[:：]?$/i,
+      /^(facts|事实)\s*[:：]?$/i,
+      2
+    ),
+    unmetNeed: extractFirstSection(item.ai_result, [
+      "Unmet Need",
+      "真正未被满足的需求",
+    ]),
+    nextStep: extractFirstSection(item.ai_result, [
+      "One Small Next Step",
+      "一个小行动",
+    ]),
+    openHypotheses: cleanSectionList(
+      extractFirstSection(item.ai_result, [
+        "Open Hypotheses",
+        "仍需验证的几种可能",
+      ])
+    ),
+    thoughtPattern: extractFirstSection(item.ai_result, [
+      "Thought Pattern",
+      "主要思维模式",
+    ]),
+    mindProtecting: extractFirstSection(item.ai_result, [
+      "What Your Mind Might Be Protecting",
+      "大脑正在保护什么",
+    ]),
+    behaviouralPull: cleanSectionList(
+      extractFirstSection(item.ai_result, [
+        "Behavioural Pull",
+        "你可能会被拉向的行为",
+      ])
+    ),
+    observeNext: cleanSectionList(
+      extractFirstSection(item.ai_result, [
+        "What to Observe Next",
+        "接下来观察什么",
+      ])
+    ),
+    saveCardPreview: cleanSectionList(previewBlock, 6),
+  };
+}
+
 function formatFollowUpDate(value: string | null) {
   if (!value) {
     return null;
@@ -233,15 +409,20 @@ function serializeCheckInNote(feelNow: string, differentNow: string) {
 
 function toHistoryCard(item: Reflection) {
   const canonical = canonicalFromSavedReflection(item);
+  const prompt2 = parsePrompt2Details(item);
   const extractedLabels = cardLabels(item.ai_result);
   const originalInput = previewLine(item.user_input, 800) || "";
   const trigger = previewLine(canonical.triggerLabel) || extractedLabels.trigger || "";
   const thoughtPattern =
-    previewLine(canonical.thoughtPatternLabel) || extractedLabels.thoughtPattern || "";
+    previewLine(canonical.thoughtPatternLabel) ||
+    previewLine(prompt2.thoughtPattern, 140) ||
+    extractedLabels.thoughtPattern ||
+    "";
   const oneNextQuestion =
     previewLine(canonical.nextQuestion) || extractedLabels.nextQuestion || "";
   const oneSmallNextStep =
     previewLine(canonical.nextStep) ||
+    previewLine(prompt2.nextStep, 260) ||
     extractSection(item.ai_result, "One Small Next Step") ||
     "";
 
@@ -258,8 +439,10 @@ function toHistoryCard(item: Reflection) {
     normalizedThoughtPattern: canonical.normalizedThoughtPattern,
     normalizedNextStepType: canonical.normalizedNextStepType,
     normalizedCheckInSignal: canonical.normalizedCheckInSignal,
-    facts: canonical.factsSummary,
-    interpretations: canonical.interpretationSummary,
+    facts: canonical.factsSummary.length ? canonical.factsSummary : prompt2.facts,
+    interpretations: canonical.interpretationSummary.length
+      ? canonical.interpretationSummary
+      : prompt2.imaginations,
     thoughtPattern,
     behaviouralInsight: previewLine(canonical.behaviouralInsight, 280) || "",
     oneSmallNextStep,
@@ -272,6 +455,40 @@ function toHistoryCard(item: Reflection) {
     nextStepType: previewLine(canonical.nextStepType, 60) || "",
     modeLabel: canonical.mode,
     modeDetected: canonical.modeDetected,
+    prompt2: {
+      emotionalSource:
+        previewLine(prompt2.emotionalSource, 420) ||
+        previewLine(canonical.emotionalValidation, 420) ||
+        "",
+      demonNames: prompt2.demonNames,
+      emotionLabels: prompt2.emotionLabels.length
+        ? prompt2.emotionLabels
+        : [canonical.mainEmotion, canonical.secondaryEmotion].filter(Boolean),
+      unmetNeed:
+        previewLine(prompt2.unmetNeed, 420) ||
+        previewLine(canonical.behaviouralInsight, 420) ||
+        "",
+      nextStep:
+        previewLine(prompt2.nextStep, 320) ||
+        previewLine(canonical.nextStep, 320) ||
+        "",
+      openHypotheses: prompt2.openHypotheses,
+      thoughtPattern:
+        previewLine(prompt2.thoughtPattern, 360) ||
+        previewLine(canonical.thoughtPatternLabel, 180) ||
+        "",
+      mindProtecting:
+        previewLine(prompt2.mindProtecting, 360) ||
+        previewLine(canonical.bodyFactor, 240) ||
+        "",
+      behaviouralPull: prompt2.behaviouralPull.length
+        ? prompt2.behaviouralPull
+        : canonical.behaviour
+          ? [canonical.behaviour]
+          : [],
+      observeNext: prompt2.observeNext,
+      saveCardPreview: prompt2.saveCardPreview,
+    },
     raw: item,
   };
 }
@@ -308,9 +525,7 @@ function primaryHistoryChips(card: ReturnType<typeof toHistoryCard>) {
     return meaningful.slice(0, 2);
   }
 
-  const fallback = rawChips.find((chip) => isWeakFallbackValue(chip.value));
-
-  return fallback ? [{ ...fallback, variant: "outline" as const }] : [];
+  return [];
 }
 
 function detailHistoryChips(card: ReturnType<typeof toHistoryCard>) {
@@ -339,6 +554,194 @@ function checkInChipValue(card: ReturnType<typeof toHistoryCard>) {
   return card.normalizedCheckInSignal !== "not_checked_in"
     ? card.normalizedCheckInSignal
     : "";
+}
+
+function Prompt2HistoryDetail({
+  card,
+  item,
+}: {
+  card: ReturnType<typeof toHistoryCard>;
+  item: Reflection;
+}) {
+  const { language, t } = useLanguage();
+  const copy =
+    language === "zh"
+      ? {
+          source: "这次情绪的来源",
+          demon: "这次情绪的名字",
+          emotions: "情绪标签",
+          factsImagination: "事实与想象",
+          imagination: "想象",
+          unmetNeed: "真正未被满足的需求",
+          nextStep: "一个小行动",
+          deeper: "更深一层",
+          deepHint: "可选查看",
+          hypotheses: "仍需验证的几种可能",
+          thought: "主要思维模式",
+          protecting: "大脑正在保护什么",
+          pull: "你可能会被拉向的行为",
+          observe: "接下来观察什么",
+          preview: "保存卡片预览",
+        }
+      : {
+          source: "Emotional Source",
+          demon: "Name the Demon",
+          emotions: "Emotion Labels",
+          factsImagination: "Facts vs Imagination",
+          imagination: "Imagination",
+          unmetNeed: "Unmet Need",
+          nextStep: "One Small Next Step",
+          deeper: "Deeper layer",
+          deepHint: "Optional",
+          hypotheses: "Open hypotheses",
+          thought: "Thought Pattern",
+          protecting: "What your mind might be protecting",
+          pull: "Behavioural pull",
+          observe: "What to observe next",
+          preview: "Save Card Preview",
+        };
+  const hasDeepLayer =
+    card.prompt2.openHypotheses.length > 0 ||
+    card.prompt2.thoughtPattern ||
+    card.prompt2.mindProtecting ||
+    card.prompt2.behaviouralPull.length > 0 ||
+    card.prompt2.observeNext.length > 0 ||
+    card.prompt2.saveCardPreview.length > 0;
+
+  return (
+    <div className="space-y-4">
+      {card.prompt2.emotionalSource && (
+        <CanonicalDetailSection icon={Heart} title={copy.source} accent>
+          <p className="whitespace-pre-wrap">{card.prompt2.emotionalSource}</p>
+        </CanonicalDetailSection>
+      )}
+
+      {(card.prompt2.demonNames.length > 0 || card.oneNextQuestion) && (
+        <CanonicalDetailSection icon={SparklesIcon} title={copy.demon}>
+          {card.prompt2.demonNames.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {card.prompt2.demonNames.map((name) => (
+                <Badge key={name} variant="accent">
+                  {name}
+                </Badge>
+              ))}
+            </div>
+          )}
+          {card.oneNextQuestion && (
+            <p className="mt-3 whitespace-pre-wrap text-[var(--foreground)]">
+              {card.oneNextQuestion}
+            </p>
+          )}
+        </CanonicalDetailSection>
+      )}
+
+      {card.prompt2.emotionLabels.length > 0 && (
+        <CanonicalDetailSection icon={Heart} title={copy.emotions}>
+          <div className="flex flex-wrap gap-2">
+            {card.prompt2.emotionLabels.slice(0, 3).map((label) => (
+              <Badge key={label} variant="outline">
+                {label}
+              </Badge>
+            ))}
+          </div>
+        </CanonicalDetailSection>
+      )}
+
+      {(card.trigger || card.facts.length > 0 || card.interpretations.length > 0) && (
+        <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
+          {card.trigger && (
+            <CanonicalDetailSection icon={Zap} title={sectionTitle("Trigger", t)}>
+              <p className="whitespace-pre-wrap">{card.trigger}</p>
+            </CanonicalDetailSection>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <CanonicalDetailSection icon={FileText} title={t.reflectionCard.facts}>
+              {card.facts.length > 0 ? (
+                <BulletList items={card.facts} />
+              ) : (
+                <p>{t.reflectionCard.notIdentified}</p>
+              )}
+            </CanonicalDetailSection>
+            <CanonicalDetailSection icon={MessageCircle} title={copy.imagination}>
+              {card.interpretations.length > 0 ? (
+                <BulletList items={card.interpretations} />
+              ) : (
+                <p>{t.reflectionCard.notIdentified}</p>
+              )}
+            </CanonicalDetailSection>
+          </div>
+        </div>
+      )}
+
+      {card.prompt2.unmetNeed && (
+        <CanonicalDetailSection icon={Route} title={copy.unmetNeed}>
+          <p className="whitespace-pre-wrap">{card.prompt2.unmetNeed}</p>
+        </CanonicalDetailSection>
+      )}
+
+      {card.prompt2.nextStep && (
+        <CanonicalDetailSection icon={Footprints} title={copy.nextStep} accent>
+          <p className="whitespace-pre-wrap text-[var(--foreground)]">
+            {card.prompt2.nextStep}
+          </p>
+        </CanonicalDetailSection>
+      )}
+
+      {hasDeepLayer && (
+        <details className="group rounded-[24px] border border-[rgba(40,80,60,0.105)] bg-[rgba(255,254,248,0.72)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 marker:hidden">
+            <span className="flex items-center gap-2.5 text-sm font-semibold text-[var(--foreground)]">
+              <IconFrame icon={Brain} size="sm" />
+              {copy.deeper}
+            </span>
+            <span className="text-xs font-semibold text-[var(--brand-teal-deep)]">
+              {copy.deepHint}
+            </span>
+          </summary>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {card.prompt2.openHypotheses.length > 0 && (
+              <CanonicalDetailSection icon={MessageCircleQuestion} title={copy.hypotheses}>
+                <BulletList items={card.prompt2.openHypotheses} />
+              </CanonicalDetailSection>
+            )}
+            {card.prompt2.thoughtPattern && (
+              <CanonicalDetailSection icon={Brain} title={copy.thought}>
+                <p className="whitespace-pre-wrap">{card.prompt2.thoughtPattern}</p>
+              </CanonicalDetailSection>
+            )}
+            {card.prompt2.mindProtecting && (
+              <CanonicalDetailSection icon={Heart} title={copy.protecting}>
+                <p className="whitespace-pre-wrap">{card.prompt2.mindProtecting}</p>
+              </CanonicalDetailSection>
+            )}
+            {card.prompt2.behaviouralPull.length > 0 && (
+              <CanonicalDetailSection icon={Route} title={copy.pull}>
+                <BulletList items={card.prompt2.behaviouralPull} />
+              </CanonicalDetailSection>
+            )}
+            {card.prompt2.observeNext.length > 0 && (
+              <CanonicalDetailSection icon={MessageCircleQuestion} title={copy.observe}>
+                <BulletList items={card.prompt2.observeNext} />
+              </CanonicalDetailSection>
+            )}
+            {card.prompt2.saveCardPreview.length > 0 && (
+              <CanonicalDetailSection icon={CheckCircle2} title={copy.preview}>
+                <div className="flex flex-wrap gap-2">
+                  {card.prompt2.saveCardPreview.map((item) => (
+                    <Badge key={item} variant="outline">
+                      {item}
+                    </Badge>
+                  ))}
+                </div>
+              </CanonicalDetailSection>
+            )}
+          </div>
+        </details>
+      )}
+
+      <NextStepCheckIn reflection={item} />
+    </div>
+  );
 }
 
 export function isVisibleHistoryReflection(item: Reflection) {
@@ -716,8 +1119,10 @@ export function ReflectionCards({
               const expandedChips = detailHistoryChips(card);
               const checkedInSignal = checkInChipValue(card);
               const headline =
-                previewLine(item.emotional_validation, 150) ||
                 previewLine(card.shortTitle, 100) ||
+                previewLine(card.prompt2.demonNames[0], 80) ||
+                previewLine(card.prompt2.emotionalSource, 110) ||
+                previewLine(item.emotional_validation, 110) ||
                 previewLine(card.originalInput, 100) ||
                 "Reflection card";
 
@@ -733,6 +1138,18 @@ export function ReflectionCards({
                 hasFactsVsInterpretation ||
                 card.oneNextQuestion ||
                 card.oneSmallNextStep;
+              const hasPrompt2Detail = Boolean(
+                card.prompt2.emotionalSource ||
+                  card.prompt2.demonNames.length ||
+                  card.prompt2.emotionLabels.length ||
+                  card.prompt2.unmetNeed ||
+                  card.prompt2.nextStep ||
+                  card.prompt2.openHypotheses.length ||
+                  card.prompt2.mindProtecting ||
+                  card.prompt2.behaviouralPull.length ||
+                  card.prompt2.observeNext.length ||
+                  card.prompt2.saveCardPreview.length
+              );
 
               return (
                 <Card
@@ -844,6 +1261,10 @@ export function ReflectionCards({
                         </div>
                       </div>
 
+                      {hasPrompt2Detail ? (
+                        <Prompt2HistoryDetail card={card} item={item} />
+                      ) : (
+                        <>
                       {validation && (
                         <CanonicalDetailSection
                           icon={Heart}
@@ -926,6 +1347,8 @@ export function ReflectionCards({
                         </p>
                       )}
                       <NextStepCheckIn reflection={item} />
+                        </>
+                      )}
                     </div>
                   )}
                 </Card>

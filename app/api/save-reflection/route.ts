@@ -21,6 +21,57 @@ function textList(value: unknown) {
   return values.length ? values.join("\n") : null;
 }
 
+function textListFrom(...values: unknown[]) {
+  for (const value of values) {
+    const list = textList(value);
+
+    if (list) {
+      return list;
+    }
+  }
+
+  return null;
+}
+
+function firstText(...values: unknown[]) {
+  for (const value of values) {
+    if (Array.isArray(value)) {
+      const found = value.find(
+        (item) => typeof item === "string" && item.trim()
+      );
+
+      if (typeof found === "string") {
+        return found.trim();
+      }
+    }
+
+    const text = textValue(value);
+
+    if (text) {
+      return text;
+    }
+  }
+
+  return null;
+}
+
+function joinTexts(...values: unknown[]) {
+  const text = values
+    .flatMap((value) => {
+      if (Array.isArray(value)) {
+        return value;
+      }
+
+      return [value];
+    })
+    .filter((item): item is string => typeof item === "string")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .join("\n");
+
+  return text || null;
+}
+
 function isMissingCanonicalColumn(error: { message?: string } | null) {
   return Boolean(
     error?.message?.includes("reflection_language") ||
@@ -80,18 +131,56 @@ export async function POST(request: Request) {
       ui_language: canonical.uiLanguage,
       short_title: canonical.shortTitle || null,
       mood_chip: canonical.moodChip || null,
-      emotional_validation: textValue(structured.emotional_validation),
-      emotion: textValue(structured.emotion),
-      trigger: textValue(structured.trigger),
-      thought_pattern: textValue(structured.thought_pattern),
+      emotional_validation: firstText(
+        structured.emotional_validation,
+        structured.emotional_source
+      ),
+      emotion: firstText(
+        structured.emotion,
+        structured.emotion_labels,
+        (structured.save_card_preview as Record<string, unknown> | undefined)
+          ?.emotion
+      ),
+      trigger: firstText(
+        structured.trigger,
+        (structured.save_card_preview as Record<string, unknown> | undefined)
+          ?.trigger,
+        structured.emotional_source
+      ),
+      thought_pattern: firstText(
+        structured.thought_pattern,
+        structured.thought_pattern_label_en,
+        structured.thought_pattern_label_zh,
+        structured.thought_pattern_key,
+        (structured.save_card_preview as Record<string, unknown> | undefined)
+          ?.pattern
+      ),
       facts: textList(structured.facts),
-      interpretation: textList(structured.interpretation),
-      behaviour: textValue(structured.behaviour),
-      body_factor: textValue(structured.body_factor),
-      behavioural_insight: textValue(structured.behavioural_insight),
-      next_question: textValue(structured.next_question),
-      next_step_type: textValue(structured.next_step_type),
-      next_step: textValue(structured.next_step),
+      interpretation: textListFrom(
+        structured.interpretation,
+        structured.interpretations,
+        structured.imaginations
+      ),
+      behaviour: joinTexts(
+        structured.behaviour,
+        structured.behavioural_pull_items,
+        structured.behavioural_pull_note
+      ),
+      body_factor: firstText(structured.body_factor, structured.mind_protecting),
+      behavioural_insight: joinTexts(
+        structured.behavioural_insight,
+        structured.unmet_need_explanation,
+        structured.unmet_need_surface,
+        structured.unmet_need_deeper
+      ),
+      next_question: firstText(structured.next_question, structured.core_question),
+      next_step_type: firstText(structured.next_step_type),
+      next_step: firstText(
+        structured.next_step,
+        structured.next_step_text,
+        (structured.save_card_preview as Record<string, unknown> | undefined)
+          ?.next_step
+      ),
       mode_detected: textValue(structured.mode_detected),
       reflection_language: canonical.reflectionLanguage,
       normalized_trigger: canonical.normalizedTrigger,

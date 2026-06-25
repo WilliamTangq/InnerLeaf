@@ -2,10 +2,12 @@
 
 import {
   BarChart3,
+  Brain,
   Cloud,
   CloudRain,
+  Eye,
   Footprints,
-  Leaf,
+  HeartHandshake,
   LineChart as LineChartIcon,
   RefreshCcw,
   SunMedium,
@@ -34,10 +36,15 @@ import {
 type SummaryReflection = {
   id: string | number;
   created_at: string;
+  user_input: string | null;
+  ai_result: string | null;
+  emotional_validation: string | null;
   emotion: string | null;
   trigger: string | null;
   thought_pattern: string | null;
   behaviour: string | null;
+  body_factor: string | null;
+  behavioural_insight: string | null;
   next_step_type: string | null;
   next_step: string | null;
   ui_language?: string | null;
@@ -84,6 +91,213 @@ function meaningfulTopPatterns(values: string[], language: "en" | "zh") {
     ...item,
     value: localizedCanonicalLabel(item.value, language),
   }));
+}
+
+const PROMPT2_SECTION_HEADINGS = [
+  "Emotional Source",
+  "这次情绪的来源",
+  "Name the Demon",
+  "这次情绪的名字",
+  "Emotion Labels",
+  "情绪标签",
+  "Facts vs Imagination",
+  "事实与想象",
+  "事实 vs 想象",
+  "Unmet Need",
+  "真正未被满足的需求",
+  "One Small Next Step",
+  "一个小行动",
+  "Open Hypotheses",
+  "仍需验证的几种可能",
+  "Thought Pattern",
+  "主要思维模式",
+  "What Your Mind Might Be Protecting",
+  "大脑正在保护什么",
+  "Behavioural Pull",
+  "你可能会被拉向的行为",
+  "What to Observe Next",
+  "接下来观察什么",
+  "Save Card Preview",
+  "保存卡片预览",
+  "Safety Note",
+  "安全提示",
+] as const;
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractSection(aiResult: string | null, section: string) {
+  if (!aiResult) {
+    return "";
+  }
+
+  const headings = PROMPT2_SECTION_HEADINGS.map(escapeRegExp).join("|");
+  const pattern = new RegExp(
+    `(?:^|\\n)\\s*(?:\\d+\\.\\s*)?${escapeRegExp(section)}\\s*\\n+([\\s\\S]*?)(?=\\n\\s*(?:\\d+\\.\\s*)?(?:${headings})\\s*\\n|$)`,
+    "i"
+  );
+  const match = aiResult.match(pattern);
+
+  return (
+    match?.[1]
+      ?.split("\n")
+      .map((line) => line.replace(/^[-*]\s*/, "").trim())
+      .filter(Boolean)
+      .join("\n")
+      .trim() ?? ""
+  );
+}
+
+function extractFirstSection(aiResult: string | null, sections: string[]) {
+  for (const section of sections) {
+    const value = extractSection(aiResult, section);
+
+    if (value) {
+      return value;
+    }
+  }
+
+  return "";
+}
+
+function cleanSectionList(value: string, max = 4) {
+  return value
+    .split("\n")
+    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean)
+    .slice(0, max);
+}
+
+function previewLine(value: string | null | undefined, max = 84) {
+  const text = (value ?? "").replace(/\s+/g, " ").trim();
+
+  if (!text) {
+    return "";
+  }
+
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+function parseSavePreview(block: string) {
+  const values: Record<string, string> = {};
+
+  block.split("\n").forEach((line) => {
+    const [rawKey, ...rest] = line.split(/[:：]/);
+    const key = rawKey?.trim().toLowerCase();
+    const value = rest.join(":").trim();
+
+    if (!key || !value) {
+      return;
+    }
+
+    if (/category|类别/.test(key)) values.category = value;
+    if (/emotion|情绪/.test(key)) values.emotion = value;
+    if (/trigger|触发/.test(key)) values.trigger = value;
+    if (/pattern|模式/.test(key)) values.pattern = value;
+    if (/need|需求/.test(key)) values.need = value;
+    if (/step|行动|下一步/.test(key)) values.nextStep = value;
+  });
+
+  return values;
+}
+
+function parsePrompt2Summary(item: SummaryReflection) {
+  const preview = parseSavePreview(
+    extractFirstSection(item.ai_result, ["Save Card Preview", "保存卡片预览"])
+  );
+
+  return {
+    source: extractFirstSection(item.ai_result, [
+      "Emotional Source",
+      "这次情绪的来源",
+    ]),
+    demonNames: cleanSectionList(
+      extractFirstSection(item.ai_result, ["Name the Demon", "这次情绪的名字"]),
+      2
+    ),
+    unmetNeed: extractFirstSection(item.ai_result, [
+      "Unmet Need",
+      "真正未被满足的需求",
+    ]),
+    observeNext: cleanSectionList(
+      extractFirstSection(item.ai_result, [
+        "What to Observe Next",
+        "接下来观察什么",
+      ]),
+      3
+    ),
+    preview,
+  };
+}
+
+function countHumanLabels(values: string[]) {
+  return topPatterns(
+    values
+      .map((value) => previewLine(value, 56))
+      .filter(Boolean)
+      .filter((value) => !/^(other|still emerging|暂未清晰归类)$/i.test(value))
+  );
+}
+
+function needLabelsFromText(value: string, language: "en" | "zh") {
+  const text = value.toLowerCase();
+  const rules: Array<[RegExp, string, string]> = [
+    [/safe|security|安全|安心/, "Safety", "安全感"],
+    [/valued|matter|important|重视|在意|重要/, "Being valued", "被重视感"],
+    [/certainty|clear|sure|确定|清楚/, "Certainty", "确定性"],
+    [/control|掌控|可控/, "Control", "掌控感"],
+    [/autonomy|choice|freedom|自主|选择/, "Autonomy", "自主权"],
+    [/understood|seen|理解|看见/, "Being understood", "被理解"],
+    [/connection|close|attention|陪伴|连接|关注/, "Connection", "连接感"],
+    [/rest|body|fatigue|tired|休息|身体|疲惫/, "Rest", "休息"],
+  ];
+
+  return rules
+    .filter(([pattern]) => pattern.test(text))
+    .map(([, en, zh]) => (language === "zh" ? zh : en));
+}
+
+function buildInsightCards(
+  reflections: SummaryReflection[],
+  language: "en" | "zh"
+) {
+  return reflections.map((reflection) => {
+    const canonical = canonicalFromSavedReflection(reflection);
+    const prompt2 = parsePrompt2Summary(reflection);
+    const patternLabel =
+      prompt2.preview.pattern ||
+      prompt2.demonNames[0] ||
+      localizedCanonicalLabel(canonical.normalizedThoughtPattern, language);
+    const triggerLabel =
+      prompt2.preview.trigger ||
+      localizedCanonicalLabel(canonical.normalizedTrigger, language);
+    const nextStepLabel =
+      prompt2.preview.nextStep ||
+      localizedCanonicalLabel(canonical.normalizedNextStepType, language);
+    const needLabels = [
+      prompt2.preview.need,
+      ...needLabelsFromText(
+        [prompt2.unmetNeed, reflection.behavioural_insight, reflection.body_factor]
+          .filter(Boolean)
+          .join(" "),
+        language
+      ),
+    ].filter(Boolean);
+
+    return {
+      reflection,
+      canonical,
+      source: prompt2.source,
+      triggerLabel,
+      patternLabel,
+      demonNames: prompt2.demonNames,
+      unmetNeed: prompt2.unmetNeed,
+      needLabels,
+      nextStepLabel,
+      observeNext: prompt2.observeNext,
+    };
+  });
 }
 
 function meaningfulCheckInPatterns(values: string[], language: "en" | "zh") {
@@ -268,58 +482,135 @@ function LowDataState({
   );
 }
 
-function RankedInsightBlock({
+function Prompt2RankedBlock({
   icon,
   title,
   description,
   items,
   lowDataText,
+  footnote,
 }: {
   icon: SummaryIcon;
   title: string;
   description: string;
   items: SummaryItem[];
   lowDataText: string;
+  footnote?: string;
 }) {
   const maxCount = Math.max(...items.map((item) => item.count), 1);
-  const rankedItems = items.slice(0, 3);
 
   return (
     <SummaryBlockShell icon={icon} title={title} description={description}>
-      {rankedItems.length === 0 ? (
+      {items.length === 0 ? (
         <LowDataState icon={icon}>{lowDataText}</LowDataState>
       ) : (
-        <div className="mt-5 space-y-3">
-          {rankedItems.map((item, index) => {
-            const width = Math.max(12, Math.round((item.count / maxCount) * 100));
+        <div className="mt-5 space-y-2.5">
+          {items.slice(0, 4).map((item, index) => {
+            const width = Math.max(14, Math.round((item.count / maxCount) * 100));
 
             return (
               <div
-                key={item.value}
-                className="rounded-[1.15rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] px-3.5 py-3"
+                key={`${item.value}-${index}`}
+                className="rounded-[1.1rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] px-3.5 py-3"
               >
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--accent-soft)] text-[11px] font-semibold text-[var(--brand-teal-deep)]">
-                      {index + 1}
-                    </span>
-                    <span className="truncate text-sm font-semibold text-[var(--foreground)]">
-                      {item.value}
-                    </span>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-[rgba(246,242,233,0.72)] px-2.5 py-1 text-xs font-medium text-[var(--foreground-subtle)]">
+                  <span className="min-w-0 truncate text-sm font-semibold text-[var(--foreground)]">
+                    {item.value}
+                  </span>
+                  <span className="shrink-0 text-xs font-semibold text-[var(--foreground-subtle)]">
                     {item.count}×
                   </span>
                 </div>
-                <span className="mt-2.5 block h-2 overflow-hidden rounded-full bg-[rgba(40,80,60,0.08)]">
+                <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[rgba(40,80,60,0.08)]">
                   <span
-                    className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(31,155,143,0.62),rgba(217,179,74,0.50))]"
+                    className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(31,155,143,0.62),rgba(217,179,74,0.46))]"
                     style={{ width: `${width}%` }}
                   />
                 </span>
               </div>
             );
           })}
+        </div>
+      )}
+      {footnote && (
+        <p className="mt-4 text-xs leading-5 text-[var(--foreground-subtle)]">
+          {footnote}
+        </p>
+      )}
+    </SummaryBlockShell>
+  );
+}
+
+function DeeperNeedsBlock({ items }: { items: SummaryItem[] }) {
+  const { language, t } = useLanguage();
+  const copy =
+    language === "zh"
+      ? {
+          title: "这些情绪下面更常出现的需要",
+          desc: "从保存卡片里的“真正未被满足的需求”轻轻归纳。",
+          empty: "再保存几张新的反思卡片后，这里会显示更稳定的需要线索。",
+          note: "这不是诊断，只是从近期卡片中整理出的需求词。",
+        }
+      : {
+          title: "What may sit underneath",
+          desc: "A gentle read from the unmet-need layer in saved cards.",
+          empty:
+            "Save a few more new reflection cards to see steadier need signals here.",
+          note:
+            "This is not a diagnosis. It is a reflection of what appeared in recent cards.",
+        };
+
+  return (
+    <Prompt2RankedBlock
+      icon={HeartHandshake}
+      title={copy.title}
+      description={copy.desc}
+      items={items}
+      lowDataText={copy.empty}
+      footnote={copy.note || t.summary.gentleReassuranceText}
+    />
+  );
+}
+
+function ObserveNextBlock({ items }: { items: SummaryItem[] }) {
+  const { language } = useLanguage();
+  const copy =
+    language === "zh"
+      ? {
+          title: "接下来更值得观察什么",
+          desc: "把卡片里的观察线索整理成更容易回看的提示。",
+          empty: "保存新的反思卡片后，这里会显示更具体的观察方向。",
+        }
+      : {
+          title: "What to observe next",
+          desc: "Recurring observation cues from your saved reflection cards.",
+          empty:
+            "New reflection cards will make this section more specific over time.",
+        };
+
+  return (
+    <SummaryBlockShell
+      icon={Eye}
+      title={copy.title}
+      description={copy.desc}
+    >
+      {items.length === 0 ? (
+        <LowDataState icon={Eye}>{copy.empty}</LowDataState>
+      ) : (
+        <div className="mt-5 grid gap-2.5">
+          {items.slice(0, 3).map((item) => (
+            <div
+              key={item.value}
+              className="rounded-[1.1rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] px-3.5 py-3"
+            >
+              <p className="text-sm font-medium leading-6 text-[var(--foreground)]">
+                {item.value}
+              </p>
+              <p className="mt-1 text-xs text-[var(--foreground-subtle)]">
+                {item.count}×
+              </p>
+            </div>
+          ))}
         </div>
       )}
     </SummaryBlockShell>
@@ -486,25 +777,31 @@ function ActivityRhythmBlock({
 
 function SummaryHeroBlock({
   repeatedTriggers,
-  repeatedThoughtPatterns,
+  repeatedPatterns,
+  repeatedNeeds,
   checkInSignals,
   reflectionCount,
 }: {
   repeatedTriggers: SummaryItem[];
-  repeatedThoughtPatterns: SummaryItem[];
+  repeatedPatterns: SummaryItem[];
+  repeatedNeeds: SummaryItem[];
   checkInSignals: SummaryItem[];
   reflectionCount: number;
 }) {
   const { language, t } = useLanguage();
   const topTrigger = repeatedTriggers[0]?.value || t.summary.noRepeatedTrigger;
-  const topThought =
-    repeatedThoughtPatterns[0]?.value || t.summary.noRepeatedThought;
-  const topSignal = checkInSignals[0]?.value || t.summary.checkInEmpty;
+  const topThought = repeatedPatterns[0]?.value || t.summary.noRepeatedThought;
+  const topNeed =
+    repeatedNeeds[0]?.value ||
+    (language === "zh" ? "还在形成中" : "Still becoming clear");
+  const topSignal =
+    checkInSignals[0]?.value ||
+    (language === "zh" ? "需要更多回看" : "More check-ins needed");
   const headline =
-    repeatedTriggers[0] && repeatedThoughtPatterns[0]
+    repeatedTriggers[0] && repeatedPatterns[0]
       ? language === "zh"
-        ? `最近最常出现的是：${topTrigger}与${topThought}。`
-        : `${topTrigger} and ${topThought} show up most often lately.`
+        ? `最近反复出现的是：${topTrigger}，以及${topThought}。`
+        : `${topTrigger} and ${topThought} keep returning lately.`
       : language === "zh"
         ? "你最近的反思，正在慢慢形成可以回看的线索。"
         : "Your recent reflections are starting to form a pattern you can return to.";
@@ -512,6 +809,7 @@ function SummaryHeroBlock({
     [t.history.saved, String(reflectionCount)],
     [t.summary.repeatedTrigger, topTrigger],
     [t.summary.repeatedThoughtPattern, topThought],
+    [language === "zh" ? "常见需要" : "Deeper need", topNeed],
     [t.summary.checkInSignals, topSignal],
   ] as const;
 
@@ -532,7 +830,7 @@ function SummaryHeroBlock({
             {t.summary.heroSupport}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {[topTrigger, topThought, topSignal]
+            {[topTrigger, topThought, topNeed]
               .filter(Boolean)
               .slice(0, 3)
               .map((item) => (
@@ -688,13 +986,22 @@ export function SummaryContent() {
   const reflectionCount = reflections.length;
   const hasEnoughData = reflectionCount >= 3;
   const canonicalCards = reflections.map(canonicalFromSavedReflection);
+  const prompt2Cards = buildInsightCards(reflections, language);
   const repeatedTriggers = meaningfulTopPatterns(
     canonicalCards.map((item) => item.normalizedTrigger),
     language
   );
-  const repeatedThoughtPatterns = meaningfulTopPatterns(
-    canonicalCards.map((item) => item.normalizedThoughtPattern),
-    language
+  const prompt2TriggerRows = countHumanLabels(
+    prompt2Cards.map((item) => item.triggerLabel)
+  );
+  const prompt2PatternRows = countHumanLabels(
+    prompt2Cards.map((item) => item.demonNames[0] || item.patternLabel)
+  );
+  const prompt2NeedRows = countHumanLabels(
+    prompt2Cards.flatMap((item) => item.needLabels)
+  );
+  const prompt2ObserveRows = countHumanLabels(
+    prompt2Cards.flatMap((item) => item.observeNext)
   );
   const repeatedCheckInSignals = meaningfulCheckInPatterns(
     canonicalCards.map((item) => item.normalizedCheckInSignal),
@@ -814,8 +1121,18 @@ export function SummaryContent() {
           <div className="grid gap-4 lg:gap-5">
             <MotionBlock>
               <SummaryHeroBlock
-                repeatedTriggers={repeatedTriggers}
-                repeatedThoughtPatterns={repeatedThoughtPatterns}
+                repeatedTriggers={
+                  prompt2TriggerRows.length ? prompt2TriggerRows : repeatedTriggers
+                }
+                repeatedPatterns={
+                  prompt2PatternRows.length
+                    ? prompt2PatternRows
+                    : meaningfulTopPatterns(
+                        canonicalCards.map((item) => item.normalizedThoughtPattern),
+                        language
+                      )
+                }
+                repeatedNeeds={prompt2NeedRows}
                 checkInSignals={repeatedCheckInSignals}
                 reflectionCount={reflectionCount}
               />
@@ -827,22 +1144,44 @@ export function SummaryContent() {
             </MotionBlock>
             <div className="grid gap-4 lg:grid-cols-2 lg:gap-5">
               <MotionBlock>
-                <RankedInsightBlock
+                <Prompt2RankedBlock
                   icon={BarChart3}
                   title={t.summary.keepsReturningTitle}
-                  description={t.summary.keepsReturningDesc}
-                  items={repeatedTriggers}
+                  description={
+                    language === "zh"
+                      ? "这些情境更常成为情绪卡片的起点。"
+                      : "The situations that most often begin the emotional loop."
+                  }
+                  items={prompt2TriggerRows.length ? prompt2TriggerRows : repeatedTriggers}
                   lowDataText={t.summary.moreReflectionsNeeded}
                 />
               </MotionBlock>
               <MotionBlock>
-                <RankedInsightBlock
-                  icon={Leaf}
-                  title={t.summary.mindReactTitle}
-                  description={t.summary.mindReactDesc}
-                  items={repeatedThoughtPatterns}
+                <Prompt2RankedBlock
+                  icon={Brain}
+                  title={
+                    language === "zh"
+                      ? "这次情绪的名字 / 主要思维模式"
+                      : "Name the Demon / Thought Pattern"
+                  }
+                  description={
+                    language === "zh"
+                      ? "来自卡片里的“这次情绪的名字”和主要思维模式。"
+                      : "From each card’s Name the Demon and Thought Pattern sections."
+                  }
+                  items={
+                    prompt2PatternRows.length
+                      ? prompt2PatternRows
+                      : meaningfulTopPatterns(
+                          canonicalCards.map((item) => item.normalizedThoughtPattern),
+                          language
+                        )
+                  }
                   lowDataText={t.summary.moreReflectionsNeeded}
                 />
+              </MotionBlock>
+              <MotionBlock>
+                <DeeperNeedsBlock items={prompt2NeedRows} />
               </MotionBlock>
               <MotionBlock>
                 <HelpfulCheckInBlock
@@ -852,10 +1191,10 @@ export function SummaryContent() {
                 />
               </MotionBlock>
               <MotionBlock>
-                <ActivityRhythmBlock
-                  trendValues={trendValues}
-                  checkInCount={checkInCount}
-                />
+                <ObserveNextBlock items={prompt2ObserveRows} />
+              </MotionBlock>
+              <MotionBlock>
+                <ActivityRhythmBlock trendValues={trendValues} checkInCount={checkInCount} />
               </MotionBlock>
             </div>
           </div>

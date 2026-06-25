@@ -44,6 +44,33 @@ export type NormalizedCheckInSignal =
   | "uncertain";
 
 export type StructuredReflectionLike = {
+  scenario_category?: string;
+  emotional_source?: string;
+  demon_names?: string[];
+  core_question?: string;
+  emotion_labels?: string[];
+  imaginations?: string[];
+  unmet_need_surface?: string;
+  unmet_need_deeper?: string;
+  unmet_need_explanation?: string;
+  next_step_text?: string;
+  next_step_body_aware_first?: boolean;
+  open_hypotheses?: string[];
+  thought_pattern_key?: string;
+  thought_pattern_label_en?: string;
+  thought_pattern_label_zh?: string;
+  mind_protecting?: string;
+  behavioural_pull_items?: string[];
+  behavioural_pull_note?: string;
+  observe_next_items?: string[];
+  save_card_preview?: {
+    category?: string;
+    emotion?: string;
+    trigger?: string;
+    pattern?: string;
+    need?: string;
+    next_step?: string;
+  };
   emotional_validation?: string;
   moment_summary?: string;
   emotion?: string;
@@ -421,8 +448,20 @@ export function createCanonicalReflectionCard({
   reflectionLanguage?: unknown;
 }): CanonicalReflectionCard {
   const nextStepType = clean(structured?.next_step_type);
-  const thoughtPattern = clean(structured?.thought_pattern);
-  const trigger = clean(structured?.trigger);
+  const thoughtPattern =
+    clean(structured?.thought_pattern) ||
+    [clean(structured?.thought_pattern_label_en), clean(structured?.thought_pattern_label_zh)]
+      .filter(Boolean)
+      .join(" / ") ||
+    clean(structured?.thought_pattern_key);
+  const trigger =
+    clean(structured?.trigger) ||
+    clean(structured?.save_card_preview?.trigger) ||
+    clean(structured?.emotional_source);
+  const emotion =
+    clean(structured?.emotion) ||
+    clean(structured?.emotion_labels?.[0]) ||
+    clean(structured?.save_card_preview?.emotion);
 
   return {
     originalInput: clean(input),
@@ -430,20 +469,33 @@ export function createCanonicalReflectionCard({
     mode: normalizeMode(mode),
     uiLanguage: normalizeLanguage(uiLanguage),
     reflectionLanguage: normalizeLanguage(reflectionLanguage ?? uiLanguage),
-    emotionalValidation: clean(structured?.emotional_validation),
-    momentSummary: clean(structured?.moment_summary),
-    mainEmotion: clean(structured?.emotion),
-    secondaryEmotion: clean(structured?.secondary_emotion),
+    emotionalValidation:
+      clean(structured?.emotional_validation) ||
+      clean(structured?.emotional_source),
+    momentSummary:
+      clean(structured?.moment_summary) ||
+      clean(structured?.emotional_source),
+    mainEmotion: emotion,
+    secondaryEmotion:
+      clean(structured?.secondary_emotion) ||
+      clean(structured?.emotion_labels?.[1]),
     triggerLabel: trigger,
     factsSummary: cleanList(structured?.facts),
-    interpretationSummary: cleanList(structured?.interpretation),
+    interpretationSummary:
+      cleanList(structured?.interpretation).length > 0
+        ? cleanList(structured?.interpretation)
+        : cleanList(structured?.imaginations),
     thoughtPatternLabel: thoughtPattern,
     thoughtPatternExplanation: clean(structured?.thought_pattern_explanation),
     behaviour: clean(structured?.behaviour),
-    bodyFactor: clean(structured?.body_factor),
-    behaviouralInsight: clean(structured?.behavioural_insight),
-    nextQuestion: clean(structured?.next_question),
-    nextStep: clean(structured?.next_step),
+    bodyFactor:
+      clean(structured?.body_factor) ||
+      clean(structured?.mind_protecting),
+    behaviouralInsight:
+      clean(structured?.behavioural_insight) ||
+      clean(structured?.unmet_need_explanation),
+    nextQuestion: clean(structured?.next_question) || clean(structured?.core_question),
+    nextStep: clean(structured?.next_step) || clean(structured?.next_step_text),
     nextStepType,
     modeDetected: clean(structured?.mode_detected),
     normalizedTrigger: normalizeTrigger(trigger),

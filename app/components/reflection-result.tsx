@@ -1,5 +1,6 @@
 import {
   Brain,
+  ChevronDown,
   CheckCircle2,
   Footprints,
   Heart,
@@ -25,6 +26,33 @@ import {
 } from "../lib/reflection-card";
 
 export type StructuredReflectionResult = {
+  scenario_category?: string;
+  emotional_source?: string;
+  demon_names?: string[];
+  core_question?: string;
+  emotion_labels?: string[];
+  imaginations?: string[];
+  unmet_need_surface?: string;
+  unmet_need_deeper?: string;
+  unmet_need_explanation?: string;
+  next_step_text?: string;
+  next_step_body_aware_first?: boolean;
+  open_hypotheses?: string[];
+  thought_pattern_key?: string;
+  thought_pattern_label_en?: string;
+  thought_pattern_label_zh?: string;
+  mind_protecting?: string;
+  behavioural_pull_items?: string[];
+  behavioural_pull_note?: string;
+  observe_next_items?: string[];
+  save_card_preview?: {
+    category?: string;
+    emotion?: string;
+    trigger?: string;
+    pattern?: string;
+    need?: string;
+    next_step?: string;
+  };
   emotional_validation?: string;
   moment_summary?: string;
   emotion?: string;
@@ -43,6 +71,7 @@ export type StructuredReflectionResult = {
   mode_detected?: string;
   gentle_observation?: string;
   safety_note?: string;
+  safetyNote?: string;
   captured_clearly?: string;
   still_unclear?: string;
   completed_reflection?: string;
@@ -102,6 +131,10 @@ function parseSections(result: string) {
 
 function compactItems(items?: string[]) {
   return (items ?? []).filter(Boolean).slice(0, 2);
+}
+
+function compactDeepItems(items?: string[]) {
+  return (items ?? []).filter(Boolean).slice(0, 3);
 }
 
 function shortenWords(value?: string, maxWords = 25) {
@@ -190,6 +223,287 @@ function ReflectionSection({
   );
 }
 
+function Prompt2ResultModules({
+  structured,
+  labels,
+  language,
+  nextStepType,
+}: {
+  structured: NonNullable<StructuredReflectionResult>;
+  labels: ReturnType<typeof useLanguage>["t"]["reflectionCard"];
+  language: "en" | "zh";
+  nextStepType?: string;
+}) {
+  const copy =
+    language === "zh"
+      ? {
+          source: "这次情绪的来源",
+          demon: "这次情绪的名字",
+          emotions: "情绪标签",
+          facts: "事实",
+          imagination: "想象",
+          unmetNeed: "真正未被满足的需求",
+          surface: "表面诉求可能是",
+          deeper: "更深层的需求可能是",
+          nextStep: "一个小行动",
+          deeperInsight: "更深一层",
+          deepHint: "可选查看",
+          hypotheses: "仍需验证的几种可能",
+          thoughtPattern: "主要思维模式",
+          mindProtecting: "大脑正在保护什么",
+          behaviouralPull: "你可能会被拉向的行为",
+          observeNext: "接下来观察什么",
+          preview: "保存卡片预览",
+          noEmotion: "用户没有明确命名情绪。",
+        }
+      : {
+          source: "Emotional Source",
+          demon: "Name the Demon",
+          emotions: "Emotion Labels",
+          facts: "Facts",
+          imagination: "Imagination",
+          unmetNeed: "Unmet Need",
+          surface: "Surface ask may be",
+          deeper: "Deeper need may be",
+          nextStep: "One Small Next Step",
+          deeperInsight: "Deeper layer",
+          deepHint: "Optional",
+          hypotheses: "Open hypotheses",
+          thoughtPattern: "Main thought pattern",
+          mindProtecting: "What your mind might be protecting",
+          behaviouralPull: "Behavioural pull",
+          observeNext: "What to observe next",
+          preview: "Save Card Preview",
+          noEmotion: "No emotion was explicitly named.",
+        };
+  const facts = compactItems(structured.facts);
+  const imaginations = compactItems(structured.imaginations ?? structured.interpretation);
+  const emotionLabels = compactDeepItems(structured.emotion_labels);
+  const demonNames = compactItems(structured.demon_names);
+  const previewItems = Object.entries(structured.save_card_preview ?? {})
+    .filter(([, value]) => typeof value === "string" && value.trim())
+    .map(([key, value]) => ({
+      key,
+      value: String(value),
+    }));
+  const thoughtLabel =
+    language === "zh"
+      ? [structured.thought_pattern_label_zh, structured.thought_pattern_label_en]
+          .filter(Boolean)
+          .join(" / ")
+      : [structured.thought_pattern_label_en, structured.thought_pattern_label_zh]
+          .filter(Boolean)
+          .join(" / ");
+
+  return (
+    <div className="mt-5 grid gap-3 sm:gap-3.5">
+      <ReflectionSection
+        label="What came up"
+        labelText={copy.source}
+        content={structured.emotional_source || structured.emotional_validation}
+        tone="highlight"
+      />
+
+      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]">
+            <Sparkles size={15} strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <h3 className="text-sm font-medium text-[var(--foreground)]">
+            {copy.demon}
+          </h3>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {demonNames.map((name) => (
+            <span
+              key={name}
+              className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+        {structured.core_question && (
+          <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
+            {structured.core_question}
+          </p>
+        )}
+      </div>
+
+      <ReflectionSection
+        label="Emotion"
+        labelText={copy.emotions}
+        content={emotionLabels.length ? emotionLabels.join(" · ") : copy.noEmotion}
+      />
+
+      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+        <div className="flex items-center gap-2">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]">
+            <ListChecks size={15} strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <h3 className="text-sm font-medium text-[var(--foreground)]">
+            {language === "zh" ? "事实与想象" : "Facts vs Imagination"}
+          </h3>
+        </div>
+        <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
+          <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+              {copy.facts}
+            </p>
+            {facts.length ? (
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+                {facts.map((fact) => (
+                  <li key={fact}>- {fact}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {labels.notIdentified}
+              </p>
+            )}
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
+              {copy.imagination}
+            </p>
+            {imaginations.length ? (
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
+                {imaginations.map((item) => (
+                  <li key={item}>- {item}</li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                {labels.notIdentified}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <ReflectionSection
+        label="Behavioural insight"
+        labelText={copy.unmetNeed}
+        content={[
+          structured.unmet_need_surface && `${copy.surface}: ${structured.unmet_need_surface}`,
+          structured.unmet_need_deeper && `${copy.deeper}: ${structured.unmet_need_deeper}`,
+          structured.unmet_need_explanation,
+        ]
+          .filter(Boolean)
+          .join("\n")}
+      />
+
+      <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]">
+            <Footprints size={17} strokeWidth={1.9} aria-hidden="true" />
+          </span>
+          <h3 className="text-base font-semibold text-[var(--foreground)]">
+            {copy.nextStep}
+          </h3>
+          {nextStepType && shouldDisplayNormalizedChip(nextStepType) && (
+            <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
+              {localizedCanonicalLabel(nextStepType, language)}
+            </span>
+          )}
+        </div>
+        <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
+          {structured.next_step_text || structured.next_step}
+        </p>
+        <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
+          {labels.nextStepHint}
+        </p>
+      </div>
+
+      <details className="group rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.78)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[var(--foreground)] marker:hidden">
+          <span className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+              <Leaf size={15} strokeWidth={1.8} aria-hidden="true" />
+            </span>
+            {copy.deeperInsight}
+          </span>
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]">
+            {copy.deepHint}
+            <ChevronDown
+              aria-hidden="true"
+              size={15}
+              strokeWidth={1.8}
+              className="text-[var(--foreground-subtle)] transition group-open:rotate-180"
+            />
+          </span>
+        </summary>
+        <div className="mt-4 grid gap-3 md:grid-cols-2">
+          <ReflectionSection
+            label="One next question"
+            labelText={copy.hypotheses}
+            content={compactDeepItems(structured.open_hypotheses).join("\n")}
+          />
+          <ReflectionSection
+            label="Thought pattern"
+            labelText={copy.thoughtPattern}
+            content={[
+              thoughtLabel || structured.thought_pattern,
+              structured.thought_pattern_explanation,
+            ]
+              .filter(Boolean)
+              .join("\n")}
+          />
+          <ReflectionSection
+            label="Body / context"
+            labelText={copy.mindProtecting}
+            content={structured.mind_protecting || structured.body_factor}
+          />
+          <ReflectionSection
+            label="Behaviour"
+            labelText={copy.behaviouralPull}
+            content={[
+              ...compactDeepItems(structured.behavioural_pull_items),
+              structured.behavioural_pull_note,
+            ]
+              .filter(Boolean)
+              .join("\n")}
+          />
+          <ReflectionSection
+            label="One next question"
+            labelText={copy.observeNext}
+            content={compactDeepItems(structured.observe_next_items).join("\n")}
+          />
+          {previewItems.length > 0 && (
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]">
+                  <CheckCircle2 size={15} strokeWidth={1.8} aria-hidden="true" />
+                </span>
+                <h3 className="text-sm font-medium text-[var(--foreground)]">
+                  {copy.preview}
+                </h3>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {previewItems.map((item) => (
+                  <span
+                    key={item.key}
+                    className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--surface)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)]"
+                  >
+                    {item.value}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </details>
+
+      <ReflectionSection
+        label="Still unclear"
+        labelText={labels.safetyNote}
+        content={structured.safety_note || structured.safetyNote}
+        tone="highlight"
+      />
+    </div>
+  );
+}
+
 export function ReflectionResultCard({
   result,
   structured,
@@ -233,6 +547,7 @@ export function ReflectionResultCard({
   const nextStepType = canonical?.normalizedNextStepType;
   const modeDetected = canonical?.modeDetected;
   const isStructured = Boolean(structured);
+  const isPrompt2 = Boolean(structured?.emotional_source || structured?.demon_names?.length);
   const labels = t.reflectionCard;
   const factItems = compactItems(canonical?.factsSummary);
   const interpretationItems = compactItems(canonical?.interpretationSummary);
@@ -338,7 +653,14 @@ export function ReflectionResultCard({
           </div>
         </div>
 
-        {isStructured && structured ? (
+        {isPrompt2 && structured ? (
+          <Prompt2ResultModules
+            structured={structured}
+            labels={labels}
+            language={language}
+            nextStepType={nextStepType}
+          />
+        ) : isStructured && structured ? (
           <div className="mt-5 grid gap-3 sm:gap-3.5">
             {canonical?.emotionalValidation && (
               <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(232,246,237,0.74),rgba(255,254,248,0.94))] p-4 shadow-[var(--shadow-soft)] ring-1 ring-[rgba(31,155,143,0.08)] sm:p-5">
