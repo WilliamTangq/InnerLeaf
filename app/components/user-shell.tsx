@@ -87,11 +87,11 @@ function UserSidebarContent({
   t: ReturnType<typeof useLanguage>["t"];
 }) {
   return (
-    <div className="shell-panel flex h-full max-h-[calc(100vh-1.5rem)] flex-col overflow-hidden rounded-[1.55rem] p-2.5 lg:max-h-none lg:min-h-[calc(100vh-8.25rem)] lg:rounded-[1.7rem]">
-      <div className="mb-2.5 rounded-[1.2rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.54))] p-3 shadow-[var(--shadow-sm)]">
+    <div className="shell-panel flex h-full max-h-[calc(100vh-1rem)] flex-col overflow-hidden rounded-[1.35rem] p-2 lg:max-h-none lg:min-h-[calc(100vh-8.25rem)] lg:rounded-[1.7rem] lg:p-2.5">
+      <div className="mb-2 rounded-[1.1rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.54))] p-2.5 shadow-[var(--shadow-sm)] lg:mb-2.5 lg:p-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)] lg:h-9 lg:w-9">
               <Leaf aria-hidden="true" size={16} strokeWidth={1.8} />
             </span>
             <div>
@@ -114,13 +114,13 @@ function UserSidebarContent({
             <X aria-hidden="true" size={16} strokeWidth={1.8} />
           </button>
         </div>
-        <p className="mt-2 line-clamp-2 text-xs leading-5 text-[var(--foreground-subtle)]">
+        <p className="mt-1.5 line-clamp-2 text-xs leading-5 text-[var(--foreground-subtle)]">
           {t.app.privacy}
         </p>
       </div>
       <nav
         aria-label={t.app.title}
-        className="flex flex-1 flex-col gap-1 overflow-y-auto pr-0.5"
+        className="flex flex-1 flex-col gap-0.5 overflow-y-auto pr-0.5 lg:gap-1"
       >
         {userLinks.map((link) => (
           <UserNavLink
@@ -223,7 +223,7 @@ export function UserShell({
         />
       </AppMobileDrawer>
 
-      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-5 px-4 py-4 sm:px-7 sm:py-6 lg:grid-cols-[244px_1fr]">
+      <main className="mx-auto grid w-full max-w-[1360px] flex-1 gap-4 px-3 py-3 sm:px-7 sm:py-6 lg:grid-cols-[244px_1fr] lg:gap-5">
         <aside className="hidden lg:sticky lg:top-24 lg:z-[10] lg:block lg:self-start">
           <UserSidebarContent
             onClose={() => setSidebarOpen(false)}
@@ -234,7 +234,7 @@ export function UserShell({
           />
         </aside>
 
-        <section className={["w-full pb-7", maxWidth].join(" ")}>{children}</section>
+        <section className={["w-full pb-6 sm:pb-7", maxWidth].join(" ")}>{children}</section>
       </main>
     </div>
   );

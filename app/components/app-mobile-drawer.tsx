@@ -46,7 +46,7 @@ export function AppMobileDrawer({
         type="button"
         aria-label={label}
         onClick={onClose}
-        className="absolute inset-0 bg-[rgba(18,28,25,0.42)] backdrop-blur-[3px] motion-safe:animate-[drawerBackdropIn_180ms_ease-out]"
+        className="absolute inset-0 bg-[rgba(18,28,25,0.38)] backdrop-blur-[3px] motion-safe:animate-[drawerBackdropIn_180ms_ease-out]"
       />
       <div
         role="dialog"
@@ -54,11 +54,11 @@ export function AppMobileDrawer({
         aria-label={label}
         className="absolute z-[1] motion-safe:animate-[drawerSheetIn_220ms_cubic-bezier(.2,.8,.2,1)]"
         style={{
-          top: "max(0.75rem, env(safe-area-inset-top))",
-          bottom: "max(0.75rem, env(safe-area-inset-bottom))",
-          left: "max(0.75rem, env(safe-area-inset-left))",
+          top: "max(0.55rem, env(safe-area-inset-top))",
+          bottom: "max(0.55rem, env(safe-area-inset-bottom))",
+          left: "max(0.55rem, env(safe-area-inset-left))",
           width:
-            "min(342px, calc(100vw - 1.5rem - env(safe-area-inset-left) - env(safe-area-inset-right)))",
+            "min(334px, calc(100vw - 1.1rem - env(safe-area-inset-left) - env(safe-area-inset-right)))",
         }}
       >
         {children}

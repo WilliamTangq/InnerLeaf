@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { CheckCircle2 } from "lucide-react";
 import {
   ReflectionResultCard,
   type StructuredReflectionResult,
@@ -14,12 +15,10 @@ import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import { trackEvent } from "../lib/analytics";
 import { detectReflectionLanguage } from "../lib/reflection-language";
 import {
-  Badge,
   Card,
   LinkButton,
   LoadingCard,
   LoadingSpinner,
-  PageHeader,
   PrimaryButton,
   StatusCard,
   TextareaField,
@@ -64,6 +63,9 @@ export function GuidedReflectionContent() {
   const activeField = fields[activeStep];
   const draftKey = user?.id ? `innerleaf:guided:${user.id}` : "";
   const textareaId = `guided-reflection-${activeField.id}`;
+  const isFinalStep = activeStep === fields.length - 1;
+  const progressPercent = Math.round(((activeStep + 1) / fields.length) * 100);
+  const [activeLabel, activeHelper, activeGroup] = t.guided.fields[activeField.id];
 
   useEffect(() => {
     if (!draftKey) {
@@ -335,117 +337,179 @@ export function GuidedReflectionContent() {
   }
 
   return (
-    <div className="max-w-3xl">
-      <PageHeader compact eyebrow={t.common.reflect} title={t.guided.title}>
-        {t.guided.purpose}
-      </PageHeader>
-
-      <div className="-mt-2 mb-5 flex flex-col gap-2 text-sm text-[var(--foreground-muted)] sm:flex-row sm:items-center sm:justify-between">
-        <p>{t.guided.boundary}</p>
+    <div className="max-w-5xl">
+      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+            {t.common.reflect}
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
+            {t.guided.title}
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.guided.purpose}
+          </p>
+        </div>
         <Link
           href="/dashboard/quick"
-          className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+          className="inline-flex w-fit items-center rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)] transition hover:border-[rgba(31,155,143,0.3)] hover:bg-[var(--surface)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
         >
           {t.guided.quickLink}
         </Link>
-      </div>
-
-      <div
-        className="mb-3 flex items-center justify-between gap-3"
-        role="tablist"
-        aria-label="Reflection steps"
-      >
-        <div className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1">
-          {fields.map((field, index) => {
-            const isActive = index === activeStep;
-            const isFilled = Boolean(values[field.id].trim());
-            const [label] = t.guided.fields[field.id];
-            return (
-              <button
-                key={field.id}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                aria-controls={`guided-panel-${field.id}`}
-                id={`guided-tab-${field.id}`}
-                onClick={() => setActiveStep(index)}
-                className={[
-                  "shrink-0 rounded-full px-2.5 py-1.5 text-[11px] font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-                  isActive
-                    ? "btn-brand text-white shadow-none"
-                    : isFilled
-                      ? "bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-                      : "bg-[var(--surface-muted)] text-[var(--foreground-subtle)] hover:text-[var(--foreground-muted)]",
-                ].join(" ")}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
-        <span className="shrink-0">
-          <Badge variant="outline">
-            {filledCount}/{fields.length}
-          </Badge>
-        </span>
-      </div>
+      </header>
 
       <Card
-        variant="elevated"
-        className="border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(246,242,233,0.56))] hover:translate-y-0"
+        variant="action"
+        className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.97),rgba(246,242,233,0.52))] p-0 hover:translate-y-0"
       >
-        <div
-          role="tabpanel"
-          id={`guided-panel-${activeField.id}`}
-          aria-labelledby={`guided-tab-${activeField.id}`}
-        >
-          <p className="text-xs font-medium text-[var(--foreground-subtle)]">
-            {t.guided.fields[activeField.id][2]} · {t.guided.progress}{" "}
-            {activeStep + 1} {t.guided.of} {fields.length}
-          </p>
-          <TextareaField
-            id={textareaId}
-            label={t.guided.fields[activeField.id][0]}
-            helper={t.guided.fields[activeField.id][1]}
-            className="mt-3 min-h-36 bg-[rgba(255,254,248,0.96)] sm:min-h-40"
-            value={values[activeField.id]}
-            onChange={(event) => updateField(activeField.id, event.target.value)}
-          />
-          <div className="mt-4 flex flex-wrap gap-2.5">
-            {activeStep > 0 && (
-              <button
-                type="button"
-                onClick={() => setActiveStep(activeStep - 1)}
-                className="inline-flex items-center justify-center rounded-lg border border-[var(--border)] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--surface-muted)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
-              >
-                {t.guided.back}
-              </button>
-            )}
-            {activeStep < fields.length - 1 ? (
-              <PrimaryButton
-                type="button"
-                size="md"
-                onClick={() => setActiveStep(activeStep + 1)}
-              >
-                {t.guided.continue}
-              </PrimaryButton>
-            ) : null}
+        <div className="border-b border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] px-4 py-4 sm:px-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                {t.guided.progress} {activeStep + 1} {t.guided.of} {fields.length}
+              </p>
+              <h2 className="mt-1 text-lg font-semibold leading-7 text-[var(--foreground)]">
+                {activeLabel}
+              </h2>
+            </div>
+            <span className="shrink-0 rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]">
+              {filledCount}/{fields.length}
+            </span>
+          </div>
+          <div className="mt-3 flex items-center gap-2">
+            <span className="h-2 flex-1 overflow-hidden rounded-full bg-[rgba(40,80,60,0.08)]">
+              <span
+                className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))] transition-all duration-300"
+                style={{ width: `${progressPercent}%` }}
+              />
+            </span>
+            <div className="hidden gap-1.5 sm:flex" aria-hidden="true">
+              {fields.map((field, index) => (
+                <span
+                  key={field.id}
+                  className={[
+                    "h-2 w-2 rounded-full transition",
+                    index <= activeStep
+                      ? "bg-[var(--brand-teal)]"
+                      : "bg-[rgba(40,80,60,0.14)]",
+                  ].join(" ")}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 border-t border-[var(--border)] pt-5 sm:flex-row sm:items-center sm:justify-end">
-          {loading ? (
-            <LoadingSpinner label={t.common.loadingGuided} />
-          ) : (
-            <PrimaryButton
-              size="lg"
-              onClick={handleReflect}
-              disabled={loading || !hasInput}
-              className="w-full sm:w-auto"
+        <div className="grid lg:grid-cols-[230px_minmax(0,1fr)]">
+          <aside
+            className="hidden border-r border-[rgba(40,80,60,0.08)] bg-[rgba(246,242,233,0.34)] p-4 lg:block"
+            aria-label="Reflection steps"
+          >
+            <div className="space-y-2" role="tablist">
+              {fields.map((field, index) => {
+                const isActive = index === activeStep;
+                const isFilled = Boolean(values[field.id].trim());
+                const [label] = t.guided.fields[field.id];
+
+                return (
+                  <button
+                    key={field.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`guided-panel-${field.id}`}
+                    id={`guided-tab-${field.id}`}
+                    onClick={() => setActiveStep(index)}
+                    className={[
+                      "flex w-full items-center gap-3 rounded-[1rem] border px-3 py-2.5 text-left text-sm transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                      isActive
+                        ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                        : "border-transparent text-[var(--foreground-muted)] hover:border-[rgba(40,80,60,0.08)] hover:bg-[rgba(255,254,248,0.64)]",
+                    ].join(" ")}
+                  >
+                    <span
+                      className={[
+                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold",
+                        isFilled
+                          ? "bg-[var(--brand-teal)] text-white"
+                          : isActive
+                            ? "bg-[var(--surface)] text-[var(--brand-teal-deep)]"
+                            : "bg-[var(--surface-muted)] text-[var(--foreground-subtle)]",
+                      ].join(" ")}
+                    >
+                      {isFilled ? (
+                        <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
+                      ) : (
+                        index + 1
+                      )}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold">{label}</span>
+                      <span className="mt-0.5 block truncate text-xs opacity-70">
+                        {t.guided.fields[field.id][2]}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          <div className="p-4 sm:p-5">
+            <div
+              role="tabpanel"
+              id={`guided-panel-${activeField.id}`}
+              aria-labelledby={`guided-tab-${activeField.id}`}
+              className="rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] p-4 shadow-[var(--shadow-sm)] sm:p-5"
             >
-              {t.guided.button}
-            </PrimaryButton>
-          )}
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+                {activeGroup}
+              </p>
+              <TextareaField
+                id={textareaId}
+                label={activeLabel}
+                helper={activeHelper}
+                className="mt-3 min-h-40 bg-[rgba(255,254,248,0.96)] sm:min-h-44"
+                value={values[activeField.id]}
+                onChange={(event) => updateField(activeField.id, event.target.value)}
+              />
+            </div>
+
+            <div className="mt-4 flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+              <button
+                type="button"
+                onClick={() => setActiveStep(Math.max(0, activeStep - 1))}
+                disabled={activeStep === 0 || loading}
+                className="inline-flex items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.72)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+              >
+                {t.guided.back}
+              </button>
+
+              {!isFinalStep ? (
+                <PrimaryButton
+                  type="button"
+                  size="lg"
+                  onClick={() => setActiveStep(activeStep + 1)}
+                  disabled={loading}
+                  className="w-full sm:w-auto"
+                >
+                  {t.guided.continue}
+                </PrimaryButton>
+              ) : loading ? (
+                <div className="flex min-h-11 w-full items-center justify-center sm:w-auto">
+                  <LoadingSpinner label={t.common.loadingGuided} />
+                </div>
+              ) : (
+                <PrimaryButton
+                  size="lg"
+                  onClick={handleReflect}
+                  disabled={loading || !hasInput}
+                  className="w-full sm:w-auto"
+                >
+                  {t.guided.button}
+                </PrimaryButton>
+              )}
+            </div>
+          </div>
         </div>
       </Card>
 

@@ -43,7 +43,7 @@ export function IconFrame({
   return (
     <span
       className={cx(
-        "inline-flex shrink-0 items-center justify-center border shadow-[var(--shadow-sm)]",
+        "inline-flex shrink-0 items-center justify-center border shadow-[var(--shadow-sm)] ring-1 ring-white/55 transition duration-200 ease-[var(--motion-ease)]",
         size === "sm" && "h-8 w-8 rounded-xl",
         size === "md" && "h-10 w-10 rounded-2xl",
         size === "lg" && "h-12 w-12 rounded-[1.15rem]",
@@ -69,30 +69,43 @@ export function MiniBar({
   value,
   max,
   detail,
+  unitLabel,
+  interpretation,
 }: {
   label: string;
   value: number;
   max: number;
   detail?: string;
+  unitLabel?: string;
+  interpretation?: string;
 }) {
   const width = max > 0 ? Math.max(8, Math.min(100, (value / max) * 100)) : 0;
 
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.72)] px-3 py-2.5">
+    <div
+      className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[rgba(255,254,248,0.72)] px-3 py-2.5"
+      aria-label={`${label}: ${detail ?? value}${unitLabel ? ` ${unitLabel}` : ""}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <span className="truncate text-sm font-medium text-[var(--foreground)]">
           {label}
         </span>
         <span className="shrink-0 text-xs font-semibold text-[var(--foreground-subtle)]">
           {detail ?? value}
+          {unitLabel ? ` ${unitLabel}` : ""}
         </span>
       </div>
       <span className="mt-2 block h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
         <span
-          className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))]"
+          className="motion-bar-grow block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))]"
           style={{ width: `${width}%` }}
         />
       </span>
+      {interpretation && (
+        <p className="mt-2 text-[11px] leading-4 text-[var(--foreground-subtle)]">
+          {interpretation}
+        </p>
+      )}
     </div>
   );
 }
@@ -143,6 +156,147 @@ export function MiniSparkline({
           strokeLinecap="round"
         />
       </svg>
+    </div>
+  );
+}
+
+export function VisualizationCard({
+  icon,
+  title,
+  description,
+  unit,
+  interpretation,
+  children,
+  className = "",
+}: {
+  icon?: VisualIcon;
+  title: string;
+  description: string;
+  unit?: string;
+  interpretation?: string;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <Card
+      className={cx(
+        "h-full rounded-[28px] border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.9)] shadow-[0_18px_55px_rgba(20,35,28,0.055)] hover:translate-y-0 sm:rounded-[30px]",
+        className
+      )}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-base font-semibold text-[var(--foreground)]">
+            {title}
+          </h2>
+          <p className="mt-1 max-w-md text-sm leading-6 text-[var(--foreground-subtle)]">
+            {description}
+          </p>
+          {unit && (
+            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--brand-teal-deep)]">
+              {unit}
+            </p>
+          )}
+        </div>
+        {icon && <IconFrame icon={icon} size="sm" />}
+      </div>
+      <div className="mt-5">{children}</div>
+      {interpretation && (
+        <p className="mt-4 rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.12)] bg-[var(--accent-soft)] px-3 py-2 text-xs leading-5 text-[var(--brand-teal-deep)]">
+          {interpretation}
+        </p>
+      )}
+    </Card>
+  );
+}
+
+export function RankedSoftBars({
+  items,
+  emptyText,
+  unitLabel,
+  maxItems = 4,
+}: {
+  items: Array<{ value: string; count: number }>;
+  emptyText: ReactNode;
+  unitLabel: string;
+  maxItems?: number;
+}) {
+  const visibleItems = items.slice(0, maxItems);
+  const maxCount = Math.max(...visibleItems.map((item) => item.count), 1);
+
+  if (visibleItems.length === 0) {
+    return (
+      <div className="rounded-[22px] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(231,244,239,0.52),rgba(255,254,248,0.82))] p-4 text-sm leading-6 text-[var(--foreground-muted)]">
+        {emptyText}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2.5">
+      {visibleItems.map((item) => (
+        <MiniBar
+          key={item.value}
+          label={item.value}
+          value={item.count}
+          max={maxCount}
+          unitLabel={unitLabel}
+        />
+      ))}
+    </div>
+  );
+}
+
+export function WeeklyRhythmStrip({
+  values,
+  labels,
+  unitLabel,
+  emptyText,
+}: {
+  values: number[];
+  labels: string[];
+  unitLabel: string;
+  emptyText: ReactNode;
+}) {
+  const total = values.reduce((sum, value) => sum + value, 0);
+  const max = Math.max(...values, 1);
+
+  if (total === 0) {
+    return (
+      <div className="rounded-[22px] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(231,244,239,0.52),rgba(255,254,248,0.82))] p-4 text-sm leading-6 text-[var(--foreground-muted)]">
+        {emptyText}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-[20px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3">
+      <div className="grid grid-cols-7 gap-2" role="list" aria-label={unitLabel}>
+        {values.map((value, index) => {
+          const height = value === 0 ? 10 : Math.max(18, (value / max) * 54);
+          const label = labels[index] ?? String(index + 1);
+
+          return (
+            <div key={`${label}-${index}`} className="flex flex-col items-center gap-2" role="listitem">
+              <div className="flex h-12 w-full items-end justify-center rounded-full bg-[rgba(40,80,60,0.055)] px-1.5 py-1.5">
+                <span
+                  className={cx(
+                    "block w-full max-w-5 rounded-full transition-all",
+                    value > 0
+                      ? "bg-[linear-gradient(180deg,rgba(31,155,143,0.62),rgba(217,179,74,0.44))]"
+                      : "bg-[rgba(40,80,60,0.10)]"
+                  )}
+                  style={{ height }}
+                  aria-label={`${label}: ${value} ${unitLabel}`}
+                />
+              </div>
+              <span className="text-[10px] font-medium uppercase text-[var(--foreground-subtle)] opacity-80">
+                {label}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -249,7 +403,7 @@ export function PageShell({
   return (
     <div className="page-glow flex min-h-screen flex-col text-[var(--foreground)]">
       <TopNav />
-      <main className={cx("mx-auto w-full flex-1 px-5 py-8 sm:px-8 sm:py-11", maxWidth)}>
+      <main className={cx("mx-auto w-full flex-1 px-4 py-7 sm:px-8 sm:py-11", maxWidth)}>
         {children}
       </main>
       <Footer />
@@ -308,7 +462,7 @@ export function Card({
 }: {
   children: ReactNode;
   className?: string;
-  variant?: "default" | "muted" | "elevated";
+  variant?: "default" | "muted" | "elevated" | "hero" | "action" | "support" | "insight" | "utility";
 }) {
   return (
     <ShadCard variant={variant} className={className}>
@@ -465,7 +619,7 @@ export function StatusCard({
   return (
     <div
       className={cx(
-        "rounded-[var(--radius-lg)] border px-3.5 py-2.5 text-sm leading-6 shadow-[var(--shadow-sm)]",
+        "motion-soft-scale rounded-[var(--radius-lg)] border px-3.5 py-2.5 text-sm leading-6 shadow-[var(--shadow-sm)]",
         tone === "neutral" &&
           "border-[var(--border)] bg-[var(--surface-muted)] text-[var(--foreground-muted)]",
         tone === "warning" &&
@@ -493,12 +647,12 @@ export function EmptyState({
   icon?: VisualIcon;
 }) {
   return (
-    <Card className="brand-panel relative overflow-hidden text-center hover:translate-y-0 sm:text-left">
+    <Card variant="support" className="brand-panel relative overflow-hidden text-center hover:translate-y-0 sm:text-left">
       <div
         className="pointer-events-none absolute -right-10 -top-10 h-36 w-36 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.16),transparent_64%)]"
         aria-hidden="true"
       />
-      <div className="mx-auto mb-4 sm:mx-0">
+      <div className="mx-auto mb-3.5 sm:mx-0">
         {icon ? (
           <IconFrame icon={icon} size="lg" tone="sage" />
         ) : (
@@ -509,7 +663,7 @@ export function EmptyState({
       <p className="mt-2 max-w-md text-sm leading-6 text-[var(--foreground-muted)]">
         {description}
       </p>
-      {action && <div className="mt-5">{action}</div>}
+      {action && <div className="mt-4">{action}</div>}
     </Card>
   );
 }

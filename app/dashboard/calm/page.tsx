@@ -240,8 +240,8 @@ export default function CalmPage() {
       </PageHeader>
 
       <Card
-        variant="elevated"
-        className="relative overflow-hidden border-[rgba(31,155,143,0.15)] bg-[linear-gradient(145deg,rgba(255,254,248,0.97),rgba(232,246,241,0.72),rgba(255,248,226,0.42))] p-5 shadow-[0_28px_90px_rgba(20,35,28,0.08)] hover:translate-y-0 sm:p-7"
+        variant="hero"
+        className="relative overflow-hidden border-[rgba(31,155,143,0.15)] p-4 shadow-[0_28px_90px_rgba(20,35,28,0.08)] hover:translate-y-0 sm:p-7"
       >
         <div
           className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[radial-gradient(circle,rgba(217,179,74,0.18),transparent_68%)]"
@@ -318,7 +318,7 @@ export default function CalmPage() {
               </div>
               <span className="mt-4 block h-2 overflow-hidden rounded-full bg-[var(--surface-muted)]">
                 <span
-                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))] transition-[width] duration-200"
+                  className="block h-full rounded-full bg-[linear-gradient(90deg,var(--brand-teal),rgba(217,179,74,0.72))] transition-[width] duration-200 ease-[var(--motion-ease)]"
                   style={{ width: `${progress}%` }}
                 />
               </span>
@@ -366,7 +366,7 @@ export default function CalmPage() {
         </div>
       </Card>
 
-      <Card variant="muted" className="mt-4 hover:translate-y-0">
+      <Card variant="support" className="mt-4 hover:translate-y-0">
         <p className="text-sm leading-6 text-[var(--foreground-muted)]">
           {t.calm.safetyNote}
         </p>

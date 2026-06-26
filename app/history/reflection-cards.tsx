@@ -969,7 +969,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
             });
             setShowForm(true);
           }}
-          className="mt-4 inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+          className="mt-4 inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 ease-[var(--motion-ease)] hover:bg-[var(--brand-teal-deep)] active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
         >
           <CheckCircle2 aria-hidden="true" size={15} strokeWidth={1.8} />
           {t.history.checkInCta}
@@ -1032,7 +1032,7 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
               type="button"
               onClick={saveCheckIn}
               disabled={!selectedResult || status === "saving"}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:bg-[var(--brand-teal-deep)] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-full bg-[var(--brand-teal)] px-4 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 ease-[var(--motion-ease)] hover:bg-[var(--brand-teal-deep)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
             >
               <Send aria-hidden="true" size={15} strokeWidth={1.8} />
               {status === "saving" ? t.history.savingCheckIn : t.history.saveCheckIn}
@@ -1154,8 +1154,9 @@ export function ReflectionCards({
               return (
                 <Card
                   key={item.id}
+                  variant="insight"
                   className={[
-                    "overflow-hidden rounded-[28px] border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.88)] shadow-[0_18px_55px_rgba(20,35,28,0.055)] transition duration-200",
+                    "overflow-hidden rounded-[28px] transition duration-200 ease-[var(--motion-ease)]",
                     isOpen
                       ? "hover:translate-y-0"
                       : "hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.18)] hover:shadow-[0_24px_70px_rgba(20,35,28,0.075)]",

@@ -305,10 +305,10 @@ export function QuickReflectionContent() {
       </PageHeader>
 
       <Card
-        variant="elevated"
+        variant="action"
         className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.54))] hover:translate-y-0"
       >
-        <div className="mb-5 rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.64)] p-3.5 shadow-[var(--shadow-sm)]">
+        <div className="mb-4 rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.64)] p-3.5 shadow-[var(--shadow-sm)] sm:mb-5">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
             {t.quick.moodPrompt}
           </p>
@@ -327,7 +327,7 @@ export function QuickReflectionContent() {
                   }
                   aria-pressed={isSelected}
                   className={[
-                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                    "motion-soft-scale rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
                     isSelected
                       ? "border-[rgba(31,155,143,0.3)] bg-[linear-gradient(135deg,rgba(31,155,143,0.16),rgba(217,179,74,0.16))] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
                       : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.22)] hover:text-[var(--foreground)]",

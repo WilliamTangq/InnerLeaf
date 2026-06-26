@@ -302,16 +302,19 @@ function AdminFeedbackContent() {
               label={t.admin.reviewed}
               value={reviewedCount}
               max={feedback.length}
+              unitLabel="entries"
             />
             <MiniBar
               label={t.admin.unreviewed}
               value={unreviewedCount}
               max={feedback.length}
+              unitLabel="entries"
             />
             <MiniBar
               label={t.admin.wouldUse}
               value={wouldUseCount}
               max={feedback.length}
+              unitLabel="entries"
             />
           </div>
         </Card>

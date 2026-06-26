@@ -621,7 +621,7 @@ export function ReflectionResultCard({
   return (
     <section aria-labelledby="reflection-card-heading" className="mt-8">
       <Card
-        variant="elevated"
+        variant="hero"
         className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[rgba(255,254,248,0.95)] shadow-[var(--shadow-xl)]"
       >
         <div

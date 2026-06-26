@@ -363,7 +363,7 @@ function UserDetailContent() {
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="rounded-lg border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] transition hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)]"
+                className="inline-flex min-h-10 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition duration-200 ease-[var(--motion-ease)] hover:bg-[var(--surface-muted)] hover:text-[var(--foreground)] active:translate-y-px"
               >
                 {t.admin.cancel}
               </button>
@@ -375,7 +375,7 @@ function UserDetailContent() {
                   deleteConfirmation.trim().toLowerCase() !==
                     (user.email ?? "").toLowerCase()
                 }
-                className="rounded-lg bg-[var(--error)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-10 items-center justify-center rounded-full bg-[var(--error)] px-4 py-2 text-sm font-semibold text-white shadow-[var(--shadow-soft)] transition duration-200 ease-[var(--motion-ease)] hover:opacity-90 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? t.feedback.sending : t.admin.deleteUser}
               </button>

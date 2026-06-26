@@ -15,6 +15,7 @@ import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import {
   Card,
+  IconFrame,
   LinkButton,
   PageHeader,
   SectionLabel,
@@ -340,7 +341,7 @@ export function WorkspaceContent() {
 
   return (
     <>
-      <section className="rounded-[1.35rem] border border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(238,249,244,0.62))] p-4 shadow-[var(--shadow-soft)] sm:p-5">
+      <Card variant="hero" className="p-4 hover:translate-y-0 sm:p-5">
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
@@ -360,11 +361,11 @@ export function WorkspaceContent() {
             {t.app.privacy}
           </div>
         </div>
-      </section>
+      </Card>
 
       {isAdmin && (
         <Card
-          variant="elevated"
+          variant="support"
           className="mt-5 border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.68))] hover:translate-y-0"
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -396,25 +397,16 @@ export function WorkspaceContent() {
             return (
               <Card
                 key={href}
-                variant="elevated"
+                variant="action"
                 className={[
-                  "group h-full overflow-hidden p-4 hover:-translate-y-0.5 sm:p-5",
+                  "group h-full overflow-hidden p-4 sm:p-5",
                   index === 0
                     ? "border-[rgba(31,155,143,0.2)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(231,244,239,0.78))] shadow-[var(--shadow-lg)]"
                     : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.92)]",
                 ].join(" ")}
               >
                 <div className="flex min-h-[142px] flex-col sm:min-h-[156px]">
-                  <span
-                    className={[
-                      "flex h-10 w-10 items-center justify-center rounded-2xl border shadow-[var(--shadow-soft)]",
-                      index === 0
-                        ? "border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-                        : "border-[rgba(40,80,60,0.1)] bg-[rgba(246,242,233,0.68)] text-[var(--foreground-muted)]",
-                    ].join(" ")}
-                  >
-                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
-                  </span>
+                  <IconFrame icon={Icon} tone={index === 0 ? "sage" : "gold"} />
                   <h2 className="mt-4 text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
                     {title}
                   </h2>
@@ -442,13 +434,11 @@ export function WorkspaceContent() {
             return (
               <Card
                 key={href}
-                variant="default"
-                className="h-full bg-[rgba(255,254,248,0.78)] hover:translate-y-0"
+                variant="support"
+                className="h-full hover:translate-y-0"
               >
                 <div className="flex items-start gap-4">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[rgba(231,244,239,0.78)] text-[var(--brand-teal-deep)]">
-                    <Icon aria-hidden="true" size={18} strokeWidth={1.8} />
-                  </span>
+                  <IconFrame icon={Icon} size="sm" />
                   <div>
                     <h2 className="text-base font-semibold text-[var(--foreground)]">
                       {title}
@@ -473,7 +463,7 @@ export function WorkspaceContent() {
       </section>
 
       <div className="mt-4 grid gap-3 lg:grid-cols-2">
-        <Card variant="muted" className="hover:translate-y-0">
+        <Card variant="utility" className="hover:translate-y-0">
           <SectionLabel>{t.app.recent}</SectionLabel>
           {recent ? (
             <div className="mt-3 space-y-3">
@@ -505,7 +495,7 @@ export function WorkspaceContent() {
             {t.common.viewHistory}
           </LinkButton>
         </Card>
-        <Card variant="muted" className="hover:translate-y-0">
+        <Card variant="utility" className="hover:translate-y-0">
           <SectionLabel>{t.summary.title}</SectionLabel>
           <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
             {t.app.summaryTeaser}

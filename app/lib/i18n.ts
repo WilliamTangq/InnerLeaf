@@ -149,7 +149,7 @@ export const translations = {
       badge: "Beta · Structured reflection, not diagnosis",
       headline: "Turn emotional overload into clear reflection.",
       subtitle:
-        "InnerLeaf helps you break down one intense moment into trigger, facts, interpretation, thought pattern, and one small next step.",
+        "InnerLeaf helps you name the emotional source, separate facts from imagination, notice the unmet need, and choose one small next step.",
       safety: "Private self-reflection space. Not therapy or medical advice.",
       ctaHint:
         "Create an account for the live flow, or view the demo first.",
@@ -160,7 +160,7 @@ export const translations = {
       boundary:
         "You stay in control. InnerLeaf does not diagnose, score, or judge your emotions.",
       heroMessy: "I keep replaying why they replied so late.",
-      heroStructured: "Messy feeling → structured card",
+      heroStructured: "Messy feeling → structured reflection card",
       previewEyebrow: "Product preview",
       previewTitle: "Example reflection",
       artifactTitle: "The reflection card is the product.",
@@ -185,7 +185,7 @@ export const translations = {
         ],
         [
           "Organise the reaction",
-          "AI separates trigger, facts, interpretation, and thought pattern.",
+          "AI separates emotional source, facts, imagination, unmet need, and one small next step.",
           "Moment",
           "Structure",
           "Structured reflection card",
@@ -1577,7 +1577,7 @@ export const translations = {
       badge: "测试版 · 结构化反思，不做诊断",
       headline: "把情绪过载，整理成清晰反思。",
       subtitle:
-        "InnerLeaf 帮你把一次强烈的情绪时刻拆解成触发点、事实、解读、思维模式，以及一个小的下一步。",
+        "InnerLeaf 帮你看见情绪来源，区分事实和想象，整理未被满足的需要，并选择一个小的下一步。",
       safety: "私人自我反思空间。不是治疗，也不提供医疗建议。",
       ctaHint:
         "创建账号进入真实流程，或先查看演示。",
@@ -1587,7 +1587,7 @@ export const translations = {
       ],
       boundary: "你始终保有主动权。InnerLeaf 不诊断、不打分，也不评判你的情绪。",
       heroMessy: "我一直在想，为什么对方这么晚才回复。",
-      heroStructured: "混乱感受 → 结构化卡片",
+      heroStructured: "混乱感受 → 结构化反思卡片",
       previewEyebrow: "产品预览",
       previewTitle: "示例反思",
       artifactTitle: "反思卡片，就是 InnerLeaf 的核心成果。",
@@ -1612,7 +1612,7 @@ export const translations = {
         ],
         [
           "整理这次反应",
-          "AI 会区分触发点、事实、解读和思维模式。",
+          "AI 会区分情绪来源、事实、想象、未被满足的需要和一个小行动。",
           "情绪时刻",
           "结构",
           "结构化反思卡片",

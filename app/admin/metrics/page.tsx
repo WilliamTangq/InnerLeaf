@@ -13,13 +13,6 @@ import {
   UserPlus,
   Users,
 } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { AdminMetricCard, AdminShell } from "../../components/admin-shell";
 import { useAuth } from "../../components/auth-provider";
@@ -29,8 +22,11 @@ import {
   Card,
   MiniBar,
   MiniSparkline,
+  RankedSoftBars,
   SectionLabel,
   StatusCard,
+  VisualizationCard,
+  WeeklyRhythmStrip,
 } from "../../components/ui";
 
 type EventName =
@@ -131,48 +127,16 @@ function ActivityTrendChart({
 }: {
   data: MetricsResponse["activityTrend"];
 }) {
+  const values = data.map((item) => item.users + item.reflections + item.feedback);
+  const labels = data.map((item) => item.label);
+
   return (
-    <div className="rounded-[1.25rem] border border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(231,244,239,0.42),rgba(255,254,248,0.84))] p-3.5">
-      <div className="h-32">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} barGap={3} margin={{ top: 4, right: 4, left: 0, bottom: 0 }}>
-            <XAxis
-              dataKey="label"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fill: "rgba(80,97,90,0.72)", fontSize: 10 }}
-            />
-            <Tooltip
-              cursor={{ fill: "rgba(31,155,143,0.06)" }}
-              contentStyle={{
-                borderRadius: 14,
-                border: "1px solid rgba(40,80,60,0.12)",
-                background: "rgb(255,254,248)",
-                boxShadow: "0 16px 48px rgba(20,35,28,0.12)",
-                fontSize: 12,
-              }}
-            />
-            <Bar dataKey="users" fill="rgba(31,155,143,0.72)" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="reflections" fill="rgba(217,179,74,0.72)" radius={[6, 6, 0, 0]} />
-            <Bar dataKey="feedback" fill="rgba(80,97,90,0.46)" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--foreground-subtle)]">
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[rgba(31,155,143,0.72)]" />
-          Users
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[rgba(217,179,74,0.72)]" />
-          Saves
-        </span>
-        <span className="inline-flex items-center gap-1.5">
-          <span className="h-2 w-2 rounded-full bg-[rgba(80,97,90,0.46)]" />
-          Feedback
-        </span>
-      </div>
-    </div>
+    <WeeklyRhythmStrip
+      values={values}
+      labels={labels}
+      unitLabel="events"
+      emptyText={<span>No aggregate activity recorded in this window yet.</span>}
+    />
   );
 }
 
@@ -375,7 +339,7 @@ function FounderMetricsContent() {
                 Last 7 days activity
               </h2>
               <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                Aggregate trend only: users, saved reflections, and feedback submissions.
+                Aggregate trend only: each bar combines new users, saved reflections, and feedback submissions for that day.
               </p>
               <div className="mt-4">
                 <ActivityTrendChart data={metrics.activityTrend} />
@@ -384,82 +348,58 @@ function FounderMetricsContent() {
           </div>
 
           <div className="mt-4 grid gap-4 lg:grid-cols-3">
-            <Card className="hover:translate-y-0">
-              <LineChart
-                aria-hidden="true"
-                size={20}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
-              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
-                Quick vs guided
-              </h2>
-              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                Quick saved: {db?.quickSaved ?? 0}. Guided saved:{" "}
-                {db?.guidedSaved ?? 0}.
-              </p>
-              <div className="mt-4 grid gap-2">
+            <VisualizationCard
+              icon={LineChart}
+              title="Quick vs guided"
+              description={`Saved mode split. Quick saved: ${db?.quickSaved ?? 0}. Guided saved: ${db?.guidedSaved ?? 0}.`}
+              unit="Each bar shows saved reflections by mode."
+            >
+              <div className="grid gap-2">
                 {startedTotal !== null && (
                   <MiniBar
                     label="Started reflections"
                     value={startedTotal}
                     max={Math.max(startedTotal, saved ?? 0, 1)}
+                    unitLabel="events"
                   />
                 )}
                 <MiniBar
                   label={t.nav.quick}
                   value={db?.quickSaved ?? 0}
                   max={savedModeMax}
+                  unitLabel="cards"
                 />
                 <MiniBar
                   label={t.nav.guided}
                   value={db?.guidedSaved ?? 0}
                   max={savedModeMax}
+                  unitLabel="cards"
                 />
               </div>
-            </Card>
-            <Card className="hover:translate-y-0">
-              <CheckCircle2
-                aria-hidden="true"
-                size={20}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
+            </VisualizationCard>
+            <VisualizationCard
+              icon={CheckCircle2}
+              title="Feedback quality"
+              description={`${db?.positiveFeedback ?? 0} testers said clarity helped. ${db?.repeatIntent ?? 0} said they would use it again.`}
+              unit="Each bar shows feedback responses, not private reflections."
+            >
+              <RankedSoftBars
+                items={[
+                  { value: t.feedback.questions.clarity_help[0], count: db?.positiveFeedback ?? 0 },
+                  { value: t.feedback.questions.would_use_again[0], count: db?.repeatIntent ?? 0 },
+                ]}
+                emptyText={<span>No feedback signals yet.</span>}
+                unitLabel="responses"
+                maxItems={2}
               />
-              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
-                Feedback quality
-              </h2>
-              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                {db?.positiveFeedback ?? 0} users said clarity helped.{" "}
-                {db?.repeatIntent ?? 0} said they would use it again.
-              </p>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <MiniBar
-                  label={t.feedback.questions.clarity_help[0]}
-                  value={db?.positiveFeedback ?? 0}
-                  max={Math.max(db?.totalFeedback ?? 0, 1)}
-                />
-                <MiniBar
-                  label={t.feedback.questions.would_use_again[0]}
-                  value={db?.repeatIntent ?? 0}
-                  max={Math.max(db?.totalFeedback ?? 0, 1)}
-                />
-              </div>
-            </Card>
-            <Card className="hover:translate-y-0">
-              <ShieldCheck
-                aria-hidden="true"
-                size={20}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
-              <h2 className="mt-3 text-base font-semibold text-[var(--foreground)]">
-                Privacy boundary
-              </h2>
-              <p className="mt-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                This page shows counts and rates only. It does not expose private
-                reflection text, AI output, or check-in notes.
-              </p>
-              <div className="mt-4">
+            </VisualizationCard>
+            <VisualizationCard
+              icon={ShieldCheck}
+              title="Privacy boundary"
+              description="This page shows counts and rates only. It does not expose private reflection text, AI output, or check-in notes."
+              unit="Privacy-safe aggregate signals only."
+            >
+              <div>
                 <MiniSparkline
                   values={[
                     db?.usersLast7Days ?? 0,
@@ -469,7 +409,7 @@ function FounderMetricsContent() {
                   label={t.admin.overview}
                 />
               </div>
-            </Card>
+            </VisualizationCard>
           </div>
 
           <Card className="mt-4 hover:translate-y-0">
@@ -479,16 +419,19 @@ function FounderMetricsContent() {
                 label={t.admin.users7d}
                 value={db?.usersLast7Days ?? 0}
                 max={activityMax}
+                unitLabel="users"
               />
               <MiniBar
                 label={t.admin.reflections7d}
                 value={db?.reflectionsLast7Days ?? 0}
                 max={activityMax}
+                unitLabel="cards"
               />
               <MiniBar
                 label={t.admin.feedback7d}
                 value={db?.feedbackLast7Days ?? 0}
                 max={activityMax}
+                unitLabel="entries"
               />
             </div>
           </Card>

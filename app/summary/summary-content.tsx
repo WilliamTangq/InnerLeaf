@@ -22,7 +22,10 @@ import {
   LinkButton,
   PageActions,
   PageHeader,
+  RankedSoftBars,
   StatusCard,
+  VisualizationCard,
+  WeeklyRhythmStrip,
 } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
@@ -438,28 +441,27 @@ function SummaryBlockShell({
   icon,
   title,
   description,
+  unit,
+  interpretation,
   children,
 }: {
   icon: SummaryIcon;
   title: string;
   description: string;
+  unit?: string;
+  interpretation?: string;
   children: ReactNode;
 }) {
   return (
-    <Card className="h-full rounded-[28px] border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.9)] shadow-[0_18px_55px_rgba(20,35,28,0.055)] hover:-translate-y-0.5">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--foreground)]">
-            {title}
-          </h2>
-          <p className="mt-1 max-w-md text-sm leading-6 text-[var(--foreground-subtle)]">
-            {description}
-          </p>
-        </div>
-        <IconFrame icon={icon} size="sm" />
-      </div>
+    <VisualizationCard
+      icon={icon}
+      title={title}
+      description={description}
+      unit={unit}
+      interpretation={interpretation}
+    >
       {children}
-    </Card>
+    </VisualizationCard>
   );
 }
 
@@ -497,41 +499,20 @@ function Prompt2RankedBlock({
   lowDataText: string;
   footnote?: string;
 }) {
-  const maxCount = Math.max(...items.map((item) => item.count), 1);
+  const { language } = useLanguage();
+  const unit =
+    language === "zh"
+      ? "每条横条表示：保存卡片中出现的次数"
+      : "Each bar shows how many saved cards included this signal.";
+  const countLabel = language === "zh" ? "次" : "cards";
 
   return (
-    <SummaryBlockShell icon={icon} title={title} description={description}>
-      {items.length === 0 ? (
-        <LowDataState icon={icon}>{lowDataText}</LowDataState>
-      ) : (
-        <div className="mt-5 space-y-2.5">
-          {items.slice(0, 4).map((item, index) => {
-            const width = Math.max(14, Math.round((item.count / maxCount) * 100));
-
-            return (
-              <div
-                key={`${item.value}-${index}`}
-                className="rounded-[1.1rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] px-3.5 py-3"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="min-w-0 truncate text-sm font-semibold text-[var(--foreground)]">
-                    {item.value}
-                  </span>
-                  <span className="shrink-0 text-xs font-semibold text-[var(--foreground-subtle)]">
-                    {item.count}×
-                  </span>
-                </div>
-                <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-[rgba(40,80,60,0.08)]">
-                  <span
-                    className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(31,155,143,0.62),rgba(217,179,74,0.46))]"
-                    style={{ width: `${width}%` }}
-                  />
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      )}
+    <SummaryBlockShell icon={icon} title={title} description={description} unit={unit}>
+      <RankedSoftBars
+        items={items}
+        emptyText={<span>{lowDataText}</span>}
+        unitLabel={countLabel}
+      />
       {footnote && (
         <p className="mt-4 text-xs leading-5 text-[var(--foreground-subtle)]">
           {footnote}
@@ -633,6 +614,11 @@ function HelpfulCheckInBlock({
       icon={Footprints}
       title={t.summary.whatHelpsTitle}
       description={t.summary.whatHelpsDesc}
+      unit={
+        language === "zh"
+          ? "这些信号来自已保存卡片和回看结果。"
+          : "Signals come from saved cards and later check-ins."
+      }
     >
       <div className="mt-5 grid gap-3 md:grid-cols-2">
         <div className="rounded-[22px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3.5">
@@ -702,7 +688,6 @@ function ActivityRhythmBlock({
 }) {
   const { language, t } = useLanguage();
   const recentTotal = trendValues.reduce((sum, value) => sum + value, 0);
-  const maxValue = Math.max(...trendValues, 1);
   const dayLabels = trendValues.map((_, index) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - index));
@@ -728,38 +713,19 @@ function ActivityRhythmBlock({
       icon={LineChartIcon}
       title={t.summary.rhythmTitle}
       description={t.summary.rhythmDesc}
+      unit={
+        language === "zh"
+          ? "每条竖条表示：当天保存的反思卡片数量"
+          : "Each vertical bar shows saved reflection cards for that day."
+      }
+      interpretation={caption}
     >
-      <div className="mt-4 rounded-[20px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] p-3">
-        {recentTotal === 0 ? (
-          <LowDataState icon={LineChartIcon}>{caption}</LowDataState>
-        ) : (
-          <div className="grid grid-cols-7 gap-2">
-            {trendValues.map((value, index) => {
-              const height = value === 0 ? 10 : Math.max(18, (value / maxValue) * 54);
-
-              return (
-                <div key={`${dayLabels[index]}-${index}`} className="flex flex-col items-center gap-2">
-                  <div className="flex h-12 w-full items-end justify-center rounded-full bg-[rgba(40,80,60,0.055)] px-1.5 py-1.5">
-                    <span
-                      className={[
-                        "block w-full max-w-5 rounded-full transition-all",
-                        value > 0
-                          ? "bg-[linear-gradient(180deg,rgba(31,155,143,0.62),rgba(217,179,74,0.44))]"
-                          : "bg-[rgba(40,80,60,0.10)]",
-                      ].join(" ")}
-                      style={{ height }}
-                      aria-label={`${dayLabels[index]}: ${value}`}
-                    />
-                  </div>
-                  <span className="text-[10px] font-medium uppercase text-[var(--foreground-subtle)] opacity-80">
-                    {dayLabels[index]}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+      <WeeklyRhythmStrip
+        values={trendValues}
+        labels={dayLabels}
+        unitLabel={language === "zh" ? "张卡片" : "cards"}
+        emptyText={<span>{caption}</span>}
+      />
       <div className="mt-3 flex flex-wrap gap-2">
         <span className="rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-medium text-[var(--brand-teal-deep)]">
           {t.summary.recentEntries.replace("{count}", String(recentTotal))}
@@ -768,9 +734,6 @@ function ActivityRhythmBlock({
           {checkInCount} {t.history.checkedIn}
         </span>
       </div>
-      <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
-        {caption}
-      </p>
     </SummaryBlockShell>
   );
 }

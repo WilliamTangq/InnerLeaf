@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
 
 export const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-full font-semibold transition duration-200 active:translate-y-px disabled:pointer-events-none disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-semibold transition duration-200 ease-[var(--motion-ease)] active:translate-y-px disabled:pointer-events-none disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
   {
     variants: {
       variant: {
@@ -19,9 +19,9 @@ export const buttonVariants = cva(
           "border border-[var(--border)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
       },
       size: {
-        sm: "px-3.5 py-1.5 text-[13px]",
-        md: "px-[1.05rem] py-2.5 text-sm",
-        lg: "px-5 py-2.5 text-[15px]",
+        sm: "min-h-9 px-3.5 py-1.5 text-[13px]",
+        md: "min-h-10 px-[1.05rem] py-2.5 text-sm",
+        lg: "min-h-11 px-5 py-2.5 text-[15px]",
         icon: "h-9 w-9 p-0",
       },
     },
@@ -53,20 +53,30 @@ export function ShadButton({
 }
 
 export const cardVariants = cva(
-  "rounded-[1.45rem] border",
+  "rounded-[1.45rem] border motion-soft-reveal",
   {
     variants: {
       variant: {
         default:
-          "border-[rgba(40,80,60,0.085)] bg-[rgba(255,254,248,0.88)] shadow-[var(--shadow-soft)] transition duration-200",
+          "border-[rgba(40,80,60,0.085)] bg-[rgba(255,254,248,0.88)] shadow-[var(--shadow-soft)] transition duration-200 ease-[var(--motion-ease)]",
         muted:
           "border-[rgba(40,80,60,0.07)] bg-[rgba(246,242,233,0.58)] shadow-[var(--shadow-sm)]",
         elevated:
-          "border-[rgba(40,80,60,0.105)] bg-[rgba(255,254,248,0.94)] shadow-[var(--shadow-md)] transition duration-200 hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.2)] hover:shadow-[var(--shadow-lg)]",
+          "border-[rgba(40,80,60,0.105)] bg-[rgba(255,254,248,0.94)] shadow-[var(--shadow-md)] transition duration-200 ease-[var(--motion-ease)] hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.2)] hover:shadow-[var(--shadow-lg)]",
+        hero:
+          "rounded-[1.8rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.58),rgba(255,248,226,0.22))] shadow-[var(--shadow-lg)] transition duration-200 ease-[var(--motion-ease)]",
+        action:
+          "border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.94)] shadow-[var(--shadow-md)] transition duration-200 ease-[var(--motion-ease)] hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.22)] hover:shadow-[var(--shadow-lg)]",
+        support:
+          "border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.72)] shadow-[var(--shadow-sm)]",
+        insight:
+          "border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.9)] shadow-[0_18px_55px_rgba(20,35,28,0.055)]",
+        utility:
+          "border-[rgba(40,80,60,0.07)] bg-[rgba(246,242,233,0.54)] shadow-[var(--shadow-sm)]",
       },
       padding: {
-        md: "p-4 sm:p-[1.125rem]",
-        lg: "p-5",
+        md: "p-3.5 sm:p-[1.125rem]",
+        lg: "p-4 sm:p-5",
         none: "p-0",
       },
     },

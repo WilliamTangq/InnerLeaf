@@ -113,16 +113,19 @@ function AdminOverviewContent() {
                 label={t.admin.users7d}
                 value={overview.usersLast7Days}
                 max={activityMax}
+                unitLabel="users"
               />
               <MiniBar
                 label={t.admin.reflections7d}
                 value={overview.reflectionsLast7Days}
                 max={activityMax}
+                unitLabel="cards"
               />
               <MiniBar
                 label={t.admin.feedback7d}
                 value={overview.feedbackLast7Days}
                 max={activityMax}
+                unitLabel="entries"
               />
             </div>
           </div>

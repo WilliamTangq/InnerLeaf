@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { BrandLogo } from "./components/brand-logo";
 import { useAuth } from "./components/auth-provider";
-import { Badge, LinkButton, PageShell, SectionLabel } from "./components/ui";
+import { Badge, LinkButton, MiniBar, PageShell, SectionLabel } from "./components/ui";
 import { useLanguage } from "./components/language-provider";
 import { trackEvent } from "./lib/analytics";
 import { getDefaultRouteForRole } from "./lib/routes";
@@ -54,12 +54,41 @@ function Surface({
 }
 
 function TransformationMockup() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const prompt2Copy =
+    language === "zh"
+      ? {
+          source: "情绪来源",
+          demon: "情绪名字",
+          facts: "事实",
+          imagination: "想象",
+          need: "未满足的需要",
+          sourceValue: "等待回复时，不确定感变强。",
+          demonValue: "读心式担心",
+          factsValue: "对方比预期更晚回复。",
+          imaginationValue: "这可能说明我不被在意。",
+          needValue: "更清楚的回应和安全感。",
+          unit: "示例信号",
+        }
+      : {
+          source: "Emotional Source",
+          demon: "Name the Demon",
+          facts: "Facts",
+          imagination: "Imagination",
+          need: "Unmet Need",
+          sourceValue: "Uncertainty grew while waiting for a reply.",
+          demonValue: "Mind-reading worry",
+          factsValue: "The message was answered later than expected.",
+          imaginationValue: "This may mean I am being ignored.",
+          needValue: "A clearer response and emotional steadiness.",
+          unit: "example signal",
+        };
   const cardRows = [
-    [t.reflectionCard.trigger, t.home.previewTrigger],
-    [t.reflectionCard.facts, t.home.previewFacts],
-    [t.reflectionCard.interpretation, t.home.previewInterpretation],
-    [t.reflectionCard.thoughtPattern, t.home.previewPattern],
+    [prompt2Copy.source, prompt2Copy.sourceValue],
+    [prompt2Copy.demon, prompt2Copy.demonValue],
+    [prompt2Copy.facts, prompt2Copy.factsValue],
+    [prompt2Copy.imagination, prompt2Copy.imaginationValue],
+    [prompt2Copy.need, prompt2Copy.needValue],
   ] as const;
 
   return (
@@ -187,7 +216,29 @@ function SectionHeading({
 }
 
 function ProductTransformation() {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
+  const prompt2Copy =
+    language === "zh"
+      ? {
+          structureLabel: "反思结构",
+          rows: [
+            ["情绪来源", "等待回复时，不确定感变强。"],
+            ["情绪名字", "读心式担心"],
+            ["事实", "对方比预期更晚回复。"],
+            ["想象", "这可能说明我不被在意。"],
+          ],
+          rankedUnit: "次",
+        }
+      : {
+          structureLabel: "Reflection structure",
+          rows: [
+            ["Emotional Source", "Uncertainty grew while waiting for a reply."],
+            ["Name the Demon", "Mind-reading worry"],
+            ["Facts", "The message was answered later than expected."],
+            ["Imagination", "This may mean I am being ignored."],
+          ],
+          rankedUnit: "times",
+        };
 
   return (
     <section className="mx-auto max-w-[1240px] py-12 sm:py-16 lg:py-20">
@@ -277,15 +328,10 @@ function ProductTransformation() {
                 {index === 1 && (
                   <div>
                     <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-[var(--brand-teal-deep)]">
-                      {t.home.storyMomentToStructure}
+                      {prompt2Copy.structureLabel}
                     </div>
                     <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                      {[
-                        [t.reflectionCard.trigger, t.home.previewTrigger],
-                        [t.reflectionCard.facts, t.home.previewFacts],
-                        [t.reflectionCard.interpretation, t.home.previewInterpretation],
-                        [t.reflectionCard.thoughtPattern, t.home.previewPattern],
-                      ].map(([label, value]) => (
+                      {prompt2Copy.rows.map(([label, value]) => (
                         <div
                           key={label}
                           className="rounded-[1rem] border border-[rgba(35,70,55,0.06)] bg-[rgba(246,242,233,0.54)] p-3"
@@ -329,18 +375,14 @@ function ProductTransformation() {
                       ))}
                     </div>
                     <div className="mt-4 space-y-2">
-                      {[82, 58, 38].map((width, barIndex) => (
-                        <div key={barIndex} className="grid grid-cols-[minmax(0,1fr)_1.3fr] items-center gap-3">
-                          <span className="truncate text-[11px] font-medium text-[var(--foreground-subtle)]">
-                            {t.home.storyRepeatedTriggers[barIndex]}
-                          </span>
-                          <span className="h-2.5 overflow-hidden rounded-full bg-[rgba(35,70,55,0.07)]">
-                            <span
-                              className="block h-full rounded-full bg-[linear-gradient(90deg,rgba(31,155,143,0.50),rgba(217,179,74,0.42))]"
-                              style={{ width: `${width}%` }}
-                            />
-                          </span>
-                        </div>
+                      {t.home.storyRepeatedTriggers.map((trigger, barIndex) => (
+                        <MiniBar
+                          key={trigger}
+                          label={trigger}
+                          value={[3, 2, 1][barIndex] ?? 1}
+                          max={3}
+                          unitLabel={prompt2Copy.rankedUnit}
+                        />
                       ))}
                     </div>
                     <div className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(230,245,239,0.72)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
