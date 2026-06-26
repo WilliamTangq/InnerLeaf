@@ -185,7 +185,72 @@ function message(
   return translations[language].common[key];
 }
 
-function parseStructuredReflection(text: string): StructuredReflection | null {
+function containsHan(value: string) {
+  return /[\u3400-\u9fff]/.test(value);
+}
+
+function stripBilingualPair(value: string, language: Language) {
+  const text = value.trim();
+
+  if (!text || !/[\/／]/.test(text)) {
+    return text;
+  }
+
+  const parts = text
+    .split(/\s*[\/／]\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) {
+    return text;
+  }
+
+  const localized = parts.find((part) =>
+    language === "zh" ? containsHan(part) : !containsHan(part)
+  );
+
+  return localized || parts[0] || text;
+}
+
+function localizedString(value: unknown, language: Language) {
+  return stripBilingualPair(toStringValue(value), language);
+}
+
+function localizedList(value: unknown, language: Language, limit = 2) {
+  return toStringList(value, limit).map((item) =>
+    stripBilingualPair(item, language)
+  );
+}
+
+function preferredThoughtPattern(
+  value: Record<string, unknown>,
+  mainThoughtPattern: Record<string, unknown>,
+  language: Language
+) {
+  const direct =
+    localizedString(value.thought_pattern, language) ||
+    localizedString(mainThoughtPattern.label, language);
+  const preferredLabel =
+    language === "zh"
+      ? localizedString(value.thought_pattern_label_zh, language)
+      : localizedString(value.thought_pattern_label_en, language);
+  const fallbackLabel =
+    language === "zh"
+      ? localizedString(value.thought_pattern_label_en, language)
+      : localizedString(value.thought_pattern_label_zh, language);
+
+  return (
+    direct ||
+    preferredLabel ||
+    fallbackLabel ||
+    localizedString(value.thought_pattern_key, language)
+  );
+}
+
+function parseStructuredReflection(
+  text: string,
+  language: Language
+): StructuredReflection | null {
   const jsonText = text
     .trim()
     .replace(/^```(?:json)?\s*/i, "")
@@ -201,20 +266,18 @@ function parseStructuredReflection(text: string): StructuredReflection | null {
       string,
       unknown
     >;
-    const thoughtPattern =
-      toStringValue(value.thought_pattern) ||
-      toStringValue(mainThoughtPattern.label) ||
-      [
-        toStringValue(value.thought_pattern_label_en),
-        toStringValue(value.thought_pattern_label_zh),
-      ]
-        .filter(Boolean)
-        .join(" / ") ||
-      toStringValue(value.thought_pattern_key);
-    const emotionLabels = toStringList(value.emotion_labels);
-    const demonNames = toStringList(value.demon_names);
-    const imaginations = toStringList(value.imaginations);
-    const behaviouralPullItems = toStringList(value.behavioural_pull_items);
+    const thoughtPattern = preferredThoughtPattern(
+      value,
+      mainThoughtPattern,
+      language
+    );
+    const emotionLabels = localizedList(value.emotion_labels, language);
+    const demonNames = localizedList(value.demon_names, language);
+    const imaginations = localizedList(value.imaginations, language);
+    const behaviouralPullItems = localizedList(
+      value.behavioural_pull_items,
+      language
+    );
     const saveCardPreview = toPreview(value.save_card_preview);
     const emotionalSource = toStringValue(value.emotional_source);
     const coreQuestion =
@@ -241,14 +304,23 @@ function parseStructuredReflection(text: string): StructuredReflection | null {
       unmet_need_explanation: toStringValue(value.unmet_need_explanation),
       next_step_text: nextStepText,
       next_step_body_aware_first: Boolean(value.next_step_body_aware_first),
-      open_hypotheses: toStringList(value.open_hypotheses, 3),
+      open_hypotheses: localizedList(value.open_hypotheses, language, 3),
       thought_pattern_key: toStringValue(value.thought_pattern_key),
-      thought_pattern_label_en: toStringValue(value.thought_pattern_label_en),
-      thought_pattern_label_zh: toStringValue(value.thought_pattern_label_zh),
-      mind_protecting: toStringValue(value.mind_protecting),
+      thought_pattern_label_en: localizedString(
+        value.thought_pattern_label_en,
+        language
+      ),
+      thought_pattern_label_zh: localizedString(
+        value.thought_pattern_label_zh,
+        language
+      ),
+      mind_protecting: localizedString(value.mind_protecting, language),
       behavioural_pull_items: behaviouralPullItems.slice(0, 3),
-      behavioural_pull_note: toStringValue(value.behavioural_pull_note),
-      observe_next_items: toStringList(value.observe_next_items, 3),
+      behavioural_pull_note: localizedString(
+        value.behavioural_pull_note,
+        language
+      ),
+      observe_next_items: localizedList(value.observe_next_items, language, 3),
       save_card_preview: saveCardPreview,
       emotional_validation:
         toStringValue(value.emotional_validation) ||
@@ -268,18 +340,17 @@ function parseStructuredReflection(text: string): StructuredReflection | null {
         toStringValue(emotionSnapshot.secondaryEmotion) ||
         emotionLabels[1],
       trigger,
-      facts: toStringList(value.facts),
+      facts: localizedList(value.facts, language),
       interpretation:
-        toStringList(value.interpretation).length > 0
-          ? toStringList(value.interpretation)
-          : toStringList(value.interpretations).length > 0
-            ? toStringList(value.interpretations)
+        localizedList(value.interpretation, language).length > 0
+          ? localizedList(value.interpretation, language)
+          : localizedList(value.interpretations, language).length > 0
+            ? localizedList(value.interpretations, language)
             : imaginations,
       thought_pattern: thoughtPattern,
       thought_pattern_explanation:
-        toStringValue(value.thought_pattern_explanation) ||
-        toStringValue(mainThoughtPattern.explanation) ||
-        toStringValue(value.thought_pattern_explanation),
+        localizedString(value.thought_pattern_explanation, language) ||
+        localizedString(mainThoughtPattern.explanation, language),
       behaviour:
         toStringValue(value.behaviour) ||
         behaviouralPullItems.join("\n"),
@@ -383,18 +454,16 @@ function formatStructuredReflection(
             safety: "Safety Note",
           };
     const thoughtLabel =
-      language === "zh"
-        ? [reflection.thought_pattern_label_zh, reflection.thought_pattern_label_en]
-            .filter(Boolean)
-            .join(" / ")
-        : [reflection.thought_pattern_label_en, reflection.thought_pattern_label_zh]
-            .filter(Boolean)
-            .join(" / ");
+      (language === "zh"
+        ? reflection.thought_pattern_label_zh ||
+          reflection.thought_pattern_label_en
+        : reflection.thought_pattern_label_en ||
+          reflection.thought_pattern_label_zh) || reflection.thought_pattern;
 
     return [
       `1. ${labels.source}\n${reflection.emotional_source || reflection.emotional_validation}`,
-      `2. ${labels.demon}\n${(reflection.demon_names ?? []).join(" / ")}\n${reflection.core_question || ""}`.trim(),
-      `3. ${labels.emotions}\n${(reflection.emotion_labels ?? []).join(" / ")}`,
+      `2. ${labels.demon}\n${(reflection.demon_names ?? []).join(language === "zh" ? "、" : ", ")}\n${reflection.core_question || ""}`.trim(),
+      `3. ${labels.emotions}\n${(reflection.emotion_labels ?? []).join(language === "zh" ? "、" : ", ")}`,
       `4. ${labels.factsImagination}\n${labels.facts}:\n${reflection.facts.map((fact) => `- ${fact}`).join("\n")}\n\n${labels.imagination}:\n${(reflection.imaginations ?? reflection.interpretation).map((item) => `- ${item}`).join("\n")}`,
       `5. ${labels.unmet}\n${reflection.unmet_need_surface || ""}\n${reflection.unmet_need_deeper || ""}\n${reflection.unmet_need_explanation || ""}`.trim(),
       `6. ${labels.next}\n${reflection.next_step_text || reflection.next_step}`,
@@ -527,8 +596,8 @@ ${reflection.next_question}`;
 function buildQuickPrompt(input: string, reflectionLanguage: Language) {
   const languageInstruction =
     reflectionLanguage === "zh"
-      ? "Write user-facing values in natural Simplified Chinese. Keep useful psychology terms bilingual where helpful, for example Mind Reading / 读心式推断. Keep JSON keys in English."
-      : "Write user-facing values in natural English. Keep JSON keys in English. Do not switch to Chinese unless the user wrote mainly in Chinese.";
+      ? "Write every user-facing JSON value entirely in natural Simplified Chinese. Do not include English translations, English labels, or bilingual pairs. Keep JSON keys in English."
+      : "Write every user-facing JSON value entirely in natural English. Do not include Chinese translations, Chinese labels, or bilingual pairs. Keep JSON keys in English.";
 
   return `
 You are InnerLeaf, an AI-assisted emotional reflection tool.
@@ -544,6 +613,15 @@ Tone:
 - Calm, precise, warm, non-judgmental, non-clinical, non-diagnostic.
 - Do not sound like a therapist, motivational speaker, productivity coach, or generic chatbot.
 - Do not write a long article. Every field must be short enough for a mobile card.
+
+Language purity:
+- If target reflection language is zh, every user-facing value must be Simplified Chinese only.
+- If target reflection language is en, every user-facing value must be English only.
+- Do not mix Chinese and English inside the same value.
+- Do not write bilingual pairs such as "Mind reading / 读心式推断".
+- Do not place English psychology terms in Chinese output.
+- Do not place Chinese explanations in English output.
+- For thought pattern labels, fill only the target-language label field and leave the other label field as an empty string.
 
 Hard rules:
 - Do not diagnose.
@@ -570,13 +648,10 @@ Core modules:
 7. one small next step: tiny, low-risk, doable within 5 minutes, not dependent on immediate external response.
 
 Need examples:
-安全感, 被选择感, 被重视感, 确定性, 掌控感, 自我效能感, 被理解, 自主权, 边界感.
+${reflectionLanguage === "zh" ? "安全感, 被选择感, 被重视感, 确定性, 掌控感, 自我效能感, 被理解, 自主权, 边界感." : "safety, feeling chosen, feeling valued, certainty, control, self-efficacy, being understood, autonomy, boundaries."}
 
 Name the demon examples:
-Rejection Sensitivity / 拒绝敏感
-Attachment Anxiety / 依恋焦虑
-Comparison Thinking / 比较型思维
-Procrastination Paralysis / 拖延瘫痪
+${reflectionLanguage === "zh" ? "拒绝敏感\n依恋焦虑\n比较型思维\n拖延瘫痪" : "Rejection sensitivity\nAttachment anxiety\nComparison thinking\nProcrastination paralysis"}
 
 Thought pattern:
 Choose one primary thought_pattern_key only:
@@ -707,7 +782,10 @@ export async function POST(request: Request) {
 
     const rawResult =
       response.text || "No reflection generated. Please try again.";
-    const parsedStructured = parseStructuredReflection(rawResult);
+    const parsedStructured = parseStructuredReflection(
+      rawResult,
+      reflectionLanguage
+    );
     const structured = parsedStructured;
     const result = structured
       ? mode === "guided"
@@ -718,6 +796,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       result,
       structured,
+      reflectionLanguage,
       saved: false,
     });
   } catch (error: unknown) {

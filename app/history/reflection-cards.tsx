@@ -24,6 +24,7 @@ import { translateDetectedMode } from "../lib/i18n";
 import { trackEvent } from "../lib/analytics";
 import {
   canonicalFromSavedReflection,
+  localizeMixedLanguageValue,
   localizedCanonicalLabel,
   shouldDisplayNormalizedChip,
 } from "../lib/reflection-card";
@@ -454,15 +455,20 @@ function toHistoryCard(item: Reflection) {
     checkInStatus: item.follow_up_result ? "checked_in" : "not_checked_in",
     nextStepType: previewLine(canonical.nextStepType, 60) || "",
     modeLabel: canonical.mode,
+    reflectionLanguage: canonical.reflectionLanguage,
     modeDetected: canonical.modeDetected,
     prompt2: {
       emotionalSource:
         previewLine(prompt2.emotionalSource, 420) ||
         previewLine(canonical.emotionalValidation, 420) ||
         "",
-      demonNames: prompt2.demonNames,
+      demonNames: prompt2.demonNames.map((name) =>
+        localizeMixedLanguageValue(name, canonical.reflectionLanguage)
+      ),
       emotionLabels: prompt2.emotionLabels.length
-        ? prompt2.emotionLabels
+        ? prompt2.emotionLabels.map((label) =>
+            localizeMixedLanguageValue(label, canonical.reflectionLanguage)
+          )
         : [canonical.mainEmotion, canonical.secondaryEmotion].filter(Boolean),
       unmetNeed:
         previewLine(prompt2.unmetNeed, 420) ||
@@ -472,9 +478,17 @@ function toHistoryCard(item: Reflection) {
         previewLine(prompt2.nextStep, 320) ||
         previewLine(canonical.nextStep, 320) ||
         "",
-      openHypotheses: prompt2.openHypotheses,
+      openHypotheses: prompt2.openHypotheses.map((item) =>
+        localizeMixedLanguageValue(item, canonical.reflectionLanguage)
+      ),
       thoughtPattern:
-        previewLine(prompt2.thoughtPattern, 360) ||
+        previewLine(
+          localizeMixedLanguageValue(
+            prompt2.thoughtPattern,
+            canonical.reflectionLanguage
+          ),
+          360
+        ) ||
         previewLine(canonical.thoughtPatternLabel, 180) ||
         "",
       mindProtecting:
@@ -482,12 +496,18 @@ function toHistoryCard(item: Reflection) {
         previewLine(canonical.bodyFactor, 240) ||
         "",
       behaviouralPull: prompt2.behaviouralPull.length
-        ? prompt2.behaviouralPull
+        ? prompt2.behaviouralPull.map((item) =>
+            localizeMixedLanguageValue(item, canonical.reflectionLanguage)
+          )
         : canonical.behaviour
           ? [canonical.behaviour]
           : [],
-      observeNext: prompt2.observeNext,
-      saveCardPreview: prompt2.saveCardPreview,
+      observeNext: prompt2.observeNext.map((item) =>
+        localizeMixedLanguageValue(item, canonical.reflectionLanguage)
+      ),
+      saveCardPreview: prompt2.saveCardPreview.map((item) =>
+        localizeMixedLanguageValue(item, canonical.reflectionLanguage)
+      ),
     },
     raw: item,
   };
@@ -563,13 +583,16 @@ function Prompt2HistoryDetail({
   card: ReturnType<typeof toHistoryCard>;
   item: Reflection;
 }) {
-  const { language, t } = useLanguage();
+  const detailLanguage = card.reflectionLanguage;
   const copy =
-    language === "zh"
+    detailLanguage === "zh"
       ? {
           source: "这次情绪的来源",
           demon: "这次情绪的名字",
           emotions: "情绪标签",
+          trigger: "触发点",
+          facts: "事实",
+          notIdentified: "尚未清楚识别。",
           factsImagination: "事实与想象",
           imagination: "想象",
           unmetNeed: "真正未被满足的需求",
@@ -587,6 +610,9 @@ function Prompt2HistoryDetail({
           source: "Emotional Source",
           demon: "Name the Demon",
           emotions: "Emotion Labels",
+          trigger: "Trigger",
+          facts: "Facts",
+          notIdentified: "Not clearly identified.",
           factsImagination: "Facts vs Imagination",
           imagination: "Imagination",
           unmetNeed: "Unmet Need",
@@ -650,23 +676,23 @@ function Prompt2HistoryDetail({
       {(card.trigger || card.facts.length > 0 || card.interpretations.length > 0) && (
         <div className="grid gap-4 md:grid-cols-[0.9fr_1.1fr]">
           {card.trigger && (
-            <CanonicalDetailSection icon={Zap} title={sectionTitle("Trigger", t)}>
+            <CanonicalDetailSection icon={Zap} title={copy.trigger}>
               <p className="whitespace-pre-wrap">{card.trigger}</p>
             </CanonicalDetailSection>
           )}
           <div className="grid gap-4 sm:grid-cols-2">
-            <CanonicalDetailSection icon={FileText} title={t.reflectionCard.facts}>
+            <CanonicalDetailSection icon={FileText} title={copy.facts}>
               {card.facts.length > 0 ? (
                 <BulletList items={card.facts} />
               ) : (
-                <p>{t.reflectionCard.notIdentified}</p>
+                <p>{copy.notIdentified}</p>
               )}
             </CanonicalDetailSection>
             <CanonicalDetailSection icon={MessageCircle} title={copy.imagination}>
               {card.interpretations.length > 0 ? (
                 <BulletList items={card.interpretations} />
               ) : (
-                <p>{t.reflectionCard.notIdentified}</p>
+                <p>{copy.notIdentified}</p>
               )}
             </CanonicalDetailSection>
           </div>

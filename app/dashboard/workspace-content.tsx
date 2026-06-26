@@ -2,6 +2,8 @@
 
 import {
   Archive,
+  CalendarClock,
+  CheckCircle2,
   Heart,
   Footprints,
   PencilLine,
@@ -31,6 +33,12 @@ type RecentReflection = {
   trigger: string | null;
   thought_pattern: string | null;
   emotion: string | null;
+};
+
+type WorkspaceStats = {
+  savedCount: number;
+  checkedInCount: number;
+  latestSavedAt: string | null;
 };
 
 function formatDate(value: string | null) {
@@ -84,7 +92,8 @@ function MoodCheckInCard() {
 
   return (
     <Card
-      className="mt-3 overflow-hidden rounded-[1.25rem] border-[rgba(31,155,143,0.11)] bg-[linear-gradient(135deg,rgba(255,254,248,0.88),rgba(232,246,241,0.42),rgba(255,248,226,0.18))] p-3.5 shadow-[var(--shadow-sm)] hover:translate-y-0 sm:mt-4 sm:p-4"
+      variant="support"
+      className="overflow-hidden rounded-[1.25rem] border-[rgba(31,155,143,0.11)] bg-[linear-gradient(135deg,rgba(255,254,248,0.88),rgba(232,246,241,0.42),rgba(255,248,226,0.18))] p-3.5 shadow-[var(--shadow-sm)] hover:translate-y-0 sm:p-4"
     >
       <div className="grid gap-3 lg:grid-cols-[0.55fr_1.45fr] lg:items-center">
         <div>
@@ -201,7 +210,7 @@ function MicroActionRow() {
   }
 
   return (
-    <section className="mt-3 rounded-[1.15rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.62)] p-3 shadow-[var(--shadow-sm)] sm:mt-4 sm:p-3.5">
+    <section className="rounded-[1.15rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.62)] p-3 shadow-[var(--shadow-sm)] sm:p-3.5">
       <div className="mb-2.5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-sm font-semibold text-[var(--foreground)]">
@@ -301,8 +310,26 @@ export function WorkspaceContent() {
   const { t } = useLanguage();
   const { isAdmin, profile, session, user } = useAuth();
   const [recent, setRecent] = useState<RecentReflection | null>(null);
+  const [stats, setStats] = useState<WorkspaceStats>({
+    savedCount: 0,
+    checkedInCount: 0,
+    latestSavedAt: null,
+  });
   const name =
     profile?.display_name || user?.email?.split("@")[0] || t.app.fallbackName;
+  const hubStats = [
+    { icon: Archive, label: t.app.savedCards, value: String(stats.savedCount) },
+    {
+      icon: CheckCircle2,
+      label: t.app.checkedInCards,
+      value: String(stats.checkedInCount),
+    },
+    {
+      icon: CalendarClock,
+      label: t.app.latestSaved,
+      value: stats.latestSavedAt ? formatDate(stats.latestSavedAt) : t.app.noSavedYet,
+    },
+  ] as const;
 
   useEffect(() => {
     if (!session?.access_token) {
@@ -320,7 +347,21 @@ export function WorkspaceContent() {
         }
 
         const data = await response.json();
-        const first = data.reflections?.[0];
+        const reflections = Array.isArray(data.reflections)
+          ? data.reflections
+          : [];
+        const first = reflections[0];
+
+        if (mounted) {
+          setStats({
+            savedCount: reflections.length,
+            checkedInCount: reflections.filter(
+              (item: { follow_up_result?: string | null }) =>
+                Boolean(item.follow_up_result)
+            ).length,
+            latestSavedAt: first?.created_at ?? null,
+          });
+        }
 
         if (mounted && first) {
           setRecent({
@@ -342,7 +383,7 @@ export function WorkspaceContent() {
   return (
     <>
       <Card variant="hero" className="p-4 hover:translate-y-0 sm:p-5">
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div className="grid gap-4 lg:grid-cols-[1fr_minmax(280px,0.72fr)] lg:items-end">
           <div>
             <PageHeader compact eyebrow={t.nav.workspace} title={t.app.title}>
               {t.app.subtitle}
@@ -350,15 +391,36 @@ export function WorkspaceContent() {
             <p className="-mt-2 text-sm font-semibold text-[var(--brand-teal-deep)]">
               {t.app.welcome}, {name}
             </p>
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]">
+              <ShieldCheck
+                aria-hidden="true"
+                size={14}
+                strokeWidth={1.8}
+                className="text-[var(--brand-teal-deep)]"
+              />
+              {t.app.privacy}
+            </div>
           </div>
-          <div className="flex w-fit items-center gap-2 rounded-full border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.76)] px-3 py-1.5 text-xs font-medium text-[var(--foreground-muted)] shadow-[var(--shadow-sm)]">
-            <ShieldCheck
-              aria-hidden="true"
-              size={14}
-              strokeWidth={1.8}
-              className="text-[var(--brand-teal-deep)]"
-            />
-            {t.app.privacy}
+          <div className="grid grid-cols-3 gap-2 rounded-[1.25rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.58)] p-2 shadow-[var(--shadow-sm)]">
+            {hubStats.map(({ icon: Icon, label, value }) => (
+              <div
+                key={label}
+                className="min-w-0 rounded-[1rem] bg-[rgba(255,254,248,0.72)] px-2.5 py-2"
+              >
+                <Icon
+                  aria-hidden="true"
+                  size={14}
+                  strokeWidth={1.8}
+                  className="mb-1 text-[var(--brand-teal-deep)]"
+                />
+                <p className="truncate text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--foreground-subtle)]">
+                  {label}
+                </p>
+                <p className="mt-1 truncate text-sm font-semibold text-[var(--foreground)]">
+                  {value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </Card>
@@ -385,12 +447,9 @@ export function WorkspaceContent() {
         </Card>
       )}
 
-      <MoodCheckInCard />
-
-      <MicroActionRow />
-
       <section className="mt-4 sm:mt-5">
-        <div className="grid gap-3 lg:grid-cols-2">
+        <SectionLabel>{t.app.primaryActions}</SectionLabel>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2">
           {t.app.cards.slice(0, 2).map(([title, description, cta, href], index) => {
             const Icon = icons[index];
 
@@ -426,7 +485,8 @@ export function WorkspaceContent() {
       </section>
 
       <section className="mt-3">
-        <div className="grid gap-3 md:grid-cols-2">
+        <SectionLabel>{t.app.reviewSpaces}</SectionLabel>
+        <div className="mt-3 grid gap-3 md:grid-cols-2">
           {t.app.cards.slice(2).map(([title, description, cta, href], index) => {
             const originalIndex = index + 2;
             const Icon = icons[originalIndex];
@@ -510,6 +570,14 @@ export function WorkspaceContent() {
           </LinkButton>
         </Card>
       </div>
+
+      <section className="mt-4">
+        <SectionLabel>{t.app.supportTools}</SectionLabel>
+        <div className="mt-3 grid gap-3">
+          <MoodCheckInCard />
+          <MicroActionRow />
+        </div>
+      </section>
     </>
   );
 }

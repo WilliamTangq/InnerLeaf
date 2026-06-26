@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireAuth, supabaseAdmin } from "../../lib/auth-server";
 import { normalizeLanguage } from "../../lib/i18n";
-import { createCanonicalReflectionCard } from "../../lib/reflection-card";
+import {
+  createCanonicalReflectionCard,
+  localizeMixedLanguageValue,
+} from "../../lib/reflection-card";
 
 function textValue(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -70,6 +73,15 @@ function joinTexts(...values: unknown[]) {
     .join("\n");
 
   return text || null;
+}
+
+function localizedFirstText(
+  language: "en" | "zh",
+  ...values: unknown[]
+) {
+  const text = firstText(...values);
+
+  return text ? localizeMixedLanguageValue(text, language) : null;
 }
 
 function isMissingCanonicalColumn(error: { message?: string } | null) {
@@ -147,10 +159,15 @@ export async function POST(request: Request) {
           ?.trigger,
         structured.emotional_source
       ),
-      thought_pattern: firstText(
+      thought_pattern: localizedFirstText(
+        canonical.reflectionLanguage,
         structured.thought_pattern,
-        structured.thought_pattern_label_en,
-        structured.thought_pattern_label_zh,
+        canonical.reflectionLanguage === "zh"
+          ? structured.thought_pattern_label_zh
+          : structured.thought_pattern_label_en,
+        canonical.reflectionLanguage === "zh"
+          ? structured.thought_pattern_label_en
+          : structured.thought_pattern_label_zh,
         structured.thought_pattern_key,
         (structured.save_card_preview as Record<string, unknown> | undefined)
           ?.pattern

@@ -165,6 +165,36 @@ function clean(value: unknown) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
 }
 
+function containsHan(value: string) {
+  return /[\u3400-\u9fff]/.test(value);
+}
+
+export function localizeMixedLanguageValue(
+  value: string,
+  language: ReflectionLanguage
+) {
+  const text = clean(value);
+
+  if (!text || !/[\/／]/.test(text)) {
+    return text;
+  }
+
+  const parts = text
+    .split(/\s*[\/／]\s*/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  if (parts.length < 2) {
+    return text;
+  }
+
+  const localized = parts.find((part) =>
+    language === "zh" ? containsHan(part) : !containsHan(part)
+  );
+
+  return localized || parts[0] || text;
+}
+
 export function isWeakFallbackValue(value?: string | null) {
   const normalized = clean(value).toLowerCase();
 
@@ -432,6 +462,26 @@ function shortTitleFrom(trigger: string, emotion: string) {
   return trigger || emotion || "Reflection card";
 }
 
+function localizedThoughtPattern(
+  structured: StructuredReflectionLike,
+  language: ReflectionLanguage
+) {
+  const direct = localizeMixedLanguageValue(
+    clean(structured?.thought_pattern),
+    language
+  );
+  const preferred =
+    language === "zh"
+      ? localizeMixedLanguageValue(clean(structured?.thought_pattern_label_zh), language)
+      : localizeMixedLanguageValue(clean(structured?.thought_pattern_label_en), language);
+  const fallback =
+    language === "zh"
+      ? localizeMixedLanguageValue(clean(structured?.thought_pattern_label_en), language)
+      : localizeMixedLanguageValue(clean(structured?.thought_pattern_label_zh), language);
+
+  return direct || preferred || fallback || clean(structured?.thought_pattern_key);
+}
+
 export function createCanonicalReflectionCard({
   structured,
   input,
@@ -447,13 +497,15 @@ export function createCanonicalReflectionCard({
   uiLanguage?: unknown;
   reflectionLanguage?: unknown;
 }): CanonicalReflectionCard {
+  const resolvedUiLanguage = normalizeLanguage(uiLanguage);
+  const resolvedReflectionLanguage = normalizeLanguage(
+    reflectionLanguage ?? uiLanguage
+  );
   const nextStepType = clean(structured?.next_step_type);
-  const thoughtPattern =
-    clean(structured?.thought_pattern) ||
-    [clean(structured?.thought_pattern_label_en), clean(structured?.thought_pattern_label_zh)]
-      .filter(Boolean)
-      .join(" / ") ||
-    clean(structured?.thought_pattern_key);
+  const thoughtPattern = localizedThoughtPattern(
+    structured,
+    resolvedReflectionLanguage
+  );
   const trigger =
     clean(structured?.trigger) ||
     clean(structured?.save_card_preview?.trigger) ||
@@ -467,8 +519,8 @@ export function createCanonicalReflectionCard({
     originalInput: clean(input),
     aiResult: clean(result),
     mode: normalizeMode(mode),
-    uiLanguage: normalizeLanguage(uiLanguage),
-    reflectionLanguage: normalizeLanguage(reflectionLanguage ?? uiLanguage),
+    uiLanguage: resolvedUiLanguage,
+    reflectionLanguage: resolvedReflectionLanguage,
     emotionalValidation:
       clean(structured?.emotional_validation) ||
       clean(structured?.emotional_source),
@@ -486,7 +538,10 @@ export function createCanonicalReflectionCard({
         ? cleanList(structured?.interpretation)
         : cleanList(structured?.imaginations),
     thoughtPatternLabel: thoughtPattern,
-    thoughtPatternExplanation: clean(structured?.thought_pattern_explanation),
+    thoughtPatternExplanation: localizeMixedLanguageValue(
+      clean(structured?.thought_pattern_explanation),
+      resolvedReflectionLanguage
+    ),
     behaviour: clean(structured?.behaviour),
     bodyFactor:
       clean(structured?.body_factor) ||
@@ -511,10 +566,16 @@ export function createCanonicalReflectionCard({
 export function canonicalFromSavedReflection(
   reflection: SavedReflectionLike
 ): CanonicalReflectionCard {
-  const thoughtPattern = clean(reflection.thought_pattern);
+  const uiLanguage = normalizeLanguage(reflection.ui_language ?? reflection.language);
+  const reflectionLanguage = normalizeLanguage(
+    reflection.reflection_language ?? reflection.language
+  );
+  const thoughtPattern = localizeMixedLanguageValue(
+    clean(reflection.thought_pattern),
+    reflectionLanguage
+  );
   const trigger = clean(reflection.trigger);
   const nextStepType = clean(reflection.next_step_type);
-  const uiLanguage = normalizeLanguage(reflection.ui_language ?? reflection.language);
 
   return {
     id: reflection.id,
@@ -523,9 +584,13 @@ export function canonicalFromSavedReflection(
     aiResult: clean(reflection.ai_result),
     mode: normalizeMode(reflection.mode),
     uiLanguage,
-    reflectionLanguage: normalizeLanguage(reflection.reflection_language ?? reflection.language),
+    reflectionLanguage,
     emotionalValidation: clean(reflection.emotional_validation),
-    momentSummary: trigger ? `This moment seems to be about ${trigger}.` : "",
+    momentSummary: trigger
+      ? reflectionLanguage === "zh"
+        ? `这次情绪时刻似乎和「${trigger}」有关。`
+        : `This moment seems to be about ${trigger}.`
+      : "",
     mainEmotion: clean(reflection.emotion),
     secondaryEmotion: clean(reflection.secondary_emotion),
     triggerLabel: trigger,
@@ -692,5 +757,5 @@ export function localizedCanonicalLabel(
 
   const labels = language === "zh" ? chineseLabels : englishLabels;
 
-  return labels[value] || value;
+  return labels[value] || localizeMixedLanguageValue(value, language);
 }

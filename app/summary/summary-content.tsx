@@ -32,6 +32,7 @@ import { useLanguage } from "../components/language-provider";
 import { trackEvent } from "../lib/analytics";
 import {
   canonicalFromSavedReflection,
+  localizeMixedLanguageValue,
   localizedCanonicalLabel,
   shouldDisplayNormalizedChip,
 } from "../lib/reflection-card";
@@ -268,18 +269,32 @@ function buildInsightCards(
   return reflections.map((reflection) => {
     const canonical = canonicalFromSavedReflection(reflection);
     const prompt2 = parsePrompt2Summary(reflection);
+    const rawPattern = localizeMixedLanguageValue(
+      prompt2.preview.pattern || prompt2.demonNames[0] || "",
+      language
+    );
+    const rawTrigger = localizeMixedLanguageValue(
+      prompt2.preview.trigger || "",
+      language
+    );
+    const rawNextStep = localizeMixedLanguageValue(
+      prompt2.preview.nextStep || "",
+      language
+    );
     const patternLabel =
-      prompt2.preview.pattern ||
-      prompt2.demonNames[0] ||
-      localizedCanonicalLabel(canonical.normalizedThoughtPattern, language);
+      shouldDisplayNormalizedChip(canonical.normalizedThoughtPattern)
+        ? localizedCanonicalLabel(canonical.normalizedThoughtPattern, language)
+        : rawPattern || localizedCanonicalLabel(canonical.normalizedThoughtPattern, language);
     const triggerLabel =
-      prompt2.preview.trigger ||
-      localizedCanonicalLabel(canonical.normalizedTrigger, language);
+      shouldDisplayNormalizedChip(canonical.normalizedTrigger)
+        ? localizedCanonicalLabel(canonical.normalizedTrigger, language)
+        : rawTrigger || localizedCanonicalLabel(canonical.normalizedTrigger, language);
     const nextStepLabel =
-      prompt2.preview.nextStep ||
-      localizedCanonicalLabel(canonical.normalizedNextStepType, language);
+      shouldDisplayNormalizedChip(canonical.normalizedNextStepType)
+        ? localizedCanonicalLabel(canonical.normalizedNextStepType, language)
+        : rawNextStep || localizedCanonicalLabel(canonical.normalizedNextStepType, language);
     const needLabels = [
-      prompt2.preview.need,
+      localizeMixedLanguageValue(prompt2.preview.need || "", language),
       ...needLabelsFromText(
         [prompt2.unmetNeed, reflection.behavioural_insight, reflection.body_factor]
           .filter(Boolean)

@@ -17,12 +17,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Card, LinkButton, PageActions, PrimaryButton, SectionLabel } from "./ui";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
-import { translateDetectedMode } from "../lib/i18n";
+import { translateDetectedMode, translations } from "../lib/i18n";
 import {
   createCanonicalReflectionCard,
+  localizeMixedLanguageValue,
   localizedCanonicalLabel,
   shouldDisplayNormalizedChip,
   type ReflectionMode,
+  type ReflectionLanguage,
 } from "../lib/reflection-card";
 
 export type StructuredReflectionResult = {
@@ -286,14 +288,16 @@ function Prompt2ResultModules({
       key,
       value: String(value),
     }));
-  const thoughtLabel =
-    language === "zh"
-      ? [structured.thought_pattern_label_zh, structured.thought_pattern_label_en]
-          .filter(Boolean)
-          .join(" / ")
-      : [structured.thought_pattern_label_en, structured.thought_pattern_label_zh]
-          .filter(Boolean)
-          .join(" / ");
+  const thoughtLabel = localizeMixedLanguageValue(
+    (language === "zh"
+      ? structured.thought_pattern_label_zh ||
+        structured.thought_pattern_label_en
+      : structured.thought_pattern_label_en ||
+        structured.thought_pattern_label_zh) ||
+      structured.thought_pattern ||
+      "",
+    language
+  );
 
   return (
     <div className="mt-5 grid gap-3 sm:gap-3.5">
@@ -515,6 +519,7 @@ export function ReflectionResultCard({
   onReflectAgain,
   autoSaved = false,
   mode = "quick",
+  reflectionLanguage,
 }: {
   result: string;
   structured?: StructuredReflectionResult;
@@ -526,8 +531,11 @@ export function ReflectionResultCard({
   onReflectAgain?: () => void;
   autoSaved?: boolean;
   mode?: ReflectionMode;
+  reflectionLanguage?: ReflectionLanguage;
 }) {
-  const { language, t } = useLanguage();
+  const { language } = useLanguage();
+  const displayLanguage = reflectionLanguage ?? language;
+  const displayT = translations[displayLanguage];
   const { session } = useAuth();
   const [history, setHistory] = useState<SavedReflectionSignal[]>([]);
   const [checkInState, setCheckInState] = useState("");
@@ -540,7 +548,7 @@ export function ReflectionResultCard({
         result,
         mode,
         uiLanguage: language,
-        reflectionLanguage: language,
+        reflectionLanguage: displayLanguage,
       })
     : null;
   const nextStep = canonical?.nextStep;
@@ -548,7 +556,7 @@ export function ReflectionResultCard({
   const modeDetected = canonical?.modeDetected;
   const isStructured = Boolean(structured);
   const isPrompt2 = Boolean(structured?.emotional_source || structured?.demon_names?.length);
-  const labels = t.reflectionCard;
+  const labels = displayT.reflectionCard;
   const factItems = compactItems(canonical?.factsSummary);
   const interpretationItems = compactItems(canonical?.interpretationSummary);
   const repeatedPatternCount = useMemo(
@@ -605,13 +613,22 @@ export function ReflectionResultCard({
 
     if (repeatedPatternCount > 0 && structured.thought_pattern) {
       return labels.gentleObservationPattern
-        .replace("{pattern}", structured.thought_pattern)
+        .replace(
+          "{pattern}",
+          localizeMixedLanguageValue(
+            structured.thought_pattern,
+            displayLanguage
+          )
+        )
         .replace("{count}", String(repeatedPatternCount + 1));
     }
 
     if (repeatedTriggerCount > 0 && structured.trigger) {
       return labels.gentleObservationTrigger
-        .replace("{trigger}", structured.trigger)
+        .replace(
+          "{trigger}",
+          localizeMixedLanguageValue(structured.trigger, displayLanguage)
+        )
         .replace("{count}", String(repeatedTriggerCount + 1));
     }
 
@@ -641,13 +658,16 @@ export function ReflectionResultCard({
           <div className="flex flex-wrap gap-2 sm:justify-end">
             {structured?.emotion && (
               <span className="self-start rounded-full border border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                {structured.emotion}
+                {localizeMixedLanguageValue(
+                  structured.emotion,
+                  displayLanguage
+                )}
               </span>
             )}
             {modeDetected && modeDetected !== "General" && (
               <span className="self-start rounded-full border border-[var(--border)] bg-[var(--surface-muted)] px-3 py-1 text-xs font-medium text-[var(--foreground-muted)]">
                 {labels.reflectionMode}:{" "}
-                {translateDetectedMode(language, modeDetected)}
+                {translateDetectedMode(displayLanguage, modeDetected)}
               </span>
             )}
           </div>
@@ -657,7 +677,7 @@ export function ReflectionResultCard({
           <Prompt2ResultModules
             structured={structured}
             labels={labels}
-            language={language}
+            language={displayLanguage}
             nextStepType={nextStepType}
           />
         ) : isStructured && structured ? (
@@ -763,7 +783,7 @@ export function ReflectionResultCard({
                   </h3>
                   {nextStepType && shouldDisplayNormalizedChip(nextStepType) && (
                     <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-                      {localizedCanonicalLabel(nextStepType, language)}
+                      {localizedCanonicalLabel(nextStepType, displayLanguage)}
                     </span>
                   )}
                 </div>
@@ -909,7 +929,7 @@ export function ReflectionResultCard({
               </LinkButton>
             )}
             <LinkButton href="/dashboard/history" variant="secondary" size="sm">
-              {t.common.viewHistory}
+              {displayT.common.viewHistory}
             </LinkButton>
             <LinkButton href="/dashboard/summary" variant="ghost" size="sm">
               {labels.seePatterns}

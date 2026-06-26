@@ -13,7 +13,9 @@ import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import { trackEvent } from "../lib/analytics";
+import { translations } from "../lib/i18n";
 import { detectReflectionLanguage } from "../lib/reflection-language";
+import type { ReflectionLanguage } from "../lib/reflection-card";
 import {
   Card,
   LinkButton,
@@ -57,6 +59,8 @@ export function GuidedReflectionContent() {
   const [saved, setSaved] = useState(false);
   const [generatedInput, setGeneratedInput] = useState("");
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [generatedReflectionLanguage, setGeneratedReflectionLanguage] =
+    useState<ReflectionLanguage>(language);
 
   const filledCount = fields.filter((f) => values[f.id].trim()).length;
   const hasInput = filledCount > 0;
@@ -84,6 +88,7 @@ export function GuidedReflectionContent() {
             structured?: StructuredReflectionResult;
             saved?: boolean;
             generatedInput?: string;
+            reflectionLanguage?: ReflectionLanguage;
           })
         : null;
 
@@ -103,6 +108,7 @@ export function GuidedReflectionContent() {
           setStructured(null);
           setSaved(false);
           setGeneratedInput("");
+          setGeneratedReflectionLanguage(language);
         } else {
           setValues({ ...initialValues, ...(draft?.values ?? {}) });
           setActiveStep(
@@ -114,6 +120,7 @@ export function GuidedReflectionContent() {
           setStructured(draft?.structured ?? null);
           setSaved(false);
           setGeneratedInput(draft?.generatedInput ?? "");
+          setGeneratedReflectionLanguage(draft?.reflectionLanguage ?? language);
         }
         setDraftLoaded(true);
       });
@@ -129,7 +136,7 @@ export function GuidedReflectionContent() {
     return () => {
       active = false;
     };
-  }, [draftKey]);
+  }, [draftKey, language]);
 
   useEffect(() => {
     if (!draftKey || !draftLoaded) {
@@ -155,6 +162,7 @@ export function GuidedReflectionContent() {
         structured,
         saved: false,
         generatedInput,
+        reflectionLanguage: generatedReflectionLanguage,
       })
     );
   }, [
@@ -162,6 +170,7 @@ export function GuidedReflectionContent() {
     draftKey,
     draftLoaded,
     generatedInput,
+    generatedReflectionLanguage,
     hasInput,
     result,
     saved,
@@ -187,6 +196,7 @@ export function GuidedReflectionContent() {
     setSaving(false);
     setSaved(false);
     setGeneratedInput("");
+    setGeneratedReflectionLanguage(language);
 
     if (draftKey) {
       window.localStorage.removeItem(draftKey);
@@ -199,7 +209,7 @@ export function GuidedReflectionContent() {
       textarea?.scrollIntoView({ behavior: "smooth", block: "center" });
       textarea?.focus();
     });
-  }, [draftKey]);
+  }, [draftKey, language]);
 
   async function handleReflect() {
     if (!session?.access_token) {
@@ -214,6 +224,7 @@ export function GuidedReflectionContent() {
     setError("");
     setSaved(false);
     setGeneratedInput("");
+    setGeneratedReflectionLanguage(language);
 
     const input = fields
       .map((field) => {
@@ -261,19 +272,29 @@ export function GuidedReflectionContent() {
 
       const nextResult = data.result || "";
       const nextStructured = data.structured || null;
+      const nextReflectionLanguage =
+        data.reflectionLanguage === "en" || data.reflectionLanguage === "zh"
+          ? data.reflectionLanguage
+          : reflectionLanguage;
 
       setResult(nextResult);
       setStructured(nextStructured);
+      setGeneratedReflectionLanguage(nextReflectionLanguage);
       setWarning("");
       trackEvent("reflection_generated", {
         locale: language,
         authenticated_state: true,
         role_bucket: role ?? "user",
         mode: "guided",
-        reflection_language: reflectionLanguage,
+        reflection_language: nextReflectionLanguage,
         structured: Boolean(nextStructured),
       });
-      void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
+      void autoSaveReflection(
+        input,
+        nextResult,
+        nextStructured,
+        nextReflectionLanguage
+      );
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -526,11 +547,17 @@ export function GuidedReflectionContent() {
             result={result}
             structured={structured}
             showActions={saved}
-            statusText={saved ? t.common.savedToHistory : t.reflectionCard.generatedOnly}
+            statusText={
+              saved
+                ? translations[generatedReflectionLanguage].common.savedToHistory
+                : translations[generatedReflectionLanguage].reflectionCard
+                    .generatedOnly
+            }
             saved={saved}
             saving={saving}
             autoSaved
             mode="guided"
+            reflectionLanguage={generatedReflectionLanguage}
             onReflectAgain={startNewReflection}
           />
           {saved && (

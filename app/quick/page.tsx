@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle } from "lucide-react";
+import { CheckCircle2, HelpCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -13,12 +13,13 @@ import { useAuth } from "../components/auth-provider";
 import { useLanguage } from "../components/language-provider";
 import { RoleAwareRedirect } from "../components/role-aware-redirect";
 import { trackEvent } from "../lib/analytics";
+import { translations } from "../lib/i18n";
 import { detectReflectionLanguage } from "../lib/reflection-language";
+import type { ReflectionLanguage } from "../lib/reflection-card";
 import {
   Card,
   LoadingCard,
   LoadingSpinner,
-  PageHeader,
   PrimaryButton,
   StatusCard,
   TextareaField,
@@ -39,6 +40,8 @@ export function QuickReflectionContent() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [generatedReflectionLanguage, setGeneratedReflectionLanguage] =
+    useState<ReflectionLanguage>(language);
 
   const draftKey = user?.id ? `innerleaf:quick:${user.id}` : "";
   const textareaId = "quick-reflection-input";
@@ -62,6 +65,7 @@ export function QuickReflectionContent() {
             structured?: StructuredReflectionResult;
             saved?: boolean;
             selectedMood?: string;
+            reflectionLanguage?: ReflectionLanguage;
           })
         : null;
 
@@ -80,12 +84,14 @@ export function QuickReflectionContent() {
           setStructured(null);
           setSaved(false);
           setSelectedMood("");
+          setGeneratedReflectionLanguage(language);
         } else {
           setInput(draft?.input ?? "");
           setResult(draft?.result ?? "");
           setStructured(draft?.structured ?? null);
           setSaved(false);
           setSelectedMood(draft?.selectedMood ?? "");
+          setGeneratedReflectionLanguage(draft?.reflectionLanguage ?? language);
         }
         setDraftLoaded(true);
       });
@@ -101,7 +107,7 @@ export function QuickReflectionContent() {
     return () => {
       active = false;
     };
-  }, [draftKey]);
+  }, [draftKey, language]);
 
   useEffect(() => {
     if (!draftKey || !draftLoaded) {
@@ -125,10 +131,20 @@ export function QuickReflectionContent() {
         result,
         structured,
         selectedMood,
+        reflectionLanguage: generatedReflectionLanguage,
         saved: false,
       })
     );
-  }, [draftKey, draftLoaded, input, result, saved, selectedMood, structured]);
+  }, [
+    draftKey,
+    draftLoaded,
+    generatedReflectionLanguage,
+    input,
+    result,
+    saved,
+    selectedMood,
+    structured,
+  ]);
 
   const startNewReflection = useCallback(() => {
     setInput("");
@@ -140,6 +156,7 @@ export function QuickReflectionContent() {
     setLoading(false);
     setSaving(false);
     setSaved(false);
+    setGeneratedReflectionLanguage(language);
 
     if (draftKey) {
       window.localStorage.removeItem(draftKey);
@@ -152,7 +169,7 @@ export function QuickReflectionContent() {
       textarea?.scrollIntoView({ behavior: "smooth", block: "center" });
       textarea?.focus();
     });
-  }, [draftKey]);
+  }, [draftKey, language]);
 
   useEffect(() => {
     function onNewReflection() {
@@ -277,20 +294,30 @@ export function QuickReflectionContent() {
 
       const nextResult = data.result || "";
       const nextStructured = data.structured || null;
+      const nextReflectionLanguage =
+        data.reflectionLanguage === "en" || data.reflectionLanguage === "zh"
+          ? data.reflectionLanguage
+          : reflectionLanguage;
 
       setResult(nextResult);
       setStructured(nextStructured);
+      setGeneratedReflectionLanguage(nextReflectionLanguage);
       setWarning("");
       trackEvent("reflection_generated", {
         locale: language,
         authenticated_state: true,
         role_bucket: role ?? "user",
         mode: "quick",
-        reflection_language: reflectionLanguage,
+        reflection_language: nextReflectionLanguage,
         selected_mood: selectedMood || "none",
         structured: Boolean(nextStructured),
       });
-      void autoSaveReflection(input, nextResult, nextStructured, reflectionLanguage);
+      void autoSaveReflection(
+        input,
+        nextResult,
+        nextStructured,
+        nextReflectionLanguage
+      );
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -299,96 +326,143 @@ export function QuickReflectionContent() {
   }
 
   return (
-    <div className="max-w-3xl">
-      <PageHeader compact eyebrow={t.common.reflect} title={t.quick.title}>
-        {t.quick.purpose}
-      </PageHeader>
+    <div className="max-w-5xl">
+      <header className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
+            {t.common.reflect}
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
+            {t.quick.title}
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.quick.purpose}
+          </p>
+        </div>
+        <Link
+          href="/dashboard/guided"
+          className="inline-flex w-fit items-center rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)] shadow-[var(--shadow-sm)] transition hover:border-[rgba(31,155,143,0.3)] hover:bg-[var(--surface)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+        >
+          {t.common.tryGuided}
+        </Link>
+      </header>
 
       <Card
         variant="action"
-        className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(239,249,245,0.54))] hover:translate-y-0"
+        className="overflow-hidden border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.97),rgba(246,242,233,0.52))] p-0 hover:translate-y-0"
       >
-        <div className="mb-4 rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.64)] p-3.5 shadow-[var(--shadow-sm)] sm:mb-5">
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
-            {t.quick.moodPrompt}
-          </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {t.quick.moodOptions.map((mood) => {
-              const isSelected = selectedMood === mood.id;
-
-              return (
-                <button
-                  key={mood.id}
-                  type="button"
-                  onClick={() =>
-                    setSelectedMood((current) =>
-                      current === mood.id ? "" : mood.id
-                    )
-                  }
-                  aria-pressed={isSelected}
-                  className={[
-                    "motion-soft-scale rounded-full border px-3 py-1.5 text-xs font-semibold transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-                    isSelected
-                      ? "border-[rgba(31,155,143,0.3)] bg-[linear-gradient(135deg,rgba(31,155,143,0.16),rgba(217,179,74,0.16))] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]"
-                      : "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-muted)] hover:border-[rgba(31,155,143,0.22)] hover:text-[var(--foreground)]",
-                  ].join(" ")}
-                >
-                  {mood.label}
-                </button>
-              );
-            })}
+        <div className="border-b border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.62)] px-4 py-4 sm:px-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                {t.quick.cardEyebrow}
+              </p>
+              <h2 className="mt-1 text-lg font-semibold leading-7 text-[var(--foreground)]">
+                {t.quick.cardTitle}
+              </h2>
+            </div>
+            {selectedMoodOption && (
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]">
+                <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
+                {selectedMoodOption.label}
+              </span>
+            )}
           </div>
-        </div>
-
-        <TextareaField
-          id={textareaId}
-          label={t.quick.label}
-          helper={selectedMoodOption?.prompt ?? t.quick.helper}
-          className="min-h-48 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-52"
-          placeholder={selectedMoodOption?.prompt ?? t.quick.placeholder}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-        />
-
-        <div className="mt-3 hidden flex-wrap gap-2 sm:flex">
-          {t.quick.chips.map((chip) => (
-            <span
-              key={chip}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(31,155,143,0.13)] bg-[rgba(255,254,248,0.72)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground-muted)]"
-            >
-              <HelpCircle
-                aria-hidden="true"
-                size={12}
-                strokeWidth={1.8}
-                className="text-[var(--brand-teal-deep)]"
-              />
-              {chip}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-[var(--foreground-subtle)]">
-            {t.quick.guidedLinkLead}{" "}
-            <Link
-              href="/dashboard/guided"
-              className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
-            >
-              {t.common.tryGuided}
-            </Link>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
+            {t.quick.cardHelper}
           </p>
-          {loading ? (
-            <LoadingSpinner label={t.common.loadingQuick} />
-          ) : (
-            <PrimaryButton
-              size="lg"
-              onClick={handleReflect}
-              disabled={loading || !input.trim()}
-              className="w-full sm:w-auto sm:shrink-0"
-            >
-              {t.quick.button}
-            </PrimaryButton>
-          )}
+        </div>
+
+        <div className="p-4 sm:p-5">
+          <div className="rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+            <TextareaField
+              id={textareaId}
+              label={t.quick.label}
+              helper={selectedMoodOption?.prompt ?? t.quick.helper}
+              className="min-h-56 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-64"
+              placeholder={selectedMoodOption?.prompt ?? t.quick.placeholder}
+              value={input}
+              onChange={(event) => setInput(event.target.value)}
+            />
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {t.quick.chips.slice(0, 4).map((chip) => (
+                <span
+                  key={chip}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.62)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground-subtle)]"
+                >
+                  <HelpCircle
+                    aria-hidden="true"
+                    size={12}
+                    strokeWidth={1.8}
+                    className="text-[var(--brand-teal-deep)]"
+                  />
+                  {chip}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <details className="group mt-3 rounded-[1.1rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.52)] px-3.5 py-3">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-[var(--foreground-muted)] marker:hidden">
+              <span>{t.quick.moodPrompt}</span>
+              <span className="text-[var(--brand-teal-deep)] transition group-open:rotate-45">
+                +
+              </span>
+            </summary>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {t.quick.moodOptions.map((mood) => {
+                const isSelected = selectedMood === mood.id;
+
+                return (
+                  <button
+                    key={mood.id}
+                    type="button"
+                    onClick={() =>
+                      setSelectedMood((current) =>
+                        current === mood.id ? "" : mood.id
+                      )
+                    }
+                    aria-pressed={isSelected}
+                    className={[
+                      "rounded-full border px-2.5 py-1.5 text-xs font-semibold transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                      isSelected
+                        ? "border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                        : "border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.58)] text-[var(--foreground-subtle)] hover:border-[rgba(31,155,143,0.18)] hover:text-[var(--foreground)]",
+                    ].join(" ")}
+                  >
+                    {mood.label}
+                  </button>
+                );
+              })}
+            </div>
+          </details>
+
+          <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-[var(--foreground-subtle)]">
+              {t.quick.guidedLinkLead}{" "}
+              <Link
+                href="/dashboard/guided"
+                className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+              >
+                {t.common.tryGuided}
+              </Link>
+            </p>
+            {loading ? (
+              <div className="flex min-h-11 w-full items-center justify-center sm:w-auto">
+                <LoadingSpinner label={t.common.loadingQuick} />
+              </div>
+            ) : (
+              <PrimaryButton
+                size="lg"
+                onClick={handleReflect}
+                disabled={loading || !input.trim()}
+                className="w-full sm:w-auto sm:shrink-0"
+              >
+                {t.quick.button}
+              </PrimaryButton>
+            )}
+          </div>
         </div>
       </Card>
 
@@ -407,13 +481,16 @@ export function QuickReflectionContent() {
             showActions={saved}
             statusText={
               saved
-                ? t.common.savedToReflectionHistory
-                : t.reflectionCard.generatedOnly
+                ? translations[generatedReflectionLanguage].common
+                    .savedToReflectionHistory
+                : translations[generatedReflectionLanguage].reflectionCard
+                    .generatedOnly
             }
             saved={saved}
             saving={saving}
             autoSaved
             mode="quick"
+            reflectionLanguage={generatedReflectionLanguage}
             onReflectAgain={startNewReflection}
           />
         </>

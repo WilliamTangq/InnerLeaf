@@ -668,7 +668,10 @@ export const translations = {
     quick: {
       title: "Quick Reflection",
       purpose: "Write one emotional moment. InnerLeaf organises it.",
-      moodPrompt: "What feels closest?",
+      cardEyebrow: "Single-step reflection",
+      cardTitle: "Write what happened in your own words",
+      cardHelper: "No need to make it polished. A messy first version is enough.",
+      moodPrompt: "Optional focus",
       moodOptions: [
         {
           id: "anxious",
@@ -1025,6 +1028,13 @@ export const translations = {
       welcome: "Welcome back",
       fallbackName: "InnerLeaf user",
       subtitle: "Reflect, save, and revisit patterns.",
+      savedCards: "Saved",
+      checkedInCards: "Checked in",
+      latestSaved: "Latest",
+      noSavedYet: "Not yet",
+      primaryActions: "Start reflecting",
+      reviewSpaces: "Review and patterns",
+      supportTools: "Support tools",
       cards: [
         [
           "Quick Reflection",
@@ -2084,7 +2094,10 @@ export const translations = {
     quick: {
       title: "快速反思",
       purpose: "写下一次情绪时刻。InnerLeaf 会帮你整理。",
-      moodPrompt: "此刻更接近哪种感受？",
+      cardEyebrow: "一步完成",
+      cardTitle: "用你自己的话写下发生了什么",
+      cardHelper: "不需要写得完整或漂亮。先把混乱的部分放下来就够了。",
+      moodPrompt: "可选聚焦点",
       moodOptions: [
         {
           id: "anxious",
@@ -2400,6 +2413,13 @@ export const translations = {
       welcome: "欢迎回来",
       fallbackName: "InnerLeaf 用户",
       subtitle: "反思、保存，并回看模式。",
+      savedCards: "已保存",
+      checkedInCards: "已回看",
+      latestSaved: "最近",
+      noSavedYet: "暂无",
+      primaryActions: "开始反思",
+      reviewSpaces: "回看与模式",
+      supportTools: "支持工具",
       cards: [
         ["快速反思", "自由写下，整理成清晰卡片。", "开始快速反思", "/dashboard/quick"],
         ["一步步反思", "写不出来时，用结构慢慢整理。", "开始引导反思", "/dashboard/guided"],
