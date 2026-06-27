@@ -28,6 +28,10 @@ export type Reflection = {
   normalized_thought_pattern: string | null;
   normalized_next_step_type: string | null;
   normalized_check_in_signal: string | null;
+  scenario_category?: string | null;
+  primary_demon?: string | null;
+  unmet_need?: string | null;
+  observe_next?: string | null;
   follow_up_result: string | null;
   follow_up_note: string | null;
   follow_up_at: string | null;

@@ -41,6 +41,7 @@ export type StructuredReflectionResult = {
   next_step_body_aware_first?: boolean;
   open_hypotheses?: string[];
   thought_pattern_key?: string;
+  thought_pattern_label?: string;
   thought_pattern_label_en?: string;
   thought_pattern_label_zh?: string;
   mind_protecting?: string;
@@ -289,7 +290,8 @@ function Prompt2ResultModules({
       value: String(value),
     }));
   const thoughtLabel = localizeMixedLanguageValue(
-    (language === "zh"
+    structured.thought_pattern_label ||
+      (language === "zh"
       ? structured.thought_pattern_label_zh ||
         structured.thought_pattern_label_en
       : structured.thought_pattern_label_en ||
@@ -323,7 +325,7 @@ function Prompt2ResultModules({
               key={name}
               className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
             >
-              {name}
+              {localizedCanonicalLabel(name, language)}
             </span>
           ))}
         </div>

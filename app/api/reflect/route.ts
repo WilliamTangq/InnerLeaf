@@ -11,7 +11,7 @@ const ai = new GoogleGenAI({
 const geminiModel = process.env.GEMINI_MODEL || "gemini-3.1-flash-lite";
 
 type StructuredReflection = {
-  scenario_category?: string;
+  scenario_category?: ScenarioCategory;
   emotional_source?: string;
   demon_names?: string[];
   core_question?: string;
@@ -23,7 +23,8 @@ type StructuredReflection = {
   next_step_text?: string;
   next_step_body_aware_first?: boolean;
   open_hypotheses?: string[];
-  thought_pattern_key?: string;
+  thought_pattern_key?: ThoughtPatternKey;
+  thought_pattern_label?: string;
   thought_pattern_label_en?: string;
   thought_pattern_label_zh?: string;
   mind_protecting?: string;
@@ -61,6 +62,70 @@ type StructuredReflection = {
   completed_reflection?: string;
 };
 
+type ScenarioCategory =
+  | "relationship"
+  | "friendship"
+  | "family"
+  | "study"
+  | "work_career"
+  | "personal_growth"
+  | "body"
+  | "general";
+
+type ThoughtPatternKey =
+  | "mind_reading"
+  | "personalization"
+  | "comparison_thinking"
+  | "catastrophising"
+  | "cognitive_fusion"
+  | "reassurance_seeking"
+  | "rejection_sensitivity"
+  | "retroactive_jealousy"
+  | "self_blame"
+  | "procrastination_paralysis"
+  | "all_or_nothing_thinking"
+  | "emotional_reasoning"
+  | "uncertainty_intolerance"
+  | "fear_of_being_replaced"
+  | "fear_of_being_unimportant"
+  | "control_seeking"
+  | "fear_of_failure"
+  | "future_anxiety"
+  | "other";
+
+const scenarioCategories = new Set<ScenarioCategory>([
+  "relationship",
+  "friendship",
+  "family",
+  "study",
+  "work_career",
+  "personal_growth",
+  "body",
+  "general",
+]);
+
+const thoughtPatternKeys = new Set<ThoughtPatternKey>([
+  "mind_reading",
+  "personalization",
+  "comparison_thinking",
+  "catastrophising",
+  "cognitive_fusion",
+  "reassurance_seeking",
+  "rejection_sensitivity",
+  "retroactive_jealousy",
+  "self_blame",
+  "procrastination_paralysis",
+  "all_or_nothing_thinking",
+  "emotional_reasoning",
+  "uncertainty_intolerance",
+  "fear_of_being_replaced",
+  "fear_of_being_unimportant",
+  "control_seeking",
+  "fear_of_failure",
+  "future_anxiety",
+  "other",
+]);
+
 const nextStepTypes = new Set([
   "Pause",
   "Clarify facts",
@@ -78,6 +143,22 @@ const nextStepTypes = new Set([
   "rest_and_regulate",
   "other",
 ]);
+
+function toScenarioCategory(value: unknown): ScenarioCategory {
+  const text = toStringValue(value);
+
+  return scenarioCategories.has(text as ScenarioCategory)
+    ? (text as ScenarioCategory)
+    : "general";
+}
+
+function toThoughtPatternKey(value: unknown): ThoughtPatternKey {
+  const text = toStringValue(value);
+
+  return thoughtPatternKeys.has(text as ThoughtPatternKey)
+    ? (text as ThoughtPatternKey)
+    : "other";
+}
 
 const detectedModes = new Set([
   "General",
@@ -109,7 +190,10 @@ function toNextStepType(value: unknown) {
   return nextStepTypes.has(text) ? text : text;
 }
 
-function toPreview(value: unknown): StructuredReflection["save_card_preview"] {
+function toPreview(
+  value: unknown,
+  language: Language
+): StructuredReflection["save_card_preview"] {
   if (!value || typeof value !== "object") {
     return undefined;
   }
@@ -117,12 +201,12 @@ function toPreview(value: unknown): StructuredReflection["save_card_preview"] {
   const preview = value as Record<string, unknown>;
 
   return {
-    category: toStringValue(preview.category),
-    emotion: toStringValue(preview.emotion),
-    trigger: toStringValue(preview.trigger),
-    pattern: toStringValue(preview.pattern),
-    need: toStringValue(preview.need),
-    next_step: toStringValue(preview.next_step),
+    category: localizedString(preview.category, language),
+    emotion: localizedString(preview.emotion, language),
+    trigger: localizedString(preview.trigger, language),
+    pattern: localizedString(preview.pattern, language),
+    need: localizedString(preview.need, language),
+    next_step: localizedString(preview.next_step, language),
   };
 }
 
@@ -137,8 +221,12 @@ function inferNextStepType(pattern: string) {
 
   if (
     lower.includes("mind reading") ||
+    lower.includes("mind_reading") ||
     lower.includes("读心") ||
     lower.includes("emotional reasoning") ||
+    lower.includes("emotional_reasoning") ||
+    lower.includes("cognitive_fusion") ||
+    lower.includes("uncertainty_intolerance") ||
     lower.includes("情绪化推理") ||
     lower.includes("overgeneralisation") ||
     lower.includes("过度概括")
@@ -150,8 +238,12 @@ function inferNextStepType(pattern: string) {
     lower.includes("catastrophising") ||
     lower.includes("灾难化") ||
     lower.includes("all-or-nothing") ||
+    lower.includes("all_or_nothing") ||
     lower.includes("非黑即白") ||
     lower.includes("avoidance") ||
+    lower.includes("procrastination_paralysis") ||
+    lower.includes("fear_of_failure") ||
+    lower.includes("future_anxiety") ||
     lower.includes("回避")
   ) {
     return "Reframe";
@@ -159,10 +251,18 @@ function inferNextStepType(pattern: string) {
 
   if (
     lower.includes("comparison") ||
+    lower.includes("comparison_thinking") ||
     lower.includes("比较") ||
     lower.includes("self-blame") ||
+    lower.includes("self_blame") ||
     lower.includes("自我责备") ||
     lower.includes("personalisation") ||
+    lower.includes("personalization") ||
+    lower.includes("rejection_sensitivity") ||
+    lower.includes("retroactive_jealousy") ||
+    lower.includes("fear_of_being_replaced") ||
+    lower.includes("fear_of_being_unimportant") ||
+    lower.includes("control_seeking") ||
     lower.includes("个人化")
   ) {
     return "Pause";
@@ -229,7 +329,8 @@ function preferredThoughtPattern(
 ) {
   const direct =
     localizedString(value.thought_pattern, language) ||
-    localizedString(mainThoughtPattern.label, language);
+    localizedString(mainThoughtPattern.label, language) ||
+    localizedString(value.thought_pattern_label, language);
   const preferredLabel =
     language === "zh"
       ? localizedString(value.thought_pattern_label_zh, language)
@@ -278,34 +379,41 @@ function parseStructuredReflection(
       value.behavioural_pull_items,
       language
     );
-    const saveCardPreview = toPreview(value.save_card_preview);
-    const emotionalSource = toStringValue(value.emotional_source);
+    const saveCardPreview = toPreview(value.save_card_preview, language);
+    const emotionalSource = localizedString(value.emotional_source, language);
     const coreQuestion =
-      toStringValue(value.core_question) ||
-      toStringValue(value.next_question) ||
-      toStringValue(value.oneNextQuestion);
+      localizedString(value.core_question, language) ||
+      localizedString(value.next_question, language) ||
+      localizedString(value.oneNextQuestion, language);
     const nextStepText =
-      toStringValue(value.next_step_text) ||
-      toStringValue(value.next_step) ||
-      toStringValue(value.oneSmallNextStep);
+      localizedString(value.next_step_text, language) ||
+      localizedString(value.next_step, language) ||
+      localizedString(value.oneSmallNextStep, language);
     const trigger =
-      toStringValue(value.trigger) ||
-      toStringValue(saveCardPreview?.trigger) ||
+      localizedString(value.trigger, language) ||
+      localizedString(saveCardPreview?.trigger, language) ||
       emotionalSource;
     const structured = {
-      scenario_category: toStringValue(value.scenario_category),
+      scenario_category: toScenarioCategory(value.scenario_category),
       emotional_source: emotionalSource,
       demon_names: demonNames,
       core_question: coreQuestion,
       emotion_labels: emotionLabels,
       imaginations,
-      unmet_need_surface: toStringValue(value.unmet_need_surface),
-      unmet_need_deeper: toStringValue(value.unmet_need_deeper),
-      unmet_need_explanation: toStringValue(value.unmet_need_explanation),
+      unmet_need_surface: localizedString(value.unmet_need_surface, language),
+      unmet_need_deeper: localizedString(value.unmet_need_deeper, language),
+      unmet_need_explanation: localizedString(
+        value.unmet_need_explanation,
+        language
+      ),
       next_step_text: nextStepText,
       next_step_body_aware_first: Boolean(value.next_step_body_aware_first),
       open_hypotheses: localizedList(value.open_hypotheses, language, 3),
-      thought_pattern_key: toStringValue(value.thought_pattern_key),
+      thought_pattern_key: toThoughtPatternKey(value.thought_pattern_key),
+      thought_pattern_label: localizedString(
+        value.thought_pattern_label,
+        language
+      ),
       thought_pattern_label_en: localizedString(
         value.thought_pattern_label_en,
         language
@@ -323,21 +431,21 @@ function parseStructuredReflection(
       observe_next_items: localizedList(value.observe_next_items, language, 3),
       save_card_preview: saveCardPreview,
       emotional_validation:
-        toStringValue(value.emotional_validation) ||
-        toStringValue(value.emotionalValidation) ||
+        localizedString(value.emotional_validation, language) ||
+        localizedString(value.emotionalValidation, language) ||
         emotionalSource,
       moment_summary:
-        toStringValue(value.moment_summary) ||
-        toStringValue(value.momentSummary) ||
+        localizedString(value.moment_summary, language) ||
+        localizedString(value.momentSummary, language) ||
         emotionalSource,
       emotion:
-        toStringValue(value.emotion) ||
-        toStringValue(emotionSnapshot.mainEmotion) ||
+        localizedString(value.emotion, language) ||
+        localizedString(emotionSnapshot.mainEmotion, language) ||
         emotionLabels[0] ||
-        toStringValue(saveCardPreview?.emotion),
+        localizedString(saveCardPreview?.emotion, language),
       secondary_emotion:
-        toStringValue(value.secondary_emotion) ||
-        toStringValue(emotionSnapshot.secondaryEmotion) ||
+        localizedString(value.secondary_emotion, language) ||
+        localizedString(emotionSnapshot.secondaryEmotion, language) ||
         emotionLabels[1],
       trigger,
       facts: localizedList(value.facts, language),
@@ -352,22 +460,22 @@ function parseStructuredReflection(
         localizedString(value.thought_pattern_explanation, language) ||
         localizedString(mainThoughtPattern.explanation, language),
       behaviour:
-        toStringValue(value.behaviour) ||
+        localizedString(value.behaviour, language) ||
         behaviouralPullItems.join("\n"),
       body_factor:
-        toStringValue(value.body_factor) ||
-        toStringValue(value.mind_protecting) ||
-        toStringValue(value.gentleObservation),
+        localizedString(value.body_factor, language) ||
+        localizedString(value.mind_protecting, language) ||
+        localizedString(value.gentleObservation, language),
       behavioural_insight:
-        toStringValue(value.behavioural_insight) ||
-        toStringValue(value.behaviouralInsight) ||
-        toStringValue(value.unmet_need_explanation),
+        localizedString(value.behavioural_insight, language) ||
+        localizedString(value.behaviouralInsight, language) ||
+        localizedString(value.unmet_need_explanation, language),
       next_question: coreQuestion,
       next_step_type:
         toNextStepType(value.next_step_type) || inferNextStepType(thoughtPattern),
       next_step: nextStepText,
       mode_detected: toDetectedMode(value.mode_detected),
-      gentle_observation: toStringValue(value.gentleObservation),
+      gentle_observation: localizedString(value.gentleObservation, language),
       safety_note:
         toStringValue(value.safety_note) ||
         toStringValue(value.safetyNote),
@@ -430,6 +538,7 @@ function formatStructuredReflection(
             pattern: "模式",
             need: "需求",
             safety: "安全提示",
+            noEmotion: "用户未明确命名情绪",
           }
         : {
             source: "Emotional Source",
@@ -452,6 +561,7 @@ function formatStructuredReflection(
             pattern: "Pattern",
             need: "Need",
             safety: "Safety Note",
+            noEmotion: "No emotion explicitly named",
           };
     const thoughtLabel =
       (language === "zh"
@@ -463,7 +573,7 @@ function formatStructuredReflection(
     return [
       `1. ${labels.source}\n${reflection.emotional_source || reflection.emotional_validation}`,
       `2. ${labels.demon}\n${(reflection.demon_names ?? []).join(language === "zh" ? "、" : ", ")}\n${reflection.core_question || ""}`.trim(),
-      `3. ${labels.emotions}\n${(reflection.emotion_labels ?? []).join(language === "zh" ? "、" : ", ")}`,
+      `3. ${labels.emotions}\n${(reflection.emotion_labels ?? []).length ? (reflection.emotion_labels ?? []).join(language === "zh" ? "、" : ", ") : labels.noEmotion}`,
       `4. ${labels.factsImagination}\n${labels.facts}:\n${reflection.facts.map((fact) => `- ${fact}`).join("\n")}\n\n${labels.imagination}:\n${(reflection.imaginations ?? reflection.interpretation).map((item) => `- ${item}`).join("\n")}`,
       `5. ${labels.unmet}\n${reflection.unmet_need_surface || ""}\n${reflection.unmet_need_deeper || ""}\n${reflection.unmet_need_explanation || ""}`.trim(),
       `6. ${labels.next}\n${reflection.next_step_text || reflection.next_step}`,
@@ -564,33 +674,7 @@ function formatGuidedReflection(
   reflection: StructuredReflection,
   language: Language
 ) {
-  const baseReflection = formatStructuredReflection(reflection, language);
-
-  if (language === "zh") {
-    return `1. 你已经清楚捕捉到的部分
-${reflection.captured_clearly || "你已经识别出这次情绪时刻中的几个重要部分。"}
-
-2. 可能还不清楚的部分
-${reflection.still_unclear || "也许还可以进一步澄清，什么对你来说最重要。"}
-
-3. 完整反思卡片
-${reflection.completed_reflection || baseReflection}
-
-4. 一个反思问题
-${reflection.next_question}`;
-  }
-
-  return `1. What You Captured Clearly
-${reflection.captured_clearly || "You identified several useful parts of the moment."}
-
-2. What May Still Be Unclear
-${reflection.still_unclear || "There may be more to clarify about what felt most important."}
-
-3. Completed Reflection Card
-${reflection.completed_reflection || baseReflection}
-
-4. One Next Question
-${reflection.next_question}`;
+  return formatStructuredReflection(reflection, language);
 }
 
 function buildQuickPrompt(input: string, reflectionLanguage: Language) {
@@ -606,6 +690,20 @@ Product boundary:
 - InnerLeaf is not a therapist, doctor, crisis counsellor, diagnostic tool, or medical service.
 - You turn one emotional moment into a structured mobile reflection card.
 - Core product idea: "The moment you name the demon, it begins to lose its power."
+- You must follow the official InnerLeaf Prompt 2 contract.
+- The reflection card must support exactly these 12 modules in this order:
+  1. Emotional Source
+  2. Name the Demon
+  3. Emotion Labels
+  4. Facts vs Imagination
+  5. Unmet Need
+  6. One Small Next Step
+  7. Open Hypotheses
+  8. Thought Pattern
+  9. What Your Mind Might Be Protecting
+  10. Behavioural Pull
+  11. What to Observe Next
+  12. Save Card Preview
 
 Tone:
 - Target reflection language: ${reflectionLanguage}.
@@ -631,6 +729,7 @@ Hard rules:
 - Do not over-explain.
 - Do not add emotion intensity scores, percentages, or severity labels.
 - Do not output old modules named Objective Facts, Single Event or Pattern, Interaction Loop, Relationship Dynamic, Unknowns, or Emotion Intensity.
+- Do not output any module outside the official 12-module contract, except safety_note as a JSON field when safety language appears.
 - Return JSON only. No markdown. No commentary outside JSON.
 
 Scenario classification:
@@ -638,24 +737,61 @@ Choose scenario_category from:
 relationship, friendship, family, study, work_career, personal_growth, body, general.
 If body-state language appears, body-aware handling must activate.
 
-Core modules:
-1. emotional_source: explain what happened, what sensitivity point got touched, and why emotion rose. Mechanism, not generic comfort.
-2. demon_names: max 1-2 short names for the pain. Do not diagnose or label the user as a person.
-3. core_question: the inner fear question underneath the reaction.
-4. emotion_labels: only emotions the user explicitly stated. If none are stated, use an empty array.
-5. facts and imaginations: facts max 2; imaginations max 2. Use imagination, not interpretation. Do not say imagination is wrong.
-6. unmet need: include surface need, deeper need, and one short explanation.
-7. one small next step: tiny, low-risk, doable within 5 minutes, not dependent on immediate external response.
+Required Prompt 2 modules:
+1. emotional_source:
+   Explain what happened, what sensitivity point got touched, and why emotion rose.
+   Use mechanism, not generic comfort. Do not write "your reaction is normal" or "your feeling is valid".
+2. demon_names:
+   Max 1-2 short names for the pain. Do not diagnose or label the user as a person.
+3. emotion_labels:
+   Only include emotions explicitly stated by the user.
+   If none are explicitly named, return [] and the UI will display the no-emotion fallback.
+4. facts and imaginations:
+   facts max 2. imaginations max 2.
+   Use "imagination", not "interpretation".
+   Do not say the imagination is wrong.
+5. unmet need:
+   Include unmet_need_surface, unmet_need_deeper, and unmet_need_explanation.
+6. next_step_text:
+   One tiny, low-risk action startable within 5 minutes.
+   It must not depend on immediate response from another person.
+7. open_hypotheses:
+   Keep multiple possibilities open. For relationship scenarios, include neutral possibility space when appropriate:
+   external situation, communication habit, investment/boundary change possibility.
+8. thought_pattern:
+   Choose one thought_pattern_key and one thought_pattern_label in the target language.
+9. mind_protecting:
+   Name what the mind may be trying to protect.
+10. behavioural_pull:
+   behavioural_pull_items should show likely pulls without shame.
+   behavioural_pull_note should end with the natural equivalent of:
+   "This is the pull of an activated emotional state, not a personality flaw."
+11. observe_next_items:
+   Observe stable patterns and self-signals. Do not monitor another person.
+12. save_card_preview:
+   Compact values for category, emotion, trigger, pattern, need, and next_step.
 
 Need examples:
 ${reflectionLanguage === "zh" ? "安全感, 被选择感, 被重视感, 确定性, 掌控感, 自我效能感, 被理解, 自主权, 边界感." : "safety, feeling chosen, feeling valued, certainty, control, self-efficacy, being understood, autonomy, boundaries."}
 
 Name the demon examples:
-${reflectionLanguage === "zh" ? "拒绝敏感\n依恋焦虑\n比较型思维\n拖延瘫痪" : "Rejection sensitivity\nAttachment anxiety\nComparison thinking\nProcrastination paralysis"}
+${reflectionLanguage === "zh" ? "拒绝敏感\n不确定性拉扯\n比较型思维\n拖延瘫痪" : "Rejection sensitivity\nUncertainty spiral\nComparison thinking\nProcrastination paralysis"}
+
+Name the demon taxonomy:
+Choose 1-2 natural target-language demon names that best match these stable categories:
+rejection_sensitivity, retroactive_jealousy, reassurance_seeking, fear_of_being_replaced, fear_of_being_unimportant, attachment_anxiety, comparison_thinking, procrastination_paralysis, fear_of_failure, uncertainty_intolerance, self_blame, need_for_autonomy, boundary_sensitivity, fear_of_disapproval, future_anxiety.
+Do not output the raw enum names as user-facing text. Use natural labels in the target language.
+
+Unmet need taxonomy:
+The unmet need should map naturally to one of:
+safety, being_chosen, certainty, being_valued, connection, autonomy, being_understood, control, self_efficacy, recognition, rest, belonging, boundary_respect, future_stability.
+Do not output the raw enum names as user-facing text. Use natural labels in the target language.
 
 Thought pattern:
 Choose one primary thought_pattern_key only:
-mind_reading, personalization, comparison_thinking, catastrophising, reassurance_seeking, self_blame, procrastination_paralysis, all_or_nothing_thinking, emotional_reasoning, uncertainty_intolerance.
+mind_reading, personalization, comparison_thinking, emotional_reasoning, catastrophising, cognitive_fusion, reassurance_seeking, rejection_sensitivity, retroactive_jealousy, all_or_nothing_thinking, avoidance, self_blame, procrastination_paralysis, uncertainty_intolerance, fear_of_being_replaced, fear_of_being_unimportant, control_seeking, fear_of_failure, future_anxiety, other.
+Use thought_pattern_label for the visible label in the target language.
+Leave thought_pattern_label_en and thought_pattern_label_zh empty unless needed for legacy compatibility.
 
 Open hypotheses:
 - Purpose: prevent premature conclusions.
@@ -701,6 +837,7 @@ Output JSON schema:
   "next_step_body_aware_first": false,
   "open_hypotheses": [],
   "thought_pattern_key": "",
+  "thought_pattern_label": "",
   "thought_pattern_label_en": "",
   "thought_pattern_label_zh": "",
   "thought_pattern_explanation": "",

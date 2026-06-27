@@ -438,8 +438,14 @@ function toHistoryCard(item: Reflection) {
     trigger,
     normalizedTrigger: canonical.normalizedTrigger,
     normalizedThoughtPattern: canonical.normalizedThoughtPattern,
+    normalizedDemon: canonical.normalizedDemon,
+    normalizedUnmetNeed: canonical.normalizedUnmetNeed,
     normalizedNextStepType: canonical.normalizedNextStepType,
     normalizedCheckInSignal: canonical.normalizedCheckInSignal,
+    scenarioCategory: canonical.scenarioCategory,
+    primaryDemon: canonical.primaryDemon,
+    unmetNeed: canonical.unmetNeed,
+    observeNext: canonical.observeNextItems,
     facts: canonical.factsSummary.length ? canonical.factsSummary : prompt2.facts,
     interpretations: canonical.interpretationSummary.length
       ? canonical.interpretationSummary
@@ -462,9 +468,16 @@ function toHistoryCard(item: Reflection) {
         previewLine(prompt2.emotionalSource, 420) ||
         previewLine(canonical.emotionalValidation, 420) ||
         "",
-      demonNames: prompt2.demonNames.map((name) =>
-        localizeMixedLanguageValue(name, canonical.reflectionLanguage)
-      ),
+      demonNames: (
+        prompt2.demonNames.length ? prompt2.demonNames : [canonical.primaryDemon]
+      )
+        .filter(Boolean)
+        .map((name) =>
+          localizedCanonicalLabel(
+            localizeMixedLanguageValue(name, canonical.reflectionLanguage),
+            canonical.reflectionLanguage
+          )
+        ),
       emotionLabels: prompt2.emotionLabels.length
         ? prompt2.emotionLabels.map((label) =>
             localizeMixedLanguageValue(label, canonical.reflectionLanguage)
@@ -472,6 +485,7 @@ function toHistoryCard(item: Reflection) {
         : [canonical.mainEmotion, canonical.secondaryEmotion].filter(Boolean),
       unmetNeed:
         previewLine(prompt2.unmetNeed, 420) ||
+        previewLine(canonical.unmetNeed, 220) ||
         previewLine(canonical.behaviouralInsight, 420) ||
         "",
       nextStep:
@@ -502,7 +516,10 @@ function toHistoryCard(item: Reflection) {
         : canonical.behaviour
           ? [canonical.behaviour]
           : [],
-      observeNext: prompt2.observeNext.map((item) =>
+      observeNext: (prompt2.observeNext.length
+        ? prompt2.observeNext
+        : canonical.observeNextItems
+      ).map((item) =>
         localizeMixedLanguageValue(item, canonical.reflectionLanguage)
       ),
       saveCardPreview: prompt2.saveCardPreview.map((item) =>
@@ -528,12 +545,12 @@ function primaryHistoryChips(card: ReturnType<typeof toHistoryCard>) {
     },
     {
       key: "pattern",
-      value: card.normalizedThoughtPattern,
+      value: card.normalizedDemon,
       variant: "outline",
     },
     {
-      key: "step",
-      value: card.normalizedNextStepType,
+      key: "need",
+      value: card.normalizedUnmetNeed,
       variant: "outline",
     },
   ];
@@ -542,7 +559,7 @@ function primaryHistoryChips(card: ReturnType<typeof toHistoryCard>) {
   );
 
   if (meaningful.length > 0) {
-    return meaningful.slice(0, 2);
+    return meaningful.slice(0, 3);
   }
 
   return [];
@@ -556,8 +573,18 @@ function detailHistoryChips(card: ReturnType<typeof toHistoryCard>) {
       variant: "accent" as const,
     },
     {
+      key: "demon",
+      value: card.normalizedDemon,
+      variant: "outline" as const,
+    },
+    {
       key: "pattern",
       value: card.normalizedThoughtPattern,
+      variant: "outline" as const,
+    },
+    {
+      key: "need",
+      value: card.normalizedUnmetNeed,
       variant: "outline" as const,
     },
     {
@@ -567,7 +594,7 @@ function detailHistoryChips(card: ReturnType<typeof toHistoryCard>) {
     },
   ]
     .filter((chip) => shouldDisplayNormalizedChip(chip.value))
-    .slice(0, 3);
+    .slice(0, 4);
 }
 
 function checkInChipValue(card: ReturnType<typeof toHistoryCard>) {

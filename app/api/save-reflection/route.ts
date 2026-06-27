@@ -90,7 +90,11 @@ function isMissingCanonicalColumn(error: { message?: string } | null) {
       error?.message?.includes("ui_language") ||
       error?.message?.includes("short_title") ||
       error?.message?.includes("mood_chip") ||
-      error?.message?.includes("normalized_")
+      error?.message?.includes("normalized_") ||
+      error?.message?.includes("scenario_category") ||
+      error?.message?.includes("primary_demon") ||
+      error?.message?.includes("unmet_need") ||
+      error?.message?.includes("observe_next")
   );
 }
 
@@ -162,6 +166,7 @@ export async function POST(request: Request) {
       thought_pattern: localizedFirstText(
         canonical.reflectionLanguage,
         structured.thought_pattern,
+        structured.thought_pattern_label,
         canonical.reflectionLanguage === "zh"
           ? structured.thought_pattern_label_zh
           : structured.thought_pattern_label_en,
@@ -204,6 +209,12 @@ export async function POST(request: Request) {
       normalized_thought_pattern: canonical.normalizedThoughtPattern,
       normalized_next_step_type: canonical.normalizedNextStepType,
       normalized_check_in_signal: canonical.normalizedCheckInSignal,
+      scenario_category: canonical.scenarioCategory,
+      primary_demon: canonical.normalizedDemon,
+      unmet_need: canonical.normalizedUnmetNeed,
+      observe_next: canonical.observeNextItems.length
+        ? canonical.observeNextItems.join("\n")
+        : null,
     };
     let { data, error } = await supabaseAdmin
       .from("reflections")

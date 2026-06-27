@@ -59,6 +59,10 @@ type SummaryReflection = {
   normalized_thought_pattern?: string | null;
   normalized_next_step_type?: string | null;
   normalized_check_in_signal?: string | null;
+  scenario_category?: string | null;
+  primary_demon?: string | null;
+  unmet_need?: string | null;
+  observe_next?: string | string[] | null;
   follow_up_result: string | null;
   follow_up_at: string | null;
 };
@@ -285,6 +289,10 @@ function buildInsightCards(
       shouldDisplayNormalizedChip(canonical.normalizedThoughtPattern)
         ? localizedCanonicalLabel(canonical.normalizedThoughtPattern, language)
         : rawPattern || localizedCanonicalLabel(canonical.normalizedThoughtPattern, language);
+    const demonLabel =
+      shouldDisplayNormalizedChip(canonical.normalizedDemon)
+        ? localizedCanonicalLabel(canonical.normalizedDemon, language)
+        : localizeMixedLanguageValue(canonical.primaryDemon || rawPattern, language);
     const triggerLabel =
       shouldDisplayNormalizedChip(canonical.normalizedTrigger)
         ? localizedCanonicalLabel(canonical.normalizedTrigger, language)
@@ -293,15 +301,21 @@ function buildInsightCards(
       shouldDisplayNormalizedChip(canonical.normalizedNextStepType)
         ? localizedCanonicalLabel(canonical.normalizedNextStepType, language)
         : rawNextStep || localizedCanonicalLabel(canonical.normalizedNextStepType, language);
-    const needLabels = [
-      localizeMixedLanguageValue(prompt2.preview.need || "", language),
+    const needLabels = Array.from(new Set([
+      shouldDisplayNormalizedChip(canonical.normalizedUnmetNeed)
+        ? localizedCanonicalLabel(canonical.normalizedUnmetNeed, language)
+        : "",
+      localizeMixedLanguageValue(
+        canonical.unmetNeed || prompt2.preview.need || "",
+        language
+      ),
       ...needLabelsFromText(
         [prompt2.unmetNeed, reflection.behavioural_insight, reflection.body_factor]
           .filter(Boolean)
           .join(" "),
         language
       ),
-    ].filter(Boolean);
+    ].filter(Boolean)));
 
     return {
       reflection,
@@ -309,11 +323,14 @@ function buildInsightCards(
       source: prompt2.source,
       triggerLabel,
       patternLabel,
+      demonLabel,
       demonNames: prompt2.demonNames,
       unmetNeed: prompt2.unmetNeed,
       needLabels,
       nextStepLabel,
-      observeNext: prompt2.observeNext,
+      observeNext: canonical.observeNextItems.length
+        ? canonical.observeNextItems
+        : prompt2.observeNext,
     };
   });
 }
@@ -973,10 +990,18 @@ export function SummaryContent() {
     prompt2Cards.map((item) => item.triggerLabel)
   );
   const prompt2PatternRows = countHumanLabels(
-    prompt2Cards.map((item) => item.demonNames[0] || item.patternLabel)
+    prompt2Cards.map((item) => item.demonLabel || item.patternLabel)
   );
   const prompt2NeedRows = countHumanLabels(
     prompt2Cards.flatMap((item) => item.needLabels)
+  );
+  const repeatedDemonRows = meaningfulTopPatterns(
+    canonicalCards.map((item) => item.normalizedDemon),
+    language
+  );
+  const repeatedNeedRows = meaningfulTopPatterns(
+    canonicalCards.map((item) => item.normalizedUnmetNeed),
+    language
   );
   const prompt2ObserveRows = countHumanLabels(
     prompt2Cards.flatMap((item) => item.observeNext)
@@ -1105,12 +1130,16 @@ export function SummaryContent() {
                 repeatedPatterns={
                   prompt2PatternRows.length
                     ? prompt2PatternRows
+                    : repeatedDemonRows.length
+                      ? repeatedDemonRows
                     : meaningfulTopPatterns(
                         canonicalCards.map((item) => item.normalizedThoughtPattern),
                         language
                       )
                 }
-                repeatedNeeds={prompt2NeedRows}
+                repeatedNeeds={
+                  prompt2NeedRows.length ? prompt2NeedRows : repeatedNeedRows
+                }
                 checkInSignals={repeatedCheckInSignals}
                 reflectionCount={reflectionCount}
               />
@@ -1150,6 +1179,8 @@ export function SummaryContent() {
                   items={
                     prompt2PatternRows.length
                       ? prompt2PatternRows
+                      : repeatedDemonRows.length
+                        ? repeatedDemonRows
                       : meaningfulTopPatterns(
                           canonicalCards.map((item) => item.normalizedThoughtPattern),
                           language
@@ -1159,7 +1190,9 @@ export function SummaryContent() {
                 />
               </MotionBlock>
               <MotionBlock>
-                <DeeperNeedsBlock items={prompt2NeedRows} />
+                <DeeperNeedsBlock
+                  items={prompt2NeedRows.length ? prompt2NeedRows : repeatedNeedRows}
+                />
               </MotionBlock>
               <MotionBlock>
                 <HelpfulCheckInBlock

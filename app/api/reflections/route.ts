@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAuth, supabaseAdmin } from "../../lib/auth-server";
 
 const reflectionSelect =
-  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, body_factor, behavioural_insight, next_question, next_step, next_step_type, mode_detected, follow_up_result, follow_up_note, follow_up_at, mode, language, ui_language, reflection_language, short_title, mood_chip, normalized_trigger, normalized_thought_pattern, normalized_next_step_type, normalized_check_in_signal";
+  "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, body_factor, behavioural_insight, next_question, next_step, next_step_type, mode_detected, follow_up_result, follow_up_note, follow_up_at, mode, language, ui_language, reflection_language, short_title, mood_chip, normalized_trigger, normalized_thought_pattern, normalized_next_step_type, normalized_check_in_signal, scenario_category, primary_demon, unmet_need, observe_next";
 const legacyReflectionSelect =
   "id, created_at, user_input, ai_result, emotional_validation, emotion, trigger, thought_pattern, facts, interpretation, behaviour, body_factor, behavioural_insight, next_question, next_step, next_step_type, mode_detected, follow_up_result, follow_up_note, follow_up_at, mode, language";
 
@@ -12,7 +12,11 @@ function isMissingCanonicalColumn(error: { message?: string } | null) {
       error?.message?.includes("ui_language") ||
       error?.message?.includes("short_title") ||
       error?.message?.includes("mood_chip") ||
-      error?.message?.includes("normalized_")
+      error?.message?.includes("normalized_") ||
+      error?.message?.includes("scenario_category") ||
+      error?.message?.includes("primary_demon") ||
+      error?.message?.includes("unmet_need") ||
+      error?.message?.includes("observe_next")
   );
 }
 
