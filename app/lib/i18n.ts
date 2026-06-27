@@ -311,7 +311,7 @@ export const translations = {
           "InnerLeaf helps organise what you wrote into a card you can review.",
         ],
         [
-          "ChatGPT gives you a conversation",
+          "AI gives you a conversation",
           "InnerLeaf gives you a consistent reflection artifact, not an endless thread.",
         ],
         [
@@ -649,7 +649,7 @@ export const translations = {
       purpose: "Clear answers about what InnerLeaf is, and what it is not.",
       items: [
         ["Is InnerLeaf therapy?", "No. InnerLeaf is a self-reflection tool. It does not diagnose, provide care, or give medical advice."],
-        ["How is InnerLeaf different from ChatGPT?", "ChatGPT gives you a conversation. InnerLeaf gives you a structured reflection card that can be saved, reviewed, and compared over time."],
+        ["How is InnerLeaf different from normal Chatbox?", "Chatbox gives you a conversation. InnerLeaf gives you a structured reflection card that can be saved, reviewed, and compared over time."],
         ["What is Quick Reflection?", "Quick Reflection lets you write freely. InnerLeaf organises your writing into a reflection card."],
         ["What is Guided Reflection?", "Guided Reflection helps you reflect step by step using a CBT-informed structure. It is not therapy."],
         ["What does Facts vs Interpretation mean?", "Facts are what actually happened. Interpretation is what your mind may have assumed or added."],
@@ -1433,7 +1433,7 @@ export const translations = {
         reflection_length: ["Was the reflection card length about right?", ["Too long", "About right", "Too short"]],
         clarity_help: ["Did the card help you see your reaction more clearly?", ["Yes", "Somewhat", "No"]],
         would_use_again: ["Would you use InnerLeaf after an intense moment again?", ["Yes", "Maybe", "No"]],
-        alternative_tool: ["What would you normally use instead?", ["Notes", "ChatGPT or another AI tool", "Friend or family member", "Partner", "Social media", "I would not write it down", "Other"]],
+        alternative_tool: ["What would you normally use instead?", ["Notes", "Chatbox or another AI tool", "Friend or family member", "Partner", "Social media", "I would not write it down", "Other"]],
         saving_blocker: ["What would stop you from saving a reflection?", ["Privacy concern", "It feels too personal", "I worry AI may misunderstand", "The output is too long", "I do not want to revisit it", "I do not see the value yet", "Other"]],
       },
       openQuestions: {
@@ -1747,7 +1747,7 @@ export const translations = {
           "InnerLeaf 会把写下的内容整理成之后可以回看的卡片。",
         ],
         [
-          "ChatGPT 给你一段对话",
+          "Chatbox 给你一段对话",
           "InnerLeaf 给你的是统一格式的反思成果，而不是无休止聊天。",
         ],
         [
@@ -2075,7 +2075,7 @@ export const translations = {
       purpose: "清楚说明 InnerLeaf 是什么，以及不是什么。",
       items: [
         ["InnerLeaf 是治疗吗？", "不是。InnerLeaf 是自我反思工具，不做诊断，也不提供医疗建议。"],
-        ["InnerLeaf 和 ChatGPT 有什么不同？", "ChatGPT 给你一段对话。InnerLeaf 给你一张结构化反思卡片，可以保存、回看，并长期比较。"],
+        ["InnerLeaf 和 普通聊天框 有什么不同？", "聊天框 给你一段对话。InnerLeaf 给你一张结构化反思卡片，可以保存、回看，并长期比较。"],
         ["什么是快速反思？", "快速反思让你自由书写，InnerLeaf 会把内容整理成反思卡片。"],
         ["什么是引导反思？", "引导反思会用 CBT 启发式结构一步步整理。它不是治疗。"],
         ["事实与解读是什么意思？", "事实是实际发生了什么。解读是你的大脑可能做出的假设或补充。"],
@@ -2784,7 +2784,7 @@ export const translations = {
         reflection_length: ["反思卡片的长度合适吗？", ["太长", "刚好", "太短"]],
         clarity_help: ["这张卡片有帮助你更清楚地理解反应吗？", ["有", "有一点", "没有"]],
         would_use_again: ["下次情绪被触发时，你会再使用 InnerLeaf 吗？", ["会", "可能会", "不会"]],
-        alternative_tool: ["如果不用 InnerLeaf，你通常会用什么？", ["备忘录", "ChatGPT 或其他 AI 工具", "朋友或家人", "伴侣", "社交媒体", "我通常不会写下来", "其他"]],
+        alternative_tool: ["如果不用 InnerLeaf，你通常会用什么？", ["备忘录", "普通聊天框 或其他 AI 工具", "朋友或家人", "伴侣", "社交媒体", "我通常不会写下来", "其他"]],
         saving_blocker: ["什么会阻止你保存一条反思？", ["隐私担忧", "内容太私人", "担心 AI 理解错误", "输出太长", "不想之后再回看", "目前还看不到价值", "其他"]],
       },
       openQuestions: {
