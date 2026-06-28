@@ -13,7 +13,7 @@ import {
   Waves,
   Zap,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Card, LinkButton, PageActions, PrimaryButton, SectionLabel } from "./ui";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
@@ -226,6 +226,81 @@ function ReflectionSection({
   );
 }
 
+function Prompt2ModuleCard({
+  index,
+  title,
+  icon: Icon,
+  children,
+  accent = false,
+  className = "",
+}: {
+  index: number;
+  title: string;
+  icon: typeof Leaf;
+  children: ReactNode;
+  accent?: boolean;
+  className?: string;
+}) {
+  return (
+    <section
+      className={[
+        "rounded-[1.35rem] border p-3.5 sm:p-4",
+        accent
+          ? "border-[rgba(31,155,143,0.22)] bg-[linear-gradient(135deg,rgba(232,246,241,0.78),rgba(255,254,248,0.94))] shadow-[0_18px_48px_rgba(31,155,143,0.09)] ring-1 ring-[rgba(31,155,143,0.09)]"
+          : "border-[rgba(40,80,60,0.095)] bg-[rgba(255,254,248,0.74)]",
+        className,
+      ].join(" ")}
+    >
+      <div className="flex items-center gap-2.5">
+        <span className="flex h-7 min-w-7 items-center justify-center rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--surface)] text-[11px] font-bold text-[var(--brand-teal-deep)]">
+          {index}
+        </span>
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
+          <Icon aria-hidden="true" size={15} strokeWidth={1.8} />
+        </span>
+        <h3 className="text-sm font-semibold text-[var(--foreground)]">
+          {title}
+        </h3>
+      </div>
+      <div className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function Prompt2PillList({
+  items,
+  empty,
+  accent = false,
+}: {
+  items: string[];
+  empty: string;
+  accent?: boolean;
+}) {
+  if (items.length === 0) {
+    return <p>{empty}</p>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      {items.map((item) => (
+        <span
+          key={item}
+          className={[
+            "rounded-full border px-3 py-1.5 text-xs font-semibold",
+            accent
+              ? "border-[rgba(31,155,143,0.2)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+              : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)]",
+          ].join(" ")}
+        >
+          {item}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function Prompt2ResultModules({
   structured,
   labels,
@@ -300,128 +375,128 @@ function Prompt2ResultModules({
       "",
     language
   );
+  const localizedDemonNames = demonNames.map((name) =>
+    localizedCanonicalLabel(name, language)
+  );
+  const unmetNeedLines = [
+    structured.unmet_need_surface && `${copy.surface}: ${structured.unmet_need_surface}`,
+    structured.unmet_need_deeper && `${copy.deeper}: ${structured.unmet_need_deeper}`,
+    structured.unmet_need_explanation,
+  ].filter(Boolean) as string[];
+  const deepModuleCount = [
+    structured.open_hypotheses?.length,
+    thoughtLabel || structured.thought_pattern,
+    structured.mind_protecting || structured.body_factor,
+    structured.behavioural_pull_items?.length || structured.behavioural_pull_note,
+    structured.observe_next_items?.length,
+    previewItems.length,
+  ].filter(Boolean).length;
 
   return (
-    <div className="mt-5 grid gap-3 sm:gap-3.5">
-      <ReflectionSection
-        label="What came up"
-        labelText={copy.source}
-        content={structured.emotional_source || structured.emotional_validation}
-        tone="highlight"
-      />
+    <div className="mt-5 grid gap-4">
+      <div className="rounded-[calc(var(--radius-xl)+10px)] border border-[rgba(31,155,143,0.16)] bg-[linear-gradient(145deg,rgba(255,254,248,0.98),rgba(236,248,243,0.64))] p-3 shadow-[0_24px_70px_rgba(20,35,28,0.07)] sm:p-4">
+        <div className="grid gap-3">
+          <Prompt2ModuleCard index={1} title={copy.source} icon={Sparkles} accent>
+            <p>{structured.emotional_source || structured.emotional_validation}</p>
+          </Prompt2ModuleCard>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]">
-            <Sparkles size={15} strokeWidth={1.8} aria-hidden="true" />
-          </span>
-          <h3 className="text-sm font-medium text-[var(--foreground)]">
-            {copy.demon}
-          </h3>
-        </div>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {demonNames.map((name) => (
-            <span
-              key={name}
-              className="rounded-full border border-[rgba(31,155,143,0.18)] bg-[var(--accent-soft)] px-3 py-1.5 text-xs font-semibold text-[var(--brand-teal-deep)]"
+          <div className="grid gap-3 md:grid-cols-2">
+            <Prompt2ModuleCard index={2} title={copy.demon} icon={Zap}>
+              <Prompt2PillList
+                items={localizedDemonNames}
+                empty={labels.notIdentified}
+                accent
+              />
+              {structured.core_question && (
+                <p className="mt-3 text-[var(--foreground)]">
+                  {structured.core_question}
+                </p>
+              )}
+            </Prompt2ModuleCard>
+
+            <Prompt2ModuleCard index={3} title={copy.emotions} icon={Heart}>
+              <Prompt2PillList
+                items={emotionLabels}
+                empty={copy.noEmotion}
+              />
+            </Prompt2ModuleCard>
+          </div>
+
+          <Prompt2ModuleCard
+            index={4}
+            title={language === "zh" ? "事实与想象" : "Facts vs Imagination"}
+            icon={ListChecks}
+          >
+            <div className="grid gap-2.5 sm:grid-cols-2">
+              <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[rgba(255,254,248,0.78)] p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                  {copy.facts}
+                </p>
+                {facts.length ? (
+                  <ul className="mt-2 space-y-1.5">
+                    {facts.map((fact) => (
+                      <li key={fact}>- {fact}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2">{labels.notIdentified}</p>
+                )}
+              </div>
+              <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[rgba(255,254,248,0.78)] p-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                  {copy.imagination}
+                </p>
+                {imaginations.length ? (
+                  <ul className="mt-2 space-y-1.5">
+                    {imaginations.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2">{labels.notIdentified}</p>
+                )}
+              </div>
+            </div>
+          </Prompt2ModuleCard>
+
+          <div className="grid gap-3 md:grid-cols-[0.95fr_1.05fr]">
+            <Prompt2ModuleCard index={5} title={copy.unmetNeed} icon={Route}>
+              <div className="space-y-2">
+                {unmetNeedLines.length ? (
+                  unmetNeedLines.map((line) => <p key={line}>{line}</p>)
+                ) : (
+                  <p>{labels.notIdentified}</p>
+                )}
+              </div>
+            </Prompt2ModuleCard>
+
+            <Prompt2ModuleCard
+              index={6}
+              title={copy.nextStep}
+              icon={Footprints}
+              accent
+              className="border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))]"
             >
-              {localizedCanonicalLabel(name, language)}
-            </span>
-          ))}
-        </div>
-        {structured.core_question && (
-          <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-            {structured.core_question}
-          </p>
-        )}
-      </div>
-
-      <ReflectionSection
-        label="Emotion"
-        labelText={copy.emotions}
-        content={emotionLabels.length ? emotionLabels.join(" · ") : copy.noEmotion}
-      />
-
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3.5 sm:p-4">
-        <div className="flex items-center gap-2">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--surface)] text-[var(--brand-teal-deep)]">
-            <ListChecks size={15} strokeWidth={1.8} aria-hidden="true" />
-          </span>
-          <h3 className="text-sm font-medium text-[var(--foreground)]">
-            {language === "zh" ? "事实与想象" : "Facts vs Imagination"}
-          </h3>
-        </div>
-        <div className="mt-3 grid gap-2.5 sm:grid-cols-2">
-          <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-              {copy.facts}
-            </p>
-            {facts.length ? (
-              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                {facts.map((fact) => (
-                  <li key={fact}>- {fact}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {labels.notIdentified}
+              <div className="flex flex-wrap items-center gap-2">
+                {nextStepType && shouldDisplayNormalizedChip(nextStepType) && (
+                  <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-semibold text-[var(--brand-teal-deep)]">
+                    {localizedCanonicalLabel(nextStepType, language)}
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-[15px] leading-7 text-[var(--foreground)]">
+                {structured.next_step_text || structured.next_step}
               </p>
-            )}
-          </div>
-          <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
-            <p className="text-xs font-medium uppercase tracking-wide text-[var(--foreground-subtle)]">
-              {copy.imagination}
-            </p>
-            {imaginations.length ? (
-              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-[var(--foreground-muted)]">
-                {imaginations.map((item) => (
-                  <li key={item}>- {item}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
-                {labels.notIdentified}
+              <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
+                {labels.nextStepHint}
               </p>
-            )}
+            </Prompt2ModuleCard>
           </div>
         </div>
       </div>
 
-      <ReflectionSection
-        label="Behavioural insight"
-        labelText={copy.unmetNeed}
-        content={[
-          structured.unmet_need_surface && `${copy.surface}: ${structured.unmet_need_surface}`,
-          structured.unmet_need_deeper && `${copy.deeper}: ${structured.unmet_need_deeper}`,
-          structured.unmet_need_explanation,
-        ]
-          .filter(Boolean)
-          .join("\n")}
-      />
-
-      <div className="rounded-[calc(var(--radius-xl)+8px)] border border-[rgba(31,155,143,0.28)] bg-[linear-gradient(135deg,rgba(231,244,239,0.98),rgba(255,248,226,0.58))] p-4 shadow-[0_24px_65px_rgba(31,155,143,0.13)] ring-1 ring-[rgba(31,155,143,0.12)] sm:p-5">
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--surface)] text-[var(--brand-teal-deep)] shadow-[var(--shadow-soft)]">
-            <Footprints size={17} strokeWidth={1.9} aria-hidden="true" />
-          </span>
-          <h3 className="text-base font-semibold text-[var(--foreground)]">
-            {copy.nextStep}
-          </h3>
-          {nextStepType && shouldDisplayNormalizedChip(nextStepType) && (
-            <span className="rounded-full border border-[rgba(31,155,143,0.24)] bg-[var(--surface)] px-2.5 py-1 text-xs font-medium text-[var(--brand-teal-deep)]">
-              {localizedCanonicalLabel(nextStepType, language)}
-            </span>
-          )}
-        </div>
-        <p className="mt-3 text-[15px] leading-7 text-[var(--foreground-muted)]">
-          {structured.next_step_text || structured.next_step}
-        </p>
-        <p className="mt-2 text-xs text-[var(--foreground-subtle)]">
-          {labels.nextStepHint}
-        </p>
-      </div>
-
-      <details className="group rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.78)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
+      {deepModuleCount > 0 && (
+        <details className="group rounded-[calc(var(--radius-xl)+4px)] border border-[rgba(40,80,60,0.11)] bg-[rgba(255,254,248,0.78)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[var(--foreground)] marker:hidden">
           <span className="flex items-center gap-2">
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]">
@@ -493,12 +568,13 @@ function Prompt2ResultModules({
                   >
                     {item.value}
                   </span>
-                ))}
+            ))}
               </div>
             </div>
           )}
         </div>
       </details>
+      )}
 
       <ReflectionSection
         label="Still unclear"
@@ -520,6 +596,7 @@ export function ReflectionResultCard({
   onSave,
   onReflectAgain,
   autoSaved = false,
+  noSaveMode = false,
   mode = "quick",
   reflectionLanguage,
 }: {
@@ -532,6 +609,7 @@ export function ReflectionResultCard({
   onSave?: () => void;
   onReflectAgain?: () => void;
   autoSaved?: boolean;
+  noSaveMode?: boolean;
   mode?: ReflectionMode;
   reflectionLanguage?: ReflectionLanguage;
 }) {
@@ -838,10 +916,16 @@ export function ReflectionResultCard({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                {autoSaved ? labels.autoSavedTitle : labels.saveCheckInTitle}
+                {noSaveMode
+                  ? labels.noSaveTitle
+                  : autoSaved
+                    ? labels.autoSavedTitle
+                    : labels.saveCheckInTitle}
               </h3>
               <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                {autoSaved
+                {noSaveMode
+                  ? labels.noSaveHint
+                  : autoSaved
                   ? saved
                     ? labels.autoSavedHint
                     : saving

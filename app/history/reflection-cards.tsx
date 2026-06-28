@@ -559,7 +559,7 @@ function primaryHistoryChips(card: ReturnType<typeof toHistoryCard>) {
   );
 
   if (meaningful.length > 0) {
-    return meaningful.slice(0, 3);
+    return meaningful.slice(0, 2);
   }
 
   return [];

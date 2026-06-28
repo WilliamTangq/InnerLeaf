@@ -16,6 +16,8 @@ export const translations = {
       createAccount: "Create account",
       getStarted: "Get started",
       goWorkspace: "Go to workspace",
+      tryDemo: "Try demo",
+      startPrivateReflection: "Start private reflection",
       tryThreeMinute: "Try a 3-minute reflection",
       tryGuided: "Try guided reflection",
       viewDemo: "View demo",
@@ -146,16 +148,18 @@ export const translations = {
       },
     },
     home: {
-      badge: "Beta · Structured reflection, not diagnosis",
-      headline: "Turn emotional overload into clear reflection.",
+      badge: "Public beta · Reflect before you react",
+      headline: "Before you send the long message, reflect first.",
       subtitle:
-        "InnerLeaf helps you name the emotional source, separate facts from imagination, notice the unmet need, and choose one small next step.",
-      safety: "Private self-reflection space. Not therapy or medical advice.",
+        "InnerLeaf helps you turn one intense emotional moment into a calm reflection card by separating facts, assumptions, unmet needs, and one small next step.",
+      safety: "Private self-reflection space. Not crisis support, therapy, diagnosis, or medical advice.",
       ctaHint:
-        "Create an account for the live flow, or view the demo first.",
+        "Try the fictional demo first. Start a private reflection when you are ready.",
       heroPills: [
-        "Fictional demo data",
-        "Private saved history",
+        "Delayed reply",
+        "Before-you-send pause",
+        "Facts vs assumptions",
+        "No-save option",
       ],
       boundary:
         "You stay in control. InnerLeaf does not diagnose, score, or judge your emotions.",
@@ -462,7 +466,7 @@ export const translations = {
       purpose:
         "Try one reflection flow, then tell us whether the experience felt clear, useful, and worth returning to.",
       accountNote:
-        "To protect reflection history, InnerLeaf asks testers to create an account before writing a reflection.",
+        "To protect reflection history, InnerLeaf asks testers to create an account before writing a reflection. Quick Reflection also includes a no-save option.",
       whatToDo: "What to do",
       steps: [
         "Create an account or log in.",
@@ -480,12 +484,13 @@ export const translations = {
       testingPoints: [
         "Is it easy to start?",
         "Is the reflection card useful?",
+        "Does the save / no-save choice feel clear?",
         "Is the output too long or too short?",
         "Does the next step feel practical?",
         "Would you use it again during a real emotional moment?",
       ],
       safety:
-        "Please do not enter information you are not comfortable storing. InnerLeaf is not crisis support, therapy, diagnosis, or medical advice.",
+        "Please avoid names, addresses, medical details, and highly identifying information. InnerLeaf is not crisis support, therapy, diagnosis, or medical advice.",
       loggedInNote:
         "You are signed in. You can start the live reflection flow now.",
       loggedOutNote:
@@ -493,11 +498,12 @@ export const translations = {
       goDashboard: "Go to Dashboard",
       startQuick: "Start Quick Reflection",
       demoNote:
-        "Demo uses fictional sample data. Testing uses your private account workspace.",
+        "Demo uses fictional sample data. Testing uses your private account workspace and can be tried without saving a card.",
     },
     demo: {
       title: "InnerLeaf Demo Flow",
-      purpose: "A static pitch flow for judges, partners, and walkthroughs.",
+      purpose:
+        "A fictional walkthrough that shows the reflection structure without using your private data.",
       story:
         "A message was delayed. The user felt anxious and started assuming rejection.",
       storyLabel: "Demo story",
@@ -616,11 +622,22 @@ export const translations = {
     privacy: {
       title: "Privacy & Safety Principles",
       purpose:
-        "InnerLeaf is an MVP using email/password accounts. Avoid names, addresses, medical information, or anything you would not want stored.",
+        "InnerLeaf is a public beta using email/password accounts. Avoid names, addresses, medical information, or anything highly identifying. Use no-save mode for moments you do not want stored.",
+      controlsTitle: "Beta privacy controls",
+      controls: [
+        ["No-save reflection", "Available in Quick Reflection. Generate a card without adding it to History."],
+        ["Delete a reflection", "Planned as an in-product control. During beta, avoid saving anything you would not want stored."],
+        ["Delete all reflections", "Planned for account data controls before wider release."],
+        ["Export data", "Planned. InnerLeaf will keep export wording clear before it is enabled."],
+        ["Request deletion", "Use Feedback or contact the InnerLeaf team if you need beta data removed."],
+      ],
+      safetyTitle: "Urgent or unsafe moments",
+      safetyBody:
+        "InnerLeaf is not crisis support. If you may harm yourself or someone else, are in immediate danger, or are experiencing abuse or severe symptoms, contact local emergency services, a trusted person, GP, or professional support now.",
       sections: [
         [
           "Where is my reflection stored?",
-          "Saved reflections are connected to your account when you are logged in. They should not be publicly visible to other visitors. In this MVP, only save content you are comfortable storing.",
+          "Saved reflections are connected to your account when you are logged in. They should not be publicly visible to other visitors. Use no-save mode for sensitive moments.",
         ],
         [
           "Is this medical data?",
@@ -632,7 +649,7 @@ export const translations = {
         ],
         [
           "Can I delete my data?",
-          "For the MVP, deletion controls may be limited. Avoid saving anything you would not want stored. More user controls may be added later.",
+          "In-product deletion and export controls are being prepared for beta. Until they are fully available, only save content you are comfortable storing and request deletion through Feedback if needed.",
         ],
         [
           "Is this for minors?",
@@ -648,14 +665,15 @@ export const translations = {
       title: "FAQ",
       purpose: "Clear answers about what InnerLeaf is, and what it is not.",
       items: [
-        ["Is InnerLeaf therapy?", "No. InnerLeaf is a self-reflection tool. It does not diagnose, provide care, or give medical advice."],
-        ["How is InnerLeaf different from normal Chatbox?", "Chatbox gives you a conversation. InnerLeaf gives you a structured reflection card that can be saved, reviewed, and compared over time."],
-        ["What is Quick Reflection?", "Quick Reflection lets you write freely. InnerLeaf organises your writing into a reflection card."],
-        ["What is Guided Reflection?", "Guided Reflection helps you reflect step by step using a CBT-informed structure. It is not therapy."],
-        ["What does Facts vs Interpretation mean?", "Facts are what actually happened. Interpretation is what your mind may have assumed or added."],
-        ["What is One Small Next Step?", "It is a small, practical action or question to help you respond more clearly after reflection."],
-        ["Can InnerLeaf help with serious or urgent situations?", "InnerLeaf is not designed for crisis support or medical care. If someone is in danger or needs urgent support, they should contact local emergency services or a trusted professional."],
-        ["Is my data private?", "For the MVP, reflections are saved to support history and summary features. Avoid entering information you are not comfortable storing. More privacy controls may be added later."],
+        ["Can I use InnerLeaf without saving?", "Yes. Quick Reflection includes a no-save option so you can generate a card without adding it to History."],
+        ["Can I delete a reflection?", "Delete controls are being prepared for beta. For now, use no-save for sensitive moments and request deletion through Feedback if needed."],
+        ["Who can see my reflections?", "Saved reflections are connected to your account. Other visitors should not see them, and admin surfaces focus on accounts, feedback, and aggregate metrics rather than private reflection text."],
+        ["What should I avoid entering?", "Avoid real names, addresses, medical information, passwords, and details that would identify someone else."],
+        ["Is InnerLeaf for under 18s?", "InnerLeaf beta is intended for adults and early testers. If you are under 18, use it only with appropriate guidance from a parent, guardian, or trusted adult."],
+        ["What if I feel unsafe or in danger?", "InnerLeaf is not crisis support. If you may harm yourself or someone else, are in immediate danger, or are experiencing abuse or severe symptoms, contact local emergency services, a trusted person, GP, or professional support now."],
+        ["Does an AI provider process my input?", "Yes. InnerLeaf uses an AI provider to generate reflection cards. Avoid entering highly sensitive personal information."],
+        ["How is InnerLeaf different from a normal chatbot?", "A chatbot gives you a conversation. InnerLeaf gives you a structured reflection card with facts, assumptions, unmet need, and one small next step."],
+        ["What is Guided Reflection?", "Guided Reflection uses a CBT-informed reflection structure. It is not therapy."],
       ],
     },
     footerSections: {
@@ -671,6 +689,10 @@ export const translations = {
       cardEyebrow: "Single-step reflection",
       cardTitle: "Write what happened in your own words",
       cardHelper: "No need to make it polished. A messy first version is enough.",
+      privacyHint:
+        "Avoid names, addresses, medical details, and highly identifying information. You can generate this card without saving it.",
+      safetyBoundary:
+        "If this involves immediate danger, self-harm, harm to others, abuse, or severe symptoms, seek urgent local support now. InnerLeaf is not crisis support.",
       moodPrompt: "Optional focus",
       moodOptions: [
         {
@@ -717,12 +739,18 @@ export const translations = {
       button: "Break down this reaction",
       startNew: "Start a new reflection",
       guidedLinkLead: "Prefer structure first?",
+      savePreferenceTitle: "History preference",
+      saveToHistory: "Save to history",
+      saveToHistoryDesc: "Add this reflection to your private History after it is generated.",
+      doNotSave: "Do not save this reflection",
+      doNotSaveDesc: "Generate the card for this session only.",
+      noSaveGenerated: "Generated without saving to History.",
     },
     guided: {
       title: "Step-by-step reflection",
       purpose: "Separate what happened, what you felt, and how you reacted.",
       boundary:
-        "Inspired by CBT-style thought records. InnerLeaf is self-reflection, not therapy.",
+        "Uses a CBT-informed reflection structure. InnerLeaf is self-reflection, not therapy.",
       quickLink: "Use quick reflection",
       progress: "Step",
       of: "of",
@@ -754,7 +782,7 @@ export const translations = {
       title: "Your reflection card",
       saved: "Saved automatically. Revisit anytime in History.",
       generatedOnly:
-        "Generated. InnerLeaf will add this card to History automatically.",
+        "Generated only. This reflection has not been saved to History.",
       emotionalValidation: "Emotional validation",
       momentSummary: "Moment summary",
       momentSummaryFallback: "This moment seems to be about {trigger}.",
@@ -799,6 +827,9 @@ export const translations = {
         "InnerLeaf is saving this reflection to your History.",
       autoSaveFailedHint:
         "This reflection was generated, but automatic saving did not complete.",
+      noSaveTitle: "Not saved to History",
+      noSaveHint:
+        "This card is available on this screen for now. Start a new reflection when you are ready to clear it.",
       saveThisReflection: "Save this reflection",
       savedToHistory: "Saved to history",
       saving: "Saving...",
@@ -1433,7 +1464,7 @@ export const translations = {
         reflection_length: ["Was the reflection card length about right?", ["Too long", "About right", "Too short"]],
         clarity_help: ["Did the card help you see your reaction more clearly?", ["Yes", "Somewhat", "No"]],
         would_use_again: ["Would you use InnerLeaf after an intense moment again?", ["Yes", "Maybe", "No"]],
-        alternative_tool: ["What would you normally use instead?", ["Notes", "Chatbox or another AI tool", "Friend or family member", "Partner", "Social media", "I would not write it down", "Other"]],
+        alternative_tool: ["What would you normally use instead?", ["Notes", "ChatGPT or another AI tool", "Friend or family member", "Partner", "Social media", "I would not write it down", "Other"]],
         saving_blocker: ["What would stop you from saving a reflection?", ["Privacy concern", "It feels too personal", "I worry AI may misunderstand", "The output is too long", "I do not want to revisit it", "I do not see the value yet", "Other"]],
       },
       openQuestions: {
@@ -1458,6 +1489,8 @@ export const translations = {
       createAccount: "创建账号",
       getStarted: "开始使用",
       goWorkspace: "进入反思空间",
+      tryDemo: "体验演示",
+      startPrivateReflection: "开始私人反思",
       tryThreeMinute: "体验 3 分钟反思",
       tryGuided: "尝试引导反思",
       viewDemo: "查看演示",
@@ -1584,16 +1617,18 @@ export const translations = {
       },
     },
     home: {
-      badge: "测试版 · 结构化反思，不做诊断",
-      headline: "把情绪过载，整理成清晰反思。",
+      badge: "公开测试版 · 回应之前先整理清楚",
+      headline: "在发出那段长消息前，先反思一下。",
       subtitle:
-        "InnerLeaf 帮你看见情绪来源，区分事实和想象，整理未被满足的需要，并选择一个小的下一步。",
-      safety: "私人自我反思空间。不是治疗，也不提供医疗建议。",
+        "InnerLeaf 帮你把一次强烈的情绪时刻整理成平静的反思卡片：区分事实、假设、未被满足的需要，以及一个小的下一步。",
+      safety: "私人自我反思空间。不是危机支持、治疗、诊断或医疗建议。",
       ctaHint:
-        "创建账号进入真实流程，或先查看演示。",
+        "可以先体验虚构演示；准备好时再进入私人反思空间。",
       heroPills: [
-        "虚构演示数据",
-        "私人保存历史",
+        "回复延迟",
+        "发送前先暂停",
+        "事实 vs 假设",
+        "可选择不保存",
       ],
       boundary: "你始终保有主动权。InnerLeaf 不诊断、不打分，也不评判你的情绪。",
       heroMessy: "我一直在想，为什么对方这么晚才回复。",
@@ -1747,7 +1782,7 @@ export const translations = {
           "InnerLeaf 会把写下的内容整理成之后可以回看的卡片。",
         ],
         [
-          "Chatbox 给你一段对话",
+          "ChatGPT 给你一段对话",
           "InnerLeaf 给你的是统一格式的反思成果，而不是无休止聊天。",
         ],
         [
@@ -1895,7 +1930,7 @@ export const translations = {
       purpose:
         "体验一次反思流程，然后告诉我们这个体验是否清晰、有用，以及是否值得再次使用。",
       accountNote:
-        "为了保护反思历史，InnerLeaf 会要求测试用户先创建账号，再开始写反思。",
+        "为了保护反思历史，InnerLeaf 会要求测试用户先创建账号，再开始写反思。快速反思也提供不保存选项。",
       whatToDo: "你可以这样测试",
       steps: [
         "创建账号或登录。",
@@ -1913,21 +1948,22 @@ export const translations = {
       testingPoints: [
         "是否容易开始？",
         "反思卡片是否有用？",
+        "保存 / 不保存的选择是否清楚？",
         "输出内容是太长、太短，还是刚好？",
         "下一步是否具体、实际？",
         "下次真实情绪波动时，你是否还会使用？",
       ],
       safety:
-        "请不要输入你不愿意被保存的信息。InnerLeaf 不是危机支持、治疗、诊断或医疗建议。",
+        "请避免输入真实姓名、地址、医疗信息和高度可识别的内容。InnerLeaf 不是危机支持、治疗、诊断或医疗建议。",
       loggedInNote: "你已登录，可以开始真实的反思测试流程。",
       loggedOutNote: "请先创建账号或登录，让测试反思只保存在你的私人空间里。",
       goDashboard: "进入反思空间",
       startQuick: "开始快速反思",
-      demoNote: "演示页面使用虚构样本数据。测试流程会进入你的私人账号空间。",
+      demoNote: "演示页面使用虚构样本数据。测试流程会进入你的私人账号空间，也可以选择不保存卡片。",
     },
     demo: {
       title: "InnerLeaf 演示流程",
-      purpose: "为评委、合作方和展示场景准备的静态产品流程。",
+      purpose: "使用虚构样本数据展示反思结构，不会使用你的私人数据。",
       story:
         "一条消息迟迟没有回复。用户开始感到焦虑，并担心自己是不是被拒绝。",
       storyLabel: "演示场景",
@@ -2042,11 +2078,22 @@ export const translations = {
     privacy: {
       title: "隐私与安全原则",
       purpose:
-        "InnerLeaf 当前是 MVP，使用邮箱和密码登录。请避免输入真实姓名、地址、医疗信息，或任何你不希望被保存的内容。",
+        "InnerLeaf 当前是公开测试版，使用邮箱和密码登录。请避免输入真实姓名、地址、医疗信息或高度可识别内容。对于不想保存的时刻，可以使用不保存模式。",
+      controlsTitle: "测试版隐私控制",
+      controls: [
+        ["不保存反思", "快速反思已支持。你可以生成卡片，但不加入历史记录。"],
+        ["删除单条反思", "计划作为产品内控制加入。测试阶段请避免保存你不希望被存储的内容。"],
+        ["删除全部反思", "计划在更大范围发布前加入账号数据控制。"],
+        ["导出数据", "计划中。启用前会清楚说明导出范围。"],
+        ["请求删除", "如果需要移除测试数据，可以通过反馈联系 InnerLeaf 团队。"],
+      ],
+      safetyTitle: "紧急或不安全的情况",
+      safetyBody:
+        "InnerLeaf 不是危机支持。如果你可能伤害自己或他人、处于即时危险、遭遇虐待，或有严重症状，请立刻联系当地紧急服务、可信任的人、GP 或专业支持。",
       sections: [
         [
           "我的反思会保存在哪里？",
-          "登录后保存的反思会和你的账号关联，不应该对其他访客公开可见。在 MVP 阶段，请只保存你愿意被存储的内容。",
+          "登录后保存的反思会和你的账号关联，不应该对其他访客公开可见。对于敏感时刻，可以使用不保存模式。",
         ],
         [
           "这是医疗数据吗？",
@@ -2058,7 +2105,7 @@ export const translations = {
         ],
         [
           "我可以删除数据吗？",
-          "在 MVP 阶段，删除控制可能还有限。请避免保存任何你不希望被存储的内容。之后可能会加入更多用户控制。",
+          "产品内删除和导出控制正在为测试版准备。在完整启用前，请只保存你愿意被存储的内容；如有需要，可以通过反馈请求删除。",
         ],
         [
           "未成年人可以使用吗？",
@@ -2074,14 +2121,15 @@ export const translations = {
       title: "FAQ",
       purpose: "清楚说明 InnerLeaf 是什么，以及不是什么。",
       items: [
-        ["InnerLeaf 是治疗吗？", "不是。InnerLeaf 是自我反思工具，不做诊断，也不提供医疗建议。"],
-        ["InnerLeaf 和 普通聊天框 有什么不同？", "聊天框 给你一段对话。InnerLeaf 给你一张结构化反思卡片，可以保存、回看，并长期比较。"],
-        ["什么是快速反思？", "快速反思让你自由书写，InnerLeaf 会把内容整理成反思卡片。"],
-        ["什么是引导反思？", "引导反思会用 CBT 启发式结构一步步整理。它不是治疗。"],
-        ["事实与解读是什么意思？", "事实是实际发生了什么。解读是你的大脑可能做出的假设或补充。"],
-        ["一个小的下一步是什么？", "它是一个小而实际的动作或问题，帮助你在反思之后更清楚地回应。"],
-        ["InnerLeaf 能处理严重或紧急情况吗？", "InnerLeaf 不是危机支持或医疗护理工具。如果有人处于危险中或需要紧急支持，应联系当地紧急服务或可信任的专业人士。"],
-        ["我的数据是私密的吗？", "在 MVP 阶段，反思会被保存以支持历史记录和总结功能。请避免输入你不愿意保存的信息。之后可能加入更多隐私控制。"],
+        ["可以不保存也使用 InnerLeaf 吗？", "可以。快速反思提供不保存选项，你可以生成卡片，但不加入历史记录。"],
+        ["我可以删除一条反思吗？", "删除控制正在为测试版准备。现在请对敏感时刻使用不保存模式；如有需要，可以通过反馈请求删除。"],
+        ["谁能看到我的反思？", "保存的反思会和你的账号关联。其他访客不应该看到；管理员页面默认关注账号、反馈和汇总指标，而不是浏览私人反思文本。"],
+        ["我应该避免输入什么？", "请避免真实姓名、地址、医疗信息、密码，以及会识别他人的细节。"],
+        ["未成年人可以使用吗？", "InnerLeaf 测试版面向成年人和早期测试用户。如果你未满 18 岁，请在家长、监护人或可信成年人指导下使用。"],
+        ["如果我感到不安全或处于危险中怎么办？", "InnerLeaf 不是危机支持。如果你可能伤害自己或他人、处于即时危险、遭遇虐待，或有严重症状，请立刻联系当地紧急服务、可信任的人、GP 或专业支持。"],
+        ["AI provider 会处理我的输入吗？", "会。InnerLeaf 使用 AI provider 生成反思卡片。请避免输入高度敏感的个人信息。"],
+        ["InnerLeaf 和普通聊天机器人有什么不同？", "聊天机器人给你一段对话。InnerLeaf 给你一张结构化反思卡片，包含事实、假设、未被满足的需要和一个小行动。"],
+        ["什么是引导反思？", "引导反思使用 CBT-informed reflection 的结构。它不是治疗。"],
       ],
     },
     footerSections: {
@@ -2097,6 +2145,10 @@ export const translations = {
       cardEyebrow: "一步完成",
       cardTitle: "用你自己的话写下发生了什么",
       cardHelper: "不需要写得完整或漂亮。先把混乱的部分放下来就够了。",
+      privacyHint:
+        "请避免真实姓名、地址、医疗信息和高度可识别内容。你也可以生成卡片但不保存。",
+      safetyBoundary:
+        "如果这涉及即时危险、自我伤害、伤害他人、虐待或严重症状，请立刻寻求当地紧急支持。InnerLeaf 不是危机支持。",
       moodPrompt: "可选聚焦点",
       moodOptions: [
         {
@@ -2138,11 +2190,17 @@ export const translations = {
       button: "拆解这次反应",
       startNew: "开始新的反思",
       guidedLinkLead: "想一步步整理？",
+      savePreferenceTitle: "历史记录选择",
+      saveToHistory: "保存到历史记录",
+      saveToHistoryDesc: "生成后加入你的私人历史记录。",
+      doNotSave: "不保存这条反思",
+      doNotSaveDesc: "只在当前会话中生成这张卡片。",
+      noSaveGenerated: "已生成，但未保存到历史记录。",
     },
     guided: {
       title: "一步步反思",
       purpose: "整理发生了什么、你的感受和反应。",
-      boundary: "结构参考 CBT-style thought record。InnerLeaf 是自我反思，不是治疗。",
+      boundary: "使用 CBT-informed reflection 的结构。InnerLeaf 是自我反思，不是治疗。",
       quickLink: "使用快速反思",
       progress: "步骤",
       of: "/",
@@ -2165,7 +2223,7 @@ export const translations = {
     reflectionCard: {
       title: "你的反思卡片",
       saved: "已自动保存。你可以随时在历史记录中回看。",
-      generatedOnly: "已生成。InnerLeaf 会自动加入历史记录。",
+      generatedOnly: "已生成。这条反思尚未保存到历史记录。",
       emotionalValidation: "情绪确认",
       momentSummary: "时刻总结",
       momentSummaryFallback: "这次情绪时刻似乎和「{trigger}」有关。",
@@ -2204,6 +2262,8 @@ export const translations = {
       autoSavedHint: "这条反思已保存到历史记录，你之后可以回来查看。",
       autoSavingHint: "InnerLeaf 正在把这条反思保存到历史记录。",
       autoSaveFailedHint: "反思已生成，但自动保存未完成。",
+      noSaveTitle: "未保存到历史记录",
+      noSaveHint: "这张卡片目前只在当前页面可见。准备好清空时，可以开始新的反思。",
       saveThisReflection: "保存这条反思",
       savedToHistory: "已保存到历史记录",
       saving: "正在保存...",

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, HelpCircle } from "lucide-react";
+import { CheckCircle2, HelpCircle, LockKeyhole, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -39,6 +39,7 @@ export function QuickReflectionContent() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveToHistory, setSaveToHistory] = useState(true);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [generatedReflectionLanguage, setGeneratedReflectionLanguage] =
     useState<ReflectionLanguage>(language);
@@ -64,6 +65,7 @@ export function QuickReflectionContent() {
             result?: string;
             structured?: StructuredReflectionResult;
             saved?: boolean;
+            saveToHistory?: boolean;
             selectedMood?: string;
             reflectionLanguage?: ReflectionLanguage;
           })
@@ -83,6 +85,7 @@ export function QuickReflectionContent() {
           setResult("");
           setStructured(null);
           setSaved(false);
+          setSaveToHistory(true);
           setSelectedMood("");
           setGeneratedReflectionLanguage(language);
         } else {
@@ -90,6 +93,7 @@ export function QuickReflectionContent() {
           setResult(draft?.result ?? "");
           setStructured(draft?.structured ?? null);
           setSaved(false);
+          setSaveToHistory(draft?.saveToHistory ?? true);
           setSelectedMood(draft?.selectedMood ?? "");
           setGeneratedReflectionLanguage(draft?.reflectionLanguage ?? language);
         }
@@ -131,6 +135,7 @@ export function QuickReflectionContent() {
         result,
         structured,
         selectedMood,
+        saveToHistory,
         reflectionLanguage: generatedReflectionLanguage,
         saved: false,
       })
@@ -142,6 +147,7 @@ export function QuickReflectionContent() {
     input,
     result,
     saved,
+    saveToHistory,
     selectedMood,
     structured,
   ]);
@@ -156,6 +162,7 @@ export function QuickReflectionContent() {
     setLoading(false);
     setSaving(false);
     setSaved(false);
+    setSaveToHistory(true);
     setGeneratedReflectionLanguage(language);
 
     if (draftKey) {
@@ -312,12 +319,14 @@ export function QuickReflectionContent() {
         selected_mood: selectedMood || "none",
         structured: Boolean(nextStructured),
       });
-      void autoSaveReflection(
-        input,
-        nextResult,
-        nextStructured,
-        nextReflectionLanguage
-      );
+      if (saveToHistory) {
+        void autoSaveReflection(
+          input,
+          nextResult,
+          nextStructured,
+          nextReflectionLanguage
+        );
+      }
     } catch {
       setError(t.common.aiGeneric);
     } finally {
@@ -375,6 +384,22 @@ export function QuickReflectionContent() {
 
         <div className="p-4 sm:p-5">
           <div className="rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
+            <div className="mb-4 grid gap-2 rounded-[1.1rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(230,245,239,0.42)] p-3 text-xs leading-5 text-[var(--foreground-muted)] sm:grid-cols-[1fr_auto] sm:items-center">
+              <div className="flex gap-2.5">
+                <ShieldCheck
+                  aria-hidden="true"
+                  size={16}
+                  strokeWidth={1.8}
+                  className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+                />
+                <span>{t.quick.privacyHint}</span>
+              </div>
+              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(180,90,45,0.16)] bg-[rgba(255,248,226,0.70)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground-subtle)]">
+                <LockKeyhole aria-hidden="true" size={12} strokeWidth={1.8} />
+                {t.quick.savePreferenceTitle}
+              </span>
+            </div>
+
             <TextareaField
               id={textareaId}
               label={t.quick.label}
@@ -401,6 +426,61 @@ export function QuickReflectionContent() {
                 </span>
               ))}
             </div>
+          </div>
+
+          <div className="mt-3 rounded-[1.25rem] border border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.62)] p-3.5">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {[
+                {
+                  value: true,
+                  title: t.quick.saveToHistory,
+                  body: t.quick.saveToHistoryDesc,
+                },
+                {
+                  value: false,
+                  title: t.quick.doNotSave,
+                  body: t.quick.doNotSaveDesc,
+                },
+              ].map((option) => {
+                const active = saveToHistory === option.value;
+
+                return (
+                  <button
+                    key={option.title}
+                    type="button"
+                    onClick={() => setSaveToHistory(option.value)}
+                    aria-pressed={active}
+                    className={[
+                      "rounded-[1rem] border p-3 text-left transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                      active
+                        ? "border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] shadow-[var(--shadow-sm)]"
+                        : "border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.58)] hover:border-[rgba(31,155,143,0.18)]",
+                    ].join(" ")}
+                  >
+                    <span className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                      <span
+                        className={[
+                          "flex h-5 w-5 items-center justify-center rounded-full border",
+                          active
+                            ? "border-[var(--brand-teal-deep)] bg-[var(--brand-teal-deep)] text-white"
+                            : "border-[var(--border-strong)] bg-[var(--surface)] text-transparent",
+                        ].join(" ")}
+                        aria-hidden="true"
+                      >
+                        <CheckCircle2 size={13} strokeWidth={2.2} />
+                      </span>
+                      {option.title}
+                    </span>
+                    <span className="mt-1.5 block text-xs leading-5 text-[var(--foreground-muted)]">
+                      {option.body}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs leading-5 text-[var(--foreground-subtle)]">
+              {t.quick.safetyBoundary}
+            </p>
           </div>
 
           <details className="group mt-3 rounded-[1.1rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.52)] px-3.5 py-3">
@@ -483,12 +563,16 @@ export function QuickReflectionContent() {
               saved
                 ? translations[generatedReflectionLanguage].common
                     .savedToReflectionHistory
+                : !saveToHistory
+                  ? translations[generatedReflectionLanguage].quick
+                      .noSaveGenerated
                 : translations[generatedReflectionLanguage].reflectionCard
                     .generatedOnly
             }
             saved={saved}
             saving={saving}
-            autoSaved
+            autoSaved={saveToHistory}
+            noSaveMode={!saveToHistory}
             mode="quick"
             reflectionLanguage={generatedReflectionLanguage}
             onReflectAgain={startNewReflection}

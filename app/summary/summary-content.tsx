@@ -864,6 +864,84 @@ function SummaryHeroBlock({
   );
 }
 
+function Prompt2SignalPath({
+  repeatedTriggers,
+  repeatedPatterns,
+  repeatedNeeds,
+  nextSteps,
+}: {
+  repeatedTriggers: SummaryItem[];
+  repeatedPatterns: SummaryItem[];
+  repeatedNeeds: SummaryItem[];
+  nextSteps: Array<{ value: string; used: number; helped: number }>;
+}) {
+  const { language } = useLanguage();
+  const copy =
+    language === "zh"
+      ? {
+          title: "近期卡片里的主要线索",
+          desc: "从触发点、情绪名字、需要和下一步四个层面轻轻归纳。",
+          trigger: "触发点",
+          demon: "情绪名字 / 模式",
+          need: "未满足的需要",
+          step: "常见下一步",
+          empty: "继续保存反思后，这条线索会更清楚。",
+        }
+      : {
+          title: "The main signal in recent cards",
+          desc: "A light read across trigger, demon, need, and next step.",
+          trigger: "Trigger",
+          demon: "Demon / Pattern",
+          need: "Unmet need",
+          step: "Next step",
+          empty: "Save more reflections to make this signal clearer.",
+        };
+  const signals = [
+    [copy.trigger, repeatedTriggers[0]?.value],
+    [copy.demon, repeatedPatterns[0]?.value],
+    [copy.need, repeatedNeeds[0]?.value],
+    [
+      copy.step,
+      nextSteps[0]?.value
+        ? localizedCanonicalLabel(nextSteps[0].value, language)
+        : "",
+    ],
+  ] as const;
+
+  return (
+    <Card
+      variant="insight"
+      className="rounded-[26px] border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.82)] p-4 hover:translate-y-0 sm:p-5"
+    >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+            {copy.title}
+          </p>
+          <p className="mt-2 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
+            {copy.desc}
+          </p>
+        </div>
+        <div className="grid gap-2 sm:grid-cols-2 lg:min-w-[520px] lg:grid-cols-4">
+          {signals.map(([label, value]) => (
+            <div
+              key={label}
+              className="rounded-[1rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(246,242,233,0.46)] px-3 py-2.5"
+            >
+              <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
+                {label}
+              </span>
+              <span className="mt-1 block line-clamp-2 text-sm font-semibold leading-5 text-[var(--foreground)]">
+                {value || copy.empty}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function EmotionalWeatherCard({
   weatherType,
 }: {
@@ -1003,6 +1081,20 @@ export function SummaryContent() {
     canonicalCards.map((item) => item.normalizedUnmetNeed),
     language
   );
+  const summaryTriggerRows = prompt2TriggerRows.length
+    ? prompt2TriggerRows
+    : repeatedTriggers;
+  const summaryPatternRows = prompt2PatternRows.length
+    ? prompt2PatternRows
+    : repeatedDemonRows.length
+      ? repeatedDemonRows
+      : meaningfulTopPatterns(
+          canonicalCards.map((item) => item.normalizedThoughtPattern),
+          language
+        );
+  const summaryNeedRows = prompt2NeedRows.length
+    ? prompt2NeedRows
+    : repeatedNeedRows;
   const prompt2ObserveRows = countHumanLabels(
     prompt2Cards.flatMap((item) => item.observeNext)
   );
@@ -1124,24 +1216,19 @@ export function SummaryContent() {
           <div className="grid gap-4 lg:gap-5">
             <MotionBlock>
               <SummaryHeroBlock
-                repeatedTriggers={
-                  prompt2TriggerRows.length ? prompt2TriggerRows : repeatedTriggers
-                }
-                repeatedPatterns={
-                  prompt2PatternRows.length
-                    ? prompt2PatternRows
-                    : repeatedDemonRows.length
-                      ? repeatedDemonRows
-                    : meaningfulTopPatterns(
-                        canonicalCards.map((item) => item.normalizedThoughtPattern),
-                        language
-                      )
-                }
-                repeatedNeeds={
-                  prompt2NeedRows.length ? prompt2NeedRows : repeatedNeedRows
-                }
+                repeatedTriggers={summaryTriggerRows}
+                repeatedPatterns={summaryPatternRows}
+                repeatedNeeds={summaryNeedRows}
                 checkInSignals={repeatedCheckInSignals}
                 reflectionCount={reflectionCount}
+              />
+            </MotionBlock>
+            <MotionBlock>
+              <Prompt2SignalPath
+                repeatedTriggers={summaryTriggerRows}
+                repeatedPatterns={summaryPatternRows}
+                repeatedNeeds={summaryNeedRows}
+                nextSteps={nextSteps}
               />
             </MotionBlock>
             <MotionBlock>
@@ -1159,7 +1246,7 @@ export function SummaryContent() {
                       ? "这些情境更常成为情绪卡片的起点。"
                       : "The situations that most often begin the emotional loop."
                   }
-                  items={prompt2TriggerRows.length ? prompt2TriggerRows : repeatedTriggers}
+                  items={summaryTriggerRows}
                   lowDataText={t.summary.moreReflectionsNeeded}
                 />
               </MotionBlock>
@@ -1176,23 +1263,12 @@ export function SummaryContent() {
                       ? "来自卡片里的“这次情绪的名字”和主要思维模式。"
                       : "From each card’s Name the Demon and Thought Pattern sections."
                   }
-                  items={
-                    prompt2PatternRows.length
-                      ? prompt2PatternRows
-                      : repeatedDemonRows.length
-                        ? repeatedDemonRows
-                      : meaningfulTopPatterns(
-                          canonicalCards.map((item) => item.normalizedThoughtPattern),
-                          language
-                        )
-                  }
+                  items={summaryPatternRows}
                   lowDataText={t.summary.moreReflectionsNeeded}
                 />
               </MotionBlock>
               <MotionBlock>
-                <DeeperNeedsBlock
-                  items={prompt2NeedRows.length ? prompt2NeedRows : repeatedNeedRows}
-                />
+                <DeeperNeedsBlock items={summaryNeedRows} />
               </MotionBlock>
               <MotionBlock>
                 <HelpfulCheckInBlock

@@ -411,12 +411,12 @@ export default function Home() {
   const { role, user } = useAuth();
   const workspaceHref = user ? getDefaultRouteForRole(role) : "/register";
   const isAdmin = role === "admin";
-  const primaryHref = user ? workspaceHref : "/register";
-  const primaryLabel = user
+  const privateReflectionHref = user ? workspaceHref : "/login?next=/dashboard/quick";
+  const privateReflectionLabel = user
     ? isAdmin
       ? t.app.openAdmin
       : t.common.goWorkspace
-    : t.common.createAccount;
+    : t.common.startPrivateReflection;
   const trackingContext = useMemo(
     () => ({
       locale: language,
@@ -463,25 +463,25 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">
               <LinkButton
-                href={primaryHref}
-                size="lg"
-                className="w-full px-5 py-2.5 sm:w-auto"
-                onClick={() =>
-                  trackEvent("hero_create_account_clicked", trackingContext)
-                }
-              >
-                {primaryLabel}
-              </LinkButton>
-              <LinkButton
                 href="/demo"
-                variant="secondary"
                 size="lg"
                 className="w-full px-5 py-2.5 sm:w-auto"
                 onClick={() =>
                   trackEvent("hero_view_demo_clicked", trackingContext)
                 }
               >
-                {t.common.viewDemo}
+                {t.common.tryDemo}
+              </LinkButton>
+              <LinkButton
+                href={privateReflectionHref}
+                variant="secondary"
+                size="lg"
+                className="w-full px-5 py-2.5 sm:w-auto"
+                onClick={() =>
+                  trackEvent("hero_create_account_clicked", trackingContext)
+                }
+              >
+                {privateReflectionLabel}
               </LinkButton>
             </div>
             <p className="mt-3 max-w-[29rem] text-xs leading-5 text-[var(--foreground-subtle)]">
@@ -502,7 +502,7 @@ export default function Home() {
                 href={user ? workspaceHref : "/login"}
                 className="font-medium text-[var(--foreground-muted)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
               >
-                {user ? primaryLabel : t.auth.loginLink}
+                {user ? privateReflectionLabel : t.auth.loginLink}
               </Link>
             </div>
             <p className="mt-5 max-w-[31rem] text-sm leading-6 text-[var(--foreground-subtle)]">
