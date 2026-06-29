@@ -306,10 +306,6 @@ export const translations = {
           "Pattern Summary",
           "For seeing repeated triggers, assumptions, needs, and helpful steps.",
         ],
-        [
-          "Check-in",
-          "For seeing what changed after the moment passed.",
-        ],
       ],
       whyEyebrow: "Why InnerLeaf",
       whyTitle: "More structure than a chat. Less pressure than a blank page.",
