@@ -15,6 +15,7 @@ import {
   MessageCircle,
   PencilLine,
   Route,
+  SendHorizontal,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -26,7 +27,7 @@ import { trackEvent } from "./lib/analytics";
 import { getDefaultRouteForRole } from "./lib/routes";
 
 const howIcons = [PencilLine, Sparkles, FileText] as const;
-const pathIcons = [PencilLine, Route, FileText, Brain, MessageCircle] as const;
+const pathIcons = [PencilLine, Route, SendHorizontal, FileText, Brain, MessageCircle] as const;
 const comparisonIcons = [Feather, MessageCircle, ShieldCheck] as const;
 const patternIcons = [FileText, MessageCircle, Brain] as const;
 const trustIcons = [ShieldCheck, FileText, Leaf] as const;

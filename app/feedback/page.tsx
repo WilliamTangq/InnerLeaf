@@ -229,7 +229,23 @@ export default function FeedbackPage() {
           <h2 className="text-base font-semibold text-[var(--foreground)]">
             {t.feedback.commentsTitle}
           </h2>
-          <div className="mt-5">
+          <div className="mt-5 grid gap-4">
+            <TextareaField
+              label={t.feedback.openQuestions.comparison_feedback}
+              name="comparison_feedback"
+              className="min-h-24"
+              value={values.comparison_feedback}
+              onChange={(event) =>
+                updateField("comparison_feedback", event.target.value)
+              }
+            />
+            <TextareaField
+              label={t.feedback.openQuestions.blocker}
+              name="blocker"
+              className="min-h-24"
+              value={values.blocker}
+              onChange={(event) => updateField("blocker", event.target.value)}
+            />
             <TextareaField
               label={t.feedback.anythingElse}
               name="other_thoughts"

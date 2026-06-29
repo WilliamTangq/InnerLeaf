@@ -38,6 +38,7 @@ type DemoCase = {
   trigger: string;
   facts: string;
   interpretation: string;
+  need: string;
   pattern: string;
   behaviour: string;
   question: string;
@@ -72,6 +73,12 @@ function DemoReflectionCard() {
           </p>
         </div>
       </div>
+      <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-4">
+        <SectionLabel>{t.demo.caseFields.need}</SectionLabel>
+        <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+          {t.demo.cases[0].need}
+        </p>
+      </div>
       <div className="rounded-[var(--radius-lg)] border border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] p-4">
         <SectionLabel>{t.reflectionCard.nextStep}</SectionLabel>
         <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
@@ -93,6 +100,7 @@ function DemoCaseCard({
     [t.demo.caseFields.trigger, item.trigger],
     [t.demo.caseFields.facts, item.facts],
     [t.demo.caseFields.interpretation, item.interpretation],
+    [t.demo.caseFields.need, item.need],
     [t.demo.caseFields.pattern, item.pattern],
     [t.demo.caseFields.behaviour, item.behaviour],
     [t.demo.caseFields.question, item.question],

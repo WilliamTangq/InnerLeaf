@@ -7,6 +7,7 @@ import {
   Heart,
   Footprints,
   PencilLine,
+  SendHorizontal,
   ShieldCheck,
   TrendingUp,
   Wind,
@@ -483,6 +484,52 @@ export function WorkspaceContent() {
           })}
         </div>
       </section>
+
+      <Card
+        variant="elevated"
+        className="mt-3 overflow-hidden border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(232,246,241,0.58),rgba(255,248,226,0.28))] p-4 hover:translate-y-0 sm:p-5"
+      >
+        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+          <div>
+            <div className="flex items-center gap-3">
+              <IconFrame icon={SendHorizontal} size="md" tone="sage" />
+              <div>
+                <SectionLabel>{t.app.beforeYouSend.label}</SectionLabel>
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-[var(--foreground)]">
+                  {t.app.beforeYouSend.title}
+                </h2>
+              </div>
+            </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.app.beforeYouSend.description}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <LinkButton href="/dashboard/quick" size="sm">
+                {t.app.beforeYouSend.cta}
+              </LinkButton>
+              <span className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.74)] px-3 py-1.5 text-xs font-semibold text-[var(--foreground-subtle)]">
+                {t.app.beforeYouSend.planned}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid gap-2 sm:grid-cols-2">
+            {t.app.beforeYouSend.bullets.map((item, index) => (
+              <div
+                key={item}
+                className={[
+                  "rounded-[1rem] border px-3 py-2.5 text-sm font-medium leading-5",
+                  index === t.app.beforeYouSend.bullets.length - 1
+                    ? "border-[rgba(31,155,143,0.22)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)] sm:col-span-2"
+                    : "border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] text-[var(--foreground-muted)]",
+                ].join(" ")}
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </Card>
 
       <section className="mt-3">
         <SectionLabel>{t.app.reviewSpaces}</SectionLabel>

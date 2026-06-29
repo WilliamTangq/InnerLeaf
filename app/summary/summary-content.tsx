@@ -10,6 +10,7 @@ import {
   HeartHandshake,
   LineChart as LineChartIcon,
   RefreshCcw,
+  Share2,
   SunMedium,
   Wind,
 } from "lucide-react";
@@ -942,6 +943,43 @@ function Prompt2SignalPath({
   );
 }
 
+function ShareableInsightDirection() {
+  const { t } = useLanguage();
+
+  return (
+    <Card
+      variant="support"
+      className="rounded-[26px] border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.86),rgba(232,246,241,0.44))] p-4 hover:translate-y-0 sm:p-5"
+    >
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="max-w-xl">
+          <div className="flex items-center gap-2.5">
+            <IconFrame icon={Share2} size="sm" tone="sage" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                {t.summary.shareableInsightTitle}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                {t.summary.shareableInsightBody}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="grid gap-2 lg:min-w-[420px]">
+          {t.summary.shareableExamples.map((item) => (
+            <div
+              key={item}
+              className="rounded-[1rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] px-3 py-2.5 text-sm font-medium leading-5 text-[var(--foreground-muted)]"
+            >
+              {item}
+            </div>
+          ))}
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 function EmotionalWeatherCard({
   weatherType,
 }: {
@@ -1230,6 +1268,9 @@ export function SummaryContent() {
                 repeatedNeeds={summaryNeedRows}
                 nextSteps={nextSteps}
               />
+            </MotionBlock>
+            <MotionBlock>
+              <ShareableInsightDirection />
             </MotionBlock>
             <MotionBlock>
               <EmotionalWeatherCard

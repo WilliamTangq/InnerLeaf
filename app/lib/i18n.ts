@@ -295,12 +295,16 @@ export const translations = {
           "For when you want step-by-step structure.",
         ],
         [
+          "Before You Send",
+          "For pausing before an emotionally charged message.",
+        ],
+        [
           "History",
           "For revisiting saved reflection cards.",
         ],
         [
           "Pattern Summary",
-          "For noticing repeated triggers and thought patterns.",
+          "For seeing repeated triggers, assumptions, needs, and helpful steps.",
         ],
         [
           "Check-in",
@@ -328,7 +332,7 @@ export const translations = {
       patternEyebrow: "History and summary",
       patternTitle: "Not just one reaction. A clearer pattern over time.",
       patternCopy:
-        "One card can help in the moment. Saved cards become more useful when you check in later and compare what keeps returning.",
+        "One card can help in the moment. Pattern memory becomes valuable when saved cards show what returns, what settles, and which small steps keep helping.",
       patternCards: [
         [
           "Save the moment",
@@ -340,7 +344,7 @@ export const translations = {
         ],
         [
           "See repeated themes",
-          "Summary turns recent cards into gentle pattern awareness without scoring you.",
+          "Summary turns recent cards into private pattern memory without scoring you.",
         ],
       ],
       demoRealCards: [
@@ -368,7 +372,7 @@ export const translations = {
           "Use gentle prompts to separate facts, feelings, and reactions.",
         ],
         ["History", "Save reflection cards privately and check in later."],
-        ["Summary", "Notice repeated triggers, patterns, and helpful next steps."],
+        ["Summary", "Notice repeated triggers, assumptions, needs, and helpful next steps."],
       ],
       clarityBullets: [
         "One emotional moment",
@@ -406,25 +410,35 @@ export const translations = {
       patternSummary: "Pattern summary",
     },
     students: {
-      title: "InnerLeaf for students",
-      short: "Reflection support for study pressure and emotional overload",
+      title: "InnerLeaf for international students",
+      short: "A calm space for study pressure, delayed replies, and self-doubt",
       purpose:
-        "A calm way for students to turn stressful moments into structured reflection and one gentle next step.",
+        "For young adults carrying school pressure, distance from home, relationship uncertainty, and the feeling of falling behind.",
+      useCasesTitle: "Built for the moments students actually replay",
+      useCases: [
+        ["After a delayed reply", "Separate what happened from what your mind started to assume before sending another message."],
+        ["Before starting an assignment", "Turn avoidance into one low-friction starting action instead of a whole-day promise."],
+        ["When everyone looks ahead", "Name the comparison spiral and return to one need you can care for today."],
+        ["When family pressure mixes with self-doubt", "Hold the pressure clearly without turning it into a judgement about your worth."],
+      ],
+      ctaTitle: "Start with one moment, not your whole life.",
+      ctaBody:
+        "Try the fictional demo first, or create an account when you want a private reflection workspace.",
       sections: [
         [
           "Where it can help",
           [
-            "Study pressure that makes it hard to start.",
-            "Messages, feedback, or comparison that keep replaying.",
-            "Low-energy moments where a simple next step is more useful than a big plan.",
+            "A reply comes late and your mind starts filling in the meaning.",
+            "You know there is work to start, but your body feels heavy.",
+            "You compare yourself with classmates, friends, or people online.",
           ],
         ],
         [
           "How students use it",
           [
-            "Write freely in Quick Reflection.",
-            "Use Guided Reflection when the situation needs more structure.",
-            "Save cards privately and review repeated patterns over time.",
+            "Write freely when the moment is messy.",
+            "Use step-by-step reflection when the situation needs more structure.",
+            "Save only what you want to revisit, or use no-save mode.",
           ],
         ],
         [
@@ -437,29 +451,42 @@ export const translations = {
       ],
     },
     pricing: {
-      title: "Simple MVP pricing",
-      short: "Free during early testing, with future options planned",
+      title: "Public beta pricing",
+      short: "Free now, with premium pattern tools planned",
       purpose:
-        "InnerLeaf is currently focused on learning from early users before adding paid plans.",
+        "InnerLeaf is free during public beta. We are testing which deeper reflection tools would feel worth paying for later.",
       plans: [
         [
-          "Free",
-          "For early testers",
-          "Create an account, generate reflections, save cards, and review patterns during MVP testing.",
+          "Free Beta",
+          "Available now",
+          "Create an account, generate reflection cards, use no-save mode, save private history, check in later, and review basic patterns.",
         ],
         [
           "Future Premium",
           "Planned",
-          "More control, deeper review tools, and improved personal workspace features may be added later.",
+          "Potential upgrades include unlimited reflection cards, deeper pattern memory, before-you-send support, export history, and weekly review.",
         ],
         [
-          "For Students",
-          "Future groups",
-          "Potential support for student communities, classes, or wellbeing teams without exposing private reflection content.",
+          "Student Access",
+          "Exploring",
+          "Possible student-friendly access for classes, clubs, or wellbeing teams without exposing private reflection content.",
         ],
       ],
+      premiumHooksTitle: "What premium might unlock",
+      premiumHooks: [
+        "Unlimited reflection cards",
+        "Deeper repeated-trigger memory",
+        "Before-you-send reflection prompts",
+        "Exportable reflection history",
+        "Weekly review of what helped",
+        "More control over saved data",
+      ],
+      waitlistTitle: "Help shape premium before it exists.",
+      waitlistBody:
+        "No payment is enabled today. If deeper pattern memory would be valuable, tell us through Feedback so we can build the right version first.",
+      waitlistCta: "Share premium feedback",
       note:
-        "No payment is enabled in the current MVP. InnerLeaf is collecting product feedback first.",
+        "No payment is enabled in the public beta. InnerLeaf is collecting product feedback before turning on any paid plan.",
     },
     test: {
       title: "Test InnerLeaf",
@@ -501,29 +528,30 @@ export const translations = {
         "Demo uses fictional sample data. Testing uses your private account workspace and can be tried without saving a card.",
     },
     demo: {
-      title: "InnerLeaf Demo Flow",
+      title: "Try the InnerLeaf structure",
       purpose:
-        "A fictional walkthrough that shows the reflection structure without using your private data.",
+        "A fictional but realistic walkthrough of how one emotional moment becomes one reflection card.",
       story:
-        "A message was delayed. The user felt anxious and started assuming rejection.",
+        "A message was delayed. The user felt the spiral start before sending another message.",
       storyLabel: "Demo story",
-      flowTitle: "Step-by-step product flow",
+      flowTitle: "One moment becomes one card",
       steps: [
-        ["User writes freely", "I sent a message and they did not reply. I keep checking my phone and feeling rejected."],
-        ["InnerLeaf separates facts and interpretation", "Fact: no reply yet. Interpretation: they may be upset or rejecting me."],
-        ["InnerLeaf identifies trigger and thought pattern", "Trigger: delayed reply. Pattern: jumping to a negative conclusion."],
-        ["InnerLeaf gives one question and one small next step", "Question: What do I know for sure? Step: write one fact and one assumption before replying."],
-        ["The card is saved to History", "The moment becomes a clear card instead of a disappearing chat response."],
-        ["Summary shows repeated themes over time", "Repeated triggers and helpful next steps become easier to notice."],
+        ["Write the messy moment", "The user writes what happened without needing to make it neat."],
+        ["Separate facts from imagination", "InnerLeaf splits what is known from what the mind is filling in."],
+        ["Name the emotional source", "The card identifies the trigger, the unmet need, and one likely pattern."],
+        ["Choose one small next step", "The result is not a lecture. It gives one action that can be done gently."],
+        ["Save only if useful", "The card can be saved to private History, or Quick Reflection can be used without saving."],
+        ["Review patterns later", "Over time, saved cards can show repeated triggers and what helped."],
       ],
       valueTitle:
-        "Most AI journaling tools stop at insight. InnerLeaf turns insight into a small next step, then helps users notice what repeats over time.",
+        "Most AI journaling tools stop at insight. InnerLeaf turns the moment into a card you can act on, save, or leave unsaved.",
       casesTitle: "Three demo cases",
       caseFields: {
         messy: "Messy input",
         trigger: "Trigger",
         facts: "Facts",
         interpretation: "Interpretation",
+        need: "Unmet need",
         pattern: "Thought pattern",
         behaviour: "Behaviour",
         question: "One next question",
@@ -537,6 +565,7 @@ export const translations = {
           trigger: "Delayed reply",
           facts: "The message was answered later than expected.",
           interpretation: "This may mean rejection or distance.",
+          need: "Reassurance and consistency.",
           pattern: "Mind reading",
           behaviour: "Checking behaviour",
           question: "What do I know for sure before responding?",
@@ -550,6 +579,7 @@ export const translations = {
           facts: "There is work to start and energy feels low today.",
           interpretation:
             "If today is not perfect, tomorrow must carry everything.",
+          need: "A smaller start and less pressure.",
           pattern: "All-or-nothing thinking",
           behaviour: "Avoidance",
           question: "What tiny action would make tomorrow easier?",
@@ -562,6 +592,7 @@ export const translations = {
           trigger: "Fatigue and discomfort",
           facts: "Energy is low and the body feels uncomfortable.",
           interpretation: "This means I am failing or being lazy.",
+          need: "Rest, warmth, and a lower starting bar.",
           pattern: "Low-energy mode",
           behaviour: "Shutdown",
           question: "What would make the next 20 minutes slightly less hard?",
@@ -570,7 +601,7 @@ export const translations = {
       ],
       whyMattersTitle: "Why this matters",
       whyMattersCopy:
-        "Most emotional tools stop at mood tracking or conversation. InnerLeaf turns one emotional moment into structured data that can be reviewed over time — without diagnosing, scoring, or over-analysing the user.",
+        "Most emotional tools stop at mood tracking or conversation. InnerLeaf turns one emotional moment into a structured card without diagnosing, scoring, or over-analysing the user.",
       pitchBullets: [
         "Clearer than a free-form chat",
         "More structured than a journal",
@@ -585,18 +616,23 @@ export const translations = {
     },
     about: {
       title: "About InnerLeaf",
-      purpose: "A calm product for understanding reactions, not a clinical service.",
+      purpose: "A founder-led public beta for understanding emotional reactions, not a clinical service.",
+      originTitle: "Why this started",
+      originBody:
+        "InnerLeaf started from a simple observation: one message, one silence, or one comment can feel much bigger than it looks from the outside. The product exists to help people pause, separate facts from assumptions, and choose one gentle next step before reacting.",
+      founderNote:
+        "The goal is not to diagnose, advise, or replace support from people. It is to make one overloaded moment easier to hold and revisit.",
       sections: [
         [
-          "Why InnerLeaf exists",
-          "Many people do not only want to feel better. They want to understand why one message, one comment, or one situation made them react so strongly.",
+          "The product belief",
+          "People often do not need a long analysis first. They need a calm structure that helps them see what happened, what they assumed, and what they need next.",
         ],
         [
           "What InnerLeaf does",
           [
-            "Turns emotional moments into structured reflection cards.",
-            "Helps separate facts, interpretations, thoughts, emotions, and behaviours.",
-            "Helps users notice repeated triggers and patterns over time.",
+            "Turns one emotional moment into a structured reflection card.",
+            "Separates facts, imagination, emotional source, unmet need, and one next step.",
+            "Helps saved cards become a private pattern history over time.",
           ],
         ],
         [
@@ -901,22 +937,23 @@ export const translations = {
     },
     summary: {
       title: "Your recent patterns",
-      purpose: "Patterns from your saved cards.",
+      purpose:
+        "A gentle memory of the shapes that keep returning across your saved cards.",
       createAnother: "Create another reflection",
       repeatedTriggers: "Repeated triggers",
-      repeatedTriggersDesc: "What tends to set off strong reactions",
+      repeatedTriggersDesc: "What tends to start a familiar emotional shape",
       keepsReturningTitle: "What keeps returning",
       keepsReturningDesc:
-        "These situations seem to start the emotional loop most often.",
+        "These moments seem to return in a similar shape across your recent cards.",
       repeatedThoughts: "Repeated thought patterns",
-      repeatedThoughtsDesc: "How your mind often frames the moment",
+      repeatedThoughtsDesc: "The assumption or pattern that tends to return",
       mindReactTitle: "How your mind tends to react",
       mindReactDesc:
         "These thought patterns seem to appear more often in recent reflections.",
       behaviouralThemes: "Behavioural themes",
       behaviouralThemesDesc: "How you tend to respond",
       helpfulSteps: "Helpful next steps",
-      helpfulStepsDesc: "Based on your saved check-ins",
+      helpfulStepsDesc: "Small actions that seem to help or settle the moment",
       whatHelpsTitle: "What seems to help",
       whatHelpsDesc:
         "Small actions and follow-up signals that seem to support you.",
@@ -969,7 +1006,7 @@ export const translations = {
       narrativeTitle: "Recent reflection read",
       narrativeDesc: "A gentle read of what has appeared in your saved cards.",
       heroSupport:
-        "These patterns become clearer as you save and check in on more cards.",
+        "Pattern memory is not a diagnosis. It is a private view of repeated triggers, assumptions, needs, and helpful next steps.",
       atAGlance: "At a glance",
       seenInReflections: "Seen in {count} reflections",
       seenInCheckIns: "Seen in {count} check-ins",
@@ -993,6 +1030,14 @@ export const translations = {
       gentleReassuranceText:
         "This is not a diagnosis. It is a reflection of what has appeared in your recent cards.",
       suggestedFocus: "Suggested Focus",
+      shareableInsightTitle: "Shareable insight direction",
+      shareableInsightBody:
+        "Future sharing should use safe, general insight cards only, never raw private reflection text.",
+      shareableExamples: [
+        "My repeated trigger lately: delayed reply",
+        "One thing I am learning: I react to assumptions faster than facts",
+        "One small next step I am practicing: waiting before checking again",
+      ],
       unavailable: "Pattern summary is unavailable right now.",
       openHistory: "Open history",
       makeClearer: "Create another reflection to make patterns clearer",
@@ -1066,6 +1111,21 @@ export const translations = {
       primaryActions: "Start reflecting",
       reviewSpaces: "Review and patterns",
       supportTools: "Support tools",
+      beforeYouSend: {
+        title: "Before You Send",
+        label: "Communication reflection",
+        description:
+          "Pause before sending an emotionally charged message. Draft what you want to say, then use InnerLeaf to find the need underneath and rewrite with more clarity.",
+        bullets: [
+          "What you are really trying to say",
+          "What may sound like blame",
+          "The need underneath",
+          "A calmer version",
+          "Send, wait, or rewrite",
+        ],
+        cta: "Reflect before sending",
+        planned: "Dedicated message flow planned",
+      },
       cards: [
         [
           "Quick Reflection",
@@ -1087,7 +1147,7 @@ export const translations = {
         ],
         [
           "Pattern Summary",
-          "Notice repeated triggers and next steps.",
+          "See repeated triggers, assumptions, needs, and helpful steps.",
           "View summary",
           "/dashboard/summary",
         ],
@@ -1099,7 +1159,8 @@ export const translations = {
       adminToolsTitle: "Admin tools available",
       adminToolsBody: "Manage accounts, feedback, and system status.",
       openAdmin: "Open admin console",
-      summaryTeaser: "Pattern summary becomes clearer after 3 saved cards.",
+      summaryTeaser:
+        "Pattern memory becomes clearer after 3 saved cards: what returns, what helps, and what settles.",
       privacy: "Your saved reflections are connected to your account.",
       moodCheckIn: {
         title: "How are you feeling right now?",
@@ -1444,7 +1505,7 @@ export const translations = {
       eyebrow: "Help us improve",
       thankYouEyebrow: "Thank you",
       title: "Share feedback",
-      purpose: "Help us learn what felt clear, useful, or confusing.",
+      purpose: "Help us learn why people try InnerLeaf, what feels useful, and what would make the beta worth returning to.",
       thankYou: "Feedback received",
       success: "Thank you. Your feedback helps shape InnerLeaf.",
       backHome: "Back to home",
@@ -1452,25 +1513,26 @@ export const translations = {
       sending: "Sending feedback...",
       error: "Something went wrong while saving feedback.",
       saveError: "Feedback could not be saved.",
-      experience: "Quick signals",
-      notes: "Product fit",
+      experience: "Clarity and trust signals",
+      notes: "Retention and future value",
       basics: "Reflection flow",
-      productFit: "Product fit",
-      commentsTitle: "Open comments",
-      anythingElse: "Anything else?",
+      productFit: "Beta learning",
+      commentsTitle: "What should we learn?",
+      anythingElse: "What felt inaccurate, unsafe, or too generic?",
       questions: {
         mode_tried: ["Which mode did you use?", ["Quick Reflection", "Guided Reflection", "Both"]],
         ease_of_start: ["Was it easy to start writing?", ["Very easy", "Somewhat easy", "Not easy"]],
         reflection_length: ["Was the reflection card length about right?", ["Too long", "About right", "Too short"]],
-        clarity_help: ["Did the card help you see your reaction more clearly?", ["Yes", "Somewhat", "No"]],
-        would_use_again: ["Would you use InnerLeaf after an intense moment again?", ["Yes", "Maybe", "No"]],
+        clarity_help: ["Did the card make the moment clearer?", ["Yes", "Somewhat", "No"]],
+        would_use_again: ["Would you use InnerLeaf again before replying to someone?", ["Yes", "Maybe", "No"]],
         alternative_tool: ["What would you normally use instead?", ["Notes", "ChatGPT or another AI tool", "Friend or family member", "Partner", "Social media", "I would not write it down", "Other"]],
-        saving_blocker: ["What would stop you from saving a reflection?", ["Privacy concern", "It feels too personal", "I worry AI may misunderstand", "The output is too long", "I do not want to revisit it", "I do not see the value yet", "Other"]],
+        saving_blocker: ["What would stop you from saving or returning?", ["Privacy concern", "It feels too personal", "I worry AI may misunderstand", "The output is too long", "I do not want to revisit it", "I do not see enough value yet", "Other"]],
       },
       openQuestions: {
         comparison_feedback:
-          "What worked better or worse than Notes, a friend, or a chat tool?",
-        blocker: "What would stop you from coming back?",
+          "What made you try InnerLeaf today?",
+        blocker:
+          "Would deeper pattern memory feel worth paying for later? What would need to be true?",
       },
     },
     feedbackPrompt: {
@@ -1762,12 +1824,16 @@ export const translations = {
           "适合想一步步整理的时候。",
         ],
         [
+          "发送前先反思",
+          "适合在发送带着情绪的消息前暂停一下。",
+        ],
+        [
           "历史记录",
           "适合回看保存过的反思卡片。",
         ],
         [
           "模式总结",
-          "适合看见重复触发点和思维模式。",
+          "适合看见重复触发点、假设、需要和有帮助的小行动。",
         ],
         [
           "回看跟进",
@@ -1795,7 +1861,7 @@ export const translations = {
       patternEyebrow: "历史记录和总结",
       patternTitle: "不只是一次反应，而是逐渐看清重复模式。",
       patternCopy:
-        "一张卡片可以帮助当下更清楚。保存多张卡片后，再通过回看和对比，重复出现的部分会更容易被看见。",
+        "一张卡片可以帮助当下更清楚。多张卡片会形成模式记忆：什么反复出现、什么会缓和、哪些小行动一直有帮助。",
       patternCards: [
         [
           "保存这次时刻",
@@ -1807,7 +1873,7 @@ export const translations = {
         ],
         [
           "看见重复主题",
-          "模式总结会把近期卡片整理成温和的模式观察，而不是给你打分。",
+          "模式总结会把近期卡片整理成私人的模式记忆，而不是给你打分。",
         ],
       ],
       demoRealCards: [
@@ -1832,7 +1898,7 @@ export const translations = {
         ["快速反思", "当时刻很混乱时，先自由写下来。"],
         ["引导反思", "用温和提示区分事实、感受和反应。"],
         ["历史记录", "私密保存反思卡片，并在之后回看。"],
-        ["模式总结", "看见重复触发点、模式和有帮助的下一步。"],
+        ["模式总结", "看见重复触发点、假设、需要和有帮助的下一步。"],
       ],
       clarityBullets: [
         "一次情绪时刻",
@@ -1870,25 +1936,35 @@ export const translations = {
       patternSummary: "模式总结",
     },
     students: {
-      title: "学生如何使用 InnerLeaf",
-      short: "支持学习压力和情绪过载时的自我反思",
+      title: "国际学生如何使用 InnerLeaf",
+      short: "支持学习压力、回复延迟和自我怀疑时的反思",
       purpose:
-        "帮助学生把压力时刻整理成结构化反思，并找到一个温和的下一步。",
+        "为同时面对学习压力、远离家、关系不确定和落后感的年轻人，提供一个平静的整理空间。",
+      useCasesTitle: "为学生真正会反复想起的时刻而设计",
+      useCases: [
+        ["回复延迟之后", "在继续发消息前，先区分发生了什么，以及大脑开始补全了什么。"],
+        ["开始作业之前", "把回避感整理成一个低压力启动动作，而不是承诺明天学一整天。"],
+        ["觉得别人都走在前面", "看见比较循环，再回到今天可以照顾的一个需要。"],
+        ["家庭压力和自我怀疑混在一起", "把压力看清楚，而不是把它变成对自我价值的判断。"],
+      ],
+      ctaTitle: "从一个时刻开始，而不是从整个人生开始。",
+      ctaBody:
+        "可以先体验虚构演示；如果想要私人反思空间，再创建账号。",
       sections: [
         [
           "适合哪些时刻",
           [
-            "学习压力大到很难开始。",
-            "消息、反馈或比较在脑子里反复出现。",
-            "低能量时刻，比起大计划，更需要一个简单下一步。",
+            "一条回复来得很晚，你开始猜测背后的意思。",
+            "你知道该开始学习，但身体很沉、很难启动。",
+            "你和同学、朋友或社交媒体上的人比较后开始不安。",
           ],
         ],
         [
           "可以怎样使用",
           [
-            "用快速反思先自由写下。",
-            "当事情需要更清楚时，使用引导反思。",
-            "私密保存卡片，并在之后回看重复出现的模式。",
+            "时刻很混乱时，先自由写下来。",
+            "事情需要更清楚时，使用一步步反思。",
+            "只保存你想之后回看的内容，也可以使用不保存模式。",
           ],
         ],
         [
@@ -1901,29 +1977,42 @@ export const translations = {
       ],
     },
     pricing: {
-      title: "MVP 阶段价格",
-      short: "早期测试阶段免费，未来可能加入更多方案",
+      title: "公开测试版价格",
+      short: "现在免费，未来计划加入更深入的模式工具",
       purpose:
-        "InnerLeaf 当前优先向早期用户学习，暂时不启用付费功能。",
+        "InnerLeaf 在公开测试阶段免费。我们正在测试哪些更深入的反思工具，未来值得做成付费功能。",
       plans: [
         [
-          "免费",
-          "面向早期测试用户",
-          "创建账号、生成反思、保存卡片，并在 MVP 测试期间查看模式。",
+          "免费测试版",
+          "当前可用",
+          "创建账号、生成反思卡片、使用不保存模式、保存私人历史、稍后回看，并查看基础模式。",
         ],
         [
           "未来高级版",
           "计划中",
-          "未来可能加入更多控制、更深入的回看工具和个人空间功能。",
+          "未来可能加入无限反思卡片、更深入的模式记忆、发送前反思、历史导出和每周回看。",
         ],
         [
-          "学生场景",
-          "未来群组使用",
-          "未来可能支持学生社区、课程或 wellbeing 团队，同时不公开私人反思内容。",
+          "学生使用",
+          "探索中",
+          "未来可能支持课程、社团或 wellbeing 团队，同时不公开私人反思内容。",
         ],
       ],
+      premiumHooksTitle: "未来高级版可能包含",
+      premiumHooks: [
+        "无限反思卡片",
+        "更深入的重复触发点记忆",
+        "发送前反思提示",
+        "导出反思历史",
+        "每周回看哪些方法有帮助",
+        "更多保存数据控制",
+      ],
+      waitlistTitle: "在高级版出现前，帮我们判断什么值得做。",
+      waitlistBody:
+        "目前没有启用付款。如果更深入的模式记忆对你有价值，可以通过反馈告诉我们。",
+      waitlistCta: "分享高级版反馈",
       note:
-        "当前 MVP 未启用付款。InnerLeaf 现阶段先收集产品反馈。",
+        "公开测试阶段暂不启用付款。InnerLeaf 会先收集产品反馈，再决定是否开启付费方案。",
     },
     test: {
       title: "测试 InnerLeaf",
@@ -1962,28 +2051,29 @@ export const translations = {
       demoNote: "演示页面使用虚构样本数据。测试流程会进入你的私人账号空间，也可以选择不保存卡片。",
     },
     demo: {
-      title: "InnerLeaf 演示流程",
-      purpose: "使用虚构样本数据展示反思结构，不会使用你的私人数据。",
+      title: "体验 InnerLeaf 的反思结构",
+      purpose: "用一个虚构但真实感的例子，展示一次情绪时刻如何变成一张反思卡片。",
       story:
-        "一条消息迟迟没有回复。用户开始感到焦虑，并担心自己是不是被拒绝。",
+        "一条消息迟迟没有回复。用户在继续发消息前，感觉情绪开始打转。",
       storyLabel: "演示场景",
-      flowTitle: "产品流程",
+      flowTitle: "一次时刻变成一张卡片",
       steps: [
-        ["用户自由书写", "我发了消息，但对方一直没有回复。我一直看手机，觉得自己是不是被拒绝了。"],
-        ["InnerLeaf 区分事实和解读", "事实：目前还没有回复。解读：对方可能生气了，或是在拒绝我。"],
-        ["InnerLeaf 识别触发点和思维模式", "触发点：回复延迟。模式：快速跳到负面结论。"],
-        ["InnerLeaf 给出一个问题和一个小的下一步", "问题：我现在确定知道什么？下一步：回复前先写下一个事实和一个假设。"],
-        ["卡片保存到历史记录", "这次时刻会成为清晰卡片，而不是一段消失的聊天回复。"],
-        ["长期总结显示重复主题", "重复出现的触发点和有帮助的下一步会更容易被看见。"],
+        ["写下混乱时刻", "用户先把发生了什么写下来，不需要整理得很漂亮。"],
+        ["区分事实和想象", "InnerLeaf 会把已知事实和大脑补全的内容分开。"],
+        ["看见情绪来源", "卡片会整理触发点、未被满足的需要和一个可能的模式。"],
+        ["选择一个小行动", "结果不是长篇建议，而是一个可以温和完成的小动作。"],
+        ["只在有用时保存", "卡片可以保存到私人历史记录，也可以在快速反思中选择不保存。"],
+        ["之后回看模式", "保存的卡片会帮助你看见重复触发点和哪些行动有帮助。"],
       ],
       valueTitle:
-        "大多数 AI 日记工具停留在洞察。InnerLeaf 会把洞察变成一个小的下一步，并帮助用户在长期记录中看见重复出现的模式。",
+        "大多数 AI 日记工具停留在洞察。InnerLeaf 会把一次时刻变成一张可行动、可保存、也可不保存的反思卡片。",
       casesTitle: "三个演示案例",
       caseFields: {
         messy: "原始输入",
         trigger: "触发点",
         facts: "事实",
         interpretation: "解读",
+        need: "未被满足的需要",
         pattern: "思维模式",
         behaviour: "行为反应",
         question: "一个反思问题",
@@ -1996,6 +2086,7 @@ export const translations = {
           trigger: "回复延迟",
           facts: "对方比预期更晚回复。",
           interpretation: "这可能被理解成拒绝或疏远。",
+          need: "确认感和稳定感。",
           pattern: "读心式解读",
           behaviour: "反复查看",
           question: "在回复前，我现在确定知道什么？",
@@ -2007,6 +2098,7 @@ export const translations = {
           trigger: "作业压力",
           facts: "还有任务要开始，今天能量也比较低。",
           interpretation: "如果今天不完美，明天就必须全部补回来。",
+          need: "更小的启动和更少压力。",
           pattern: "非黑即白",
           behaviour: "回避",
           question: "今天哪个小动作能让明天更容易开始？",
@@ -2018,6 +2110,7 @@ export const translations = {
           trigger: "疲劳和身体不适",
           facts: "现在能量很低，身体也不舒服。",
           interpretation: "这可能被理解成自己失败或懒。",
+          need: "休息、温暖和更低的启动门槛。",
           pattern: "低能量模式",
           behaviour: "停摆",
           question: "接下来的 20 分钟，什么能让此刻稍微没那么难？",
@@ -2026,7 +2119,7 @@ export const translations = {
       ],
       whyMattersTitle: "为什么这件事重要",
       whyMattersCopy:
-        "很多情绪工具停留在记录情绪或聊天回应。InnerLeaf 会把一次情绪时刻整理成之后可以回看的结构化数据，同时避免诊断、打分或过度分析用户。",
+        "很多情绪工具停留在记录情绪或聊天回应。InnerLeaf 会把一次情绪时刻整理成结构化卡片，同时避免诊断、打分或过度分析用户。",
       pitchBullets: [
         "比自由聊天更清晰",
         "比普通日记更结构化",
@@ -2041,18 +2134,23 @@ export const translations = {
     },
     about: {
       title: "关于 InnerLeaf",
-      purpose: "一个帮助你理解反应的平静产品，不是临床服务。",
+      purpose: "一个由真实问题出发的公开测试产品，帮助你理解情绪反应，不是临床服务。",
+      originTitle: "为什么开始做 InnerLeaf",
+      originBody:
+        "InnerLeaf 来自一个很具体的观察：一条消息、一段沉默或一句评论，有时会比表面看起来大很多。这个产品想帮助人在反应前暂停一下，区分事实和假设，并选择一个温和的下一步。",
+      founderNote:
+        "目标不是诊断、替你做决定，或取代身边人的支持。目标是让一次过载的时刻变得更容易被看清、被放下、之后也能回看。",
       sections: [
         [
-          "InnerLeaf 为什么存在",
-          "很多人不只是想让自己好受一点。他们更想知道，为什么一条消息、一句评论或一个场景，会让自己反应这么强烈。",
+          "产品相信什么",
+          "很多时候，人不一定需要一长段分析。更需要的是一个平静结构，帮助自己看见发生了什么、自己假设了什么，以及接下来真正需要什么。",
         ],
         [
           "InnerLeaf 做什么",
           [
-            "把情绪时刻整理成结构化反思卡片。",
-            "帮助区分事实、解读、想法、情绪和行为。",
-            "帮助你在长期记录中看见重复的触发点和模式。",
+            "把一次情绪时刻整理成结构化反思卡片。",
+            "区分事实、想象、情绪来源、未被满足的需要和一个小行动。",
+            "让保存的卡片逐渐成为你的私人模式历史。",
           ],
         ],
         [
@@ -2332,20 +2430,20 @@ export const translations = {
     },
     summary: {
       title: "你最近的模式",
-      purpose: "基于你保存的反思卡片。",
+      purpose: "温和记住你保存卡片中反复出现的相似形状。",
       createAnother: "再做一次反思",
       repeatedTriggers: "反复出现的触发点",
-      repeatedTriggersDesc: "哪些事情容易触发强烈反应",
+      repeatedTriggersDesc: "哪些事情容易开启熟悉的情绪形状",
       keepsReturningTitle: "最近反复出现的是什么",
-      keepsReturningDesc: "这些情境更容易反复触发你的情绪反应。",
+      keepsReturningDesc: "这些时刻似乎在你最近的卡片里反复以相似形状出现。",
       repeatedThoughts: "反复出现的思维模式",
-      repeatedThoughtsDesc: "你常用什么方式理解当下",
+      repeatedThoughtsDesc: "反复出现的假设或思维模式",
       mindReactTitle: "你的大脑更容易出现的反应方式",
       mindReactDesc: "这些思维反应在你最近的反思里更常出现。",
       behaviouralThemes: "行为反应主题",
       behaviouralThemesDesc: "你通常会如何回应",
       helpfulSteps: "有帮助的下一步",
-      helpfulStepsDesc: "基于你保存的回看记录",
+      helpfulStepsDesc: "哪些小行动似乎有帮助，或让时刻慢慢缓和",
       whatHelpsTitle: "哪些方式似乎更有帮助",
       whatHelpsDesc: "那些似乎能帮你慢慢缓下来的小动作和后续信号。",
       rhythmTitle: "最近的反思节奏",
@@ -2385,7 +2483,7 @@ export const translations = {
       },
       narrativeTitle: "最近反思解读",
       narrativeDesc: "基于你保存的卡片，温和整理最近出现的内容。",
-      heroSupport: "随着你保存并回看更多卡片，这些模式会慢慢变清晰。",
+      heroSupport: "模式记忆不是诊断。它只是私密整理重复触发点、假设、需要和有帮助的小行动。",
       atAGlance: "快速看一眼",
       seenInReflections: "出现在 {count} 次反思中",
       seenInCheckIns: "出现在 {count} 次回看中",
@@ -2409,6 +2507,14 @@ export const translations = {
       gentleReassuranceText:
         "这不是诊断，只是对你最近保存卡片中出现内容的整理。",
       suggestedFocus: "下次可以关注",
+      shareableInsightTitle: "可分享洞察方向",
+      shareableInsightBody:
+        "未来如果支持分享，也应该只分享安全的概括卡片，而不是原始私人反思文本。",
+      shareableExamples: [
+        "我最近反复出现的触发点：回复延迟",
+        "我正在学习的一件事：我比事实更快回应假设",
+        "我正在练习的一个小行动：再次查看前先等一下",
+      ],
       unavailable: "暂时无法加载模式总结。",
       openHistory: "打开历史记录",
       makeClearer: "再做一次反思，让模式更清楚",
@@ -2480,11 +2586,26 @@ export const translations = {
       primaryActions: "开始反思",
       reviewSpaces: "回看与模式",
       supportTools: "支持工具",
+      beforeYouSend: {
+        title: "发送前先反思",
+        label: "沟通反思",
+        description:
+          "在发送带着情绪的消息前先暂停。写下你想说的话，InnerLeaf 会帮助你看见下面的需要，并整理成更清楚的表达。",
+        bullets: [
+          "你真正想表达什么",
+          "哪里可能听起来像责备",
+          "下面的需要是什么",
+          "更平静的版本",
+          "发送、等待，或重写",
+        ],
+        cta: "发送前先整理",
+        planned: "专门消息反思流程计划中",
+      },
       cards: [
         ["快速反思", "自由写下，整理成清晰卡片。", "开始快速反思", "/dashboard/quick"],
         ["一步步反思", "写不出来时，用结构慢慢整理。", "开始引导反思", "/dashboard/guided"],
         ["反思历史", "回看保存的卡片和回看记录。", "查看历史记录", "/dashboard/history"],
-        ["模式总结", "看见重复触发点和下一步。", "查看模式总结", "/dashboard/summary"],
+        ["模式总结", "看见重复触发点、假设、需要和有帮助的下一步。", "查看模式总结", "/dashboard/summary"],
       ],
       recent: "最近的反思",
       noRecent: "还没有保存的反思记录。",
@@ -2493,7 +2614,7 @@ export const translations = {
       adminToolsTitle: "管理员工具可用",
       adminToolsBody: "管理账号、反馈和系统状态。",
       openAdmin: "打开管理后台",
-      summaryTeaser: "保存 3 张卡片后，模式总结会更清楚。",
+      summaryTeaser: "保存 3 张卡片后，模式记忆会更清楚：什么反复出现、什么有帮助、什么会慢慢缓和。",
       privacy: "你保存的反思会和你的账号关联。",
       moodCheckIn: {
         title: "你现在感觉怎么样？",
@@ -2824,7 +2945,7 @@ export const translations = {
       eyebrow: "帮助我们改进",
       thankYouEyebrow: "谢谢你",
       title: "分享反馈",
-      purpose: "帮助我们了解哪里清晰、有用或困惑。",
+      purpose: "帮助我们了解你为什么尝试 InnerLeaf、哪里有用，以及什么会让你愿意回来继续使用。",
       thankYou: "已收到反馈",
       success: "谢谢你。你的反馈会帮助我们继续完善 InnerLeaf。",
       backHome: "返回首页",
@@ -2832,24 +2953,24 @@ export const translations = {
       sending: "正在发送反馈...",
       error: "保存反馈时出现问题。",
       saveError: "反馈未能保存。",
-      experience: "快速信号",
-      notes: "产品适合度",
+      experience: "清晰度与信任信号",
+      notes: "留存与未来价值",
       basics: "反思流程",
-      productFit: "产品适合度",
-      commentsTitle: "开放反馈",
-      anythingElse: "还有其他想法吗？",
+      productFit: "测试版学习",
+      commentsTitle: "我们应该学到什么？",
+      anythingElse: "哪里感觉不准确、不安全，或太泛泛？",
       questions: {
         mode_tried: ["你尝试了哪种模式？", ["快速反思", "引导反思", "两种都试了"]],
         ease_of_start: ["开始写的时候容易吗？", ["很容易", "还算容易", "不太容易"]],
         reflection_length: ["反思卡片的长度合适吗？", ["太长", "刚好", "太短"]],
-        clarity_help: ["这张卡片有帮助你更清楚地理解反应吗？", ["有", "有一点", "没有"]],
-        would_use_again: ["下次情绪被触发时，你会再使用 InnerLeaf 吗？", ["会", "可能会", "不会"]],
-        alternative_tool: ["如果不用 InnerLeaf，你通常会用什么？", ["备忘录", "普通聊天框 或其他 AI 工具", "朋友或家人", "伴侣", "社交媒体", "我通常不会写下来", "其他"]],
-        saving_blocker: ["什么会阻止你保存一条反思？", ["隐私担忧", "内容太私人", "担心 AI 理解错误", "输出太长", "不想之后再回看", "目前还看不到价值", "其他"]],
+        clarity_help: ["这张卡片有让这次时刻更清楚吗？", ["有", "有一点", "没有"]],
+        would_use_again: ["下次回复别人之前，你会再使用 InnerLeaf 吗？", ["会", "可能会", "不会"]],
+        alternative_tool: ["如果不用 InnerLeaf，你通常会用什么？", ["备忘录", "ChatGPT 或其他 AI 工具", "朋友或家人", "伴侣", "社交媒体", "我通常不会写下来", "其他"]],
+        saving_blocker: ["什么会阻止你保存或再次使用？", ["隐私担忧", "内容太私人", "担心 AI 理解错误", "输出太长", "不想之后再回看", "目前还看不到足够价值", "其他"]],
       },
       openQuestions: {
-        comparison_feedback: "和备忘录、朋友或聊天工具相比，哪里更好或更不适合？",
-        blocker: "什么会让你不想再回来使用？",
+        comparison_feedback: "今天是什么让你想尝试 InnerLeaf？",
+        blocker: "如果未来有更深入的模式记忆，你会愿意付费吗？需要满足什么条件？",
       },
     },
     feedbackPrompt: {
