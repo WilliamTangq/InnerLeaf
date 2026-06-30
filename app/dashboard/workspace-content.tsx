@@ -504,11 +504,11 @@ export function WorkspaceContent() {
               {t.app.beforeYouSend.description}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <LinkButton href="/dashboard/quick" size="sm">
+              <LinkButton href="/dashboard/before-you-send" size="sm">
                 {t.app.beforeYouSend.cta}
               </LinkButton>
               <span className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(255,254,248,0.74)] px-3 py-1.5 text-xs font-semibold text-[var(--foreground-subtle)]">
-                {t.app.beforeYouSend.planned}
+                {t.app.beforeYouSend.available}
               </span>
             </div>
           </div>

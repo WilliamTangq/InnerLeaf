@@ -59,6 +59,7 @@ export const translations = {
       faq: "FAQ",
       quick: "Quick",
       guided: "Guided",
+      beforeYouSend: "Before You Send",
       history: "History",
       summary: "Summary",
       feedback: "Feedback",
@@ -658,8 +659,8 @@ export const translations = {
       controlsTitle: "Beta privacy controls",
       controls: [
         ["No-save reflection", "Available in Quick Reflection. Generate a card without adding it to History."],
-        ["Delete a reflection", "Planned as an in-product control. During beta, avoid saving anything you would not want stored."],
-        ["Delete all reflections", "Planned for account data controls before wider release."],
+        ["Delete a reflection", "Available from History. It removes that card from your private archive and Summary."],
+        ["Delete all reflections", "Available from Account data controls."],
         ["Export data", "Planned. InnerLeaf will keep export wording clear before it is enabled."],
         ["Request deletion", "Use Feedback or contact the InnerLeaf team if you need beta data removed."],
       ],
@@ -681,7 +682,7 @@ export const translations = {
         ],
         [
           "Can I delete my data?",
-          "In-product deletion and export controls are being prepared for beta. Until they are fully available, only save content you are comfortable storing and request deletion through Feedback if needed.",
+          "You can delete one saved reflection from History or delete all saved reflections from Account. Data export and full account deletion are still handled as beta requests.",
         ],
         [
           "Is this for minors?",
@@ -698,7 +699,7 @@ export const translations = {
       purpose: "Clear answers about what InnerLeaf is, and what it is not.",
       items: [
         ["Can I use InnerLeaf without saving?", "Yes. Quick Reflection includes a no-save option so you can generate a card without adding it to History."],
-        ["Can I delete a reflection?", "Delete controls are being prepared for beta. For now, use no-save for sensitive moments and request deletion through Feedback if needed."],
+        ["Can I delete a reflection?", "Yes. Open the saved card in History and use Delete reflection. You can also delete all saved reflections from Account."],
         ["Who can see my reflections?", "Saved reflections are connected to your account. Other visitors should not see them, and admin surfaces focus on accounts, feedback, and aggregate metrics rather than private reflection text."],
         ["What should I avoid entering?", "Avoid real names, addresses, medical information, passwords, and details that would identify someone else."],
         ["Is InnerLeaf for under 18s?", "InnerLeaf beta is intended for adults and early testers. If you are under 18, use it only with appropriate guidance from a parent, guardian, or trusted adult."],
@@ -861,7 +862,7 @@ export const translations = {
         "This reflection was generated, but automatic saving did not complete.",
       noSaveTitle: "Not saved to History",
       noSaveHint:
-        "This card is available on this screen for now. Start a new reflection when you are ready to clear it.",
+        "This card was not added to History. It stays only on this screen until you start again or leave.",
       saveThisReflection: "Save this reflection",
       savedToHistory: "Saved to history",
       saving: "Saving...",
@@ -930,6 +931,11 @@ export const translations = {
       savingCheckIn: "Saving check-in...",
       checkInSaved: "Check-in saved.",
       checkedInAt: "Checked in",
+      deleteReflection: "Delete reflection",
+      deleteConfirm:
+        "Delete this saved reflection? This removes it from your private history and summary.",
+      deleteSuccess: "Reflection deleted.",
+      deleteError: "Reflection could not be deleted.",
     },
     summary: {
       title: "Your recent patterns",
@@ -1120,7 +1126,7 @@ export const translations = {
           "Send, wait, or rewrite",
         ],
         cta: "Reflect before sending",
-        planned: "Dedicated message flow planned",
+        available: "2-minute message reflection",
       },
       cards: [
         [
@@ -1274,6 +1280,38 @@ export const translations = {
         adminSystem: "Configuration overview",
       },
     },
+    beforeYouSendFlow: {
+      eyebrow: "MESSAGE REFLECTION",
+      title: "Before You Send",
+      purpose:
+        "Paste a draft message and make it clearer before you send. This is communication reflection, not relationship advice.",
+      cardLabel: "Draft message",
+      cardTitle: "What do you want to send?",
+      inputLabel: "Message draft",
+      helper:
+        "Use this when a message feels emotionally charged, urgent, or easy to misread.",
+      placeholder:
+        "Paste or write the message here. InnerLeaf will help you notice the need underneath and make the wording calmer.",
+      cta: "Reflect on this message",
+      clear: "Clear draft",
+      privacy:
+        "This flow does not save to History. Your draft is kept only in this browser until you clear it.",
+      firstUseTitle: "A small pause before reacting",
+      firstUseBody:
+        "InnerLeaf looks for the need underneath the message, not whether you are right or wrong.",
+      quickAlternative: "Reflect on the whole moment instead",
+      resultLabel: "Before sending",
+      resultTitle: "A calmer version to consider",
+      reallyTrying: "What you are really trying to say",
+      blame: "What may sound like blame",
+      need: "What need is underneath",
+      calmerVersion: "A calmer version",
+      actions: {
+        send: "Send",
+        wait: "Wait",
+        rewrite: "Rewrite",
+      },
+    },
     account: {
       title: "Account",
       purpose: "Manage your InnerLeaf sign-in and account context.",
@@ -1311,6 +1349,21 @@ export const translations = {
       confirmNewPassword: "Confirm new password",
       updatePassword: "Update password",
       passwordUpdated: "Password updated.",
+      dataControls: "Data controls",
+      dataControlsBody:
+        "Manage saved reflection records connected to this account.",
+      deleteAllReflections: "Delete all reflections",
+      deleteAllConfirm:
+        "Delete all saved reflections for this account? This cannot be undone.",
+      deleteAllSuccess: "All saved reflections were deleted.",
+      deleteAllError: "Saved reflections could not be deleted.",
+      exportData: "Export data",
+      exportDataBody:
+        "Beta placeholder. Export will be added with clear file scope before wider release.",
+      requestDeletion: "Request account deletion",
+      requestDeletionBody:
+        "Full account deletion is handled by request during beta so we can avoid accidental data loss.",
+      planned: "Planned",
       logout: "Log out",
     },
     admin: {
@@ -1586,6 +1639,7 @@ export const translations = {
       faq: "FAQ",
       quick: "快速反思",
       guided: "引导反思",
+      beforeYouSend: "发送前先反思",
       history: "历史记录",
       summary: "模式总结",
       feedback: "反馈",
@@ -2176,8 +2230,8 @@ export const translations = {
       controlsTitle: "测试版隐私控制",
       controls: [
         ["不保存反思", "快速反思已支持。你可以生成卡片，但不加入历史记录。"],
-        ["删除单条反思", "计划作为产品内控制加入。测试阶段请避免保存你不希望被存储的内容。"],
-        ["删除全部反思", "计划在更大范围发布前加入账号数据控制。"],
+        ["删除单条反思", "可以在历史记录中删除。删除后会从私人历史和模式总结中移除。"],
+        ["删除全部反思", "可以在账号的数据控制中操作。"],
         ["导出数据", "计划中。启用前会清楚说明导出范围。"],
         ["请求删除", "如果需要移除测试数据，可以通过反馈联系 InnerLeaf 团队。"],
       ],
@@ -2199,7 +2253,7 @@ export const translations = {
         ],
         [
           "我可以删除数据吗？",
-          "产品内删除和导出控制正在为测试版准备。在完整启用前，请只保存你愿意被存储的内容；如有需要，可以通过反馈请求删除。",
+          "你可以在历史记录中删除单条反思，也可以在账号中删除全部保存的反思。数据导出和完整账号删除仍按测试版请求处理。",
         ],
         [
           "未成年人可以使用吗？",
@@ -2216,7 +2270,7 @@ export const translations = {
       purpose: "清楚说明 InnerLeaf 是什么，以及不是什么。",
       items: [
         ["可以不保存也使用 InnerLeaf 吗？", "可以。快速反思提供不保存选项，你可以生成卡片，但不加入历史记录。"],
-        ["我可以删除一条反思吗？", "删除控制正在为测试版准备。现在请对敏感时刻使用不保存模式；如有需要，可以通过反馈请求删除。"],
+        ["我可以删除一条反思吗？", "可以。打开历史记录里的保存卡片，使用删除这条反思。你也可以在账号中删除全部保存的反思。"],
         ["谁能看到我的反思？", "保存的反思会和你的账号关联。其他访客不应该看到；管理员页面默认关注账号、反馈和汇总指标，而不是浏览私人反思文本。"],
         ["我应该避免输入什么？", "请避免真实姓名、地址、医疗信息、密码，以及会识别他人的细节。"],
         ["未成年人可以使用吗？", "InnerLeaf 测试版面向成年人和早期测试用户。如果你未满 18 岁，请在家长、监护人或可信成年人指导下使用。"],
@@ -2357,7 +2411,7 @@ export const translations = {
       autoSavingHint: "InnerLeaf 正在把这条反思保存到历史记录。",
       autoSaveFailedHint: "反思已生成，但自动保存未完成。",
       noSaveTitle: "未保存到历史记录",
-      noSaveHint: "这张卡片目前只在当前页面可见。准备好清空时，可以开始新的反思。",
+      noSaveHint: "这张卡片没有加入历史记录，只会留在当前页面，直到你重新开始或离开。",
       saveThisReflection: "保存这条反思",
       savedToHistory: "已保存到历史记录",
       saving: "正在保存...",
@@ -2423,6 +2477,11 @@ export const translations = {
       savingCheckIn: "正在保存回看...",
       checkInSaved: "回看已保存。",
       checkedInAt: "回看时间",
+      deleteReflection: "删除这条反思",
+      deleteConfirm:
+        "确定删除这条保存的反思吗？它会从你的私人历史和模式总结中移除。",
+      deleteSuccess: "反思已删除。",
+      deleteError: "未能删除这条反思。",
     },
     summary: {
       title: "你最近的模式",
@@ -2595,7 +2654,7 @@ export const translations = {
           "发送、等待，或重写",
         ],
         cta: "发送前先整理",
-        planned: "专门消息反思流程计划中",
+        available: "2 分钟消息反思",
       },
       cards: [
         ["快速反思", "自由写下，整理成清晰卡片。", "开始快速反思", "/dashboard/quick"],
@@ -2728,6 +2787,38 @@ export const translations = {
         adminSystem: "配置概览",
       },
     },
+    beforeYouSendFlow: {
+      eyebrow: "消息反思",
+      title: "发送前先反思",
+      purpose:
+        "粘贴一段你想发送的消息，先把表达整理清楚。这是沟通反思，不是关系建议。",
+      cardLabel: "消息草稿",
+      cardTitle: "你想发送什么？",
+      inputLabel: "消息草稿",
+      helper:
+        "当一段消息带着情绪、很想立刻发送，或容易被误解时，可以先用它整理一下。",
+      placeholder:
+        "在这里粘贴或写下消息。InnerLeaf 会帮你看见下面的需要，并整理成更平静的表达。",
+      cta: "整理这段消息",
+      clear: "清空草稿",
+      privacy:
+        "这个流程不会保存到历史记录。草稿只保留在当前浏览器中，直到你清空它。",
+      firstUseTitle: "发送前，先留一个小暂停",
+      firstUseBody:
+        "InnerLeaf 关注的是这段话下面的需要，而不是判断你对不对。",
+      quickAlternative: "改为反思整件事情",
+      resultLabel: "发送前",
+      resultTitle: "可以考虑的平静版本",
+      reallyTrying: "你真正想表达什么",
+      blame: "哪里可能听起来像责备",
+      need: "下面的需要是什么",
+      calmerVersion: "更平静的版本",
+      actions: {
+        send: "发送",
+        wait: "等待",
+        rewrite: "重写",
+      },
+    },
     account: {
       title: "账号",
       purpose: "管理你的 InnerLeaf 登录和账号信息。",
@@ -2764,6 +2855,20 @@ export const translations = {
       confirmNewPassword: "确认新密码",
       updatePassword: "更新密码",
       passwordUpdated: "密码已更新。",
+      dataControls: "数据控制",
+      dataControlsBody: "管理和这个账号关联的保存反思记录。",
+      deleteAllReflections: "删除全部反思",
+      deleteAllConfirm:
+        "确定删除这个账号下所有保存的反思吗？此操作无法撤销。",
+      deleteAllSuccess: "所有保存的反思已删除。",
+      deleteAllError: "未能删除保存的反思。",
+      exportData: "导出数据",
+      exportDataBody:
+        "测试版占位功能。正式启用前会清楚说明导出文件包含哪些内容。",
+      requestDeletion: "请求删除账号",
+      requestDeletionBody:
+        "测试版期间，完整账号删除通过请求处理，以避免误删数据。",
+      planned: "计划中",
       logout: "退出登录",
     },
     admin: {

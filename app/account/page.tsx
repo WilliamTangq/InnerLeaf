@@ -13,6 +13,7 @@ import { UserShell } from "../components/user-shell";
 import {
   Badge,
   Card,
+  LinkButton,
   PageHeader,
   PrimaryButton,
   StatusCard,
@@ -56,6 +57,7 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
   const [avatarError, setAvatarError] = useState("");
   const [passwordStatus, setPasswordStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const [passwordError, setPasswordError] = useState("");
+  const [deleteAllStatus, setDeleteAllStatus] = useState<"idle" | "deleting" | "deleted" | "error">("idle");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const createdAt = user?.created_at
     ? new Date(user.created_at).toLocaleDateString(undefined, {
@@ -272,6 +274,41 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
     router.refresh();
   }
 
+  async function deleteAllReflections() {
+    if (!session?.access_token) {
+      router.push(`/login?next=${shell === "admin" ? "/admin/account" : "/dashboard/account"}`);
+      return;
+    }
+
+    if (!window.confirm(t.account.deleteAllConfirm)) {
+      return;
+    }
+
+    setDeleteAllStatus("deleting");
+
+    try {
+      const response = await fetch("/api/reflections", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ all: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Delete all failed");
+      }
+
+      setDeleteAllStatus("deleted");
+      toast.success(t.account.deleteAllSuccess);
+    } catch (error) {
+      console.error("Delete all reflections error:", error);
+      setDeleteAllStatus("error");
+      toast.error(t.account.deleteAllError);
+    }
+  }
+
   const content = (
     <>
       {shell !== "admin" && (
@@ -457,6 +494,72 @@ export function AccountContent({ shell = "user" }: { shell?: "user" | "admin" | 
             <PrimaryButton type="button" onClick={() => void logOut()} className="mt-4">
               {t.account.logout}
             </PrimaryButton>
+          </Card>
+
+          <Card className="border-[rgba(31,155,143,0.14)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(246,242,233,0.64))] hover:translate-y-0">
+            <h2 className="text-base font-semibold text-[var(--foreground)]">
+              {t.account.dataControls}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.account.dataControlsBody}
+            </p>
+
+            <div className="mt-4 space-y-3">
+              <div className="rounded-[var(--radius-lg)] border border-[rgba(155,55,55,0.14)] bg-[rgba(155,55,55,0.035)] p-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[var(--foreground)]">
+                      {t.account.deleteAllReflections}
+                    </p>
+                    <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                      {t.account.deleteAllConfirm}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => void deleteAllReflections()}
+                    disabled={deleteAllStatus === "deleting"}
+                    className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-[rgba(155,55,55,0.2)] bg-[rgba(255,254,248,0.82)] px-4 py-2 text-sm font-semibold text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {t.account.deleteAllReflections}
+                  </button>
+                </div>
+                {deleteAllStatus === "deleted" && (
+                  <div className="mt-3">
+                    <StatusCard tone="success">{t.account.deleteAllSuccess}</StatusCard>
+                  </div>
+                )}
+                {deleteAllStatus === "error" && (
+                  <div className="mt-3">
+                    <StatusCard tone="error">{t.account.deleteAllError}</StatusCard>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                  <Badge variant="outline">{t.account.planned}</Badge>
+                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                    {t.account.exportData}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {t.account.exportDataBody}
+                  </p>
+                </div>
+                <div className="rounded-[var(--radius-lg)] border border-[var(--border)] bg-[var(--surface-muted)] p-3">
+                  <Badge variant="outline">{t.account.planned}</Badge>
+                  <p className="mt-2 text-sm font-semibold text-[var(--foreground)]">
+                    {t.account.requestDeletion}
+                  </p>
+                  <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                    {t.account.requestDeletionBody}
+                  </p>
+                  <LinkButton href="/feedback" variant="secondary" size="sm" className="mt-3">
+                    {t.feedback.title}
+                  </LinkButton>
+                </div>
+              </div>
+            </div>
           </Card>
           {isAdmin && (
             <Card className="border-[rgba(31,155,143,0.18)] bg-[linear-gradient(135deg,rgba(255,255,248,0.98),rgba(232,246,241,0.72))] hover:translate-y-0">

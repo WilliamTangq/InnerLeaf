@@ -78,3 +78,53 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   return GET(request);
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const auth = await requireAuth(request);
+
+    if (!auth.user) {
+      return NextResponse.json(
+        { error: auth.error },
+        { status: auth.status }
+      );
+    }
+
+    if (!supabaseAdmin) {
+      return NextResponse.json(
+        { error: "Reflection controls are unavailable right now." },
+        { status: 500 }
+      );
+    }
+
+    const body = await request.json().catch(() => ({}));
+    const reflectionId = typeof body?.id === "string" ? body.id.trim() : "";
+    const deleteAll = body?.all === true;
+
+    if (!reflectionId && !deleteAll) {
+      return NextResponse.json(
+        { error: "Choose a reflection to delete." },
+        { status: 400 }
+      );
+    }
+
+    const query = supabaseAdmin.from("reflections").delete().eq("user_id", auth.user.id);
+    const result = deleteAll ? await query : await query.eq("id", reflectionId);
+
+    if (result.error) {
+      console.error("Supabase scoped reflections delete error:", result.error);
+      return NextResponse.json(
+        { error: "Reflection could not be deleted right now." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Reflections delete API error:", error);
+    return NextResponse.json(
+      { error: "Reflection could not be deleted right now." },
+      { status: 500 }
+    );
+  }
+}

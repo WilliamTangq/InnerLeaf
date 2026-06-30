@@ -13,6 +13,7 @@ import {
   Route,
   Send,
   Sparkles as SparklesIcon,
+  Trash2,
   Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -412,7 +413,8 @@ function toHistoryCard(item: Reflection) {
   const canonical = canonicalFromSavedReflection(item);
   const prompt2 = parsePrompt2Details(item);
   const extractedLabels = cardLabels(item.ai_result);
-  const originalInput = previewLine(item.user_input, 800) || "";
+  const originalInput =
+    typeof item.user_input === "string" ? item.user_input.trim() : "";
   const trigger = previewLine(canonical.triggerLabel) || extractedLabels.trigger || "";
   const thoughtPattern =
     previewLine(canonical.thoughtPatternLabel) ||
@@ -614,6 +616,7 @@ function Prompt2HistoryDetail({
   const copy =
     detailLanguage === "zh"
       ? {
+          whatYouWrote: "你当时写了什么",
           source: "这次情绪的来源",
           demon: "这次情绪的名字",
           emotions: "情绪标签",
@@ -634,6 +637,7 @@ function Prompt2HistoryDetail({
           preview: "保存卡片预览",
         }
       : {
+          whatYouWrote: "What you wrote",
           source: "Emotional Source",
           demon: "Name the Demon",
           emotions: "Emotion Labels",
@@ -663,6 +667,14 @@ function Prompt2HistoryDetail({
 
   return (
     <div className="space-y-4">
+      {card.originalInput && (
+        <CanonicalDetailSection icon={FileText} title={copy.whatYouWrote}>
+          <p className="whitespace-pre-wrap text-[var(--foreground-muted)]">
+            {card.originalInput}
+          </p>
+        </CanonicalDetailSection>
+      )}
+
       {card.prompt2.emotionalSource && (
         <CanonicalDetailSection icon={Heart} title={copy.source} accent>
           <p className="whitespace-pre-wrap">{card.prompt2.emotionalSource}</p>
@@ -1114,9 +1126,12 @@ export function ReflectionCards({
   reflections: Reflection[];
 }) {
   const { language, t } = useLanguage();
-  const { role, user } = useAuth();
+  const { role, session, user } = useAuth();
   const [openCards, setOpenCards] = useState<Set<string | number>>(new Set());
-  const groupedReflections = reflections.reduce<
+  const [hiddenIds, setHiddenIds] = useState<Set<string | number>>(new Set());
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const visibleReflections = reflections.filter((item) => !hiddenIds.has(item.id));
+  const groupedReflections = visibleReflections.reduce<
     Array<{ label: string; items: Reflection[] }>
   >((groups, item) => {
     const label = formatHistoryGroup(item.created_at);
@@ -1144,13 +1159,53 @@ export function ReflectionCards({
           authenticated_state: Boolean(user),
           role_bucket: role ?? "user",
           has_check_in: Boolean(
-            reflections.find((item) => item.id === id)?.follow_up_result
+            visibleReflections.find((item) => item.id === id)?.follow_up_result
           ),
         });
       }
 
       return next;
     });
+  }
+
+  async function deleteReflection(id: string | number) {
+    if (!session?.access_token) {
+      return;
+    }
+
+    if (!window.confirm(t.history.deleteConfirm)) {
+      return;
+    }
+
+    setDeletingId(id);
+
+    try {
+      const response = await fetch("/api/reflections", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ id: String(id) }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Delete failed");
+      }
+
+      setHiddenIds((current) => new Set(current).add(id));
+      setOpenCards((current) => {
+        const next = new Set(current);
+        next.delete(id);
+        return next;
+      });
+      toast.success(t.history.deleteSuccess);
+    } catch (error) {
+      console.error("Reflection delete error:", error);
+      toast.error(t.history.deleteError);
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (
@@ -1171,6 +1226,7 @@ export function ReflectionCards({
               const previewChips = primaryHistoryChips(card);
               const expandedChips = detailHistoryChips(card);
               const checkedInSignal = checkInChipValue(card);
+              const inputPreview = previewLine(card.originalInput, 180);
               const headline =
                 previewLine(card.shortTitle, 100) ||
                 previewLine(card.prompt2.demonNames[0], 80) ||
@@ -1247,6 +1303,17 @@ export function ReflectionCards({
                         {headline}
                       </p>
 
+                      {inputPreview && (
+                        <div className="rounded-[18px] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.58)] px-3 py-2.5">
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+                            {t.history.whatYouWrote}
+                          </p>
+                          <p className="mt-1 line-clamp-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                            {inputPreview}
+                          </p>
+                        </div>
+                      )}
+
                       <div className="flex flex-wrap gap-2">
                         {previewChips.map((chip) => (
                           <Badge key={chip.key} variant={chip.variant}>
@@ -1319,6 +1386,17 @@ export function ReflectionCards({
                         <Prompt2HistoryDetail card={card} item={item} />
                       ) : (
                         <>
+                      {card.originalInput && (
+                        <CanonicalDetailSection
+                          icon={FileText}
+                          title={t.history.whatYouWrote}
+                        >
+                          <p className="whitespace-pre-wrap text-[var(--foreground-muted)]">
+                            {card.originalInput}
+                          </p>
+                        </CanonicalDetailSection>
+                      )}
+
                       {validation && (
                         <CanonicalDetailSection
                           icon={Heart}
@@ -1403,6 +1481,25 @@ export function ReflectionCards({
                       <NextStepCheckIn reflection={item} />
                         </>
                       )}
+                      <div className="flex flex-col gap-3 rounded-[22px] border border-[rgba(155,55,55,0.14)] bg-[rgba(155,55,55,0.035)] p-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                            {t.history.deleteReflection}
+                          </h3>
+                          <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                            {t.history.deleteConfirm}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => void deleteReflection(item.id)}
+                          disabled={deletingId === item.id}
+                          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[rgba(155,55,55,0.2)] bg-[rgba(255,254,248,0.82)] px-4 py-2 text-sm font-semibold text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <Trash2 aria-hidden="true" size={15} strokeWidth={1.8} />
+                          {t.history.deleteReflection}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </Card>
