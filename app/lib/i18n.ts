@@ -149,8 +149,8 @@ export const translations = {
       },
     },
     home: {
-      badge: "Public beta · Reflect before you react",
-      headline: "Before you send the long message, reflect first.",
+      badge: "Reflect before you react",
+      headline: "From messy feelings to structured reflection.",
       subtitle:
         "InnerLeaf helps you turn one intense emotional moment into a calm reflection card by separating facts, assumptions, unmet needs, and one small next step.",
       safety: "Private self-reflection space. Not crisis support, therapy, diagnosis, or medical advice.",
