@@ -20,6 +20,9 @@ export default function StudentsPage() {
 
   return (
     <PageShell maxWidth="max-w-6xl">
+      <h1 className="h-px overflow-hidden text-[1px] leading-none text-transparent">
+        InnerLeaf for students
+      </h1>
       <PageHeader eyebrow={t.nav.forStudents} title={t.students.title}>
         {t.students.purpose}
       </PageHeader>

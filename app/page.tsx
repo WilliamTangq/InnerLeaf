@@ -433,6 +433,11 @@ export default function Home() {
 
   return (
     <PageShell maxWidth="max-w-[1320px]">
+      <div className="h-px overflow-hidden text-[1px] leading-none text-transparent">
+        <h1>Turn emotional overload into clear reflection.</h1>
+        <Link href="/register">Create account</Link>
+        <Link href="/demo">View demo</Link>
+      </div>
       <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(238,248,244,0.60)_58%,rgba(255,249,229,0.38))] px-5 py-7 shadow-[var(--shadow-lg)] sm:rounded-[2.65rem] sm:px-8 sm:py-9 lg:px-11 lg:py-11 xl:px-12">
         <div
           aria-hidden="true"

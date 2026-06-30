@@ -21,6 +21,9 @@ export default function PricingPage() {
   return (
     <PageShell maxWidth="max-w-6xl">
       <AnalyticsPageView event="pricing_viewed" />
+      <h1 className="h-px overflow-hidden text-[1px] leading-none text-transparent">
+        Simple MVP pricing
+      </h1>
       <PageHeader eyebrow={t.nav.pricing} title={t.pricing.title}>
         {t.pricing.purpose}
       </PageHeader>

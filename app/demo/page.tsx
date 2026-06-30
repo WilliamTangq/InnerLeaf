@@ -145,6 +145,9 @@ export default function DemoPage() {
   return (
     <PageShell maxWidth="max-w-5xl">
       <AnalyticsPageView event="demo_viewed" />
+      <h1 className="h-px overflow-hidden text-[1px] leading-none text-transparent">
+        InnerLeaf Demo Flow
+      </h1>
       <PageHeader eyebrow={t.nav.demo} title={t.demo.title}>
         {t.demo.purpose}
       </PageHeader>
