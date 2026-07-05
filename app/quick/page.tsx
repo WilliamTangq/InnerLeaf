@@ -382,25 +382,19 @@ export function QuickReflectionContent() {
           </p>
         </div>
 
-        <div className="p-4 sm:p-5">
+        <div className="grid gap-4 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_280px]">
           <div className="rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.72)] p-4 shadow-[var(--shadow-sm)] sm:p-5">
-            <div className="mb-4 grid gap-2 rounded-[1.1rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(230,245,239,0.42)] p-3 text-xs leading-5 text-[var(--foreground-muted)] sm:grid-cols-[1fr_auto] sm:items-center">
-              <div className="flex gap-2.5">
-                <ShieldCheck
-                  aria-hidden="true"
-                  size={16}
-                  strokeWidth={1.8}
-                  className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
-                />
-                <span>{t.quick.privacyHint}</span>
-              </div>
-              <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(180,90,45,0.16)] bg-[rgba(255,248,226,0.70)] px-2.5 py-1 text-[11px] font-medium text-[var(--foreground-subtle)]">
-                <LockKeyhole aria-hidden="true" size={12} strokeWidth={1.8} />
-                {t.quick.savePreferenceTitle}
-              </span>
+            <div className="mb-3 flex gap-2.5 rounded-[1rem] border border-[rgba(31,155,143,0.11)] bg-[rgba(230,245,239,0.34)] p-3 text-xs leading-5 text-[var(--foreground-muted)]">
+              <ShieldCheck
+                aria-hidden="true"
+                size={16}
+                strokeWidth={1.8}
+                className="mt-0.5 shrink-0 text-[var(--brand-teal-deep)]"
+              />
+              <span>{t.quick.privacyHint}</span>
             </div>
             {draftLoaded && (input || result) && !saved && (
-              <div className="mb-4 flex items-center gap-2 rounded-full border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] px-3 py-2 text-xs font-medium text-[var(--foreground-subtle)]">
+              <div className="mb-3 flex items-center gap-2 rounded-full border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] px-3 py-2 text-xs font-medium text-[var(--foreground-subtle)]">
                 <CheckCircle2
                   aria-hidden="true"
                   size={13}
@@ -415,7 +409,7 @@ export function QuickReflectionContent() {
               id={textareaId}
               label={t.quick.label}
               helper={selectedMoodOption?.prompt ?? t.quick.helper}
-              className="min-h-56 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-64"
+              className="min-h-48 bg-[rgba(255,254,248,0.96)] shadow-[inset_0_1px_0_rgba(255,255,255,0.72),var(--shadow-sm)] sm:min-h-52 lg:min-h-56"
               placeholder={selectedMoodOption?.prompt ?? t.quick.placeholder}
               value={input}
               onChange={(event) => setInput(event.target.value)}
@@ -439,8 +433,12 @@ export function QuickReflectionContent() {
             </div>
           </div>
 
-          <div className="mt-3 rounded-[1.25rem] border border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.62)] p-3.5">
-            <div className="grid gap-2 sm:grid-cols-2">
+          <aside className="flex flex-col gap-3 rounded-[1.35rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.58)] p-3.5 shadow-[var(--shadow-sm)] sm:p-4">
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
+              <LockKeyhole aria-hidden="true" size={13} strokeWidth={1.8} />
+              {t.quick.savePreferenceTitle}
+            </div>
+            <div className="grid gap-2">
               {[
                 {
                   value: true,
@@ -462,7 +460,7 @@ export function QuickReflectionContent() {
                     onClick={() => setSaveToHistory(option.value)}
                     aria-pressed={active}
                     className={[
-                      "rounded-[1rem] border p-3 text-left transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                      "rounded-[1rem] border px-3 py-2.5 text-left transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
                       active
                         ? "border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] shadow-[var(--shadow-sm)]"
                         : "border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.58)] hover:border-[rgba(31,155,143,0.18)]",
@@ -489,71 +487,71 @@ export function QuickReflectionContent() {
                 );
               })}
             </div>
-            <p className="mt-3 text-xs leading-5 text-[var(--foreground-subtle)]">
+            <p className="text-xs leading-5 text-[var(--foreground-subtle)]">
               {t.quick.safetyBoundary}
             </p>
-          </div>
 
-          <details className="group mt-3 rounded-[1.1rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.52)] px-3.5 py-3">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-[var(--foreground-muted)] marker:hidden">
-              <span>{t.quick.moodPrompt}</span>
-              <span className="text-[var(--brand-teal-deep)] transition group-open:rotate-45">
-                +
-              </span>
-            </summary>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {t.quick.moodOptions.map((mood) => {
-                const isSelected = selectedMood === mood.id;
+            <details className="group rounded-[1rem] border border-[rgba(40,80,60,0.075)] bg-[rgba(255,254,248,0.52)] px-3 py-2.5">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-xs font-semibold text-[var(--foreground-muted)] marker:hidden">
+                <span>{t.quick.moodPrompt}</span>
+                <span className="text-[var(--brand-teal-deep)] transition group-open:rotate-45">
+                  +
+                </span>
+              </summary>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {t.quick.moodOptions.map((mood) => {
+                  const isSelected = selectedMood === mood.id;
 
-                return (
-                  <button
-                    key={mood.id}
-                    type="button"
-                    onClick={() =>
-                      setSelectedMood((current) =>
-                        current === mood.id ? "" : mood.id
-                      )
-                    }
-                    aria-pressed={isSelected}
-                    className={[
-                      "rounded-full border px-2.5 py-1.5 text-xs font-semibold transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
-                      isSelected
-                        ? "border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
-                        : "border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.58)] text-[var(--foreground-subtle)] hover:border-[rgba(31,155,143,0.18)] hover:text-[var(--foreground)]",
-                    ].join(" ")}
-                  >
-                    {mood.label}
-                  </button>
-                );
-              })}
-            </div>
-          </details>
-
-          <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-[var(--foreground-subtle)]">
-              {t.quick.guidedLinkLead}{" "}
-              <Link
-                href="/dashboard/guided"
-                className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
-              >
-                {t.common.tryGuided}
-              </Link>
-            </p>
-            {loading ? (
-              <div className="flex min-h-11 w-full items-center justify-center sm:w-auto">
-                <LoadingSpinner label={t.common.loadingQuick} />
+                  return (
+                    <button
+                      key={mood.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedMood((current) =>
+                          current === mood.id ? "" : mood.id
+                        )
+                      }
+                      aria-pressed={isSelected}
+                      className={[
+                        "rounded-full border px-2.5 py-1.5 text-xs font-semibold transition duration-200 ease-[var(--motion-ease)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                        isSelected
+                          ? "border-[rgba(31,155,143,0.28)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                          : "border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.58)] text-[var(--foreground-subtle)] hover:border-[rgba(31,155,143,0.18)] hover:text-[var(--foreground)]",
+                      ].join(" ")}
+                    >
+                      {mood.label}
+                    </button>
+                  );
+                })}
               </div>
-            ) : (
-              <PrimaryButton
-                size="lg"
-                onClick={handleReflect}
-                disabled={loading || !input.trim()}
-                className="w-full sm:w-auto sm:shrink-0"
-              >
-                {t.quick.button}
-              </PrimaryButton>
-            )}
-          </div>
+            </details>
+
+            <div className="mt-auto flex flex-col gap-3 pt-1">
+              <p className="text-xs text-[var(--foreground-subtle)]">
+                {t.quick.guidedLinkLead}{" "}
+                <Link
+                  href="/dashboard/guided"
+                  className="font-medium text-[var(--brand-teal-deep)] underline-offset-2 hover:underline"
+                >
+                  {t.common.tryGuided}
+                </Link>
+              </p>
+              {loading ? (
+                <div className="flex min-h-11 w-full items-center justify-center sm:w-auto">
+                  <LoadingSpinner label={t.common.loadingQuick} />
+                </div>
+              ) : (
+                <PrimaryButton
+                  size="lg"
+                  onClick={handleReflect}
+                  disabled={loading || !input.trim()}
+                  className="w-full"
+                >
+                  {t.quick.button}
+                </PrimaryButton>
+              )}
+            </div>
+          </aside>
         </div>
       </Card>
 
