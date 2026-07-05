@@ -47,6 +47,7 @@ export const translations = {
       savedToReflectionHistory: "Saved to your reflection history.",
       saveToHistory: "Save to history",
       savingReflection: "Saving...",
+      cancel: "Cancel",
     },
     nav: {
       home: "Home",
@@ -59,7 +60,6 @@ export const translations = {
       faq: "FAQ",
       quick: "Quick",
       guided: "Guided",
-      beforeYouSend: "Before You Send",
       history: "History",
       summary: "Summary",
       feedback: "Feedback",
@@ -158,7 +158,7 @@ export const translations = {
         "Try the fictional demo first. Start a private reflection when you are ready.",
       heroPills: [
         "Delayed reply",
-        "Before-you-send pause",
+        "Unmet needs",
         "Facts vs assumptions",
         "No-save option",
       ],
@@ -294,10 +294,6 @@ export const translations = {
         [
           "Guided Reflection",
           "For when you want step-by-step structure.",
-        ],
-        [
-          "Before You Send",
-          "For pausing before an emotionally charged message.",
         ],
         [
           "History",
@@ -461,7 +457,7 @@ export const translations = {
         [
           "Future Premium",
           "Planned",
-          "Potential upgrades include unlimited reflection cards, deeper pattern memory, before-you-send support, export history, and weekly review.",
+          "Potential upgrades include unlimited reflection cards, deeper pattern memory, export history, and weekly review.",
         ],
         [
           "Student Access",
@@ -473,7 +469,6 @@ export const translations = {
       premiumHooks: [
         "Unlimited reflection cards",
         "Deeper repeated-trigger memory",
-        "Before-you-send reflection prompts",
         "Exportable reflection history",
         "Weekly review of what helped",
         "More control over saved data",
@@ -778,6 +773,8 @@ export const translations = {
       doNotSave: "Do not save this reflection",
       doNotSaveDesc: "Generate the card for this session only.",
       noSaveGenerated: "Generated without saving to History.",
+      draftSavedHint:
+        "Draft saved in this browser. If you switch pages, this writing will be restored.",
     },
     guided: {
       title: "Step-by-step reflection",
@@ -790,6 +787,8 @@ export const translations = {
       continue: "Continue",
       back: "Back",
       button: "Create reflection card",
+      draftSavedHint:
+        "Draft saved in this browser. You can leave and return without losing these fields.",
       fields: {
         situation: ["Situation", "What happened?", "What happened"],
         emotion: ["Emotion", "What emotion did you feel?", "What came up"],
@@ -858,11 +857,16 @@ export const translations = {
         "This reflection is saved to your History. You can come back to it later.",
       autoSavingHint:
         "InnerLeaf is saving this reflection to your History.",
+      autoSaveIncompleteTitle: "Generated, not saved yet",
       autoSaveFailedHint:
         "This reflection was generated, but automatic saving did not complete.",
       noSaveTitle: "Not saved to History",
       noSaveHint:
         "This card was not added to History. It stays only on this screen until you start again or leave.",
+      stateSaved: "Saved",
+      stateSaving: "Saving",
+      stateGenerated: "Generated",
+      stateNotSaved: "Not saved",
       saveThisReflection: "Save this reflection",
       savedToHistory: "Saved to history",
       saving: "Saving...",
@@ -934,6 +938,19 @@ export const translations = {
       deleteReflection: "Delete reflection",
       deleteConfirm:
         "Delete this saved reflection? This removes it from your private history and summary.",
+      deleteConfirmTitle: "Delete this reflection?",
+      deleteConfirmBody:
+        "Remove this reflection from your private archive. InnerLeaf will stop using it in recent pattern summaries.",
+      deleteHistoryImpact: "It will be removed from History.",
+      deleteSummaryImpact: "It will no longer appear in pattern summary calculations.",
+      deleteCannotUndo: "This deletion cannot be undone.",
+      deleteConfirmAction: "Delete reflection",
+      deletingReflection: "Deleting...",
+      deleteMenuHint: "Remove from History and Summary",
+      deleteDetailHint:
+        "Remove this reflection from your private history and pattern summary.",
+      cardActions: "Reflection actions",
+      privateControl: "Private control",
       deleteSuccess: "Reflection deleted.",
       deleteError: "Reflection could not be deleted.",
     },
@@ -1113,21 +1130,6 @@ export const translations = {
       primaryActions: "Start reflecting",
       reviewSpaces: "Review and patterns",
       supportTools: "Support tools",
-      beforeYouSend: {
-        title: "Before You Send",
-        label: "Communication reflection",
-        description:
-          "Pause before sending an emotionally charged message. Draft what you want to say, then use InnerLeaf to find the need underneath and rewrite with more clarity.",
-        bullets: [
-          "What you are really trying to say",
-          "What may sound like blame",
-          "The need underneath",
-          "A calmer version",
-          "Send, wait, or rewrite",
-        ],
-        cta: "Reflect before sending",
-        available: "2-minute message reflection",
-      },
       cards: [
         [
           "Quick Reflection",
@@ -1278,38 +1280,6 @@ export const translations = {
         adminUsers: "Accounts and roles",
         adminFeedback: "User testing responses",
         adminSystem: "Configuration overview",
-      },
-    },
-    beforeYouSendFlow: {
-      eyebrow: "MESSAGE REFLECTION",
-      title: "Before You Send",
-      purpose:
-        "Paste a draft message and make it clearer before you send. This is communication reflection, not relationship advice.",
-      cardLabel: "Draft message",
-      cardTitle: "What do you want to send?",
-      inputLabel: "Message draft",
-      helper:
-        "Use this when a message feels emotionally charged, urgent, or easy to misread.",
-      placeholder:
-        "Paste or write the message here. InnerLeaf will help you notice the need underneath and make the wording calmer.",
-      cta: "Reflect on this message",
-      clear: "Clear draft",
-      privacy:
-        "This flow does not save to History. Your draft is kept only in this browser until you clear it.",
-      firstUseTitle: "A small pause before reacting",
-      firstUseBody:
-        "InnerLeaf looks for the need underneath the message, not whether you are right or wrong.",
-      quickAlternative: "Reflect on the whole moment instead",
-      resultLabel: "Before sending",
-      resultTitle: "A calmer version to consider",
-      reallyTrying: "What you are really trying to say",
-      blame: "What may sound like blame",
-      need: "What need is underneath",
-      calmerVersion: "A calmer version",
-      actions: {
-        send: "Send",
-        wait: "Wait",
-        rewrite: "Rewrite",
       },
     },
     account: {
@@ -1627,6 +1597,7 @@ export const translations = {
       savedToReflectionHistory: "已保存到你的反思记录中。",
       saveToHistory: "保存到历史记录",
       savingReflection: "正在保存...",
+      cancel: "取消",
     },
     nav: {
       home: "首页",
@@ -1639,7 +1610,6 @@ export const translations = {
       faq: "FAQ",
       quick: "快速反思",
       guided: "引导反思",
-      beforeYouSend: "发送前先反思",
       history: "历史记录",
       summary: "模式总结",
       feedback: "反馈",
@@ -1738,7 +1708,7 @@ export const translations = {
         "可以先体验虚构演示；准备好时再进入私人反思空间。",
       heroPills: [
         "回复延迟",
-        "发送前先暂停",
+        "未被满足的需要",
         "事实 vs 假设",
         "可选择不保存",
       ],
@@ -1872,10 +1842,6 @@ export const translations = {
         [
           "引导反思",
           "适合想一步步整理的时候。",
-        ],
-        [
-          "发送前先反思",
-          "适合在发送带着情绪的消息前暂停一下。",
         ],
         [
           "历史记录",
@@ -2040,7 +2006,7 @@ export const translations = {
         [
           "未来高级版",
           "计划中",
-          "未来可能加入无限反思卡片、更深入的模式记忆、发送前反思、历史导出和每周回看。",
+          "未来可能加入无限反思卡片、更深入的模式记忆、历史导出和每周回看。",
         ],
         [
           "学生使用",
@@ -2052,7 +2018,6 @@ export const translations = {
       premiumHooks: [
         "无限反思卡片",
         "更深入的重复触发点记忆",
-        "发送前反思提示",
         "导出反思历史",
         "每周回看哪些方法有帮助",
         "更多保存数据控制",
@@ -2344,6 +2309,7 @@ export const translations = {
       doNotSave: "不保存这条反思",
       doNotSaveDesc: "只在当前会话中生成这张卡片。",
       noSaveGenerated: "已生成，但未保存到历史记录。",
+      draftSavedHint: "草稿已保存在这个浏览器中。切换页面后回来也会恢复。",
     },
     guided: {
       title: "一步步反思",
@@ -2355,6 +2321,7 @@ export const translations = {
       continue: "继续",
       back: "返回",
       button: "生成反思卡片",
+      draftSavedHint: "草稿已保存在这个浏览器中。离开后回来也不会丢失这些内容。",
       fields: {
         situation: ["情境", "发生了什么？", "发生了什么"],
         emotion: ["情绪", "你感受到什么情绪？", "出现了什么"],
@@ -2409,9 +2376,14 @@ export const translations = {
       autoSavedTitle: "已自动保存",
       autoSavedHint: "这条反思已保存到历史记录，你之后可以回来查看。",
       autoSavingHint: "InnerLeaf 正在把这条反思保存到历史记录。",
+      autoSaveIncompleteTitle: "已生成，尚未保存",
       autoSaveFailedHint: "反思已生成，但自动保存未完成。",
       noSaveTitle: "未保存到历史记录",
       noSaveHint: "这张卡片没有加入历史记录，只会留在当前页面，直到你重新开始或离开。",
+      stateSaved: "已保存",
+      stateSaving: "保存中",
+      stateGenerated: "已生成",
+      stateNotSaved: "未保存",
       saveThisReflection: "保存这条反思",
       savedToHistory: "已保存到历史记录",
       saving: "正在保存...",
@@ -2480,6 +2452,18 @@ export const translations = {
       deleteReflection: "删除这条反思",
       deleteConfirm:
         "确定删除这条保存的反思吗？它会从你的私人历史和模式总结中移除。",
+      deleteConfirmTitle: "删除这条反思？",
+      deleteConfirmBody:
+        "删除后，这条反思会从你的私人历史中移除，InnerLeaf 也不会再把它用于近期模式总结。",
+      deleteHistoryImpact: "它会从历史记录中移除。",
+      deleteSummaryImpact: "它不会再出现在模式总结计算中。",
+      deleteCannotUndo: "删除后无法撤销。",
+      deleteConfirmAction: "删除这条反思",
+      deletingReflection: "正在删除...",
+      deleteMenuHint: "从历史和总结中移除",
+      deleteDetailHint: "从你的私人历史记录和模式总结中移除这条反思。",
+      cardActions: "反思操作",
+      privateControl: "私人控制",
       deleteSuccess: "反思已删除。",
       deleteError: "未能删除这条反思。",
     },
@@ -2641,21 +2625,6 @@ export const translations = {
       primaryActions: "开始反思",
       reviewSpaces: "回看与模式",
       supportTools: "支持工具",
-      beforeYouSend: {
-        title: "发送前先反思",
-        label: "沟通反思",
-        description:
-          "在发送带着情绪的消息前先暂停。写下你想说的话，InnerLeaf 会帮助你看见下面的需要，并整理成更清楚的表达。",
-        bullets: [
-          "你真正想表达什么",
-          "哪里可能听起来像责备",
-          "下面的需要是什么",
-          "更平静的版本",
-          "发送、等待，或重写",
-        ],
-        cta: "发送前先整理",
-        available: "2 分钟消息反思",
-      },
       cards: [
         ["快速反思", "自由写下，整理成清晰卡片。", "开始快速反思", "/dashboard/quick"],
         ["一步步反思", "写不出来时，用结构慢慢整理。", "开始引导反思", "/dashboard/guided"],
@@ -2785,38 +2754,6 @@ export const translations = {
         adminUsers: "账号与角色",
         adminFeedback: "用户测试反馈",
         adminSystem: "配置概览",
-      },
-    },
-    beforeYouSendFlow: {
-      eyebrow: "消息反思",
-      title: "发送前先反思",
-      purpose:
-        "粘贴一段你想发送的消息，先把表达整理清楚。这是沟通反思，不是关系建议。",
-      cardLabel: "消息草稿",
-      cardTitle: "你想发送什么？",
-      inputLabel: "消息草稿",
-      helper:
-        "当一段消息带着情绪、很想立刻发送，或容易被误解时，可以先用它整理一下。",
-      placeholder:
-        "在这里粘贴或写下消息。InnerLeaf 会帮你看见下面的需要，并整理成更平静的表达。",
-      cta: "整理这段消息",
-      clear: "清空草稿",
-      privacy:
-        "这个流程不会保存到历史记录。草稿只保留在当前浏览器中，直到你清空它。",
-      firstUseTitle: "发送前，先留一个小暂停",
-      firstUseBody:
-        "InnerLeaf 关注的是这段话下面的需要，而不是判断你对不对。",
-      quickAlternative: "改为反思整件事情",
-      resultLabel: "发送前",
-      resultTitle: "可以考虑的平静版本",
-      reallyTrying: "你真正想表达什么",
-      blame: "哪里可能听起来像责备",
-      need: "下面的需要是什么",
-      calmerVersion: "更平静的版本",
-      actions: {
-        send: "发送",
-        wait: "等待",
-        rewrite: "重写",
       },
     },
     account: {

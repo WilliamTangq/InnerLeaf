@@ -637,6 +637,45 @@ export function ReflectionResultCard({
   const isStructured = Boolean(structured);
   const isPrompt2 = Boolean(structured?.emotional_source || structured?.demon_names?.length);
   const labels = displayT.reflectionCard;
+  const resultState = (() => {
+    if (noSaveMode) {
+      return {
+        label: labels.stateNotSaved,
+        title: labels.noSaveTitle,
+        body: labels.noSaveHint,
+        className:
+          "border-[rgba(180,90,45,0.18)] bg-[rgba(255,248,226,0.72)] text-[var(--foreground-muted)]",
+      };
+    }
+
+    if (saving) {
+      return {
+        label: labels.stateSaving,
+        title: labels.autoSavedTitle,
+        body: labels.autoSavingHint,
+        className:
+          "border-[rgba(31,155,143,0.18)] bg-[rgba(230,245,239,0.72)] text-[var(--brand-teal-deep)]",
+      };
+    }
+
+    if (saved) {
+      return {
+        label: labels.stateSaved,
+        title: autoSaved ? labels.autoSavedTitle : labels.saveCheckInTitle,
+        body: autoSaved ? labels.autoSavedHint : labels.savedCheckInHint,
+        className:
+          "border-[rgba(31,155,143,0.24)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]",
+      };
+    }
+
+    return {
+      label: labels.stateGenerated,
+      title: autoSaved ? labels.autoSaveIncompleteTitle : labels.saveCheckInTitle,
+      body: autoSaved ? labels.autoSaveFailedHint : labels.saveCheckInHint,
+      className:
+        "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.74)] text-[var(--foreground-muted)]",
+    };
+  })();
   const factItems = compactItems(canonical?.factsSummary);
   const interpretationItems = compactItems(canonical?.interpretationSummary);
   const repeatedPatternCount = useMemo(
@@ -915,25 +954,24 @@ export function ReflectionResultCard({
         <div className="mt-6 rounded-[calc(var(--radius-xl)+6px)] border border-[var(--border)] bg-[rgba(246,242,233,0.68)] p-4 shadow-[var(--shadow-soft)] sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                {noSaveMode
-                  ? labels.noSaveTitle
-                  : autoSaved
-                    ? labels.autoSavedTitle
-                    : labels.saveCheckInTitle}
-              </h3>
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                  {resultState.title}
+                </h3>
+                <span
+                  className={[
+                    "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+                    resultState.className,
+                  ].join(" ")}
+                >
+                  {saved && (
+                    <CheckCircle2 size={12} strokeWidth={2} aria-hidden="true" />
+                  )}
+                  {resultState.label}
+                </span>
+              </div>
               <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                {noSaveMode
-                  ? labels.noSaveHint
-                  : autoSaved
-                  ? saved
-                    ? labels.autoSavedHint
-                    : saving
-                      ? labels.autoSavingHint
-                      : labels.autoSaveFailedHint
-                  : saved
-                    ? labels.savedCheckInHint
-                    : labels.saveCheckInHint}
+                {resultState.body}
               </p>
             </div>
             {onSave && (
@@ -953,6 +991,7 @@ export function ReflectionResultCard({
             )}
           </div>
           {!showActions &&
+            !saving &&
             (onReflectAgain ? (
               <PrimaryButton
                 type="button"

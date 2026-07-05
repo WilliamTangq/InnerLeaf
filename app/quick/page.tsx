@@ -399,6 +399,17 @@ export function QuickReflectionContent() {
                 {t.quick.savePreferenceTitle}
               </span>
             </div>
+            {draftLoaded && (input || result) && !saved && (
+              <div className="mb-4 flex items-center gap-2 rounded-full border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] px-3 py-2 text-xs font-medium text-[var(--foreground-subtle)]">
+                <CheckCircle2
+                  aria-hidden="true"
+                  size={13}
+                  strokeWidth={2}
+                  className="shrink-0 text-[var(--brand-teal-deep)]"
+                />
+                {t.quick.draftSavedHint}
+              </div>
+            )}
 
             <TextareaField
               id={textareaId}

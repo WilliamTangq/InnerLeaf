@@ -183,7 +183,14 @@ export function HistoryContent() {
       )}
 
       {!hasError && loaded && user && visibleReflections.length > 0 && (
-        <ReflectionCards reflections={visibleReflections} />
+        <ReflectionCards
+          reflections={visibleReflections}
+          onDeleted={(id) =>
+            setReflections((current) =>
+              current.filter((item) => String(item.id) !== String(id))
+            )
+          }
+        />
       )}
     </div>
   );

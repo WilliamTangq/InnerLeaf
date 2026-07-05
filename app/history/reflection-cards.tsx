@@ -10,10 +10,12 @@ import {
   Heart,
   MessageCircle,
   MessageCircleQuestion,
+  MoreHorizontal,
   Route,
   Send,
   Sparkles as SparklesIcon,
   Trash2,
+  X,
   Zap,
 } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -1122,14 +1124,21 @@ function NextStepCheckIn({ reflection }: { reflection: Reflection }) {
 
 export function ReflectionCards({
   reflections,
+  onDeleted,
 }: {
   reflections: Reflection[];
+  onDeleted?: (id: string | number) => void;
 }) {
   const { language, t } = useLanguage();
   const { role, session, user } = useAuth();
   const [openCards, setOpenCards] = useState<Set<string | number>>(new Set());
   const [hiddenIds, setHiddenIds] = useState<Set<string | number>>(new Set());
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | number | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<{
+    id: string | number;
+    title: string;
+  } | null>(null);
   const visibleReflections = reflections.filter((item) => !hiddenIds.has(item.id));
   const groupedReflections = visibleReflections.reduce<
     Array<{ label: string; items: Reflection[] }>
@@ -1168,16 +1177,19 @@ export function ReflectionCards({
     });
   }
 
-  async function deleteReflection(id: string | number) {
+  async function confirmDeleteReflection() {
+    const id = pendingDelete?.id;
+
     if (!session?.access_token) {
       return;
     }
 
-    if (!window.confirm(t.history.deleteConfirm)) {
+    if (!id) {
       return;
     }
 
     setDeletingId(id);
+    setMenuOpenId(null);
 
     try {
       const response = await fetch("/api/reflections", {
@@ -1199,6 +1211,13 @@ export function ReflectionCards({
         next.delete(id);
         return next;
       });
+      onDeleted?.(id);
+      window.dispatchEvent(
+        new CustomEvent("innerleaf:reflection-deleted", {
+          detail: { id },
+        })
+      );
+      setPendingDelete(null);
       toast.success(t.history.deleteSuccess);
     } catch (error) {
       console.error("Reflection delete error:", error);
@@ -1208,8 +1227,90 @@ export function ReflectionCards({
     }
   }
 
+  function requestDelete(id: string | number, title: string) {
+    setMenuOpenId(null);
+    setPendingDelete({ id, title });
+  }
+
   return (
     <div className="space-y-8">
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-[1600] flex items-end justify-center bg-[rgba(20,28,24,0.34)] px-3 py-3 backdrop-blur-sm sm:items-center sm:p-6"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-reflection-title"
+        >
+          <div className="w-full max-w-md rounded-[28px] border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.98)] p-4 shadow-[0_28px_100px_rgba(20,35,28,0.22)] sm:p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--foreground-subtle)]">
+                  {t.history.privateControl}
+                </p>
+                <h2
+                  id="delete-reflection-title"
+                  className="mt-2 text-xl font-semibold tracking-tight text-[var(--foreground)]"
+                >
+                  {t.history.deleteConfirmTitle}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.82)] text-[var(--foreground-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
+                aria-label={t.common.cancel}
+              >
+                <X aria-hidden="true" size={16} strokeWidth={1.8} />
+              </button>
+            </div>
+
+            <div className="mt-4 rounded-[18px] border border-[rgba(40,80,60,0.08)] bg-[rgba(246,242,233,0.56)] p-3">
+              <p className="line-clamp-2 text-sm font-medium leading-6 text-[var(--foreground)]">
+                {pendingDelete.title}
+              </p>
+            </div>
+
+            <p className="mt-4 text-sm leading-6 text-[var(--foreground-muted)]">
+              {t.history.deleteConfirmBody}
+            </p>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              <li className="flex gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]" />
+                <span>{t.history.deleteHistoryImpact}</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--brand-teal)]" />
+                <span>{t.history.deleteSummaryImpact}</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[rgba(155,55,55,0.72)]" />
+                <span>{t.history.deleteCannotUndo}</span>
+              </li>
+            </ul>
+
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--border)] bg-[rgba(255,254,248,0.82)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground-muted)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
+              >
+                {t.common.cancel}
+              </button>
+              <button
+                type="button"
+                onClick={() => void confirmDeleteReflection()}
+                disabled={deletingId === pendingDelete.id}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[rgba(155,55,55,0.20)] bg-[rgba(155,55,55,0.075)] px-4 py-2.5 text-sm font-semibold text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <Trash2 aria-hidden="true" size={15} strokeWidth={1.8} />
+                {deletingId === pendingDelete.id
+                  ? t.history.deletingReflection
+                  : t.history.deleteConfirmAction}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {groupedReflections.map((group) => (
         <section key={group.label} aria-label={group.label}>
           <div className="mb-3 flex items-center gap-3">
@@ -1265,17 +1366,56 @@ export function ReflectionCards({
                   key={item.id}
                   variant="insight"
                   className={[
-                    "overflow-hidden rounded-[28px] transition duration-200 ease-[var(--motion-ease)]",
+                    "relative overflow-visible rounded-[28px] transition duration-200 ease-[var(--motion-ease)]",
                     isOpen
                       ? "hover:translate-y-0"
                       : "hover:-translate-y-0.5 hover:border-[rgba(31,155,143,0.18)] hover:shadow-[0_24px_70px_rgba(20,35,28,0.075)]",
                   ].join(" ")}
                 >
+                  <div className="absolute right-3 top-3 z-20">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setMenuOpenId((current) =>
+                          current === item.id ? null : item.id
+                        )
+                      }
+                      className="flex h-9 w-9 items-center justify-center rounded-full border border-[rgba(40,80,60,0.09)] bg-[rgba(255,254,248,0.86)] text-[var(--foreground-muted)] shadow-[var(--shadow-sm)] transition hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
+                      aria-label={t.history.cardActions}
+                      aria-expanded={menuOpenId === item.id}
+                    >
+                      <MoreHorizontal aria-hidden="true" size={17} strokeWidth={1.9} />
+                    </button>
+                    {menuOpenId === item.id && (
+                      <div className="absolute right-0 top-11 w-56 rounded-[18px] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.98)] p-2 shadow-[0_18px_54px_rgba(20,35,28,0.14)]">
+                        <button
+                          type="button"
+                          onClick={() => requestDelete(item.id, headline)}
+                          className="flex w-full items-start gap-3 rounded-[14px] px-3 py-2.5 text-left transition hover:bg-[rgba(155,55,55,0.055)]"
+                        >
+                          <Trash2
+                            aria-hidden="true"
+                            size={16}
+                            strokeWidth={1.8}
+                            className="mt-0.5 shrink-0 text-[var(--error)]"
+                          />
+                          <span>
+                            <span className="block text-sm font-semibold text-[var(--foreground)]">
+                              {t.history.deleteReflection}
+                            </span>
+                            <span className="mt-0.5 block text-xs leading-5 text-[var(--foreground-subtle)]">
+                              {t.history.deleteMenuHint}
+                            </span>
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => toggleCard(item.id)}
                     aria-expanded={isOpen}
-                    className="block w-full rounded-[inherit] text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
+                    className="block w-full rounded-[inherit] pr-10 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]"
                   >
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start justify-between gap-3">
@@ -1481,20 +1621,19 @@ export function ReflectionCards({
                       <NextStepCheckIn reflection={item} />
                         </>
                       )}
-                      <div className="flex flex-col gap-3 rounded-[22px] border border-[rgba(155,55,55,0.14)] bg-[rgba(155,55,55,0.035)] p-4 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex flex-col gap-3 rounded-[22px] border border-[rgba(40,80,60,0.10)] bg-[rgba(255,254,248,0.62)] p-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                           <h3 className="text-sm font-semibold text-[var(--foreground)]">
                             {t.history.deleteReflection}
                           </h3>
                           <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                            {t.history.deleteConfirm}
+                            {t.history.deleteDetailHint}
                           </p>
                         </div>
                         <button
                           type="button"
-                          onClick={() => void deleteReflection(item.id)}
-                          disabled={deletingId === item.id}
-                          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[rgba(155,55,55,0.2)] bg-[rgba(255,254,248,0.82)] px-4 py-2 text-sm font-semibold text-[var(--error)] transition hover:bg-[var(--error-bg)] disabled:cursor-not-allowed disabled:opacity-60"
+                          onClick={() => requestDelete(item.id, headline)}
+                          className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[rgba(155,55,55,0.16)] bg-[rgba(255,254,248,0.82)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition hover:bg-[var(--error-bg)] hover:text-[var(--error)]"
                         >
                           <Trash2 aria-hidden="true" size={15} strokeWidth={1.8} />
                           {t.history.deleteReflection}
