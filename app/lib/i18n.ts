@@ -918,7 +918,7 @@ export const translations = {
       readFull: "View full card",
       collapse: "Hide full card",
       whatYouWrote: "What you wrote",
-      checkInCta: "Check in on this reflection",
+      checkInCta: "Review on this reflection",
       checkInSummary: "Check-in summary",
       feelsNow: "How does this feel now?",
       feelsNowPlaceholder: "A short sentence is enough.",
