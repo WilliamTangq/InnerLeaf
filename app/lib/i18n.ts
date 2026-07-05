@@ -303,6 +303,10 @@ export const translations = {
           "Pattern Summary",
           "For seeing repeated triggers, assumptions, needs, and helpful steps.",
         ],
+        [
+          "Feel Better",
+          "Always have a wonderful day!",
+        ]
       ],
       whyEyebrow: "Why InnerLeaf",
       whyTitle: "More structure than a chat. Less pressure than a blank page.",
