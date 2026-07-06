@@ -35,7 +35,17 @@ export type AnalyticsEventName =
   | "mood_checkin_selected"
   | "micro_action_clicked"
   | "feedback_prompt_clicked"
-  | "feedback_submitted";
+  | "feedback_submitted"
+  | "marketplace_started"
+  | "scenario_selected"
+  | "reflection_completed"
+  | "clarity_response"
+  | "alternative_selected"
+  | "pattern_interest"
+  | "beta_signup"
+  | "marketplace_feedback_saved"
+  | "full_product_cta_clicked"
+  | "marketplace_reset";
 
 type SafeAnalyticsValue = string | number | boolean | null | undefined;
 type SafeAnalyticsProperties = Record<string, SafeAnalyticsValue>;

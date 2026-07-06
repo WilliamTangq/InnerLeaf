@@ -150,7 +150,7 @@ export const translations = {
     },
     home: {
       badge: "Reflect before you react",
-      headline: "From messy feelings to structured reflection.",
+      headline: "See the pattern behind your emotional reactions.",
       subtitle:
         "InnerLeaf helps you turn one intense emotional moment into a calm reflection card by separating facts, assumptions, unmet needs, and one small next step.",
       safety: "Private self-reflection space. Not crisis support, therapy, diagnosis, or medical advice.",
@@ -289,43 +289,55 @@ export const translations = {
       pathCards: [
         [
           "Quick Reflection",
-          "For when you need to get the moment out quickly.",
+          "Write the moment quickly when your thoughts feel messy.",
         ],
         [
           "Guided Reflection",
-          "For when you want step-by-step structure.",
+          "Use step-by-step prompts when you want more structure.",
+        ],
+        [
+          "Facts vs Assumptions",
+          "Separate what happened from what your mind filled in.",
+        ],
+        [
+          "One Small Next Step",
+          "Leave with one gentle action, not a long advice list.",
         ],
         [
           "History",
-          "For revisiting saved reflection cards.",
+          "Keep saved reflection cards private and easy to revisit.",
         ],
         [
           "Pattern Summary",
-          "For seeing repeated triggers, assumptions, needs, and helpful steps.",
+          "See repeated triggers, assumptions, needs, and helpful steps.",
         ],
-        [
-          "Feel Better",
-          "Always have a wonderful day!",
-        ]
       ],
       whyEyebrow: "Why InnerLeaf",
       whyTitle: "More structure than a chat. Less pressure than a blank page.",
       differences: [
         [
-          "Journaling helps you express",
-          "InnerLeaf helps organise what you wrote into a card you can review.",
+          "Friends",
+          "Helpful, but not always available when the spiral starts.",
         ],
         [
-          "AI gives you a conversation",
-          "InnerLeaf gives you a consistent reflection artifact, not an endless thread.",
+          "Notes",
+          "Good for writing, but easy to become a long unstructured dump.",
         ],
         [
-          "InnerLeaf keeps the scope clear",
-          "One moment, one pattern, one gentle next step, saved for later.",
+          "ChatGPT",
+          "Flexible, but the conversation can keep expanding instead of closing the loop.",
+        ],
+        [
+          "Distraction",
+          "Can help you cool down, but the same pattern may return later.",
+        ],
+        [
+          "InnerLeaf",
+          "One moment, one reflection card, one small next step, and pattern memory over time.",
         ],
       ],
       differenceNote:
-        "InnerLeaf gives you a structured reflection you can return to later.",
+        "More structure than a chat. Less pressure than a blank page.",
       patternEyebrow: "History and summary",
       patternTitle: "Not just one reaction. A clearer pattern over time.",
       patternCopy:
@@ -397,10 +409,11 @@ export const translations = {
         "Study pressure made everything feel easier to delay.",
       ],
       testingEyebrow: "User testing",
-      testingTitle: "Help shape InnerLeaf.",
+      testingTitle: "Try the Marketplace Reflection Lab.",
       testingCopy:
-        "We are testing whether structured reflection helps people understand emotional reactions more clearly over time.",
+        "Use a no-login fictional demo to see how InnerLeaf separates facts from assumptions and turns a messy moment into a reflection card.",
       testingCta: "Join user testing",
+      marketplaceCta: "Open Marketplace Demo",
       finalTitle: "Start with one emotional moment.",
       finalSubtitle:
         "No pressure to write perfectly. InnerLeaf helps organise what feels messy.",
@@ -1841,43 +1854,54 @@ export const translations = {
       pathCards: [
         [
           "快速反思",
-          "适合想先把这次时刻快速写出来的时候。",
+          "想法很乱时，先快速写下这次时刻。",
         ],
         [
           "引导反思",
-          "适合想一步步整理的时候。",
+          "想要更多结构时，用一步步提示整理。",
+        ],
+        [
+          "事实 vs 假设",
+          "区分真正发生的事，和大脑补全的含义。",
+        ],
+        [
+          "一个小的下一步",
+          "带走一个温和行动，而不是一长串建议。",
         ],
         [
           "历史记录",
-          "适合回看保存过的反思卡片。",
+          "私密保存反思卡片，之后可以轻松回看。",
         ],
         [
           "模式总结",
-          "适合看见重复触发点、假设、需要和有帮助的小行动。",
-        ],
-        [
-          "回看跟进",
-          "适合在情绪过去后，看看发生了什么变化。",
+          "看见重复触发点、假设、需要和有帮助的小行动。",
         ],
       ],
       whyEyebrow: "为什么是 InnerLeaf",
       whyTitle: "比聊天更有结构，比空白页更少压力。",
       differences: [
         [
-          "日记帮助你表达",
-          "InnerLeaf 会把写下的内容整理成之后可以回看的卡片。",
+          "朋友",
+          "有帮助，但不一定在情绪打转的那一刻刚好有空。",
         ],
         [
-          "ChatGPT 给你一段对话",
-          "InnerLeaf 给你的是统一格式的反思成果，而不是无休止聊天。",
+          "备忘录",
+          "适合写下来，但很容易变成一大段没有结构的内容。",
         ],
         [
-          "InnerLeaf 保持清晰边界",
-          "一次时刻、一个模式、一个温和下一步，并保存下来方便之后回看。",
+          "ChatGPT",
+          "很灵活，但对话容易越聊越多，不一定帮你收束。",
+        ],
+        [
+          "转移注意力",
+          "可以暂时缓下来，但同样的模式之后可能还会回来。",
+        ],
+        [
+          "InnerLeaf",
+          "一次时刻、一张反思卡片、一个小行动，并在之后形成模式记忆。",
         ],
       ],
-      differenceNote:
-        "InnerLeaf 给你的是一张之后可以回看的结构化反思卡片。",
+      differenceNote: "比聊天更有结构，比空白页更少压力。",
       patternEyebrow: "历史记录和总结",
       patternTitle: "不只是一次反应，而是逐渐看清重复模式。",
       patternCopy:
@@ -1946,10 +1970,11 @@ export const translations = {
         "学习压力让你更想把事情全部推到明天。",
       ],
       testingEyebrow: "用户测试",
-      testingTitle: "帮助我们完善 InnerLeaf。",
+      testingTitle: "体验 Marketplace 反思实验室。",
       testingCopy:
-        "我们正在测试结构化反思是否能帮助用户更清楚地理解反复出现的情绪反应。",
+        "无需登录，用虚构场景体验 InnerLeaf 如何区分事实与假设，并把混乱时刻整理成反思卡片。",
       testingCta: "参与用户测试",
+      marketplaceCta: "打开 Marketplace 演示",
       finalTitle: "从一次情绪时刻开始。",
       finalSubtitle:
         "不需要写得完美。InnerLeaf 会帮你整理那些混乱的部分。",

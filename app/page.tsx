@@ -15,7 +15,6 @@ import {
   MessageCircle,
   PencilLine,
   Route,
-  SendHorizontal,
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
@@ -27,8 +26,8 @@ import { trackEvent } from "./lib/analytics";
 import { getDefaultRouteForRole } from "./lib/routes";
 
 const howIcons = [PencilLine, Sparkles, FileText] as const;
-const pathIcons = [PencilLine, Route, SendHorizontal, FileText, Brain, MessageCircle] as const;
-const comparisonIcons = [Feather, MessageCircle, ShieldCheck] as const;
+const pathIcons = [PencilLine, Route, Sparkles, CheckCircle2, FileText, Brain] as const;
+const comparisonIcons = [Feather, MessageCircle, Brain, Clock3, ShieldCheck] as const;
 const patternIcons = [FileText, MessageCircle, Brain] as const;
 const trustIcons = [ShieldCheck, FileText, Leaf] as const;
 const transformationIcons = [PencilLine, Sparkles, Clock3] as const;
@@ -724,11 +723,11 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <LinkButton href="/test" size="lg">
-              {t.home.testingCta}
+            <LinkButton href="/marketplace" size="lg">
+              {t.home.marketplaceCta}
             </LinkButton>
-            <LinkButton href="/feedback" variant="secondary" size="lg">
-              {t.nav.feedback}
+            <LinkButton href="/test" variant="secondary" size="lg">
+              {t.home.testingCta}
             </LinkButton>
           </div>
         </div>
