@@ -19,8 +19,8 @@ type ScenarioId = "delayed_reply" | "study_pressure" | "social_comparison";
 type Step = "landing" | "scenario" | "messy" | "card" | "feedback" | "thankyou";
 
 const marketplaceMainCardClass =
-  "mx-auto flex min-h-[640px] w-full max-w-[1040px] flex-col rounded-[2.25rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(230,245,239,0.64),rgba(255,248,226,0.26))] p-5 shadow-[var(--shadow-xl)] hover:translate-y-0 sm:p-8 lg:px-11 lg:py-10";
-
+  "mx-auto flex min-h-[560px] w-full max-w-[1040px] flex-col rounded-[2.25rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(230,245,239,0.64),rgba(255,248,226,0.26))] p-5 shadow-[var(--shadow-xl)] hover:translate-y-0 sm:p-7 lg:px-10 lg:py-8";
+  
 type Scenario = {
   id: ScenarioId;
   title: string;
@@ -442,7 +442,7 @@ export default function MarketplacePage() {
 
   return (
     <PageShell maxWidth="max-w-6xl">
-      <section className="relative overflow-hidden rounded-[2.4rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.62),rgba(255,248,226,0.32))] p-5 shadow-[0_30px_110px_rgba(26,34,32,0.11)] sm:p-8 lg:p-10">
+      <section className="relative overflow-hidden rounded-[2.4rem] border border-[rgba(35,70,55,0.10)] bg-[linear-gradient(135deg,rgba(255,254,248,0.98),rgba(232,246,241,0.62),rgba(255,248,226,0.32))] p-4 shadow-[0_30px_110px_rgba(26,34,32,0.11)] sm:p-6 lg:p-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-28 -top-28 h-72 w-72 rounded-full bg-[rgba(31,155,143,0.12)] blur-3xl"
@@ -453,7 +453,7 @@ export default function MarketplacePage() {
         />
 
         <div className="relative">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
             <Badge variant="accent">{copy.badge}</Badge>
             <button
               type="button"
@@ -729,14 +729,14 @@ export default function MarketplacePage() {
                   strokeWidth={1.8}
                   className="mx-auto text-[var(--brand-teal-deep)]"
                 />
-                <h1 className="mx-auto mt-4 max-w-2xl text-center text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+                <h1 className="mx-auto mt-3 max-w-2xl text-center text-3xl font-semibold tracking-tight text-[var(--foreground)]">
                   {copy.thankYouTitle}
                 </h1>
-                <p className="mx-auto mt-3 max-w-xl text-center text-base leading-7 text-[var(--foreground-muted)]">
+                <p className="mx-auto mt-2 max-w-xl text-center text-base leading-6 text-[var(--foreground-muted)]">
                   {copy.thankYouBody}
                 </p>
 
-                <div className="mt-8 grid flex-1 gap-6 lg:grid-cols-[1fr_300px] lg:items-center">
+                <div className="mt-6 grid flex-1 gap-6 lg:grid-cols-[1fr_280px] lg:items-center">
                   <div className="text-left">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-teal-deep)]">
                       InnerLeaf
