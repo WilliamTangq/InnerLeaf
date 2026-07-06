@@ -18,6 +18,9 @@ import { trackEvent } from "../lib/analytics";
 type ScenarioId = "delayed_reply" | "study_pressure" | "social_comparison";
 type Step = "landing" | "scenario" | "messy" | "card" | "feedback" | "thankyou";
 
+const marketplaceMainCardClass =
+  "mx-auto flex min-h-[640px] w-full max-w-[1040px] flex-col rounded-[2.25rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(230,245,239,0.64),rgba(255,248,226,0.26))] p-5 shadow-[var(--shadow-xl)] hover:translate-y-0 sm:p-8 lg:px-11 lg:py-10";
+
 type Scenario = {
   id: ScenarioId;
   title: string;
@@ -59,7 +62,7 @@ const content = {
       nextStep: "One Small Next Step",
     },
     feedbackTitle: "Three quick questions",
-    feedbackBody: "This helps us test whether the demo is clear.",
+    feedbackBody: "Your answers help us improve InnerLeaf. No private story is saved.",
     saveFeedback: "Save feedback",
     savingFeedback: "Saving feedback...",
     feedbackError: "Feedback could not be saved. Please try again.",
@@ -68,15 +71,16 @@ const content = {
     patternInterest:
       "Would you save reflections like this to see what repeats over time?",
     thankYouTitle: "Thank you — your feedback was saved.",
-    thankYouBody: "Scan the QR code to try the full InnerLeaf experience privately.",
+    thankYouBody:
+      "Scan the QR code to explore the full InnerLeaf experience privately.",
     productCtaTitle: "Try InnerLeaf",
     productCtaBody:
       "Create your own private reflection and explore Quick Reflection, History, and Pattern Summary.",
     openFullProduct: "Open full product",
     productUrl: "inner-leaf.vercel.app",
-    qrAlt: "Scan to open InnerLeaf full product",
+    qrAlt: "Scan to open InnerLeaf",
     qrFallback: "QR code image can be added as /public/innerleaf-qr.png.",
-    signupTitle: "Want updates after Marketplace?",
+    signupTitle: "Want beta updates?",
     signupBody: "Leave your email only if you want to hear about future testing.",
     emailPlaceholder: "Email address optional",
     signup: "Join beta",
@@ -175,7 +179,7 @@ const content = {
       nextStep: "一个小的下一步",
     },
     feedbackTitle: "三个快速问题",
-    feedbackBody: "帮助我们判断这个演示是否清楚。",
+    feedbackBody: "你的回答会帮助我们改进 InnerLeaf。这里不会保存私人故事。",
     saveFeedback: "保存反馈",
     savingFeedback: "正在保存反馈...",
     feedbackError: "反馈未能保存，请再试一次。",
@@ -183,14 +187,14 @@ const content = {
     alternative: "如果不用 InnerLeaf，你通常会用什么？",
     patternInterest: "你会保存这样的反思，用来看看之后什么会重复出现吗？",
     thankYouTitle: "谢谢你 — 你的反馈已保存。",
-    thankYouBody: "扫描二维码，私密体验完整的 InnerLeaf。",
+    thankYouBody: "扫描二维码，私密探索完整的 InnerLeaf 体验。",
     productCtaTitle: "体验 InnerLeaf",
     productCtaBody: "创建你自己的私人反思，并探索快速反思、历史记录和模式总结。",
     openFullProduct: "打开完整产品",
     productUrl: "inner-leaf.vercel.app",
-    qrAlt: "扫码打开 InnerLeaf 完整产品",
+    qrAlt: "扫码打开 InnerLeaf",
     qrFallback: "可以把二维码图片放在 /public/innerleaf-qr.png。",
-    signupTitle: "Marketplace 之后想收到更新吗？",
+    signupTitle: "想收到 Beta 更新吗？",
     signupBody: "如果你想收到之后的测试更新，可以留下邮箱。",
     emailPlaceholder: "邮箱地址，可选",
     signup: "加入 Beta",
@@ -273,7 +277,7 @@ function OptionGroup({
   onSelect: (value: string) => void;
 }) {
   return (
-    <div>
+    <div className="min-w-0 flex-1">
       <p className="text-sm font-semibold text-[var(--foreground)]">{label}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {options.map(([id, optionLabel]) => (
@@ -626,58 +630,80 @@ export default function MarketplacePage() {
           )}
 
           {step === "feedback" && selectedScenario && (
-            <div className="mx-auto max-w-3xl">
-              <Card className="rounded-[2rem] p-5 shadow-[var(--shadow-lg)] hover:translate-y-0 sm:p-7">
+            <div className="mx-auto w-full">
+              <Card className={marketplaceMainCardClass}>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
                   {copy.feedbackTitle}
                 </p>
-                <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+                <p className="mt-3 max-w-2xl text-base leading-7 text-[var(--foreground-muted)]">
                   {copy.feedbackBody}
                 </p>
-                <div className="mt-6 space-y-6">
-                  <OptionGroup
-                    label={copy.clarity}
-                    options={copy.clarityOptions}
-                    value={clarity}
-                    onSelect={(value) => {
-                      setClarity(value);
-                      trackEvent("clarity_response", {
-                        locale: language,
-                        scenario_id: selectedScenario.id,
-                        response: value,
-                      });
-                    }}
-                  />
-                  <OptionGroup
-                    label={copy.alternative}
-                    options={copy.alternativeOptions}
-                    value={alternative}
-                    onSelect={(value) => {
-                      setAlternative(value);
-                      trackEvent("alternative_selected", {
-                        locale: language,
-                        scenario_id: selectedScenario.id,
-                        alternative: value,
-                      });
-                    }}
-                  />
-                  <OptionGroup
-                    label={copy.patternInterest}
-                    options={copy.patternOptions}
-                    value={patternInterest}
-                    onSelect={(value) => {
-                      setPatternInterest(value);
-                      trackEvent("pattern_interest", {
-                        locale: language,
-                        scenario_id: selectedScenario.id,
-                        interest: value,
-                      });
-                    }}
-                  />
+                <div className="mt-8 grid flex-1 gap-4">
+                  {[
+                    {
+                      id: "clarity",
+                      label: copy.clarity,
+                      options: copy.clarityOptions,
+                      value: clarity,
+                      onSelect: (value: string) => {
+                        setClarity(value);
+                        trackEvent("clarity_response", {
+                          locale: language,
+                          scenario_id: selectedScenario.id,
+                          response: value,
+                        });
+                      },
+                    },
+                    {
+                      id: "alternative",
+                      label: copy.alternative,
+                      options: copy.alternativeOptions,
+                      value: alternative,
+                      onSelect: (value: string) => {
+                        setAlternative(value);
+                        trackEvent("alternative_selected", {
+                          locale: language,
+                          scenario_id: selectedScenario.id,
+                          alternative: value,
+                        });
+                      },
+                    },
+                    {
+                      id: "pattern",
+                      label: copy.patternInterest,
+                      options: copy.patternOptions,
+                      value: patternInterest,
+                      onSelect: (value: string) => {
+                        setPatternInterest(value);
+                        trackEvent("pattern_interest", {
+                          locale: language,
+                          scenario_id: selectedScenario.id,
+                          interest: value,
+                        });
+                      },
+                    },
+                  ].map((question, index) => (
+                    <div
+                      key={question.id}
+                      className="rounded-[1.55rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] p-4 shadow-[var(--shadow-sm)] sm:p-5"
+                    >
+                      <div className="mb-3 flex items-start gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[rgba(31,155,143,0.14)] bg-[var(--accent-soft)] text-xs font-semibold text-[var(--brand-teal-deep)]">
+                          {index + 1}
+                        </span>
+                        <OptionGroup
+                          label={question.label}
+                          options={question.options}
+                          value={question.value}
+                          onSelect={question.onSelect}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
                 <PrimaryButton
                   size="lg"
-                  className="mt-7 w-full sm:w-auto"
+                  className="mt-8 w-full sm:w-auto"
                   onClick={() => void saveFeedback()}
                   disabled={
                     feedbackSaving || !clarity || !alternative || !patternInterest
@@ -695,96 +721,94 @@ export default function MarketplacePage() {
           )}
 
           {step === "thankyou" && (
-            <div className="mx-auto max-w-3xl text-center">
-              <Card className="rounded-[2.15rem] border-[rgba(31,155,143,0.13)] bg-[linear-gradient(135deg,rgba(255,254,248,0.96),rgba(230,245,239,0.64),rgba(255,248,226,0.26))] p-5 shadow-[var(--shadow-xl)] hover:translate-y-0 sm:p-8">
+            <div className="mx-auto w-full">
+              <Card className={marketplaceMainCardClass}>
                 <CheckCircle2
                   aria-hidden="true"
                   size={30}
                   strokeWidth={1.8}
                   className="mx-auto text-[var(--brand-teal-deep)]"
                 />
-                <h1 className="mx-auto mt-4 max-w-2xl text-3xl font-semibold tracking-tight text-[var(--foreground)]">
+                <h1 className="mx-auto mt-4 max-w-2xl text-center text-3xl font-semibold tracking-tight text-[var(--foreground)]">
                   {copy.thankYouTitle}
                 </h1>
-                <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-[var(--foreground-muted)]">
+                <p className="mx-auto mt-3 max-w-xl text-center text-base leading-7 text-[var(--foreground-muted)]">
                   {copy.thankYouBody}
                 </p>
 
-                <div className="mx-auto mt-8 max-w-md rounded-[1.9rem] border border-[rgba(31,155,143,0.14)] bg-[rgba(255,254,248,0.78)] p-5 shadow-[var(--shadow-md)]">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-teal-deep)]">
-                    InnerLeaf
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
-                    {copy.productCtaTitle}
-                  </h2>
-                  <p className="mt-3 text-sm leading-6 text-[var(--foreground-muted)]">
-                    {copy.productCtaBody}
-                  </p>
+                <div className="mt-8 grid flex-1 gap-6 lg:grid-cols-[1fr_300px] lg:items-center">
+                  <div className="text-left">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--brand-teal-deep)]">
+                      InnerLeaf
+                    </p>
+                    <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-3xl">
+                      {copy.productCtaTitle}
+                    </h2>
+                    <p className="mt-3 max-w-xl text-base leading-7 text-[var(--foreground-muted)]">
+                      {copy.productCtaBody}
+                    </p>
 
-                  <a
-                    href="https://inner-leaf.vercel.app"
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={openFullProduct}
-                    className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[var(--brand-teal-deep)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-md)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)] sm:hidden"
-                  >
-                    {copy.openFullProduct}
-                    <ArrowRight aria-hidden="true" size={15} strokeWidth={1.8} />
-                  </a>
-
-                  <div className="mt-5 hidden rounded-[1.5rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,255,255,0.64)] p-4 text-center shadow-[var(--shadow-sm)] sm:block">
-                    {qrVisible ? (
-                      <Image
-                        src="/innerleaf-qr.png"
-                        alt={copy.qrAlt}
-                        width={192}
-                        height={192}
-                        onError={() => setQrVisible(false)}
-                        className="mx-auto aspect-square w-48 rounded-[1rem] bg-white object-contain p-2"
-                      />
-                    ) : (
-                      <div className="mx-auto flex aspect-square w-48 items-center justify-center rounded-[1rem] border border-dashed border-[rgba(40,80,60,0.18)] bg-[rgba(255,255,255,0.58)] p-4 text-xs leading-5 text-[var(--foreground-subtle)]">
-                        {copy.qrFallback}
-                      </div>
-                    )}
-                    <p className="mt-3 text-sm font-semibold text-[var(--foreground-muted)]">
+                    <a
+                      href="https://inner-leaf.vercel.app"
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={openFullProduct}
+                      className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[var(--brand-teal-deep)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-md)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)] sm:w-auto"
+                    >
+                      {copy.openFullProduct}
+                      <ArrowRight aria-hidden="true" size={15} strokeWidth={1.8} />
+                    </a>
+                    <p className="mt-3 text-sm font-semibold text-[var(--foreground-subtle)]">
                       {copy.productUrl}
                     </p>
                   </div>
 
-                  <a
-                    href="https://inner-leaf.vercel.app"
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={openFullProduct}
-                    className="mt-5 hidden min-h-11 w-full items-center justify-center rounded-full bg-[var(--brand-teal-deep)] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--shadow-md)] transition hover:-translate-y-0.5 hover:shadow-[var(--shadow-lg)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)] sm:inline-flex"
-                  >
-                    {copy.openFullProduct}
-                    <ArrowRight aria-hidden="true" size={15} strokeWidth={1.8} />
-                  </a>
+                  <div className="hidden rounded-[1.75rem] border border-[rgba(31,155,143,0.13)] bg-[rgba(255,254,248,0.78)] p-5 text-center shadow-[var(--shadow-md)] sm:block">
+                    {qrVisible ? (
+                      <Image
+                        src="/innerleaf-qr.png"
+                        alt={copy.qrAlt}
+                        width={216}
+                        height={216}
+                        onError={() => setQrVisible(false)}
+                        className="mx-auto aspect-square w-56 rounded-[1.15rem] bg-white object-contain p-2"
+                      />
+                    ) : (
+                      <div className="mx-auto flex aspect-square w-56 items-center justify-center rounded-[1.15rem] border border-dashed border-[rgba(40,80,60,0.18)] bg-[rgba(255,255,255,0.58)] p-4 text-xs leading-5 text-[var(--foreground-subtle)]">
+                        {copy.qrFallback}
+                      </div>
+                    )}
+                    <p className="mt-4 text-sm font-semibold text-[var(--brand-teal-deep)]">
+                      {copy.qrAlt}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="mx-auto mt-5 max-w-md rounded-[1.35rem] border border-[rgba(40,80,60,0.07)] bg-[rgba(255,254,248,0.50)] p-4 text-left">
-                  <p className="font-semibold text-[var(--foreground)]">
-                    {copy.signupTitle}
-                  </p>
-                  <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
-                    {copy.signupBody}
-                  </p>
-                  <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-                    <input
-                      value={signupValue}
-                      onChange={(event) => setSignupValue(event.target.value)}
-                      placeholder={copy.emailPlaceholder}
-                      className="min-h-11 flex-1 rounded-full border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.88)] px-4 text-sm text-[var(--foreground)] outline-none focus:border-[rgba(31,155,143,0.34)] focus:ring-2 focus:ring-[rgba(31,155,143,0.12)]"
-                    />
-                    <PrimaryButton
-                      type="button"
-                      onClick={() => void submitSignup()}
-                      disabled={!signupValue.trim() || signupDone}
-                    >
-                      {signupDone ? copy.signupDone : copy.signup}
-                    </PrimaryButton>
+                <div className="mt-8 rounded-[1.5rem] border border-[rgba(40,80,60,0.07)] bg-[rgba(255,254,248,0.48)] p-4 text-left">
+                  <div className="grid gap-4 lg:grid-cols-[0.75fr_1.25fr] lg:items-end">
+                    <div>
+                      <p className="font-semibold text-[var(--foreground)]">
+                        {copy.signupTitle}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                        {copy.signupBody}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 sm:flex-row">
+                      <input
+                        value={signupValue}
+                        onChange={(event) => setSignupValue(event.target.value)}
+                        placeholder={copy.emailPlaceholder}
+                        className="min-h-11 flex-1 rounded-full border border-[rgba(40,80,60,0.12)] bg-[rgba(255,254,248,0.88)] px-4 text-sm text-[var(--foreground)] outline-none focus:border-[rgba(31,155,143,0.34)] focus:ring-2 focus:ring-[rgba(31,155,143,0.12)]"
+                      />
+                      <PrimaryButton
+                        type="button"
+                        onClick={() => void submitSignup()}
+                        disabled={!signupValue.trim() || signupDone}
+                      >
+                        {signupDone ? copy.signupDone : copy.signup}
+                      </PrimaryButton>
+                    </div>
                   </div>
                   {signupError && (
                     <p className="mt-3 text-sm font-medium text-[var(--error)]">
@@ -793,7 +817,7 @@ export default function MarketplacePage() {
                   )}
                 </div>
 
-                <div className="mt-5 flex justify-center">
+                <div className="mt-6 flex justify-center">
                   <button
                     type="button"
                     onClick={reset}
