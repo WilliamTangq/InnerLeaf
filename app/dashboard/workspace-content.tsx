@@ -307,7 +307,7 @@ function MicroActionRow() {
 }
 
 export function WorkspaceContent() {
-  const { language, t } = useLanguage();
+  const { t } = useLanguage();
   const { isAdmin, profile, session, user } = useAuth();
   const [recent, setRecent] = useState<RecentReflection | null>(null);
   const [stats, setStats] = useState<WorkspaceStats>({
