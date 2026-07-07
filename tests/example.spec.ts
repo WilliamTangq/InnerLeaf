@@ -3,16 +3,16 @@ import { expect, test } from "@playwright/test";
 const routes = [
   {
     path: "/",
-    heading: "Turn emotional overload into clear reflection.",
+    heading: "See the pattern behind your emotional reactions.",
   },
   { path: "/feedback", heading: "Share feedback" },
   { path: "/test", heading: "Test InnerLeaf" },
-  { path: "/demo", heading: "InnerLeaf Demo Flow" },
+  { path: "/demo", heading: "Try the InnerLeaf structure" },
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
-  { path: "/students", heading: "InnerLeaf for students" },
-  { path: "/pricing", heading: "Simple MVP pricing" },
+  { path: "/students", heading: "InnerLeaf for international students" },
+  { path: "/pricing", heading: "Public beta pricing" },
   { path: "/login", heading: "Log in to InnerLeaf" },
   { path: "/register", heading: "Create your InnerLeaf account" },
   { path: "/reset-password", heading: "Reset your password" },
@@ -102,13 +102,13 @@ for (const [path, next] of Object.entries(compatibilityRoutes)) {
   });
 }
 
-test("home links to account creation and demo", async ({ page }) => {
+test("home links to demo and private reflection", async ({ page }) => {
   await page.goto("/");
 
   await expect(
-    page.getByRole("link", { name: "Create account" }).first()
+    page.getByRole("link", { name: "Start private reflection" }).first()
   ).toHaveAttribute("href", "/register");
   await expect(
-    page.getByRole("link", { name: "View demo" }).first()
+    page.getByRole("link", { name: "Try a fictional demo" }).first()
   ).toHaveAttribute("href", "/demo");
 });
