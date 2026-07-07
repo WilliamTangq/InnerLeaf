@@ -7,7 +7,7 @@ const routes = [
   },
   { path: "/feedback", heading: "Share feedback" },
   { path: "/test", heading: "Test InnerLeaf" },
-  { path: "/demo", heading: "InnerLeaf Demo Flow" },
+  { path: "/demo", heading: "Try a 60-second reflection" },
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
