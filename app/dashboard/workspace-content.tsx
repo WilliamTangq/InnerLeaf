@@ -482,29 +482,6 @@ export function WorkspaceContent() {
             );
           })}
         </div>
-        <Card
-          variant="support"
-          className="mt-3 border-[rgba(31,155,143,0.12)] bg-[linear-gradient(135deg,rgba(255,254,248,0.86),rgba(232,246,241,0.42))] hover:translate-y-0"
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-3">
-              <IconFrame icon={ShieldCheck} size="sm" />
-              <div>
-                <h2 className="text-base font-semibold text-[var(--foreground)]">
-                  {language === "zh" ? "不保存反思" : "No-save Reflection"}
-                </h2>
-                <p className="mt-1.5 max-w-2xl text-sm leading-6 text-[var(--foreground-muted)]">
-                  {language === "zh"
-                    ? "先生成一张反思卡片，但不加入历史记录。"
-                    : "Generate a reflection card without adding it to History."}
-                </p>
-              </div>
-            </div>
-            <LinkButton href="/dashboard/quick?save=off" variant="secondary" size="sm">
-              {language === "zh" ? "开始不保存反思" : "Start no-save reflection"}
-            </LinkButton>
-          </div>
-        </Card>
       </section>
 
       <section className="mt-4 sm:mt-5">
