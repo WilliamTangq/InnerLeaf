@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useMemo } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
   Brain,
@@ -59,9 +59,9 @@ function TransformationMockup() {
     language === "zh"
       ? {
           source: "情绪来源",
-          demon: "情绪名字",
+          demon: "反应模式",
           facts: "事实",
-          imagination: "想象",
+          imagination: "解读",
           need: "未满足的需要",
           sourceValue: "等待回复时，不确定感变强。",
           demonValue: "读心式担心",
@@ -72,9 +72,9 @@ function TransformationMockup() {
         }
       : {
           source: "Emotional Source",
-          demon: "Name the Demon",
-          facts: "Facts",
-          imagination: "Imagination",
+          demon: "Pattern",
+          facts: "Fact",
+          imagination: "Assumption",
           need: "Unmet Need",
           sourceValue: "Uncertainty grew while waiting for a reply.",
           demonValue: "Mind-reading worry",
@@ -223,9 +223,9 @@ function ProductTransformation() {
           structureLabel: "反思结构",
           rows: [
             ["情绪来源", "等待回复时，不确定感变强。"],
-            ["情绪名字", "读心式担心"],
+            ["反应模式", "读心式担心"],
             ["事实", "对方比预期更晚回复。"],
-            ["想象", "这可能说明我不被在意。"],
+            ["解读", "这可能说明我不被在意。"],
           ],
           rankedUnit: "次",
         }
@@ -233,15 +233,15 @@ function ProductTransformation() {
           structureLabel: "Reflection structure",
           rows: [
             ["Emotional Source", "Uncertainty grew while waiting for a reply."],
-            ["Name the Demon", "Mind-reading worry"],
-            ["Facts", "The message was answered later than expected."],
-            ["Imagination", "This may mean I am being ignored."],
+            ["Pattern", "Mind-reading worry"],
+            ["Fact", "The message was answered later than expected."],
+            ["Assumption", "This may mean I am being ignored."],
           ],
           rankedUnit: "times",
         };
 
   return (
-    <section className="mx-auto max-w-[1240px] py-12 sm:py-16 lg:py-20">
+    <section className="mx-auto max-w-[1240px] py-16 sm:py-20 lg:py-24">
       <div className="mx-auto max-w-[42rem] text-center">
         <SectionLabel>{t.home.transformationEyebrow}</SectionLabel>
         <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight">
@@ -409,11 +409,11 @@ function ProductTransformation() {
 export default function Home() {
   const { language, t } = useLanguage();
   const { role, user } = useAuth();
+  const reduceMotion = useReducedMotion();
   const workspaceHref = user ? getDefaultRouteForRole(role) : "/register";
   const isAdmin = role === "admin";
-  const primaryCtaHref = user ? workspaceHref : "/demo";
-  const primaryCtaLabel =
-    language === "zh" ? "开始 60 秒反思" : "Start a 60-second reflection";
+  const primaryCtaLabel = language === "zh" ? "体验虚构演示" : "Try a fictional demo";
+  const privateReflectionHref = user ? workspaceHref : "/register";
   const privateReflectionLabel = user
     ? isAdmin
       ? t.app.openAdmin
@@ -435,26 +435,34 @@ export default function Home() {
   return (
     <PageShell maxWidth="max-w-[1320px]">
       <div className="h-px overflow-hidden text-[1px] leading-none text-transparent">
-        <h1>Turn emotional overload into clear reflection.</h1>
-        <Link href="/register">Create account</Link>
-        <Link href="/demo">View demo</Link>
+        <h1>Reflect before you react.</h1>
+        <Link href="/demo">Try a fictional demo</Link>
+        <Link href="/register">Start private reflection</Link>
       </div>
-      <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(35,70,55,0.085)] bg-[linear-gradient(140deg,rgba(255,254,248,0.99),rgba(238,248,244,0.60)_58%,rgba(255,249,229,0.38))] px-5 py-7 shadow-[var(--shadow-lg)] sm:rounded-[2.65rem] sm:px-8 sm:py-9 lg:px-11 lg:py-11 xl:px-12">
+      <section className="relative overflow-hidden rounded-[2rem] border border-[rgba(35,70,55,0.075)] bg-[rgba(255,254,248,0.94)] px-5 py-9 shadow-[var(--shadow-lg)] sm:rounded-[2.65rem] sm:px-8 sm:py-12 lg:px-11 lg:py-14 xl:px-12">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.55),transparent_42%),radial-gradient(circle_at_55%_0%,rgba(255,255,255,0.55),transparent_28%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_64%_10%,rgba(31,155,143,0.08),transparent_32%),radial-gradient(circle_at_92%_16%,rgba(217,179,74,0.075),transparent_24%)]"
         />
         <div
           aria-hidden="true"
-          className="absolute -right-28 top-4 h-72 w-72 rounded-full bg-[rgba(217,179,74,0.15)] blur-3xl"
+          className="absolute -right-28 top-4 h-72 w-72 rounded-full bg-[rgba(217,179,74,0.08)] blur-3xl"
         />
         <div
           aria-hidden="true"
-          className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.11)] blur-3xl"
+          className="absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-[rgba(31,155,143,0.08)] blur-3xl"
         />
 
         <div className="relative grid gap-9 lg:grid-cols-12 lg:items-center xl:gap-11">
-          <div className="max-w-[34rem] lg:col-span-5">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.52,
+              ease: [0.2, 0.8, 0.2, 1],
+            }}
+            className="max-w-[38rem] lg:col-span-5"
+          >
             <div className="flex items-center gap-2.5 text-sm font-semibold text-[var(--foreground-muted)]">
               <BrandLogo size="sm" href={null} showWordmark={false} />
               <span>InnerLeaf</span>
@@ -462,60 +470,42 @@ export default function Home() {
             <div className="mt-4">
               <Badge variant="accent">{t.home.badge}</Badge>
             </div>
-            <h1 className="mt-5 max-w-[500px] text-[2.2rem] font-semibold leading-[1.06] tracking-tight text-[var(--foreground)] sm:text-[2.75rem] sm:leading-[1.04] lg:text-[2.95rem] xl:text-[3.08rem]">
+            <h1 className="mt-5 max-w-[620px] text-[2.55rem] font-semibold leading-[1.03] tracking-tight text-[var(--foreground)] sm:text-[3.45rem] sm:leading-[1.01] lg:text-[3.75rem] xl:text-[4rem]">
               {t.home.headline}
             </h1>
-            <p className="mt-4 max-w-[30rem] text-[15px] leading-7 text-[var(--foreground-muted)] sm:text-base sm:leading-7">
+            <p className="mt-5 max-w-[34rem] text-xl font-semibold leading-8 tracking-tight text-[var(--foreground)] sm:text-2xl sm:leading-9">
+              {t.home.valueLine}
+            </p>
+            <p className="mt-4 max-w-[34rem] text-[15px] leading-7 text-[var(--foreground-muted)] sm:text-[17px] sm:leading-8">
               {t.home.subtitle}
             </p>
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">
               <LinkButton
-                href={primaryCtaHref}
-                size="lg"
-                className="w-full px-5 py-2.5 sm:w-auto"
-                onClick={() =>
-                  trackEvent("hero_create_account_clicked", trackingContext)
-                }
-              >
-                {primaryCtaLabel}
-              </LinkButton>
-              <LinkButton
                 href="/demo"
-                variant="secondary"
                 size="lg"
                 className="w-full px-5 py-2.5 sm:w-auto"
                 onClick={() =>
                   trackEvent("hero_view_demo_clicked", trackingContext)
                 }
               >
-                {t.common.viewDemo}
+                {primaryCtaLabel}
+              </LinkButton>
+              <LinkButton
+                href={privateReflectionHref}
+                variant="secondary"
+                size="lg"
+                className="w-full px-5 py-2.5 sm:w-auto"
+                onClick={() =>
+                  trackEvent("hero_create_account_clicked", trackingContext)
+                }
+              >
+                {privateReflectionLabel}
               </LinkButton>
             </div>
-            <p className="mt-3 max-w-[29rem] text-xs leading-5 text-[var(--foreground-subtle)]">
-              {t.home.ctaHint}
-            </p>
-            <div className="mt-4 flex flex-col gap-2.5 text-sm sm:flex-row sm:items-center sm:gap-3">
-              <Link
-                href="/test"
-                onClick={() =>
-                  trackEvent("hero_help_test_clicked", trackingContext)
-                }
-                className="font-medium text-[var(--brand-teal-deep)] underline-offset-4 transition hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
-              >
-                {t.common.helpTest}
-              </Link>
-              <span className="hidden h-1 w-1 rounded-full bg-[var(--border-strong)] sm:block" />
-              <Link
-                href={user ? workspaceHref : "/login"}
-                className="font-medium text-[var(--foreground-muted)] underline-offset-4 transition hover:text-[var(--foreground)] hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent-ring)]"
-              >
-                {user ? privateReflectionLabel : t.auth.loginLink}
-              </Link>
-            </div>
-            <p className="mt-5 max-w-[31rem] text-sm leading-6 text-[var(--foreground-subtle)]">
+            <p className="mt-5 max-w-[34rem] text-sm leading-6 text-[var(--foreground-subtle)]">
               {t.home.safety}
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap gap-2">
               {t.home.heroPills.map((pill) => (
                 <span
                   key={pill}
@@ -525,15 +515,26 @@ export default function Home() {
                 </span>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <div className="lg:col-span-7">
+          <motion.div
+            initial={reduceMotion ? false : { opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              duration: reduceMotion ? 0 : 0.6,
+              delay: reduceMotion ? 0 : 0.12,
+              ease: [0.2, 0.8, 0.2, 1],
+            }}
+            className="lg:col-span-7"
+          >
             <TransformationMockup />
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      <ProductTransformation />
+      <div className="mt-16 sm:mt-20 lg:mt-24">
+        <ProductTransformation />
+      </div>
 
       <section id="how-it-works" className="mt-14 scroll-mt-24 sm:mt-[4.5rem] lg:mt-20">
         <SectionHeading eyebrow={t.home.howEyebrow} title={t.home.howTitle}>

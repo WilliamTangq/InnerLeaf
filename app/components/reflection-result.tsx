@@ -89,13 +89,13 @@ type SavedReflectionSignal = {
 const SECTIONS = [
   { key: "Emotional Validation", label: "What came up" },
   { key: "Trigger", label: "Trigger" },
-  { key: "Facts vs Interpretation", label: "Facts & interpretation" },
-  { key: "Thought Pattern", label: "Thought pattern" },
+  { key: "Facts vs Interpretation", label: "Fact & assumption" },
+  { key: "Thought Pattern", label: "Pattern" },
   { key: "Behaviour", label: "Behaviour" },
   { key: "Body / context", label: "Body / context" },
   { key: "Behavioural Insight", label: "Behavioural insight" },
   { key: "One Next Question", label: "One next question" },
-  { key: "One Small Next Step", label: "One small next step" },
+  { key: "One Small Next Step", label: "One Small Next Step" },
 ] as const;
 
 const sectionIcons = {
@@ -104,6 +104,7 @@ const sectionIcons = {
   Trigger: Zap,
   Facts: ListChecks,
   Interpretation: Route,
+  Pattern: Brain,
   "Thought pattern": Brain,
   Behaviour: Footprints,
   "Body / context": Waves,
@@ -317,10 +318,10 @@ function Prompt2ResultModules({
     language === "zh"
       ? {
           source: "这次情绪的来源",
-          demon: "这次情绪的名字",
+          demon: "反应模式",
           emotions: "情绪标签",
           facts: "事实",
-          imagination: "想象",
+          imagination: "解读",
           unmetNeed: "真正未被满足的需求",
           surface: "表面诉求可能是",
           deeper: "更深层的需求可能是",
@@ -328,7 +329,7 @@ function Prompt2ResultModules({
           deeperInsight: "更深一层",
           deepHint: "可选查看",
           hypotheses: "仍需验证的几种可能",
-          thoughtPattern: "主要思维模式",
+          thoughtPattern: "反应模式",
           mindProtecting: "大脑正在保护什么",
           behaviouralPull: "你可能会被拉向的行为",
           observeNext: "接下来观察什么",
@@ -337,10 +338,10 @@ function Prompt2ResultModules({
         }
       : {
           source: "Emotional Source",
-          demon: "Name the Demon",
+          demon: "Pattern",
           emotions: "Emotion Labels",
-          facts: "Facts",
-          imagination: "Imagination",
+          facts: "Fact",
+          imagination: "Assumption",
           unmetNeed: "Unmet Need",
           surface: "Surface ask may be",
           deeper: "Deeper need may be",
@@ -348,7 +349,7 @@ function Prompt2ResultModules({
           deeperInsight: "Deeper layer",
           deepHint: "Optional",
           hypotheses: "Open hypotheses",
-          thoughtPattern: "Main thought pattern",
+          thoughtPattern: "Pattern",
           mindProtecting: "What your mind might be protecting",
           behaviouralPull: "Behavioural pull",
           observeNext: "What to observe next",
@@ -425,7 +426,7 @@ function Prompt2ResultModules({
 
           <Prompt2ModuleCard
             index={4}
-            title={language === "zh" ? "事实与想象" : "Facts vs Imagination"}
+            title={language === "zh" ? "事实与解读" : "Fact vs Assumption"}
             icon={ListChecks}
           >
             <div className="grid gap-2.5 sm:grid-cols-2">
@@ -997,7 +998,7 @@ export function ReflectionResultCard({
             {sections.map((section) => {
               const isQuestion =
                 section.label === "One next question" ||
-                section.label === "One small next step";
+                section.label === "One Small Next Step";
 
               return (
                 <ReflectionSection
@@ -1006,7 +1007,7 @@ export function ReflectionResultCard({
                   labelText={
                     section.label === "One next question"
                       ? labels.nextQuestion
-                      : section.label === "One small next step"
+                      : section.label === "One Small Next Step"
                         ? labels.nextStep
                         : section.label
                   }

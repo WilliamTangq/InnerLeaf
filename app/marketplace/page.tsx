@@ -42,7 +42,7 @@ const content = {
     title: "Fact or Assumption?",
     subtitle: "The InnerLeaf Reflection Lab",
     intro:
-      "Try a fictional emotional moment and see how InnerLeaf turns it into a structured Reflection Card.",
+      "Try a fictional emotional moment and see the before and after: messy message → structured Reflection Card.",
     start: "Try a fictional moment",
     back: "Back",
     reset: "Reset for next visitor",
@@ -61,6 +61,8 @@ const content = {
       behaviour: "Behaviour",
       nextStep: "One Small Next Step",
     },
+    previewLabel: "Before vs After",
+    previewRows: ["Trigger", "Fact", "Assumption", "Pattern", "One Small Next Step"],
     feedbackTitle: "Three quick questions",
     feedbackBody: "Your answers help us improve InnerLeaf. No private story is saved.",
     saveFeedback: "Save feedback",
@@ -159,7 +161,7 @@ const content = {
     badge: "Marketplace 演示",
     title: "事实，还是假设？",
     subtitle: "InnerLeaf 反思实验室",
-    intro: "选择一个虚构情绪场景，看看 InnerLeaf 如何把它整理成结构化反思卡片。",
+    intro: "选择一个虚构情绪场景，看看它如何从混乱文字变成结构化反思卡片。",
     start: "体验虚构场景",
     back: "返回",
     reset: "为下一位访客重置",
@@ -173,11 +175,13 @@ const content = {
     fields: {
       trigger: "触发点",
       fact: "事实",
-      assumption: "假设",
-      pattern: "模式",
+      assumption: "解读",
+      pattern: "反应模式",
       behaviour: "行为",
-      nextStep: "一个小的下一步",
+      nextStep: "一个小行动",
     },
+    previewLabel: "前后对比",
+    previewRows: ["触发点", "事实", "解读", "反应模式", "一个小行动"],
     feedbackTitle: "三个快速问题",
     feedbackBody: "你的回答会帮助我们改进 InnerLeaf。这里不会保存私人故事。",
     saveFeedback: "保存反馈",
@@ -488,22 +492,21 @@ export default function MarketplacePage() {
               <Card className="relative overflow-hidden rounded-[2rem] bg-[rgba(255,254,248,0.80)] p-5 shadow-[var(--shadow-lg)] hover:translate-y-0">
                 <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--foreground-subtle)]">
                   <Leaf aria-hidden="true" size={16} strokeWidth={1.8} />
-                  Reflection card preview
+                  {copy.previewLabel}
                 </div>
                 <div className="mt-5 space-y-3">
-                  {["Trigger", "Fact", "Assumption", "Pattern", "Next step"].map(
-                    (item) => (
+                  {copy.previewRows.map((item, index) => (
                       <div
                         key={item}
-                        className="rounded-2xl border border-[rgba(40,80,60,0.08)] bg-[rgba(255,255,255,0.58)] p-4"
+                        className="soft-reveal rounded-2xl border border-[rgba(40,80,60,0.08)] bg-[rgba(255,255,255,0.58)] p-4"
+                        style={{ animationDelay: `${index * 90}ms` }}
                       >
                         <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
                           {item}
                         </p>
                         <span className="mt-2 block h-2 w-2/3 rounded-full bg-[rgba(31,155,143,0.18)]" />
                       </div>
-                    )
-                  )}
+                    ))}
                 </div>
               </Card>
             </div>

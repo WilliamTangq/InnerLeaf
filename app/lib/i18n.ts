@@ -149,11 +149,13 @@ export const translations = {
       },
     },
     home: {
-      badge: "Reflect before you react",
-      headline: "See the pattern behind your emotional reactions.",
+      badge: "Private self-reflection",
+      headline: "Pause. Reflect. Respond.",
+      valueLine:
+        "See the pattern behind your emotional reactions.",
       subtitle:
-        "InnerLeaf helps you turn one intense emotional moment into a calm reflection card by separating facts, assumptions, unmet needs, and one small next step.",
-      safety: "Private self-reflection space. Not crisis support, therapy, diagnosis, or medical advice.",
+        "InnerLeaf helps you separate what happened, what your mind assumed, what you felt, and what you can do next — without turning it into an endless chat.",
+      safety: "Private self-reflection. Not therapy, diagnosis, crisis support, or medical advice.",
       ctaHint:
         "Try the fictional demo first. Start a private reflection when you are ready.",
       heroPills: [
@@ -840,13 +842,13 @@ export const translations = {
       secondaryEmotion: "Secondary emotion",
       emotion: "Emotion",
       trigger: "Trigger",
-      factsInterpretation: "Facts & interpretation",
-      facts: "Facts",
-      interpretation: "Interpretation",
-      mainThoughtPattern: "Main thought pattern",
+      factsInterpretation: "Fact & assumption",
+      facts: "Fact",
+      interpretation: "Assumption",
+      mainThoughtPattern: "Pattern",
       thoughtPatternExplanation:
         "One pattern that may be shaping this reaction.",
-      thoughtPattern: "Thought pattern",
+      thoughtPattern: "Pattern",
       behaviour: "Behaviour",
       behaviouralInsight: "Behavioural insight",
       bodyContext: "Body / context",
@@ -861,7 +863,7 @@ export const translations = {
         "This trigger has appeared in your saved reflections before: {trigger}. This would be reflection {count} connected to it.",
       safetyNote: "Safety note",
       nextQuestion: "One next question",
-      nextStep: "One small next step",
+      nextStep: "One Small Next Step",
       nextStepHint: "Try this gently, or skip it if it does not fit the moment.",
       detailsToggle: "Look closer at facts and patterns",
       saveCheckInTitle: "Save / check in",
@@ -1716,11 +1718,12 @@ export const translations = {
       },
     },
     home: {
-      badge: "公开测试版 · 回应之前先整理清楚",
-      headline: "在发出那段长消息前，先反思一下。",
+      badge: "私人自我反思",
+      headline: "先看清，再回应。",
+      valueLine: "把一次强烈情绪，整理成一张清晰的反思卡片。",
       subtitle:
-        "InnerLeaf 帮你把一次强烈的情绪时刻整理成平静的反思卡片：区分事实、假设、未被满足的需要，以及一个小的下一步。",
-      safety: "私人自我反思空间。不是危机支持、治疗、诊断或医疗建议。",
+        "InnerLeaf 帮你区分发生了什么、你当时怎么理解、你真实感受到什么，以及下一步可以先做什么——而不是让情绪变成一场没有尽头的聊天。",
+      safety: "私人自我反思。不是治疗、诊断、危机支持或医疗建议。",
       ctaHint:
         "可以先体验虚构演示；准备好时再进入私人反思空间。",
       heroPills: [
@@ -2379,9 +2382,9 @@ export const translations = {
       factsInterpretation: "事实与解读",
       facts: "事实",
       interpretation: "解读",
-      mainThoughtPattern: "主要思维模式",
+      mainThoughtPattern: "反应模式",
       thoughtPatternExplanation: "这可能是影响这次反应的一个模式。",
-      thoughtPattern: "思维模式",
+      thoughtPattern: "反应模式",
       behaviour: "行为反应",
       behaviouralInsight: "行为洞察",
       bodyContext: "身体 / 环境因素",
@@ -2396,7 +2399,7 @@ export const translations = {
         "这个触发点之前也出现在你保存的反思中：{trigger}。这会是与它相关的第 {count} 次记录。",
       safetyNote: "安全提示",
       nextQuestion: "一个反思问题",
-      nextStep: "一个小的下一步",
+      nextStep: "一个小行动",
       nextStepHint: "可以温和地尝试；如果不适合此刻，也可以先跳过。",
       detailsToggle: "展开查看事实和模式",
       saveCheckInTitle: "保存 / 简短回看",

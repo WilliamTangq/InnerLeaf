@@ -883,7 +883,7 @@ function Prompt2SignalPath({
           title: "近期卡片里的主要线索",
           desc: "从触发点、情绪名字、需要和下一步四个层面轻轻归纳。",
           trigger: "触发点",
-          demon: "情绪名字 / 模式",
+          demon: "反应模式",
           need: "未满足的需要",
           step: "常见下一步",
           empty: "继续保存反思后，这条线索会更清楚。",
@@ -892,7 +892,7 @@ function Prompt2SignalPath({
           title: "The main signal in recent cards",
           desc: "A light read across trigger, demon, need, and next step.",
           trigger: "Trigger",
-          demon: "Demon / Pattern",
+          demon: "Pattern",
           need: "Unmet need",
           step: "Next step",
           empty: "Save more reflections to make this signal clearer.",
@@ -1307,13 +1307,13 @@ export function SummaryContent() {
                   icon={Brain}
                   title={
                     language === "zh"
-                      ? "这次情绪的名字 / 主要思维模式"
-                      : "Name the Demon / Thought Pattern"
+                      ? "反应模式"
+                      : "Pattern"
                   }
                   description={
                     language === "zh"
-                      ? "来自卡片里的“这次情绪的名字”和主要思维模式。"
-                      : "From each card’s Name the Demon and Thought Pattern sections."
+                      ? "来自卡片里的反应模式和主要思维线索。"
+                      : "From each card’s pattern and thought-pattern sections."
                   }
                   items={summaryPatternRows}
                   lowDataText={t.summary.moreReflectionsNeeded}

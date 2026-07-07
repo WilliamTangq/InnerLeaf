@@ -56,7 +56,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), var(--font-noto-sans-sc);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -66,7 +66,7 @@ body {
     radial-gradient(circle at 88% -8%, rgba(217, 179, 74, 0.12), transparent 30rem),
     linear-gradient(180deg, #fffdf8 0%, var(--background) 42rem);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-geist-sans), var(--font-noto-sans-sc), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
 }
@@ -194,6 +194,36 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.soft-reveal {
+  animation: softReveal 560ms var(--motion-ease) both;
+}
+
+.soft-reveal-delay-1 {
+  animation-delay: 90ms;
+}
+
+.soft-reveal-delay-2 {
+  animation-delay: 180ms;
+}
+
+.soft-reveal-delay-3 {
+  animation-delay: 270ms;
+}
+
+.soft-reveal-delay-4 {
+  animation-delay: 360ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .soft-reveal,
+  .soft-reveal-delay-1,
+  .soft-reveal-delay-2,
+  .soft-reveal-delay-3,
+  .soft-reveal-delay-4 {
+    animation: none;
   }
 }
 
