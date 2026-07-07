@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { CheckCircle2, HelpCircle, LockKeyhole, ShieldCheck } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   ReflectionResultCard,
@@ -29,6 +29,7 @@ export function QuickReflectionContent() {
   const { language, t } = useLanguage();
   const { role, session, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [input, setInput] = useState("");
   const [result, setResult] = useState("");
   const [structured, setStructured] =
@@ -39,16 +40,46 @@ export function QuickReflectionContent() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [saveToHistory, setSaveToHistory] = useState(true);
+  const [saveToHistory, setSaveToHistory] = useState(
+    searchParams.get("save") !== "off"
+  );
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [generatedReflectionLanguage, setGeneratedReflectionLanguage] =
     useState<ReflectionLanguage>(language);
+  const [loadingStep, setLoadingStep] = useState(0);
 
   const draftKey = user?.id ? `innerleaf:quick:${user.id}` : "";
   const textareaId = "quick-reflection-input";
   const selectedMoodOption = t.quick.moodOptions.find(
     (option) => option.id === selectedMood
   );
+  const warmLoadingMessages = useMemo(
+    () =>
+      language === "zh"
+        ? [
+            "正在区分事实与假设...",
+            "正在寻找未被满足的需要...",
+            "正在生成一个温和的小下一步...",
+          ]
+        : [
+            "Separating facts from assumptions...",
+            "Finding the unmet need...",
+            "Creating one gentle next step...",
+          ],
+    [language]
+  );
+
+  useEffect(() => {
+    if (!loading) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      setLoadingStep((current) => (current + 1) % warmLoadingMessages.length);
+    }, 1400);
+
+    return () => window.clearInterval(interval);
+  }, [loading, warmLoadingMessages.length]);
 
   useEffect(() => {
     if (!draftKey) {
@@ -257,6 +288,7 @@ export function QuickReflectionContent() {
     }
 
     setLoading(true);
+    setLoadingStep(0);
     setResult("");
     setStructured(null);
     setWarning("");
@@ -537,8 +569,8 @@ export function QuickReflectionContent() {
                 </Link>
               </p>
               {loading ? (
-                <div className="flex min-h-11 w-full items-center justify-center sm:w-auto">
-                  <LoadingSpinner label={t.common.loadingQuick} />
+                <div className="flex min-h-11 w-full items-center justify-center rounded-full border border-[rgba(31,155,143,0.16)] bg-[rgba(230,245,239,0.56)] px-4 sm:w-auto">
+                  <LoadingSpinner label={warmLoadingMessages[loadingStep]} />
                 </div>
               ) : (
                 <PrimaryButton
@@ -560,7 +592,7 @@ export function QuickReflectionContent() {
         {error && <StatusCard tone="error">{error}</StatusCard>}
       </div>
 
-      {loading && <LoadingCard label={t.common.loadingQuick} />}
+      {loading && <LoadingCard label={warmLoadingMessages[loadingStep]} />}
 
       {result && (
         <>

@@ -1194,6 +1194,17 @@ export function SummaryContent() {
         </LinkButton>
       </PageActions>
 
+      <Card
+        variant="support"
+        className="mb-6 border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.68)] p-4 hover:translate-y-0"
+      >
+        <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+          {language === "zh"
+            ? "模式是观察，不是标签。InnerLeaf 不提供情绪打分、诊断或医疗建议。"
+            : "Patterns are observations, not labels. InnerLeaf does not provide mood scores, diagnoses, or medical advice."}
+        </p>
+      </Card>
+
       {hasError && <StatusCard tone="error">{t.summary.unavailable}</StatusCard>}
 
       {!hasError && loaded && !user && (

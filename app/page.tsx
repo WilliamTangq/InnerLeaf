@@ -411,7 +411,9 @@ export default function Home() {
   const { role, user } = useAuth();
   const workspaceHref = user ? getDefaultRouteForRole(role) : "/register";
   const isAdmin = role === "admin";
-  const privateReflectionHref = user ? workspaceHref : "/login?next=/dashboard/quick";
+  const primaryCtaHref = user ? workspaceHref : "/demo";
+  const primaryCtaLabel =
+    language === "zh" ? "开始 60 秒反思" : "Start a 60-second reflection";
   const privateReflectionLabel = user
     ? isAdmin
       ? t.app.openAdmin
@@ -468,25 +470,25 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:gap-3">
               <LinkButton
-                href="/demo"
-                size="lg"
-                className="w-full px-5 py-2.5 sm:w-auto"
-                onClick={() =>
-                  trackEvent("hero_view_demo_clicked", trackingContext)
-                }
-              >
-                {t.common.tryDemo}
-              </LinkButton>
-              <LinkButton
-                href={privateReflectionHref}
-                variant="secondary"
+                href={primaryCtaHref}
                 size="lg"
                 className="w-full px-5 py-2.5 sm:w-auto"
                 onClick={() =>
                   trackEvent("hero_create_account_clicked", trackingContext)
                 }
               >
-                {privateReflectionLabel}
+                {primaryCtaLabel}
+              </LinkButton>
+              <LinkButton
+                href="/demo"
+                variant="secondary"
+                size="lg"
+                className="w-full px-5 py-2.5 sm:w-auto"
+                onClick={() =>
+                  trackEvent("hero_view_demo_clicked", trackingContext)
+                }
+              >
+                {t.common.viewDemo}
               </LinkButton>
             </div>
             <p className="mt-3 max-w-[29rem] text-xs leading-5 text-[var(--foreground-subtle)]">

@@ -12,13 +12,14 @@ import {
   MessageCircleQuestion,
   MoreHorizontal,
   Route,
+  Search,
   Send,
   Sparkles as SparklesIcon,
   Trash2,
   X,
   Zap,
 } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { Badge, Card, IconFrame, LinkButton } from "../components/ui";
 import { useAuth } from "../components/auth-provider";
@@ -1139,7 +1140,95 @@ export function ReflectionCards({
     id: string | number;
     title: string;
   } | null>(null);
-  const visibleReflections = reflections.filter((item) => !hiddenIds.has(item.id));
+  const [searchQuery, setSearchQuery] = useState("");
+  const [triggerFilter, setTriggerFilter] = useState("all");
+  const [needFilter, setNeedFilter] = useState("all");
+  const [patternFilter, setPatternFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const baseReflections = reflections.filter((item) => !hiddenIds.has(item.id));
+  const cardCache = useMemo(
+    () => new Map(baseReflections.map((item) => [item.id, toHistoryCard(item)])),
+    [baseReflections]
+  );
+  const filterCopy =
+    language === "zh"
+      ? {
+          search: "搜索历史记录",
+          allTriggers: "所有触发点",
+          allNeeds: "所有需要",
+          allPatterns: "所有模式",
+          allDates: "所有时间",
+          today: "今天",
+          week: "最近 7 天",
+          month: "最近 30 天",
+          noMatches: "没有符合筛选条件的反思记录。",
+          clear: "清除筛选",
+          trigger: "触发点",
+          need: "需要",
+          pattern: "模式",
+          nextStep: "下一步",
+        }
+      : {
+          search: "Search history",
+          allTriggers: "All triggers",
+          allNeeds: "All needs",
+          allPatterns: "All patterns",
+          allDates: "All dates",
+          today: "Today",
+          week: "Last 7 days",
+          month: "Last 30 days",
+          noMatches: "No reflections match those filters.",
+          clear: "Clear filters",
+          trigger: "Trigger",
+          need: "Unmet need",
+          pattern: "Pattern",
+          nextStep: "Next step",
+        };
+  const makeOptions = (values: string[]) =>
+    Array.from(new Set(values.filter(shouldDisplayNormalizedChip))).sort();
+  const triggerOptions = makeOptions(
+    baseReflections.map((item) => cardCache.get(item.id)?.normalizedTrigger ?? "")
+  );
+  const needOptions = makeOptions(
+    baseReflections.map((item) => cardCache.get(item.id)?.normalizedUnmetNeed ?? "")
+  );
+  const patternOptions = makeOptions(
+    baseReflections.map((item) => cardCache.get(item.id)?.normalizedThoughtPattern ?? "")
+  );
+  const visibleReflections = baseReflections.filter((item) => {
+    const card = cardCache.get(item.id);
+
+    if (!card) {
+      return false;
+    }
+
+    const query = searchQuery.trim().toLowerCase();
+    const searchable = [
+      card.originalInput,
+      card.trigger,
+      card.thoughtPattern,
+      card.unmetNeed,
+      card.oneSmallNextStep,
+      card.prompt2.emotionalSource,
+    ]
+      .join(" ")
+      .toLowerCase();
+    const created = new Date(item.created_at);
+    const now = new Date();
+    const diffDays = (now.getTime() - created.getTime()) / 86400000;
+
+    return (
+      (!query || searchable.includes(query)) &&
+      (triggerFilter === "all" || card.normalizedTrigger === triggerFilter) &&
+      (needFilter === "all" || card.normalizedUnmetNeed === needFilter) &&
+      (patternFilter === "all" ||
+        card.normalizedThoughtPattern === patternFilter) &&
+      (dateFilter === "all" ||
+        (dateFilter === "today" && created.toDateString() === now.toDateString()) ||
+        (dateFilter === "week" && diffDays <= 7) ||
+        (dateFilter === "month" && diffDays <= 30))
+    );
+  });
   const groupedReflections = visibleReflections.reduce<
     Array<{ label: string; items: Reflection[] }>
   >((groups, item) => {
@@ -1311,6 +1400,89 @@ export function ReflectionCards({
           </div>
         </div>
       )}
+      <div className="rounded-[24px] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.68)] p-3 shadow-[var(--shadow-sm)]">
+        <div className="grid gap-2 md:grid-cols-[1.2fr_repeat(4,minmax(0,0.7fr))]">
+          <label className="relative block">
+            <Search
+              aria-hidden="true"
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--foreground-subtle)]"
+            />
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder={filterCopy.search}
+              className="min-h-11 w-full rounded-full border border-[var(--border)] bg-[var(--surface)] py-2 pl-9 pr-3 text-sm text-[var(--foreground)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+            />
+          </label>
+          {[
+            {
+              value: triggerFilter,
+              onChange: setTriggerFilter,
+              all: filterCopy.allTriggers,
+              options: triggerOptions,
+            },
+            {
+              value: needFilter,
+              onChange: setNeedFilter,
+              all: filterCopy.allNeeds,
+              options: needOptions,
+            },
+            {
+              value: patternFilter,
+              onChange: setPatternFilter,
+              all: filterCopy.allPatterns,
+              options: patternOptions,
+            },
+          ].map((filter) => (
+            <select
+              key={filter.all}
+              value={filter.value}
+              onChange={(event) => filter.onChange(event.target.value)}
+              className="min-h-11 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-medium text-[var(--foreground-muted)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+            >
+              <option value="all">{filter.all}</option>
+              {filter.options.map((option) => (
+                <option key={option} value={option}>
+                  {localizedCanonicalLabel(option, language)}
+                </option>
+              ))}
+            </select>
+          ))}
+          <select
+            value={dateFilter}
+            onChange={(event) => setDateFilter(event.target.value)}
+            className="min-h-11 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 text-sm font-medium text-[var(--foreground-muted)] outline-none focus:border-[var(--brand-teal)] focus:ring-4 focus:ring-[var(--accent-ring)]"
+          >
+            <option value="all">{filterCopy.allDates}</option>
+            <option value="today">{filterCopy.today}</option>
+            <option value="week">{filterCopy.week}</option>
+            <option value="month">{filterCopy.month}</option>
+          </select>
+        </div>
+      </div>
+
+      {visibleReflections.length === 0 && (
+        <Card variant="support" className="text-center hover:translate-y-0">
+          <p className="text-sm leading-6 text-[var(--foreground-muted)]">
+            {filterCopy.noMatches}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery("");
+              setTriggerFilter("all");
+              setNeedFilter("all");
+              setPatternFilter("all");
+              setDateFilter("all");
+            }}
+            className="mt-3 rounded-full border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]"
+          >
+            {filterCopy.clear}
+          </button>
+        </Card>
+      )}
+
       {groupedReflections.map((group) => (
         <section key={group.label} aria-label={group.label}>
           <div className="mb-3 flex items-center gap-3">
@@ -1465,6 +1637,23 @@ export function ReflectionCards({
                             {localizedCanonicalLabel(checkedInSignal, language)}
                           </Badge>
                         )}
+                      </div>
+                      <div className="grid gap-2 rounded-[18px] border border-[rgba(40,80,60,0.07)] bg-[rgba(255,254,248,0.46)] p-3 text-xs leading-5 text-[var(--foreground-muted)] sm:grid-cols-2">
+                        {[
+                          [filterCopy.trigger, card.trigger],
+                          [filterCopy.pattern, card.thoughtPattern],
+                          [filterCopy.need, card.unmetNeed],
+                          [filterCopy.nextStep, card.oneSmallNextStep],
+                        ]
+                          .filter(([, value]) => Boolean(previewLine(value, 120)))
+                          .map(([label, value]) => (
+                            <p key={label}>
+                              <span className="font-semibold text-[var(--foreground-subtle)]">
+                                {label}:{" "}
+                              </span>
+                              {previewLine(value, 120)}
+                            </p>
+                          ))}
                       </div>
                     </div>
                     <span className="mt-3 inline-flex text-xs font-semibold text-[var(--brand-teal-deep)]">

@@ -14,6 +14,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { toast } from "sonner";
 import { Card, LinkButton, PageActions, PrimaryButton, SectionLabel } from "./ui";
 import { useAuth } from "./auth-provider";
 import { useLanguage } from "./language-provider";
@@ -619,6 +620,8 @@ export function ReflectionResultCard({
   const { session } = useAuth();
   const [history, setHistory] = useState<SavedReflectionSignal[]>([]);
   const [checkInState, setCheckInState] = useState("");
+  const [clarityFeedback, setClarityFeedback] = useState("");
+  const [clarityIssue, setClarityIssue] = useState("");
   const sections = structured
     ? null
     : parseSections(result);
@@ -637,6 +640,32 @@ export function ReflectionResultCard({
   const isStructured = Boolean(structured);
   const isPrompt2 = Boolean(structured?.emotional_source || structured?.demon_names?.length);
   const labels = displayT.reflectionCard;
+  const feedbackCopy =
+    displayLanguage === "zh"
+      ? {
+          question: "这张卡片有没有让这个时刻更清楚？",
+          yes: "有",
+          somewhat: "有一点",
+          no: "没有",
+          offQuestion: "哪里不太对？",
+          issues: ["太泛泛", "太长", "误解了我", "措辞不安全", "其他"],
+          saved: "已记录。谢谢你。",
+        }
+      : {
+          question: "Did this card make the moment clearer?",
+          yes: "Yes",
+          somewhat: "Somewhat",
+          no: "No",
+          offQuestion: "What felt off?",
+          issues: [
+            "Too generic",
+            "Too long",
+            "Misunderstood me",
+            "Unsafe wording",
+            "Other",
+          ],
+          saved: "Noted. Thank you.",
+        };
   const resultState = (() => {
     if (noSaveMode) {
       return {
@@ -676,6 +705,20 @@ export function ReflectionResultCard({
         "border-[rgba(40,80,60,0.1)] bg-[rgba(255,254,248,0.74)] text-[var(--foreground-muted)]",
     };
   })();
+  const utilityCopy =
+    displayLanguage === "zh"
+      ? {
+          copy: "复制卡片",
+          copied: "反思卡片已复制。",
+          keepUnsaved: "保持未保存",
+          checkLater: "稍后回看",
+        }
+      : {
+          copy: "Copy card",
+          copied: "Reflection card copied.",
+          keepUnsaved: "Keep unsaved",
+          checkLater: "Check in later",
+        };
   const factItems = compactItems(canonical?.factsSummary);
   const interpretationItems = compactItems(canonical?.interpretationSummary);
   const repeatedPatternCount = useMemo(
@@ -720,6 +763,34 @@ export function ReflectionResultCard({
       active = false;
     };
   }, [session?.access_token, structured]);
+
+  async function copyCard() {
+    const text = [
+      labels.title,
+      canonical?.emotionalValidation,
+      canonical?.triggerLabel && `${labels.trigger}: ${canonical.triggerLabel}`,
+      canonical?.factsSummary.length
+        ? `${labels.facts}: ${canonical.factsSummary.join("; ")}`
+        : "",
+      canonical?.interpretationSummary.length
+        ? `${labels.interpretation}: ${canonical.interpretationSummary.join("; ")}`
+        : "",
+      canonical?.unmetNeed && `${displayLanguage === "zh" ? "未被满足的需要" : "Unmet need"}: ${canonical.unmetNeed}`,
+      canonical?.thoughtPatternLabel &&
+        `${labels.thoughtPattern}: ${canonical.thoughtPatternLabel}`,
+      canonical?.nextStep && `${labels.nextStep}: ${canonical.nextStep}`,
+      labels.safetyNote,
+    ]
+      .filter(Boolean)
+      .join("\n\n");
+
+    try {
+      await navigator.clipboard.writeText(text || result);
+      toast.success(utilityCopy.copied);
+    } catch {
+      toast.error(displayT.common.aiGeneric);
+    }
+  }
 
   const gentleObservation = (() => {
     if (!structured) {
@@ -990,6 +1061,25 @@ export function ReflectionResultCard({
               </PrimaryButton>
             )}
           </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void copyCard()}
+              className="inline-flex min-h-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-1.5 text-xs font-semibold text-[var(--foreground-muted)] transition hover:text-[var(--foreground)]"
+            >
+              {utilityCopy.copy}
+            </button>
+            {noSaveMode && (
+              <span className="inline-flex min-h-9 items-center justify-center rounded-full border border-[rgba(180,90,45,0.14)] bg-[rgba(255,248,226,0.72)] px-3 py-1.5 text-xs font-semibold text-[var(--foreground-muted)]">
+                {utilityCopy.keepUnsaved}
+              </span>
+            )}
+            {saved && (
+              <LinkButton href="/dashboard/history" variant="ghost" size="sm">
+                {utilityCopy.checkLater}
+              </LinkButton>
+            )}
+          </div>
           {!showActions &&
             !saving &&
             (onReflectAgain ? (
@@ -1011,6 +1101,70 @@ export function ReflectionResultCard({
                 {labels.reflectAgain}
               </LinkButton>
             ))}
+          <div className="mt-5 rounded-[1.25rem] border border-[rgba(40,80,60,0.08)] bg-[rgba(255,254,248,0.66)] p-3.5">
+            <p className="text-sm font-semibold text-[var(--foreground)]">
+              {feedbackCopy.question}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {[
+                ["yes", feedbackCopy.yes],
+                ["somewhat", feedbackCopy.somewhat],
+                ["no", feedbackCopy.no],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => {
+                    setClarityFeedback(value);
+                    if (value !== "no") {
+                      setClarityIssue("");
+                    }
+                  }}
+                  className={[
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent-ring)]",
+                    clarityFeedback === value
+                      ? "border-[rgba(31,155,143,0.32)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                      : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]",
+                  ].join(" ")}
+                >
+                  {clarityFeedback === value && (
+                    <CheckCircle2 size={13} strokeWidth={2} aria-hidden="true" />
+                  )}
+                  {label}
+                </button>
+              ))}
+            </div>
+            {clarityFeedback === "no" && (
+              <div className="mt-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--foreground-subtle)]">
+                  {feedbackCopy.offQuestion}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {feedbackCopy.issues.map((issue) => (
+                    <button
+                      key={issue}
+                      type="button"
+                      onClick={() => setClarityIssue(issue)}
+                      className={[
+                        "rounded-full border px-3 py-1.5 text-xs font-medium transition",
+                        clarityIssue === issue
+                          ? "border-[rgba(31,155,143,0.32)] bg-[var(--accent-soft)] text-[var(--brand-teal-deep)]"
+                          : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-muted)] hover:text-[var(--foreground)]",
+                      ].join(" ")}
+                    >
+                      {issue}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {clarityFeedback && (
+              <p className="mt-3 text-xs text-[var(--foreground-subtle)]">
+                {feedbackCopy.saved}
+              </p>
+            )}
+          </div>
+
           <div className="mt-4 flex flex-wrap gap-2">
             {[
               ["helped", labels.helpful],
