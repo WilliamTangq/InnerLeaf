@@ -3,11 +3,11 @@ import { expect, test } from "@playwright/test";
 const routes = [
   {
     path: "/",
-    heading: "See the pattern behind your emotional reactions.",
+    heading: "Pause. Reflect. Respond.",
   },
   { path: "/feedback", heading: "Share feedback" },
   { path: "/test", heading: "Test InnerLeaf" },
-  { path: "/demo", heading: "Try the InnerLeaf structure" },
+  { path: "/demo", heading: "InnerLeaf Demo Flow" },
   { path: "/about", heading: "About InnerLeaf" },
   { path: "/privacy", heading: "Privacy & Safety Principles" },
   { path: "/faq", heading: "FAQ" },
@@ -52,7 +52,7 @@ for (const route of routes) {
     await expect(
       page.getByText("InnerLeaf", { exact: true }).first()
     ).toBeVisible();
-    await expect(page.getByText("Follow InnerLeaf")).toBeVisible();
+    await expect(page.getByText("Follow InnerLeaf").first()).toBeVisible();
   });
 }
 
