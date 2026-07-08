@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Toaster } from "sonner";
 import { AuthProvider } from "./components/auth-provider";
 import { LanguageProvider } from "./components/language-provider";
+import { SmoothScrollProvider } from "./components/smooth-scroll-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,6 +54,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <LanguageProvider>
+          <SmoothScrollProvider />
           <AuthProvider>{children}</AuthProvider>
         </LanguageProvider>
         <Toaster

@@ -149,12 +149,11 @@ export const translations = {
       },
     },
     home: {
-      badge: "Private self-reflection",
-      headline: "Pause. Reflect. Respond.",
-      valueLine:
-        "See the pattern behind your emotional reactions.",
+      badge: "Reflect before you react",
+      headline: "See the pattern behind your emotional reactions.",
+      valueLine: "Pause. Reflect. Respond.",
       subtitle:
-        "InnerLeaf helps you separate what happened, what your mind assumed, what you felt, and what you can do next — without turning it into an endless chat.",
+        "InnerLeaf turns one intense emotional moment into a structured reflection card — separating facts, assumptions, feelings, and one small next step.",
       safety: "Private self-reflection. Not therapy, diagnosis, crisis support, or medical advice.",
       ctaHint:
         "Try the fictional demo first. Start a private reflection when you are ready.",
@@ -1718,11 +1717,11 @@ export const translations = {
       },
     },
     home: {
-      badge: "私人自我反思",
-      headline: "先看清，再回应。",
-      valueLine: "把一次强烈情绪，整理成一张清晰的反思卡片。",
+      badge: "回应之前先整理清楚",
+      headline: "看见你情绪反应背后的模式。",
+      valueLine: "先暂停，再反思，再回应。",
       subtitle:
-        "InnerLeaf 帮你区分发生了什么、你当时怎么理解、你真实感受到什么，以及下一步可以先做什么——而不是让情绪变成一场没有尽头的聊天。",
+        "InnerLeaf 帮你把一次强烈情绪波动整理成清晰的 reflection card：区分事实、假设、感受，并给出一个小的下一步。",
       safety: "私人自我反思。不是治疗、诊断、危机支持或医疗建议。",
       ctaHint:
         "可以先体验虚构演示；准备好时再进入私人反思空间。",
