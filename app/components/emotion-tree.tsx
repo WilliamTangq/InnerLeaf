@@ -440,6 +440,15 @@ export function EmotionTree({
                       selectedLeaf.relatedReflectionCount === 1 ? "" : "s"
                     } have touched this branch.`}
               </p>
+              {/* TODO: Let History read this emotion query to filter saved cards by leaf metadata. */}
+              <a
+                href={`/dashboard/history?emotion=${encodeURIComponent(selectedLeaf.id)}`}
+                className="mt-3 inline-flex text-sm font-semibold text-[var(--brand-teal-deep)] underline-offset-4 hover:underline"
+              >
+                {selectedLeaf.relatedReflectionCount === 0
+                  ? "Open history"
+                  : "View related reflections"}
+              </a>
             </div>
           )}
 
