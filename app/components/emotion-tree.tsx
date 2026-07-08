@@ -10,15 +10,17 @@ type EmotionLeaf = {
   id: string;
   label: string;
   status: EmotionStatus;
+  branch: string;
   x: number;
   y: number;
   rotate: number;
   size: number;
   explanation: string;
   commonTrigger: string;
-  commonStory: string;
-  commonUrge: string;
+  pattern: string;
+  meaning: string;
   whatHelped: string;
+  relatedReflectionCount?: number;
 };
 
 export type EmotionTreeProps = {
@@ -32,73 +34,91 @@ const sampleEmotionLeaves: EmotionLeaf[] = [
     id: "anxiety",
     label: "Anxiety",
     status: "lit",
+    branch: "Uncertainty branch",
     x: 188,
     y: 92,
     rotate: -28,
     size: 34,
     explanation: "A signal that your mind is trying to predict risk before you have enough information.",
     commonTrigger: "Uncertainty, delayed replies, unclear expectations.",
-    commonStory: "Something is wrong, and I need to solve it now.",
-    commonUrge: "Check, reread, ask for reassurance, or mentally replay.",
+    pattern: "Mind fills in missing information before the facts arrive.",
+    meaning: "This leaf lights up when a reflection involves uncertainty and the urge to act quickly.",
     whatHelped: "Separate one fact from one assumption before responding.",
+    relatedReflectionCount: 4,
   },
   {
     id: "overwhelmed",
     label: "Overwhelmed",
     status: "veined",
+    branch: "Pressure branch",
     x: 258,
     y: 138,
     rotate: 24,
     size: 38,
     explanation: "A sign that too many demands are competing for attention at once.",
     commonTrigger: "Workload pressure, deadlines, too many open loops.",
-    commonStory: "If I cannot do all of it, I am already failing.",
-    commonUrge: "Freeze, avoid starting, or jump between tasks.",
+    pattern: "All-or-nothing planning makes the first step feel too large.",
+    meaning: "Veins appear when the same pressure pattern has shown up more than once.",
     whatHelped: "Choose one 10-minute starting action and stop there.",
+    relatedReflectionCount: 3,
   },
   {
     id: "disappointed",
     label: "Disappointed",
     status: "mapped",
+    branch: "Expectation branch",
     x: 136,
     y: 158,
     rotate: -52,
     size: 32,
     explanation: "A response to the gap between what you hoped for and what happened.",
     commonTrigger: "Plans changing, effort not being noticed, expectations not met.",
-    commonStory: "This means it mattered more to me than to them.",
-    commonUrge: "Withdraw, go quiet, or dismiss the need as too much.",
+    pattern: "The mind turns unmet expectation into a story about importance.",
+    meaning: "Mapped leaves connect a trigger, story, and reaction clearly enough to revisit.",
     whatHelped: "Name the need without blaming yourself for having it.",
+    relatedReflectionCount: 2,
   },
   {
     id: "jealous",
     label: "Jealous",
     status: "dimmed",
+    branch: "Comparison branch",
     x: 310,
     y: 78,
     rotate: 46,
     size: 30,
     explanation: "A signal that comparison may be pointing toward a need or fear.",
     commonTrigger: "Seeing someone else receive progress, attention, or ease.",
-    commonStory: "They are moving ahead, and I am falling behind.",
-    commonUrge: "Keep checking the comparison source or collect more evidence.",
+    pattern: "Comparison makes another person's progress feel like evidence against you.",
+    meaning: "Dimmed leaves are possible patterns that have not appeared clearly in saved reflections yet.",
     whatHelped: "Step away from the comparison source and return to one personal need.",
+    relatedReflectionCount: 0,
   },
   {
     id: "frustrated",
     label: "Frustrated",
     status: "learned",
+    branch: "Friction branch",
     x: 218,
     y: 206,
     rotate: 8,
     size: 36,
     explanation: "A sign that something feels blocked, unfair, or harder than expected.",
     commonTrigger: "Miscommunication, repeated obstacles, feeling unheard.",
-    commonStory: "This should not be this difficult.",
-    commonUrge: "Push harder, send a sharp message, or shut down.",
+    pattern: "Blocked effort pulls you toward pushing harder before clarifying the request.",
+    meaning: "Learned leaves mark patterns where a later check-in showed what actually helped.",
     whatHelped: "Pause before acting and clarify the specific request.",
+    relatedReflectionCount: 5,
   },
 ];
+
+const statusLabels: Record<EmotionStatus, string> = {
+  dimmed: "Not yet clear",
+  lit: "Recently lit",
+  veined: "Repeated",
+  mapped: "Mapped",
+  learned: "Learned",
+};
 
 const statusStyles: Record<
   EmotionStatus,
@@ -260,19 +280,37 @@ export function EmotionTree({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.72fr)] lg:items-center">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--foreground-subtle)]">
-            Inner Tree
+            Reaction Map
           </p>
           <h2
             id="emotion-tree-heading"
             className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight text-[var(--foreground)] sm:text-[2.15rem] sm:leading-tight"
           >
-            See the pattern behind your emotional reactions.
+            Your Inner Tree grows from repeated moments.
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--foreground-muted)] sm:text-base">
-            Every reflection lights up one part of your Inner Tree. Over time,
-            InnerLeaf helps you see what triggers each emotion, what story your
-            mind adds, how you tend to react, and what actually helps.
+            Each reflection lights up a leaf. Over time, InnerLeaf shows which
+            triggers, stories, reactions, and helpful steps keep returning.
           </p>
+          <div className="mt-5 grid gap-2 sm:grid-cols-3">
+            {[
+              ["Reaction Map", "Related triggers cluster around the same branch."],
+              ["What Actually Helped", "Later check-ins show which actions settled the moment."],
+              ["Monthly Pattern Review", "Premium is learning what keeps happening to you."],
+            ].map(([title, body]) => (
+              <div
+                key={title}
+                className="rounded-2xl border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.58)] px-3.5 py-3"
+              >
+                <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--brand-teal-deep)]">
+                  {title}
+                </p>
+                <p className="mt-1.5 text-xs leading-5 text-[var(--foreground-muted)]">
+                  {body}
+                </p>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-6 rounded-[1.75rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(255,254,248,0.62)] p-3 shadow-[var(--shadow-soft)]">
             <svg
@@ -354,9 +392,12 @@ export function EmotionTree({
               <h3 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--foreground)]">
                 {selectedLeaf.label}
               </h3>
+              <p className="mt-1 text-sm font-medium text-[var(--brand-teal-deep)]">
+                {selectedLeaf.branch}
+              </p>
             </div>
             <span className="rounded-full border border-[rgba(31,155,143,0.16)] bg-[var(--accent-soft)] px-3 py-1 text-xs font-semibold text-[var(--brand-teal-deep)]">
-              {selectedLeaf.status}
+              {statusLabels[selectedLeaf.status]}
             </span>
           </div>
 
@@ -366,9 +407,11 @@ export function EmotionTree({
 
           <div className="mt-5 grid gap-3">
             {[
-              ["Common trigger", selectedLeaf.commonTrigger],
-              ["Common story", selectedLeaf.commonStory],
-              ["Common urge", selectedLeaf.commonUrge],
+              ["Emotion", selectedLeaf.label],
+              ["Branch", selectedLeaf.branch],
+              ["Trigger", selectedLeaf.commonTrigger],
+              ["Pattern", selectedLeaf.pattern],
+              ["What this leaf means", selectedLeaf.meaning],
               ["What helped", selectedLeaf.whatHelped],
             ].map(([label, value]) => (
               <div
@@ -383,6 +426,31 @@ export function EmotionTree({
                 </p>
               </div>
             ))}
+          </div>
+
+          {typeof selectedLeaf.relatedReflectionCount === "number" && (
+            <div className="mt-4 rounded-[1.25rem] border border-[rgba(31,155,143,0.12)] bg-[rgba(232,246,241,0.54)] px-4 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+                Related reflections
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[var(--foreground-muted)]">
+                {selectedLeaf.relatedReflectionCount === 0
+                  ? "No saved reflections have mapped this leaf yet."
+                  : `${selectedLeaf.relatedReflectionCount} saved reflection${
+                      selectedLeaf.relatedReflectionCount === 1 ? "" : "s"
+                    } have touched this branch.`}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-5 rounded-[1.35rem] border border-[rgba(217,179,74,0.18)] bg-[rgba(255,248,226,0.42)] px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.13em] text-[var(--foreground-subtle)]">
+              Pattern Memory
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[var(--foreground-muted)]">
+              Premium unlocks Pattern Memory: Reaction Map, What Actually
+              Helped, Later Check-ins, and Monthly Pattern Review.
+            </p>
           </div>
         </aside>
       </div>

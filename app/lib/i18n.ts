@@ -463,9 +463,9 @@ export const translations = {
     },
     pricing: {
       title: "Public beta pricing",
-      short: "Free now, with premium pattern tools planned",
+      short: "Free now, with Pattern Memory planned",
       purpose:
-        "InnerLeaf is free during public beta. We are testing which deeper reflection tools would feel worth paying for later.",
+        "InnerLeaf is free during public beta. Premium is not more AI. Premium is learning what keeps happening to you over time.",
       plans: [
         [
           "Free Beta",
@@ -475,7 +475,7 @@ export const translations = {
         [
           "Future Premium",
           "Planned",
-          "Potential upgrades include unlimited reflection cards, deeper pattern memory, export history, and weekly review.",
+          "Potential upgrades include Reaction Map, Pattern Memory, what actually helped, later check-ins, and monthly pattern review.",
         ],
         [
           "Student Access",
@@ -485,15 +485,15 @@ export const translations = {
       ],
       premiumHooksTitle: "What premium might unlock",
       premiumHooks: [
-        "Unlimited reflection cards",
-        "Deeper repeated-trigger memory",
+        "Reaction Map for repeated triggers",
+        "Pattern Memory for thoughts and urges that return",
+        "What Actually Helped across later check-ins",
+        "Monthly Pattern Review",
         "Exportable reflection history",
-        "Weekly review of what helped",
-        "More control over saved data",
       ],
       waitlistTitle: "Help shape premium before it exists.",
       waitlistBody:
-        "No payment is enabled today. If deeper pattern memory would be valuable, tell us through Feedback so we can build the right version first.",
+        "No payment is enabled today. If seeing what keeps repeating over time would be valuable, tell us through Feedback so we can build the right version first.",
       waitlistCta: "Share premium feedback",
       note:
         "No payment is enabled in the public beta. InnerLeaf is collecting product feedback before turning on any paid plan.",
@@ -2025,9 +2025,9 @@ export const translations = {
     },
     pricing: {
       title: "公开测试版价格",
-      short: "现在免费，未来计划加入更深入的模式工具",
+      short: "现在免费，未来计划加入模式记忆",
       purpose:
-        "InnerLeaf 在公开测试阶段免费。我们正在测试哪些更深入的反思工具，未来值得做成付费功能。",
+        "InnerLeaf 在公开测试阶段免费。高级版不是更多 AI，而是帮助你看见什么一直在重复发生。",
       plans: [
         [
           "免费测试版",
@@ -2037,7 +2037,7 @@ export const translations = {
         [
           "未来高级版",
           "计划中",
-          "未来可能加入无限反思卡片、更深入的模式记忆、历史导出和每周回看。",
+          "未来可能加入反应地图、模式记忆、哪些行动真的有帮助、稍后回看和每月模式回顾。",
         ],
         [
           "学生使用",
@@ -2047,15 +2047,15 @@ export const translations = {
       ],
       premiumHooksTitle: "未来高级版可能包含",
       premiumHooks: [
-        "无限反思卡片",
-        "更深入的重复触发点记忆",
+        "重复触发点的反应地图",
+        "记录反复出现想法和冲动的模式记忆",
+        "从稍后回看中看见哪些行动真的有帮助",
+        "每月模式回顾",
         "导出反思历史",
-        "每周回看哪些方法有帮助",
-        "更多保存数据控制",
       ],
       waitlistTitle: "在高级版出现前，帮我们判断什么值得做。",
       waitlistBody:
-        "目前没有启用付款。如果更深入的模式记忆对你有价值，可以通过反馈告诉我们。",
+        "目前没有启用付款。如果看见长期重复模式对你有价值，可以通过反馈告诉我们。",
       waitlistCta: "分享高级版反馈",
       note:
         "公开测试阶段暂不启用付款。InnerLeaf 会先收集产品反馈，再决定是否开启付费方案。",
